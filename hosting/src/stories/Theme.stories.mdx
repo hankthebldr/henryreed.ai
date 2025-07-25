@@ -1,0 +1,136 @@
+import { Meta } from '@storybook/blocks';
+import { ThemeProvider } from '../components/theme/ThemeProvider';
+import { ThemeToggle } from '../components/theme/ThemeToggle';
+import { ColorPalette } from '../components/theme/ColorPalette';
+
+<Meta title="Design System/Theme" />
+
+# Theme System
+
+This design system implements a comprehensive theming solution based on GitHub's dark theme palette with accessible contrast ratios and full light/dark mode support.
+
+## Features
+
+- **GitHub-dark inspired colors** with accessible contrast ratios (WCAG AA compliant)
+- **CSS Custom Properties** for runtime theme switching
+- **localStorage persistence** with system preference detection
+- **Responsive to `prefers-color-scheme`** media query
+- **TypeScript support** with full type safety
+- **Tailwind CSS integration** via CSS variables
+
+## Usage
+
+### 1. Theme Provider
+
+Wrap your application with the `ThemeProvider` to enable theme switching:
+
+```tsx
+import { ThemeProvider } from './components/theme/ThemeProvider';
+
+function App() {
+  return (
+    <ThemeProvider>
+      <YourAppContent />
+    </ThemeProvider>
+  );
+}
+```
+
+### 2. Theme Toggle
+
+Use the `ThemeToggle` component to let users switch themes:
+
+```tsx
+import { ThemeToggle } from './components/theme/ThemeToggle';
+
+function Header() {
+  return (
+    <header>
+      <ThemeToggle />
+    </header>
+  );
+}
+```
+
+### 3. Using Theme Colors in Components
+
+Use Tailwind classes with the theme-aware color tokens:
+
+```tsx
+function MyComponent() {
+  return (
+    <div className="bg-canvas-default text-fg-default border border-border-default">
+      <h1 className="text-accent-fg">Title</h1>
+      <p className="text-fg-muted">Description</p>
+      <button className="bg-accent-emphasis text-fg-on-emphasis hover:bg-accent-fg">
+        Action
+      </button>
+    </div>
+  );
+}
+```
+
+### 4. Direct Hook Usage
+
+For advanced use cases, use the `useTheme` hook directly:
+
+```tsx
+import { useTheme } from './theme/useTheme';
+
+function MyComponent() {
+  const { theme, toggleTheme, resetToSystemTheme, isSystemTheme } = useTheme();
+  
+  return (
+    <div>
+      <p>Current theme: {theme}</p>
+      <button onClick={toggleTheme}>Toggle Theme</button>
+      {!isSystemTheme && (
+        <button onClick={resetToSystemTheme}>Reset to System</button>
+      )}
+    </div>
+  );
+}
+```
+
+## Color System
+
+The theme provides semantic color tokens organized into categories:
+
+- **Canvas**: Background colors (`canvas-default`, `canvas-overlay`, `canvas-inset`, `canvas-subtle`)
+- **Foreground**: Text colors (`fg-default`, `fg-muted`, `fg-subtle`, `fg-on-emphasis`)
+- **Border**: Border colors (`border-default`, `border-muted`, `border-subtle`)
+- **Accent**: Primary action colors (`accent-fg`, `accent-emphasis`, `accent-muted`, `accent-subtle`)
+- **Success**: Success state colors (`success-fg`, `success-emphasis`, etc.)
+- **Attention**: Warning/attention colors (`attention-fg`, `attention-emphasis`, etc.)
+- **Danger**: Error/danger colors (`danger-fg`, `danger-emphasis`, etc.)
+- **Terminal**: Special terminal colors (maintained for compatibility)
+
+## Typography
+
+The system includes a complete typography scale:
+
+- **Font families**: `font-sans`, `font-mono`, `font-terminal`
+- **Font sizes**: `text-xs` through `text-6xl`
+- **Font weights**: `font-thin` through `font-black`
+- **Line heights**: `leading-none` through `leading-loose`
+
+## Spacing
+
+Consistent spacing scale based on 4px increments:
+
+- **Spacing**: `space-0.5` (2px) through `space-96` (384px)
+- **Border radius**: `rounded-none` through `rounded-3xl`
+- **Box shadows**: Including special terminal glows
+
+## Browser Support
+
+- Modern browsers with CSS Custom Properties support
+- Graceful fallback to dark theme for older browsers
+- Respects system preferences on supported platforms
+
+## Accessibility
+
+- All color combinations meet WCAG AA contrast requirements
+- Supports `prefers-color-scheme` media query
+- Keyboard navigation support for theme toggle
+- Screen reader friendly labels and descriptions

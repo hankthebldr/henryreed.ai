@@ -13,7 +13,7 @@ interface HistoryItem {
 
 const ReactTerminalEmulator = () => {
   const [history, setHistory] = useState<HistoryItem[]>([
-    { type: 'output', content: 'Welcome to React Terminal Emulator! Type "help" for commands.' }
+    { type: 'output' as const, content: 'Welcome to React Terminal Emulator! Type "help" for commands.' }
   ]);
   const [currentInput, setCurrentInput] = useState('');
 
@@ -41,7 +41,7 @@ const ReactTerminalEmulator = () => {
       name: 'clear',
       description: 'Clear the terminal',
       handler: () => {
-        setHistory([{ type: 'output', content: 'Terminal cleared.' }]);
+        setHistory([{ type: 'output' as const, content: 'Terminal cleared.' }]);
         return '';
       }
     },
@@ -70,8 +70,8 @@ const ReactTerminalEmulator = () => {
         const output = handleCommand(input);
         setHistory(prev => [
           ...prev,
-          { type: 'command', content: `henry@terminal:~$ ${input}` },
-          ...(output ? [{ type: 'output', content: output }] : [])
+          { type: 'command' as const, content: `henry@terminal:~$ ${input}` },
+          ...(output ? [{ type: 'output' as const, content: output }] : [])
         ]);
         setCurrentInput('');
       }

@@ -1,6 +1,8 @@
+/* Temporarily disabled tailwindcss imports
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+*/
 
 /* Import hack.css */
 @import url('https://unpkg.com/hack-css@0.8.1/css/hack.css');
@@ -8,14 +10,66 @@
 /* Import Google Fonts for terminal styling */
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Share+Tech+Mono&display=swap');
 
-/* Custom global terminal styles */
+/* Theme CSS Custom Properties - Default (Dark) */
+:root {
+  /* Background variables */
+  --color-canvas-default: #0d1117;
+  --color-canvas-overlay: #161b22;
+  --color-canvas-inset: #010409;
+  --color-canvas-subtle: #21262d;
+  
+  /* Foreground variables */
+  --color-fg-default: #f0f6fc;
+  --color-fg-muted: #8b949e;
+  --color-fg-subtle: #6e7681;
+  --color-fg-on-emphasis: #ffffff;
+  
+  /* Border variables */
+  --color-border-default: #30363d;
+  --color-border-muted: #21262d;
+  --color-border-subtle: #484f58;
+  
+  /* Accent variables */
+  --color-accent-fg: #58a6ff;
+  --color-accent-emphasis: #1f6feb;
+  --color-accent-muted: rgba(88, 166, 255, 0.4);
+  --color-accent-subtle: rgba(88, 166, 255, 0.15);
+  
+  /* Success variables */
+  --color-success-fg: #3fb950;
+  --color-success-emphasis: #238636;
+  --color-success-muted: rgba(63, 185, 80, 0.4);
+  --color-success-subtle: rgba(63, 185, 80, 0.15);
+  
+  /* Warning variables */
+  --color-attention-fg: #d29922;
+  --color-attention-emphasis: #9a6700;
+  --color-attention-muted: rgba(210, 153, 34, 0.4);
+  --color-attention-subtle: rgba(210, 153, 34, 0.15);
+  
+  /* Danger variables */
+  --color-danger-fg: #f85149;
+  --color-danger-emphasis: #da3633;
+  --color-danger-muted: rgba(248, 81, 73, 0.4);
+  --color-danger-subtle: rgba(248, 81, 73, 0.15);
+  
+  /* Terminal variables */
+  --color-terminal-green: #00ff00;
+  --color-terminal-amber: #ffbf00;
+  --color-terminal-cyan: #00ffff;
+  --color-terminal-red: #ff0000;
+  --color-terminal-blue: #0080ff;
+  --color-terminal-purple: #8000ff;
+}
+
+/* Custom global styles */
 html,
 body {
   padding: 0;
   margin: 0;
   font-family: 'JetBrains Mono', 'Consolas', monospace;
-  background-color: #0d1117;
-  color: #00ff00;
+  background-color: var(--color-canvas-default);
+  color: var(--color-fg-default);
   overflow-x: hidden;
 }
 
@@ -25,7 +79,11 @@ body {
 
 /* Terminal cursor animation */
 .terminal-cursor {
-  @apply inline-block bg-terminal-green w-2 h-5 animate-terminal-blink;
+  display: inline-block;
+  background-color: var(--color-terminal-green);
+  width: 0.5rem;
+  height: 1.25rem;
+  animation: terminal-blink 1s linear infinite;
 }
 
 /* XTerm.js custom styles */
@@ -121,7 +179,42 @@ body {
 
 /* Glitch effect utility class */
 .glitch-text {
-  @apply animate-glitch;
+  animation: glitch 0.3s ease-in-out infinite alternate-reverse;
+}
+
+/* Add missing keyframes */
+@keyframes terminal-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes matrix-rain {
+  0% { transform: translateY(-100vh); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes glitch {
+  0% {
+    text-shadow: 0.05em 0 0 #00ffff, -0.03em -0.04em 0 #ff00ff, 0.025em 0.04em 0 #ffff00;
+  }
+  15% {
+    text-shadow: 0.05em 0 0 #00ffff, -0.03em -0.04em 0 #ff00ff, 0.025em 0.04em 0 #ffff00;
+  }
+  16% {
+    text-shadow: -0.05em -0.025em 0 #00ffff, 0.025em 0.035em 0 #ff00ff, -0.05em -0.05em 0 #ffff00;
+  }
+  49% {
+    text-shadow: -0.05em -0.025em 0 #00ffff, 0.025em 0.035em 0 #ff00ff, -0.05em -0.05em 0 #ffff00;
+  }
+  50% {
+    text-shadow: 0.05em 0.035em 0 #00ffff, 0.03em 0 0 #ff00ff, 0 -0.04em 0 #ffff00;
+  }
+  99% {
+    text-shadow: 0.05em 0.035em 0 #00ffff, 0.03em 0 0 #ff00ff, 0 -0.04em 0 #ffff00;
+  }
+  100% {
+    text-shadow: -0.05em 0 0 #00ffff, -0.025em -0.04em 0 #ff00ff, -0.04em -0.025em 0 #ffff00;
+  }
 }
 
 /* Scrollbar styling */

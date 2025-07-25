@@ -106,6 +106,95 @@ export default function HomePage() {
           </div>
         </main>
 
+        {/* Latest Blog Posts */}
+        <section className="mt-16">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-terminal-green mb-4 font-mono">
+              &gt; LATEST_POSTS.LOG
+            </h2>
+            <p className="text-terminal-cyan font-mono">
+              Recent articles and technical insights
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-hack-surface border border-terminal-green rounded-lg p-6 hover:border-terminal-cyan transition-colors duration-300">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs font-mono text-terminal-amber bg-hack-background px-2 py-1 rounded">
+                  Development
+                </span>
+                <time className="text-xs font-mono text-terminal-green">
+                  2024-01-15
+                </time>
+              </div>
+              
+              <h3 className="text-lg font-mono text-terminal-green mb-2 hover:text-terminal-cyan transition-colors">
+                <a href="/blog/building-terminal-interfaces-nextjs">
+                  Building Terminal Interfaces with Next.js
+                </a>
+              </h3>
+              
+              <p className="text-terminal-green text-sm mb-4">
+                Exploring modern approaches to creating web-based terminal emulators.
+              </p>
+              
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs font-mono text-terminal-cyan px-2 py-1 bg-hack-background rounded">
+                  #Next.js
+                </span>
+                <span className="text-xs font-mono text-terminal-cyan px-2 py-1 bg-hack-background rounded">
+                  #Terminal
+                </span>
+                <span className="text-xs font-mono text-terminal-cyan px-2 py-1 bg-hack-background rounded">
+                  #React
+                </span>
+              </div>
+            </div>
+            
+            <div className="bg-hack-surface border border-terminal-green rounded-lg p-6 hover:border-terminal-cyan transition-colors duration-300">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs font-mono text-terminal-amber bg-hack-background px-2 py-1 rounded">
+                  Tutorial
+                </span>
+                <time className="text-xs font-mono text-terminal-green">
+                  2024-01-10
+                </time>
+              </div>
+              
+              <h3 className="text-lg font-mono text-terminal-green mb-2 hover:text-terminal-cyan transition-colors">
+                <a href="/blog/xterm-integration-patterns">
+                  XTerm.js Integration Patterns
+                </a>
+              </h3>
+              
+              <p className="text-terminal-green text-sm mb-4">
+                Best practices for integrating XTerm.js in React applications.
+              </p>
+              
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs font-mono text-terminal-cyan px-2 py-1 bg-hack-background rounded">
+                  #XTerm.js
+                </span>
+                <span className="text-xs font-mono text-terminal-cyan px-2 py-1 bg-hack-background rounded">
+                  #React
+                </span>
+                <span className="text-xs font-mono text-terminal-cyan px-2 py-1 bg-hack-background rounded">
+                  #TypeScript
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center mt-8">
+            <a
+              href="/blog"
+              className="inline-block px-6 py-3 border border-terminal-green text-terminal-green hover:bg-terminal-green hover:text-hack-background transition-all font-mono"
+            >
+              VIEW_ALL_POSTS &gt;&gt;
+            </a>
+          </div>
+        </section>
+
         <footer className="mt-12 text-center">
           <div className="border-t border-terminal-green pt-6">
             <p className="text-terminal-green font-mono text-sm">
