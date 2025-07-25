@@ -2,7 +2,18 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+// Minimal inline SVG icons to replace @heroicons/react dependency
+const Bars3Icon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+);
+
+const XMarkIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M6 6l12 12M6 18L18 6" />
+  </svg>
+);
 
 const navigation = [
   { name: 'Home', href: '/' },
