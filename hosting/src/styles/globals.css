@@ -1,8 +1,6 @@
-/* Temporarily disabled tailwindcss imports
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
-*/
 
 /* Import hack.css */
 @import url('https://unpkg.com/hack-css@0.8.1/css/hack.css');
@@ -12,6 +10,19 @@
 
 /* Theme CSS Custom Properties - Default (Dark) */
 :root {
+  /* Primary brand colors */
+  --primary-50: #eff6ff;
+  --primary-100: #dbeafe;
+  --primary-200: #bfdbfe;
+  --primary-300: #93c5fd;
+  --primary-400: #60a5fa;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-700: #1d4ed8;
+  --primary-800: #1e40af;
+  --primary-900: #1e3a8a;
+  --primary-950: #172554;
+  
   /* Background variables */
   --color-canvas-default: #0d1117;
   --color-canvas-overlay: #161b22;

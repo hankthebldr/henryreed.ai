@@ -1,0 +1,939 @@
+```html
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CyberEd Terminal</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+
+:root {
+
+/* Cortex-inspired dark teal/green color palette */
+
+--background: #0D1B1E; /* Very dark, desaturated teal */
+
+--terminal-bg: #132D30; /* Darker teal for the terminal itself */
+
+--header-bg: #0F3A3F; /* Mid-range teal for the header bar */
+
+--foreground: #E0FBFC; /* Light cyan/off-white for main text */
+
+--comment: #4A6D7C; /* Muted teal for borders and secondary elements */
+
+--green: #00F5D4; /* Bright minty green for prompts */
+
+--cyan: #00A896; /* A deeper, vibrant teal for highlights */
+
+--blue: #56A3A6; /* A softer blue-teal for paths */
+
+--red: #FF6B6B; /* A clear red for errors */
+
+--yellow: #F7B801; /* A vibrant yellow for warnings */
+
+}
+
+  
+
+/* Basic Reset and Body Styles */
+
+* {
+
+box-sizing: border-box;
+
+}
+
+  
+
+html, body {
+
+height: 100%;
+
+margin: 0;
+
+padding: 0;
+
+}
+
+  
+
+body {
+
+background-color: var(--background);
+
+color: var(--foreground);
+
+/* Using a modern monospaced font */
+
+font-family: 'Roboto Mono', 'Courier New', monospace;
+
+display: flex;
+
+justify-content: center;
+
+align-items: center;
+
+padding: 2rem;
+
+}
+
+  
+
+/* Main Terminal Container */
+
+#terminal-container {
+
+width: 100%;
+
+max-width: 900px;
+
+height: 80vh;
+
+max-height: 700px;
+
+background-color: var(--terminal-bg);
+
+border: 1px solid var(--comment);
+
+border-radius: 8px;
+
+box-shadow: 0 8px 30px rgba(0, 245, 212, 0.1); /* Subtle glow effect */
+
+display: flex;
+
+flex-direction: column;
+
+overflow: hidden;
+
+}
+
+  
+
+/* Terminal Header */
+
+#terminal-header {
+
+background-color: var(--header-bg);
+
+padding: 0.5rem 1rem;
+
+border-bottom: 1px solid var(--comment);
+
+display: flex;
+
+align-items: center;
+
+gap: 0.5rem;
+
+}
+
+  
+
+.traffic-lights {
+
+display: flex;
+
+gap: 0.5rem;
+
+}
+
+  
+
+.traffic-light {
+
+width: 12px;
+
+height: 12px;
+
+border-radius: 50%;
+
+border: 1px solid rgba(0,0,0,0.2);
+
+}
+
+.traffic-light.close { background-color: #ff5f56; }
+
+.traffic-light.minimize { background-color: #ffbd2e; }
+
+.traffic-light.maximize { background-color: #27c93f; }
+
+  
+
+#terminal-title {
+
+color: var(--foreground);
+
+font-weight: 500;
+
+}
+
+  
+
+/* Terminal Body */
+
+#terminal-body {
+
+flex-grow: 1;
+
+padding: 1rem;
+
+overflow-y: auto;
+
+font-size: 0.95rem;
+
+line-height: 1.6; /* Increased line-height for better readability */
+
+}
+
+/* Custom scrollbar for a better look */
+
+#terminal-body::-webkit-scrollbar {
+
+width: 8px;
+
+}
+
+#terminal-body::-webkit-scrollbar-track {
+
+background: var(--terminal-bg);
+
+}
+
+#terminal-body::-webkit-scrollbar-thumb {
+
+background-color: var(--comment);
+
+border-radius: 4px;
+
+}
+
+  
+
+/* Output and Input Line Styling */
+
+#output p, #output pre {
+
+margin: 0 0 0.5em 0;
+
+white-space: pre-wrap;
+
+word-wrap: break-word;
+
+}
+
+.command-line {
+
+display: flex;
+
+}
+
+  
+
+.prompt {
+
+color: var(--green);
+
+font-weight: 700;
+
+margin-right: 0.5rem;
+
+}
+
+.path {
+
+color: var(--blue);
+
+margin-right: 0.5rem;
+
+}
+
+  
+
+.input-area {
+
+display: flex;
+
+flex-grow: 1;
+
+}
+
+  
+
+#command-input {
+
+background: none;
+
+border: none;
+
+color: var(--foreground);
+
+font-family: inherit;
+
+font-size: inherit;
+
+width: 100%;
+
+padding: 0;
+
+}
+
+  
+
+#command-input:focus {
+
+outline: none;
+
+}
+
+  
+
+/* Blinking Cursor */
+
+.cursor {
+
+display: inline-block;
+
+background-color: var(--green); /* Match the prompt color */
+
+width: 9px;
+
+height: 1.2em;
+
+margin-left: 2px;
+
+animation: blink 1s step-end infinite;
+
+}
+
+  
+
+@keyframes blink {
+
+from, to { background-color: transparent; }
+
+50% { background-color: var(--green); }
+
+}
+
+  
+
+/* Utility classes for colors */
+
+.text-cyan { color: var(--cyan); }
+
+.text-yellow { color: var(--yellow); }
+
+.text-red { color: var(--red); }
+
+.text-green { color: var(--green); }
+
+.text-blue { color: var(--blue); }
+
+  
+
+</style>
+
+</head>
+
+<body>
+
+  
+
+<div id="terminal-container">
+
+<div id="terminal-header">
+
+<div class="traffic-lights">
+
+<div class="traffic-light close"></div>
+
+<div class="traffic-light minimize"></div>
+
+<div class="traffic-light maximize"></div>
+
+</div>
+
+<div id="terminal-title">user@cortex-ed: ~</div>
+
+</div>
+
+<div id="terminal-body" onclick="document.getElementById('command-input').focus();">
+
+<div id="output"></div>
+
+<div class="command-line">
+
+<span class="prompt">$&nbsp;</span>
+
+<span class="path">~</span>
+
+<div class="input-area">
+
+<input type="text" id="command-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+
+<span class="cursor"></span>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+  
+
+<script>
+
+// --- DOM Elements ---
+
+const terminalBody = document.getElementById('terminal-body');
+
+const outputDiv = document.getElementById('output');
+
+const commandInput = document.getElementById('command-input');
+
+const pathSpan = document.querySelector('.path');
+
+  
+
+// --- State ---
+
+let commandHistory = [];
+
+let historyIndex = -1;
+
+let currentPath = '~';
+
+  
+
+// --- Mock File System ---
+
+const fileSystem = {
+
+'~': {
+
+type: 'dir',
+
+children: {
+
+'README.md': {
+
+type: 'file',
+
+content: `
+
+## Welcome to the CortexEd Terminal!
+
+  
+
+This is a simulated terminal environment designed for learning basic cybersecurity concepts.
+
+Type 'help' to see a list of available commands.
+
+  
+
+Explore the file system with 'ls' and 'cd'.
+
+Read files with 'cat'.
+
+`
+
+},
+
+'tools': {
+
+type: 'dir',
+
+children: {
+
+'nmap_basics.txt': {
+
+type: 'file',
+
+content: `
+
+### Nmap (Network Mapper) Basics
+
+  
+
+Nmap is a powerful open-source tool for network discovery and security auditing.
+
+  
+
+**Common Uses:**
+
+- **Host Discovery:** Identifying hosts on a network.
+
+- **Port Scanning:** Enumerating open ports on target hosts.
+
+- **Version Detection:** Determining service and version information on open ports.
+
+- **OS Detection:** Determining the operating system of the target.
+
+  
+
+**Example Educational Command:**
+
+nmap_scan example.com
+
+`
+
+},
+
+'wireshark_info.txt': {
+
+type: 'file',
+
+content: `
+
+### Wireshark Basics
+
+  
+
+Wireshark is the world's foremost and widely-used network protocol analyzer. It lets you see what's happening on your network at a microscopic level.
+
+  
+
+**Key Features:**
+
+- Deep inspection of hundreds of protocols.
+
+- Live capture and offline analysis.
+
+- Rich VoIP analysis.
+
+- Runs on Windows, Linux, macOS, and more.
+
+  
+
+This terminal can't run Wireshark, but it's a critical tool for any security professional to learn.
+
+`
+
+}
+
+}
+
+},
+
+'about.txt': {
+
+type: 'file',
+
+content: 'CortexEd Terminal v1.0 - A safe place to learn.'
+
+}
+
+}
+
+}
+
+};
+
+  
+
+// --- Helper Functions ---
+
+/**
+
+* Resolves a path string into a file system node.
+
+* @param {string} path - The path to resolve (e.g., '~/tools/nmap_basics.txt').
+
+* @returns {object|null} The file system node or null if not found.
+
+*/
+
+function resolvePath(path) {
+
+const parts = path.replace(/^~\//, '').split('/').filter(p => p);
+
+let currentNode = fileSystem['~'];
+
+if (path === '~') return currentNode;
+
+  
+
+for (const part of parts) {
+
+if (currentNode && currentNode.type === 'dir' && currentNode.children[part]) {
+
+currentNode = currentNode.children[part];
+
+} else {
+
+return null;
+
+}
+
+}
+
+return currentNode;
+
+}
+
+/**
+
+* Appends a line of text or HTML to the output div.
+
+* @param {string} text - The content to append.
+
+*/
+
+function appendOutput(text) {
+
+const p = document.createElement('p');
+
+p.innerHTML = text;
+
+outputDiv.appendChild(p);
+
+}
+
+  
+
+/**
+
+* Scrolls the terminal to the bottom.
+
+*/
+
+function scrollToBottom() {
+
+terminalBody.scrollTop = terminalBody.scrollHeight;
+
+}
+
+  
+
+/**
+
+* Displays the command prompt and input line again after a command is executed.
+
+* @param {string} command - The command that was just run.
+
+*/
+
+function showNewPrompt(command) {
+
+const commandLine = document.createElement('div');
+
+commandLine.innerHTML = `<span class="prompt">$&nbsp;</span><span class="path">${currentPath}</span> <span>${command}</span>`;
+
+outputDiv.appendChild(commandLine);
+
+}
+
+  
+
+// --- Command Handlers ---
+
+const commands = {
+
+help: () => {
+
+appendOutput(`
+
+<span class="text-yellow">Available Commands:</span>
+
+<span class="text-cyan">help</span> - Shows this help message.
+
+<span class="text-cyan">clear</span> - Clears the terminal screen.
+
+<span class="text-cyan">ls [path]</span> - Lists files and directories.
+
+<span class="text-cyan">cd [path]</span> - Changes the current directory.
+
+<span class="text-cyan">cat [file]</span> - Displays the content of a file.
+
+<span class="text-cyan">whoami</span> - Displays the current user.
+
+<span class="text-cyan">date</span> - Displays the current date and time.
+
+<span class="text-cyan">nmap_scan</span> - Simulates a basic Nmap scan for educational purposes.
+
+<span class="text-cyan">welcome</span> - Displays the welcome message.
+
+`);
+
+},
+
+clear: () => {
+
+outputDiv.innerHTML = '';
+
+},
+
+welcome: () => {
+
+appendOutput(`
+
+<pre class="text-green">
+
+______ __ ______ ____
+
+/ ____/____ _ ____/ /___ ______/ ____/___/ / /__
+
+/ / / __ \`/ __ / __ \`/ ___/ __/ / __ / / _ \\
+
+/ /___/ /_/ / /_/ / /_/ / / / /___/ /_/ / / __/
+
+\\____/\\__,_/\\__,_/\\____/_/ \\____/\\__,_/_/\\___/
+
+</pre>
+
+Welcome to the CortexEd Terminal. Type <span class="text-cyan">'help'</span> for a list of commands.
+
+`);
+
+},
+
+ls: (args) => {
+
+const path = args[0] || currentPath;
+
+const node = resolvePath(path);
+
+if (node && node.type === 'dir') {
+
+const content = Object.keys(node.children).map(key => {
+
+const child = node.children[key];
+
+return child.type === 'dir' ? `<span class="text-blue">${key}/</span>` : key;
+
+}).join('&nbsp;&nbsp;');
+
+appendOutput(content || 'Directory is empty.');
+
+} else {
+
+appendOutput(`<span class="text-red">ls: cannot access '${path}': No such file or directory</span>`);
+
+}
+
+},
+
+cat: (args) => {
+
+if (!args[0]) {
+
+appendOutput(`<span class="text-red">cat: missing operand</span>`);
+
+return;
+
+}
+
+const path = currentPath === '~' ? `~/${args[0]}` : `${currentPath}/${args[0]}`;
+
+const node = resolvePath(path);
+
+if (node && node.type === 'file') {
+
+const pre = document.createElement('pre');
+
+pre.textContent = node.content;
+
+outputDiv.appendChild(pre);
+
+} else {
+
+appendOutput(`<span class="text-red">cat: ${args[0]}: No such file or directory</span>`);
+
+}
+
+},
+
+whoami: () => {
+
+appendOutput('user');
+
+},
+
+date: () => {
+
+appendOutput(new Date().toString());
+
+},
+
+nmap_scan: (args) => {
+
+if (!args[0]) {
+
+appendOutput(`<span class="text-red">nmap_scan: please specify a target (e.g., nmap_scan example.com)</span>`);
+
+return;
+
+}
+
+const target = args[0];
+
+appendOutput(`<span class="text-yellow">Simulating Nmap scan on ${target}...</span>`);
+
+setTimeout(() => {
+
+appendOutput(`
+
+Starting Nmap 7.92 ( https://nmap.org ) at ${new Date().toUTCString()}
+
+Nmap scan report for ${target} (127.0.0.1)
+
+Host is up (0.00021s latency).
+
+Not shown: 996 closed tcp ports (reset)
+
+PORT STATE SERVICE
+
+80/tcp open http
+
+443/tcp open https
+
+<span class="text-green">
+
+This is a simulation. No real network scan was performed.
+
+This demonstrates how Nmap might show open web ports.
+
+</span>
+
+`);
+
+scrollToBottom();
+
+}, 1000);
+
+},
+
+cd: (args) => {
+
+if (!args[0] || args[0] === '~') {
+
+currentPath = '~';
+
+} else {
+
+const newPath = args[0] === '..'
+
+? currentPath.substring(0, currentPath.lastIndexOf('/')) || '~'
+
+: (currentPath === '~' ? `~/${args[0]}` : `${currentPath}/${args[0]}`);
+
+const node = resolvePath(newPath);
+
+if (node && node.type === 'dir') {
+
+currentPath = newPath;
+
+} else {
+
+appendOutput(`<span class="text-red">cd: ${args[0]}: No such directory</span>`);
+
+}
+
+}
+
+pathSpan.textContent = currentPath;
+
+}
+
+};
+
+  
+
+// --- Event Listeners ---
+
+commandInput.addEventListener('keydown', (e) => {
+
+if (e.key === 'Enter') {
+
+e.preventDefault();
+
+const commandStr = commandInput.value.trim();
+
+if (commandStr) {
+
+const [command, ...args] = commandStr.split(/\s+/);
+
+showNewPrompt(commandStr);
+
+if (commands[command]) {
+
+commands[command](args);
+
+} else {
+
+appendOutput(`<span class="text-red">command not found: ${command}</span>`);
+
+}
+
+  
+
+commandHistory.unshift(commandStr);
+
+historyIndex = -1;
+
+commandInput.value = '';
+
+}
+
+scrollToBottom();
+
+} else if (e.key === 'ArrowUp') {
+
+if (historyIndex < commandHistory.length - 1) {
+
+historyIndex++;
+
+commandInput.value = commandHistory[historyIndex];
+
+}
+
+} else if (e.key === 'ArrowDown') {
+
+if (historyIndex > 0) {
+
+historyIndex--;
+
+commandInput.value = commandHistory[historyIndex];
+
+} else {
+
+historyIndex = -1;
+
+commandInput.value = '';
+
+}
+
+}
+
+});
+
+  
+
+// --- Initial Load ---
+
+commands.welcome();
+
+commandInput.focus();
+
+  
+
+</script>
+
+</body>
+
+</html>
+```
