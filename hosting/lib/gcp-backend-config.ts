@@ -616,6 +616,27 @@ export const henryReedAIGCPDevConfig: Partial<GCPBackendConfig> = {
           }
         }
       ]
+    },
+    cloudFunctions: {
+      functions: [],
+      runtime: 'nodejs18',
+      memory: '256MB',
+      timeout: 60
+    },
+    cloudRun: {
+      services: [],
+      minInstances: 0,
+      maxInstances: 1,
+      cpuLimit: '1',
+      memoryLimit: '512Mi'
+    },
+    firestore: {
+      collections: [],
+      mode: 'native'
+    },
+    pubSub: {
+      topics: [],
+      subscriptions: []
     }
   }
 };

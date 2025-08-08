@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { scenarioCommands } from '../lib/scenario-commands';
 
 interface Command {
   input: string;
@@ -13,7 +14,7 @@ interface CommandConfig {
   description: string;
   usage: string;
   aliases?: string[];
-  handler: (args: string[]) => React.ReactNode;
+  handler: (args: string[]) => React.ReactNode | Promise<React.ReactNode>;
 }
 
 export default function EnhancedTerminal() {
@@ -524,6 +525,97 @@ export default function EnhancedTerminal() {
       }
     },
     {
+      name: 'scenario',
+      description: 'Deploy and manage security assessment scenarios',
+      usage: 'scenario <action> [options]',
+      aliases: ['deploy', 'pov'],
+      handler: async (args) => {
+        if (args.length === 0) {
+          return (
+            <div className="text-blue-300">
+              <div className="font-bold mb-4 text-xl">🎯 POV Scenario Management</div>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="border border-blue-600 p-4 rounded">
+                    <div className="text-blue-400 font-bold mb-2">Available Actions</div>
+                    <div className="space-y-1 text-sm">
+                      <div className="font-mono text-green-400">scenario list</div>
+                      <div className="text-gray-500 ml-4">→ Show available templates</div>
+                      <div className="font-mono text-yellow-400">scenario generate --scenario-type &lt;type&gt;</div>
+                      <div className="text-gray-500 ml-4">→ Deploy a scenario</div>
+                      <div className="font-mono text-purple-400">scenario status [deployment-id]</div>
+                      <div className="text-gray-500 ml-4">→ Check deployment status</div>
+                      <div className="font-mono text-cyan-400">scenario validate &lt;deployment-id&gt;</div>
+                      <div className="text-gray-500 ml-4">→ Run validation tests</div>
+                      <div className="font-mono text-red-400">scenario destroy &lt;deployment-id&gt;</div>
+                      <div className="text-gray-500 ml-4">→ Clean up resources</div>
+                      <div className="font-mono text-orange-400">scenario export &lt;deployment-id&gt;</div>
+                      <div className="text-gray-500 ml-4">→ Export results and data</div>
+                    </div>
+                  </div>
+                  <div className="border border-green-600 p-4 rounded">
+                    <div className="text-green-400 font-bold mb-2">Scenario Types</div>
+                    <div className="space-y-1 text-sm">
+                      <div className="text-green-300">• cloud-posture</div>
+                      <div className="text-blue-300">• container-vuln</div>
+                      <div className="text-purple-300">• code-vuln</div>
+                      <div className="text-yellow-300">• insider-threat</div>
+                      <div className="text-red-300">• ransomware</div>
+                      <div className="text-cyan-300">• waas-exploit</div>
+                      <div className="text-pink-300">• ai-threat</div>
+                      <div className="text-orange-300">• pipeline-breach</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 bg-gray-800 rounded border border-gray-600">
+                  <div className="text-yellow-400 font-bold mb-2">💡 Quick Start</div>
+                  <div className="text-gray-300 text-sm space-y-1">
+                    <div className="font-mono text-green-400">scenario list</div>
+                    <div className="text-gray-500 ml-4">→ Browse all available scenario templates</div>
+                    <div className="font-mono text-blue-400">scenario generate --scenario-type cloud-posture --provider gcp</div>
+                    <div className="text-gray-500 ml-4">→ Deploy a cloud security posture scenario</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        const action = args[0].toLowerCase();
+        const remainingArgs = args.slice(1);
+
+        try {
+          switch (action) {
+            case 'list':
+              return await scenarioCommands.list(remainingArgs);
+            case 'generate':
+              return await scenarioCommands.generate(remainingArgs);
+            case 'status':
+              return await scenarioCommands.status(remainingArgs);
+            case 'validate':
+              return await scenarioCommands.validate(remainingArgs);
+            case 'destroy':
+              return await scenarioCommands.destroy(remainingArgs);
+            case 'export':
+              return await scenarioCommands.export(remainingArgs);
+            default:
+              return (
+                <div className="text-red-400">
+                  Unknown scenario action '{action}'. Use 'scenario' for help or 'scenario list' to start.
+                </div>
+              );
+          }
+        } catch (error) {
+          return (
+            <div className="text-red-400">
+              <div className="font-bold mb-2">❌ Scenario Command Error</div>
+              <div>Failed to execute scenario command: {error instanceof Error ? error.message : 'Unknown error'}</div>
+            </div>
+          );
+        }
+      }
+    },
+    {
       name: 'ai',
       description: 'Interact with the Henry Reed AI assistant',
       usage: 'ai [prompt]',
@@ -623,7 +715,7 @@ export default function EnhancedTerminal() {
     }
   ];
 
-  const executeCommand = (inputStr: string) => {
+  const executeCommand = async (inputStr: string) => {
     const trimmed = inputStr.trim();
     if (!trimmed) return;
 
@@ -639,7 +731,69 @@ export default function EnhancedTerminal() {
         setCommands([]);
         return;
       }
-      output = config.handler(args);
+      
+      try {
+        // Handle both sync and async handlers
+        const result = config.handler(args);
+        if (result && typeof result === 'object' && 'then' in result) {
+          // Show loading state for async operations
+          const loadingCommand: Command = {
+            input: trimmed,
+            output: (
+              <div className="text-blue-300">
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-400 mr-3"></div>
+                  <span>Processing command...</span>
+                </div>
+              </div>
+            ),
+            timestamp: new Date()
+          };
+          
+          setCommands(prev => [...prev, loadingCommand]);
+          setHistory(prev => [...prev, trimmed]);
+          setHistoryIndex(-1);
+          
+          // Wait for async result and update
+          try {
+            const asyncOutput = await (result as Promise<React.ReactNode>);
+            setCommands(prev => {
+              const newCommands = [...prev];
+              newCommands[newCommands.length - 1] = {
+                input: trimmed,
+                output: asyncOutput,
+                timestamp: new Date()
+              };
+              return newCommands;
+            });
+          } catch (asyncError) {
+            setCommands(prev => {
+              const newCommands = [...prev];
+              newCommands[newCommands.length - 1] = {
+                input: trimmed,
+                output: (
+                  <div className="text-red-400">
+                    <div className="font-bold mb-2">❌ Async Command Error</div>
+                    <div>Failed to execute async command: {asyncError instanceof Error ? asyncError.message : 'Unknown error'}</div>
+                  </div>
+                ),
+                timestamp: new Date()
+              };
+              return newCommands;
+            });
+          }
+          return;
+        } else {
+          output = result as React.ReactNode;
+        }
+      } catch (error) {
+        output = (
+          <div className="text-red-400">
+            <div className="font-bold mb-2">❌ Command Error</div>
+            <div>Failed to execute command: {error instanceof Error ? error.message : 'Unknown error'}</div>
+          </div>
+        );
+      }
     } else {
       output = (
         <div className="text-red-400">

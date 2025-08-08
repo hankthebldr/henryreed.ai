@@ -5,9 +5,11 @@
     "build": "next build",
     "start": "next start",
     "export": "next build",
-    "deploy": "npm run export && firebase deploy",
+    "deploy": "npm run build && firebase deploy --only hosting",
+    "deploy:preview": "npm run build && firebase hosting:channel:deploy preview",
     "firebase:init": "firebase init",
-    "firebase:serve": "firebase serve"
+    "firebase:serve": "firebase serve",
+    "firebase:emulators": "firebase emulators:start --only hosting"
   },
   "dependencies": {
     "next": "latest",
