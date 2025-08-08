@@ -3,7 +3,11 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "export": "next build",
+    "deploy": "npm run export && firebase deploy",
+    "firebase:init": "firebase init",
+    "firebase:serve": "firebase serve"
   },
   "dependencies": {
     "next": "latest",

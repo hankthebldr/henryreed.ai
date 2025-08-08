@@ -36,8 +36,17 @@ export default function EnhancedTerminal() {
       input: '',
       output: (
         <div className="text-green-400 mb-4">
-          <div className="text-xl font-bold">Henry Reed AI Terminal</div>
-          <div className="text-sm text-gray-400">Type 'help' for available commands</div>
+          <pre className="text-lg font-bold text-cyan-400">
+{`
+ ██╗  ██╗███████╗██╗ █████╗ ███╗   ███╗
+ ╚██╗██╔╝██╔════╝██║██╔══██╗████╗ ████║
+  ╚███╔╝ ███████╗██║███████║██╔████╔██║
+  ██╔██╗ ╚════██║██║██╔══██║██║╚██╔╝██║
+ ██╔╝ ██╗███████║██║██║  ██║██║ ╚═╝ ██║
+ ╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═╝╚═╝     ╚═╝
+`}
+          </pre>
+          <div className="text-sm text-gray-400 mt-2">Point-of-View CLI • Type 'help' for available commands</div>
         </div>
       ),
       timestamp: new Date()

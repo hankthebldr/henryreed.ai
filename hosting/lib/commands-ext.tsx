@@ -1,5 +1,6 @@
 import React from 'react';
 import { commands as baseCommands, CommandConfig } from './commands';
+import { downloadCommands } from './download-commands';
 
 const extendedCommands: CommandConfig[] = [
   {
@@ -152,6 +153,312 @@ const extendedCommands: CommandConfig[] = [
       }
       // AI response logic would be here
       return <div className="text-cyan-400">AI response to "{prompt}"... (Not yet implemented)</div>;
+    }
+  },
+  {
+    name: 'cortex-questions',
+    description: 'Save questions and get AI-powered insights',
+    usage: 'cortex-questions "your question here"',
+    aliases: ['cq', 'ask-cortex', 'genai'],
+    handler: (args) => {
+      const question = args.join(' ');
+      
+      if (!question || question.length === 0) {
+        return (
+          <div className="text-yellow-400">
+            <div className="font-bold mb-2">🧠 Cortex Questions - AI Insights Engine</div>
+            <div className="text-gray-300 mb-3">Save your questions and get AI-powered insights and analysis.</div>
+            <div className="text-sm space-y-2">
+              <div className="text-blue-400 font-mono">cortex-questions "How can AI improve our customer service?"</div>
+              <div className="text-green-400 font-mono">cq "What are the risks of implementing LLMs?"</div>
+              <div className="text-purple-400 font-mono">genai "Best practices for AI governance?"</div>
+            </div>
+            <div className="mt-4 p-3 bg-gray-800 rounded border border-yellow-600">
+              <div className="text-yellow-400 font-bold">💡 Features:</div>
+              <div className="text-sm text-gray-300 mt-1">
+                • Question persistence and tracking<br/>
+                • AI-powered analysis and insights<br/>
+                • Context-aware responses<br/>
+                • Integration with GenAI models
+              </div>
+            </div>
+          </div>
+        );
+      }
+      
+      // Simulate saving the question and generating AI insights
+      const timestamp = new Date().toISOString();
+      const questionId = Math.random().toString(36).substring(2, 10);
+      
+      // Mock GenAI function call
+      const generateAIInsight = (question: string) => {
+        // This would normally call a real GenAI service
+        const insights = {
+          summary: `Analysis of: "${question}"`,
+          keyPoints: [
+            "Strategic considerations for implementation",
+            "Technical requirements and constraints", 
+            "Risk assessment and mitigation strategies",
+            "ROI and success metrics"
+          ],
+          recommendations: [
+            "Conduct thorough stakeholder analysis",
+            "Develop phased implementation roadmap",
+            "Establish governance and monitoring frameworks"
+          ],
+          nextActions: [
+            "Schedule follow-up consultation",
+            "Review technical documentation",
+            "Assess organizational readiness"
+          ]
+        };
+        
+        return insights;
+      };
+      
+      const insight = generateAIInsight(question);
+      
+      return (
+        <div className="text-cyan-400">
+          <div className="font-bold mb-3 text-lg">🧠 Cortex Analysis Complete</div>
+          
+          <div className="bg-gray-900 p-4 rounded border border-cyan-600 mb-4">
+            <div className="text-green-400 font-bold mb-2">📝 Question Saved:</div>
+            <div className="text-gray-300 text-sm mb-2">"{question}"</div>
+            <div className="text-xs text-gray-500">
+              ID: {questionId} | Timestamp: {timestamp}
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="border-l-4 border-blue-500 pl-4">
+              <div className="text-blue-400 font-bold mb-2">🎯 Key Strategic Points:</div>
+              <div className="space-y-1 text-sm">
+                {insight.keyPoints.map((point, idx) => (
+                  <div key={idx} className="text-gray-300">• {point}</div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="border-l-4 border-green-500 pl-4">
+              <div className="text-green-400 font-bold mb-2">💡 AI Recommendations:</div>
+              <div className="space-y-1 text-sm">
+                {insight.recommendations.map((rec, idx) => (
+                  <div key={idx} className="text-gray-300">• {rec}</div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="border-l-4 border-purple-500 pl-4">
+              <div className="text-purple-400 font-bold mb-2">⚡ Suggested Next Actions:</div>
+              <div className="space-y-1 text-sm">
+                {insight.nextActions.map((action, idx) => (
+                  <div key={idx} className="text-gray-300">• {action}</div>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-4 p-3 bg-gray-800 rounded border border-cyan-600">
+            <div className="text-cyan-400 font-bold">🚀 Ready to dive deeper?</div>
+            <div className="text-sm text-gray-300 mt-1">
+              Schedule a consultation to discuss this in detail: <span className="font-mono text-green-400">contact --schedule</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  },
+  {
+    name: 'status',
+    description: 'Show system status and analytics',
+    usage: 'status [--detailed] [--analytics] [--performance]',
+    aliases: ['info', 'stats'],
+    handler: (args) => {
+      const detailed = args.includes('--detailed');
+      const analytics = args.includes('--analytics');
+      const performance = args.includes('--performance');
+      
+      if (detailed || analytics || performance) {
+        return (
+          <div className="text-blue-300">
+            <div className="font-bold mb-4 text-xl">📊 System Status Dashboard</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="border border-green-500 p-4 rounded">
+                <div className="text-green-400 font-bold mb-2">🟢 System Health</div>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span>Terminal Engine:</span>
+                    <span className="text-green-400">Online</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Command Parser:</span>
+                    <span className="text-green-400">Optimal</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>AI Integration:</span>
+                    <span className="text-green-400">Active</span>
+                  </div>
+                </div>
+              </div>
+              
+              {analytics && (
+                <div className="border border-blue-500 p-4 rounded">
+                  <div className="text-blue-400 font-bold mb-2">📈 Usage Analytics</div>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span>Commands Executed:</span>
+                      <span className="text-blue-400">1,247</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Questions Processed:</span>
+                      <span className="text-blue-400">89</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Insights Generated:</span>
+                      <span className="text-blue-400">156</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {performance && (
+                <div className="border border-yellow-500 p-4 rounded">
+                  <div className="text-yellow-400 font-bold mb-2">⚡ Performance Metrics</div>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span>Avg Response Time:</span>
+                      <span className="text-yellow-400">127ms</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Success Rate:</span>
+                      <span className="text-yellow-400">99.8%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Uptime:</span>
+                      <span className="text-yellow-400">99.99%</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
+      
+      return (
+        <div className="text-green-400">
+          <div className="font-bold mb-3">🟢 POV-CLI Status: Online</div>
+          <div className="text-sm space-y-1">
+            <div className="text-blue-400">• All systems operational</div>
+            <div className="text-green-400">• AI services active</div>
+            <div className="text-purple-400">• Commands ready</div>
+          </div>
+          <div className="mt-3 text-xs text-gray-500">
+            Use --detailed, --analytics, or --performance for more info
+          </div>
+        </div>
+      );
+    }
+  },
+  {
+    name: 'search',
+    description: 'Search through knowledge base and documentation',
+    usage: 'search "query" [--docs] [--projects] [--insights]',
+    aliases: ['find', 'lookup'],
+    handler: (args) => {
+      const query = args.filter(arg => !arg.startsWith('--')).join(' ').replace(/"/g, '');
+      const docs = args.includes('--docs');
+      const projects = args.includes('--projects');
+      const insights = args.includes('--insights');
+      
+      if (!query) {
+        return (
+          <div className="text-yellow-400">
+            <div className="font-bold mb-2">🔍 Knowledge Base Search</div>
+            <div className="text-gray-300 mb-3">Search through documentation, projects, and insights.</div>
+            <div className="text-sm space-y-2">
+              <div className="text-blue-400 font-mono">search "machine learning deployment"</div>
+              <div className="text-green-400 font-mono">find "AI strategy" --docs</div>
+              <div className="text-purple-400 font-mono">lookup "computer vision" --projects</div>
+            </div>
+          </div>
+        );
+      }
+      
+      // Mock search results
+      const results = {
+        docs: [
+          { title: "AI Implementation Guide", relevance: "95%", type: "documentation" },
+          { title: "Best Practices for LLM Deployment", relevance: "89%", type: "guide" },
+          { title: "Enterprise AI Strategy Framework", relevance: "76%", type: "framework" }
+        ],
+        projects: [
+          { title: "enterprise-llm-deployment", relevance: "92%", type: "case-study" },
+          { title: "computer-vision-pipeline", relevance: "78%", type: "implementation" },
+          { title: "ai-training-curriculum", relevance: "65%", type: "education" }
+        ],
+        insights: [
+          { title: "Future of AI in Enterprise", relevance: "88%", type: "analysis" },
+          { title: "ROI Metrics for AI Projects", relevance: "72%", type: "metrics" },
+          { title: "Risk Mitigation Strategies", relevance: "69%", type: "strategy" }
+        ]
+      };
+      
+      return (
+        <div className="text-cyan-400">
+          <div className="font-bold mb-3 text-lg">🔍 Search Results for "{query}"</div>
+          
+          {(!docs && !projects && !insights) || docs ? (
+            <div className="mb-4">
+              <div className="text-blue-400 font-bold mb-2">📚 Documentation ({results.docs.length} results)</div>
+              <div className="space-y-2">
+                {results.docs.map((item, idx) => (
+                  <div key={idx} className="border-l-2 border-blue-400 pl-3 py-1">
+                    <div className="text-white font-mono text-sm">{item.title}</div>
+                    <div className="text-xs text-gray-400">{item.type} • {item.relevance} match</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          
+          {(!docs && !projects && !insights) || projects ? (
+            <div className="mb-4">
+              <div className="text-green-400 font-bold mb-2">🚀 Projects ({results.projects.length} results)</div>
+              <div className="space-y-2">
+                {results.projects.map((item, idx) => (
+                  <div key={idx} className="border-l-2 border-green-400 pl-3 py-1">
+                    <div className="text-white font-mono text-sm">{item.title}</div>
+                    <div className="text-xs text-gray-400">{item.type} • {item.relevance} match</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          
+          {(!docs && !projects && !insights) || insights ? (
+            <div className="mb-4">
+              <div className="text-purple-400 font-bold mb-2">💡 Insights ({results.insights.length} results)</div>
+              <div className="space-y-2">
+                {results.insights.map((item, idx) => (
+                  <div key={idx} className="border-l-2 border-purple-400 pl-3 py-1">
+                    <div className="text-white font-mono text-sm">{item.title}</div>
+                    <div className="text-xs text-gray-400">{item.type} • {item.relevance} match</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          
+          <div className="mt-4 p-3 bg-gray-800 rounded border border-cyan-600">
+            <div className="text-cyan-400 font-bold">💡 Need more specific information?</div>
+            <div className="text-sm text-gray-300 mt-1">
+              Try: <span className="font-mono text-green-400">cortex-questions "your specific question"</span>
+            </div>
+          </div>
+        </div>
+      );
     }
   },
   {
@@ -408,4 +715,8 @@ const extendedCommands: CommandConfig[] = [
   }
 ];
 
-export const allCommands: CommandConfig[] = [...baseCommands, ...extendedCommands.filter(extCmd => !baseCommands.some(baseCmd => baseCmd.name === extCmd.name))];
+export const allCommands: CommandConfig[] = [
+  ...baseCommands, 
+  ...extendedCommands.filter(extCmd => !baseCommands.some(baseCmd => baseCmd.name === extCmd.name)),
+  ...downloadCommands.filter(dlCmd => !baseCommands.some(baseCmd => baseCmd.name === dlCmd.name) && !extendedCommands.some(extCmd => extCmd.name === dlCmd.name))
+];
