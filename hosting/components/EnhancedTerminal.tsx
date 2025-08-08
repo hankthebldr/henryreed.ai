@@ -47,7 +47,7 @@ export default function EnhancedTerminal() {
  ╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═╝╚═╝     ╚═╝
 `}
           </pre>
-          <div className="text-sm text-gray-400 mt-2">Point-of-View CLI • Type 'help' for available commands</div>
+          <div className="text-sm text-gray-400 mt-2">Proof-of-Value CLI • Type 'help' for available commands</div>
         </div>
       ),
       timestamp: new Date()
@@ -533,7 +533,7 @@ export default function EnhancedTerminal() {
         if (args.length === 0) {
           return (
             <div className="text-blue-300">
-              <div className="font-bold mb-4 text-xl">🎯 POV Scenario Management</div>
+              <div className="font-bold mb-4 text-xl">🎯 Proof-of-Value Scenario Management</div>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="border border-blue-600 p-4 rounded">
