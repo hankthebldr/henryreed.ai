@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "firebase:emulate": "firebase emulators:start",
+    "firebase:deploy": "firebase deploy"
+  },
   "dependencies": {
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",

@@ -1,0 +1,163 @@
+
+:root {
+  /* Cortex-inspired dark teal/green color palette */
+  --background: #0D1B1E; /* Very dark, desaturated teal */
+  --terminal-bg: #132D30; /* Darker teal for the terminal itself */
+  --header-bg: #0F3A3F; /* Mid-range teal for the header bar */
+  --foreground: #E0FBFC; /* Light cyan/off-white for main text */
+  --comment: #4A6D7C; /* Muted teal for borders and secondary elements */
+  --green: #00F5D4; /* Bright minty green for prompts */
+  --cyan: #00A896; /* A deeper, vibrant teal for highlights */
+  --blue: #56A3A6; /* A softer blue-teal for paths */
+  --red: #FF6B6B; /* A clear red for errors */
+  --yellow: #F7B801; /* A vibrant yellow for warnings */
+}
+
+/* Basic Reset and Body Styles */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  /* Using a modern monospaced font */
+  font-family: 'Roboto Mono', 'Courier New', monospace;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+/* Main Terminal Container */
+#terminal-container {
+  width: 100%;
+  max-width: 900px;
+  height: 80vh;
+  max-height: 700px;
+  background-color: var(--terminal-bg);
+  border: 1px solid var(--comment);
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0, 245, 212, 0.1); /* Subtle glow effect */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Terminal Header */
+#terminal-header {
+  background-color: var(--header-bg);
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--comment);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.traffic-lights {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.traffic-light {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.2);
+}
+.traffic-light.close { background-color: #ff5f56; }
+.traffic-light.minimize { background-color: #ffbd2e; }
+.traffic-light.maximize { background-color: #27c93f; }
+
+#terminal-title {
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+/* Terminal Body */
+#terminal-body {
+  flex-grow: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  font-size: 0.95rem;
+  line-height: 1.6; /* Increased line-height for better readability */
+}
+/* Custom scrollbar for a better look */
+#terminal-body::-webkit-scrollbar {
+  width: 8px;
+}
+#terminal-body::-webkit-scrollbar-track {
+  background: var(--terminal-bg);
+}
+#terminal-body::-webkit-scrollbar-thumb {
+  background-color: var(--comment);
+  border-radius: 4px;
+}
+
+/* Output and Input Line Styling */
+#output p, #output pre {
+  margin: 0 0 0.5em 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.command-line {
+  display: flex;
+}
+
+.prompt {
+  color: var(--green);
+  font-weight: 700;
+  margin-right: 0.5rem;
+}
+.path {
+  color: var(--blue);
+  margin-right: 0.5rem;
+}
+
+.input-area {
+  display: flex;
+  flex-grow: 1;
+}
+
+#command-input {
+  background: none;
+  border: none;
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: inherit;
+  width: 100%;
+  padding: 0;
+}
+
+#command-input:focus {
+  outline: none;
+}
+
+/* Blinking Cursor */
+.cursor {
+  display: inline-block;
+  background-color: var(--green); /* Match the prompt color */
+  width: 9px;
+  height: 1.2em;
+  margin-left: 2px;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  from, to { background-color: transparent; }
+  50% { background-color: var(--green); }
+}
+
+/* Utility classes for colors */
+.text-cyan { color: var(--cyan); }
+.text-yellow { color: var(--yellow); }
+.text-red { color: var(--red); }
+.text-green { color: var(--green); }
+.text-blue { color: var(--blue); }
+
