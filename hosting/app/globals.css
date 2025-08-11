@@ -2,20 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom terminal styles */
+/* Custom scrollbar for terminal */
+.terminal-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #4B5563 #1F2937;
+}
+
 .terminal-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
 
 .terminal-scrollbar::-webkit-scrollbar-track {
   background: #1a1a1a;
+  border-radius: 4px;
 }
 
 .terminal-scrollbar::-webkit-scrollbar-thumb {
-  background: #444;
+  background: #4B5563;
   border-radius: 4px;
 }
 
 .terminal-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #666;
+  background: #6B7280;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom selection colors */
+::selection {
+  background-color: #3B82F6;
+  color: white;
+}
+
+::-moz-selection {
+  background-color: #3B82F6;
+  color: white;
 }
