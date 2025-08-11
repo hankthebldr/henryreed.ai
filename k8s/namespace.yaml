@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pov-cli
+  labels:
+    name: pov-cli
+    environment: production
+    app: henryreed-terminal

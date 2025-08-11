@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  pov-cli-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pov-cli-terminal
+    ports:
+      - "8080:80"
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    labels:
+      - "app=pov-cli-terminal"
+      - "environment=production"
+
+  # Optional: Add a reverse proxy for SSL termination
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: pov-cli-proxy
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+      # Uncomment and provide SSL certificates if needed
+      # - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - pov-cli-app
+    restart: unless-stopped
+    profiles:
+      - proxy
+
+networks:
+  default:
+    name: pov-cli-network
