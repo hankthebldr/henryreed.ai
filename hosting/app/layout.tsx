@@ -11,8 +11,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>POV-CLI - Point of View Command Line Interface</title>
-        <meta name="description" content="Interactive terminal interface for AI consulting and services" />
+        <title>POV-CLI - Proof-of-Value Command Line Interface | Henry Reed AI</title>
+        <meta name="description" content="Interactive Proof-of-Value CLI for AI consulting, development services, and technical demonstrations" />
       </head>
       <body>
         <AuthProvider>

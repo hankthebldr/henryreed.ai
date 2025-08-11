@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import LoginForm from './LoginForm';
 import { scenarioCommands } from '../lib/scenario-commands';
+import { contextStorage, UserContext } from '../lib/context-storage';
 
 interface Command {
   input: string;
@@ -58,6 +59,9 @@ export default function ImprovedTerminal() {
   }, [commands]);
 
   useEffect(() => {
+    // Initialize context storage session
+    contextStorage.startSession();
+    
     // Add welcome message
     setCommands([{
       input: '',
@@ -81,7 +85,7 @@ export default function ImprovedTerminal() {
             <div className="mt-3 text-sm">
               <div>• Type <span className="text-green-400 font-bold">help</span> for available commands</div>
               <div>• Press <span className="text-blue-400 font-bold">↑/↓</span> for command history</div>
-              <div>• Try <span className="text-purple-400 font-bold">ls ctx --all-products</span> to explore services</div>
+              <div>• Try <span className="text-purple-400 font-bold">pov start</span> to begin a proof-of-value</div>
             </div>
           </div>
         </TerminalOutput>
@@ -95,7 +99,7 @@ export default function ImprovedTerminal() {
       name: 'help',
       description: 'Show available commands',
       usage: 'help [command]',
-      aliases: ['?', 'man'],
+      aliases: ['?'],
       handler: (args) => {
         if (args.length > 0) {
           const cmdName = args[0].toLowerCase();
@@ -125,7 +129,7 @@ export default function ImprovedTerminal() {
         
         return (
           <TerminalOutput type="info">
-            <div className="font-bold mb-4 text-xl text-blue-300">📚 Available Commands</div>
+            <div className="font-bold mb-4 text-xl text-blue-300">🎯 POV-CLI Commands</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {commandConfigs.map(cmd => (
                 <div key={cmd.name} className="border border-gray-600 p-3 rounded bg-gray-800/50">
@@ -139,13 +143,12 @@ export default function ImprovedTerminal() {
                 </div>
               ))}
             </div>
-            <div className="mt-6 p-4 bg-gray-800 rounded border border-gray-600">
-              <div className="text-yellow-400 font-bold mb-2">💡 Pro Tips</div>
+            <div className="mt-6 p-4 bg-cyan-900/20 rounded border border-cyan-500/30">
+              <div className="text-cyan-400 font-bold mb-2">🚀 Quick Start</div>
               <div className="text-sm space-y-1">
-                <div>• Use <span className="text-blue-400">help [command]</span> for detailed usage</div>
-                <div>• Press <span className="text-green-400">↑/↓</span> arrows to navigate command history</div>
-                <div>• Use <span className="text-purple-400">Tab</span> for command completion</div>
-                <div>• Try <span className="text-cyan-400">ls ctx --all-products</span> to explore services</div>
+                <div>1. Run <span className="text-green-400 font-mono">pov start</span> to begin proof-of-value</div>
+                <div>2. Use <span className="text-blue-400 font-mono">template list</span> to browse detection templates</div>
+                <div>3. Try <span className="text-purple-400 font-mono">detect create</span> to build custom detections</div>
               </div>
             </div>
           </TerminalOutput>
@@ -153,10 +156,501 @@ export default function ImprovedTerminal() {
       }
     },
     {
+      name: 'pov',
+      description: 'Proof-of-Value execution and management',
+      usage: 'pov <start|list|status|deploy> [options]',
+      aliases: ['proof'],
+      handler: (args) => {
+        const action = args[0]?.toLowerCase();
+        
+        if (!action) {
+          return (
+            <TerminalOutput type="info">
+              <div className="space-y-4">
+                <div className="font-bold text-lg text-cyan-300">🎯 Proof-of-Value Engine</div>
+                
+                <div className="bg-gray-800/60 p-4 rounded border border-cyan-500/30">
+                  <div className="text-cyan-400 font-bold mb-3">Available Actions:</div>
+                  <div className="text-sm space-y-1">
+                    <div><span className="text-green-300 font-mono">pov start</span> - Initialize new POV assessment</div>
+                    <div><span className="text-blue-300 font-mono">pov list</span> - Show available POV templates</div>
+                    <div><span className="text-purple-300 font-mono">pov status</span> - Check current POV progress</div>
+                    <div><span className="text-yellow-300 font-mono">pov deploy [template]</span> - Deploy POV scenario</div>
+                  </div>
+                </div>
+                
+                <div className="bg-blue-900/20 p-4 rounded border border-blue-500/30">
+                  <div className="text-blue-400 font-bold mb-2">🔬 Focus Areas</div>
+                  <div className="text-sm space-y-1">
+                    <div>• AI-powered threat detection</div>
+                    <div>• Real-time security monitoring</div>
+                    <div>• Custom rule development</div>
+                    <div>• Performance benchmarking</div>
+                  </div>
+                </div>
+              </div>
+            </TerminalOutput>
+          );
+        }
+        
+        switch (action) {
+          case 'start':
+            return (
+              <TerminalOutput type="success">
+                <div className="space-y-4">
+                  <div className="font-bold text-lg text-green-300">🚀 POV Assessment Started</div>
+                  
+                  <div className="bg-green-900/20 p-4 rounded border border-green-500/30">
+                    <div className="text-green-400 font-bold mb-3">Assessment Phases:</div>
+                    <div className="text-sm space-y-2">
+                      <div className="flex items-center">
+                        <span className="text-green-400 mr-2">✓</span>
+                        <span>Environment Discovery</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-yellow-400 mr-2">○</span>
+                        <span>Baseline Detection Setup</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-gray-400 mr-2">○</span>
+                        <span>Custom Rule Development</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-gray-400 mr-2">○</span>
+                        <span>Performance Evaluation</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-sm text-gray-300">
+                    Next: Run <span className="text-blue-400 font-mono">template list</span> to explore detection templates
+                  </div>
+                </div>
+              </TerminalOutput>
+            );
+            
+          case 'list':
+            return (
+              <TerminalOutput type="info">
+                <div className="space-y-4">
+                  <div className="font-bold text-lg text-blue-300">📋 Available POV Templates</div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-red-900/20 p-4 rounded border border-red-500/30">
+                      <div className="text-red-400 font-bold mb-2">🛡️ Threat Detection</div>
+                      <div className="text-sm text-gray-300">Advanced threat hunting and anomaly detection</div>
+                      <div className="text-xs text-gray-500 mt-2">Duration: 2-3 weeks</div>
+                    </div>
+                    
+                    <div className="bg-blue-900/20 p-4 rounded border border-blue-500/30">
+                      <div className="text-blue-400 font-bold mb-2">📊 Log Analytics</div>
+                      <div className="text-sm text-gray-300">Real-time log processing and correlation</div>
+                      <div className="text-xs text-gray-500 mt-2">Duration: 1-2 weeks</div>
+                    </div>
+                    
+                    <div className="bg-purple-900/20 p-4 rounded border border-purple-500/30">
+                      <div className="text-purple-400 font-bold mb-2">🔍 Behavioral Analysis</div>
+                      <div className="text-sm text-gray-300">User and entity behavior monitoring</div>
+                      <div className="text-xs text-gray-500 mt-2">Duration: 3-4 weeks</div>
+                    </div>
+                    
+                    <div className="bg-green-900/20 p-4 rounded border border-green-500/30">
+                      <div className="text-green-400 font-bold mb-2">⚡ Performance Optimization</div>
+                      <div className="text-sm text-gray-300">Detection rule performance tuning</div>
+                      <div className="text-xs text-gray-500 mt-2">Duration: 1 week</div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-sm text-gray-400">
+                    Use <span className="text-green-400 font-mono">pov deploy [template-name]</span> to start a specific assessment
+                  </div>
+                </div>
+              </TerminalOutput>
+            );
+            
+          case 'status':
+            return (
+              <TerminalOutput type="info">
+                <div className="space-y-4">
+                  <div className="font-bold text-lg text-blue-300">📊 POV Status Dashboard</div>
+                  
+                  <div className="bg-gray-800/50 p-4 rounded border border-gray-600">
+                    <div className="text-green-400 font-bold mb-3">Current Assessment: Threat Detection POV</div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Progress:</span>
+                        <span className="text-yellow-400">Phase 2/4 (45%)</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Rules Created:</span>
+                        <span className="text-green-400">12/20</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Detection Rate:</span>
+                        <span className="text-cyan-400">87.3%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">False Positives:</span>
+                        <span className="text-red-400">2.1%</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-sm text-gray-400">
+                    Estimated completion: 5 days | Next milestone: Custom rule deployment
+                  </div>
+                </div>
+              </TerminalOutput>
+            );
+            
+          case 'deploy':
+            const template = args[1] || 'threat-detection';
+            return (
+              <TerminalOutput type="success">
+                <div className="space-y-4">
+                  <div className="font-bold text-lg text-green-300">🚀 Deploying POV: {template}</div>
+                  
+                  <div className="bg-green-900/20 p-4 rounded border border-green-500/30">
+                    <div className="text-green-400 font-bold mb-3">Deployment Steps:</div>
+                    <div className="text-sm space-y-2">
+                      <div className="flex items-center">
+                        <span className="text-green-400 mr-2">✓</span>
+                        <span>Environment validation complete</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-green-400 mr-2">✓</span>
+                        <span>Base detection rules deployed</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="animate-spin rounded-full h-3 w-3 border-b-2 border-yellow-400 mr-2"></span>
+                        <span>Configuring data sources...</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-gray-400 mr-2">○</span>
+                        <span>Initializing monitoring dashboards</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-sm text-gray-300">
+                    POV environment will be ready in approximately 5 minutes.
+                  </div>
+                </div>
+              </TerminalOutput>
+            );
+            
+          default:
+            return (
+              <TerminalOutput type="error">
+                <div className="space-y-2">
+                  <div className="font-bold">Unknown POV Action</div>
+                  <div className="text-sm">Available actions: start, list, status, deploy</div>
+                </div>
+              </TerminalOutput>
+            );
+        }
+      }
+    },
+    {
+      name: 'template',
+      description: 'Detection template management',
+      usage: 'template <list|create|edit|deploy> [name]',
+      aliases: ['tpl'],
+      handler: (args) => {
+        const action = args[0]?.toLowerCase();
+        
+        if (!action) {
+          return (
+            <TerminalOutput type="info">
+              <div className="space-y-4">
+                <div className="font-bold text-lg text-purple-300">📝 Detection Template Engine</div>
+                
+                <div className="bg-gray-800/60 p-4 rounded border border-purple-500/30">
+                  <div className="text-purple-400 font-bold mb-3">Available Actions:</div>
+                  <div className="text-sm space-y-1">
+                    <div><span className="text-green-300 font-mono">template list</span> - Browse template library</div>
+                    <div><span className="text-blue-300 font-mono">template create</span> - Build new detection template</div>
+                    <div><span className="text-yellow-300 font-mono">template edit [name]</span> - Modify existing template</div>
+                    <div><span className="text-cyan-300 font-mono">template deploy [name]</span> - Deploy template to environment</div>
+                  </div>
+                </div>
+              </div>
+            </TerminalOutput>
+          );
+        }
+        
+        switch (action) {
+          case 'list':
+            return (
+              <TerminalOutput type="info">
+                <div className="space-y-4">
+                  <div className="font-bold text-lg text-purple-300">📚 Template Library</div>
+                  
+                  <div className="space-y-3">
+                    <div className="bg-red-900/20 p-3 rounded border border-red-500/30">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="text-red-400 font-bold">Lateral Movement Detection</div>
+                          <div className="text-sm text-gray-300">Detects suspicious network traversal patterns</div>
+                        </div>
+                        <div className="text-xs text-gray-500">SIGMA | HIGH</div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-yellow-900/20 p-3 rounded border border-yellow-500/30">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="text-yellow-400 font-bold">Credential Stuffing</div>
+                          <div className="text-sm text-gray-300">Identifies brute force authentication attempts</div>
+                        </div>
+                        <div className="text-xs text-gray-500">KQL | MEDIUM</div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-blue-900/20 p-3 rounded border border-blue-500/30">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="text-blue-400 font-bold">Data Exfiltration</div>
+                          <div className="text-sm text-gray-300">Monitors for unusual data transfer volumes</div>
+                        </div>
+                        <div className="text-xs text-gray-500">SPL | HIGH</div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-purple-900/20 p-3 rounded border border-purple-500/30">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="text-purple-400 font-bold">Process Injection</div>
+                          <div className="text-sm text-gray-300">Detects malicious process manipulation</div>
+                        </div>
+                        <div className="text-xs text-gray-500">YARA | CRITICAL</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-sm text-gray-400">
+                    Use <span className="text-blue-400 font-mono">template deploy [name]</span> to activate a template
+                  </div>
+                </div>
+              </TerminalOutput>
+            );
+            
+          case 'create':
+            return (
+              <TerminalOutput type="success">
+                <div className="space-y-4">
+                  <div className="font-bold text-lg text-green-300">🔨 Template Creation Wizard</div>
+                  
+                  <div className="bg-green-900/20 p-4 rounded border border-green-500/30">
+                    <div className="text-green-400 font-bold mb-3">Step 1: Template Configuration</div>
+                    <div className="text-sm space-y-2">
+                      <div><span className="text-gray-400">Name:</span> <span className="text-white">Custom_Threat_Detection_v1</span></div>
+                      <div><span className="text-gray-400">Type:</span> <span className="text-blue-400">Behavioral Analysis</span></div>
+                      <div><span className="text-gray-400">Language:</span> <span className="text-purple-400">KQL (Kusto Query Language)</span></div>
+                      <div><span className="text-gray-400">Severity:</span> <span className="text-yellow-400">Medium</span></div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-800/50 p-4 rounded border border-gray-600">
+                    <div className="text-blue-400 font-bold mb-2">Generated Template Preview:</div>
+                    <pre className="text-xs text-gray-300 overflow-auto bg-black p-3 rounded">
+{`SecurityEvent
+| where EventID == 4624
+| where LogonType in (2, 10)
+| summarize count() by Account, Computer
+| where count_ > 10
+| project-rename SuspiciousLogons = count_`}
+                    </pre>
+                  </div>
+                  
+                  <div className="text-sm text-gray-300">
+                    Template created successfully! Use <span className="text-cyan-400 font-mono">template deploy Custom_Threat_Detection_v1</span> to activate.
+                  </div>
+                </div>
+              </TerminalOutput>
+            );
+            
+          case 'deploy':
+            const templateName = args[1] || 'lateral-movement';
+            return (
+              <TerminalOutput type="success">
+                <div className="space-y-4">
+                  <div className="font-bold text-lg text-cyan-300">🚀 Deploying Template: {templateName}</div>
+                  
+                  <div className="bg-cyan-900/20 p-4 rounded border border-cyan-500/30">
+                    <div className="text-cyan-400 font-bold mb-3">Deployment Progress:</div>
+                    <div className="text-sm space-y-2">
+                      <div className="flex items-center">
+                        <span className="text-green-400 mr-2">✓</span>
+                        <span>Template validation complete</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-green-400 mr-2">✓</span>
+                        <span>SIEM integration configured</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="animate-spin rounded-full h-3 w-3 border-b-2 border-yellow-400 mr-2"></span>
+                        <span>Deploying detection rules...</span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="text-gray-400 mr-2">○</span>
+                        <span>Setting up alerting workflows</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-sm text-gray-300">
+                    Template deployment will complete in 2-3 minutes. Monitoring active.
+                  </div>
+                </div>
+              </TerminalOutput>
+            );
+            
+          default:
+            return (
+              <TerminalOutput type="error">
+                <div className="space-y-2">
+                  <div className="font-bold">Unknown Template Action</div>
+                  <div className="text-sm">Available actions: list, create, edit, deploy</div>
+                </div>
+              </TerminalOutput>
+            );
+        }
+      }
+    },
+    {
+      name: 'detect',
+      description: 'Custom detection rule development',
+      usage: 'detect <create|test|validate|export> [options]',
+      aliases: ['rule'],
+      handler: (args) => {
+        const action = args[0]?.toLowerCase();
+        
+        if (!action) {
+          return (
+            <TerminalOutput type="info">
+              <div className="space-y-4">
+                <div className="font-bold text-lg text-orange-300">🔍 Detection Rule Engine</div>
+                
+                <div className="bg-gray-800/60 p-4 rounded border border-orange-500/30">
+                  <div className="text-orange-400 font-bold mb-3">Available Actions:</div>
+                  <div className="text-sm space-y-1">
+                    <div><span className="text-green-300 font-mono">detect create</span> - Interactive rule builder</div>
+                    <div><span className="text-blue-300 font-mono">detect test [rule]</span> - Test rule against sample data</div>
+                    <div><span className="text-purple-300 font-mono">detect validate</span> - Validate rule syntax</div>
+                    <div><span className="text-yellow-300 font-mono">detect export</span> - Export rules for deployment</div>
+                  </div>
+                </div>
+                
+                <div className="bg-orange-900/20 p-4 rounded border border-orange-500/30">
+                  <div className="text-orange-400 font-bold mb-2">🎯 Supported Formats</div>
+                  <div className="text-sm space-y-1">
+                    <div>• SIGMA Rules • KQL Queries • Splunk SPL • YARA Rules</div>
+                  </div>
+                </div>
+              </div>
+            </TerminalOutput>
+          );
+        }
+        
+        switch (action) {
+          case 'create':
+            return (
+              <TerminalOutput type="success">
+                <div className="space-y-4">
+                  <div className="font-bold text-lg text-green-300">🔨 Interactive Rule Builder</div>
+                  
+                  <div className="bg-green-900/20 p-4 rounded border border-green-500/30">
+                    <div className="text-green-400 font-bold mb-3">Rule Configuration:</div>
+                    <div className="text-sm space-y-2">
+                      <div><span className="text-gray-400">Attack Technique:</span> <span className="text-red-400">T1055 - Process Injection</span></div>
+                      <div><span className="text-gray-400">Data Source:</span> <span className="text-blue-400">Windows Security Logs</span></div>
+                      <div><span className="text-gray-400">Detection Logic:</span> <span className="text-purple-400">Behavioral + Signature</span></div>
+                      <div><span className="text-gray-400">Confidence:</span> <span className="text-yellow-400">High (85%)</span></div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-800/50 p-4 rounded border border-gray-600">
+                    <div className="text-blue-400 font-bold mb-2">Generated Detection Rule:</div>
+                    <pre className="text-xs text-gray-300 overflow-auto bg-black p-3 rounded">
+{`title: Suspicious Process Injection Activity
+status: experimental
+logsource:
+  category: process_access
+detection:
+  selection:
+    GrantedAccess|endswith:
+      - '1F0FFF'
+      - '1F1FFF'
+    CallTrace|contains:
+      - 'UNKNOWN'
+  condition: selection
+falsepositives:
+  - Legitimate software with debugging
+level: high`}
+                    </pre>
+                  </div>
+                  
+                  <div className="text-sm text-gray-300">
+                    Rule created! Use <span className="text-blue-400 font-mono">detect test</span> to validate against sample data.
+                  </div>
+                </div>
+              </TerminalOutput>
+            );
+            
+          case 'test':
+            return (
+              <TerminalOutput type="info">
+                <div className="space-y-4">
+                  <div className="font-bold text-lg text-blue-300">🧪 Rule Testing Results</div>
+                  
+                  <div className="bg-blue-900/20 p-4 rounded border border-blue-500/30">
+                    <div className="text-blue-400 font-bold mb-3">Test Dataset: 10,000 events (24hr sample)</div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">True Positives:</span>
+                        <span className="text-green-400">47</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">False Positives:</span>
+                        <span className="text-red-400">3</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Detection Rate:</span>
+                        <span className="text-cyan-400">94.0%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Performance:</span>
+                        <span className="text-yellow-400">2.3ms avg</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-green-900/20 p-3 rounded border border-green-500/30">
+                    <div className="text-green-400 font-bold">✓ Test Passed</div>
+                    <div className="text-sm text-gray-300 mt-1">Rule meets quality thresholds for production deployment</div>
+                  </div>
+                </div>
+              </TerminalOutput>
+            );
+            
+          default:
+            return (
+              <TerminalOutput type="error">
+                <div className="space-y-2">
+                  <div className="font-bold">Unknown Detection Action</div>
+                  <div className="text-sm">Available actions: create, test, validate, export</div>
+                </div>
+              </TerminalOutput>
+            );
+        }
+      }
+    },
+    {
       name: 'login',
       description: 'Sign in to access premium features',
       usage: 'login',
-      aliases: ['auth', 'signin'],
+      aliases: ['auth'],
       handler: () => {
         if (user) {
           return (
@@ -197,7 +691,7 @@ export default function ImprovedTerminal() {
       name: 'logout',
       description: 'Sign out of your account',
       usage: 'logout',
-      aliases: ['signout'],
+      aliases: [],
       handler: async () => {
         if (!user) {
           return (
@@ -251,7 +745,7 @@ export default function ImprovedTerminal() {
       name: 'docs',
       description: 'Open documentation page',
       usage: 'docs [section]',
-      aliases: ['documentation', 'guide'],
+      aliases: [],
       handler: (args) => {
         const section = args[0] || '';
         const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
@@ -286,7 +780,7 @@ export default function ImprovedTerminal() {
       name: 'whoami',
       description: 'Display information about Henry Reed',
       usage: 'whoami [--detailed]',
-      aliases: ['me', 'info'],
+      aliases: [],
       handler: (args) => {
         const detailed = args.includes('--detailed');
         const isLoggedIn = !!user;
