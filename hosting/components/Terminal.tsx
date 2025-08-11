@@ -35,8 +35,11 @@ export default function Terminal() {
       input: '',
       output: (
         <div className="text-green-400 mb-4">
-          <div className="text-xl font-bold">Henry Reed AI Terminal</div>
-          <div className="text-sm text-gray-400">Type 'help' for available commands</div>
+          <div className="text-xl font-bold text-cyan-400">Henry Reed AI Terminal</div>
+          <div className="text-sm text-gray-400 mt-2">
+            <div className="text-lg text-cyan-300 font-semibold mb-1">Professional AI Services & Consulting</div>
+            <div>Type 'getting started' or 'help' for available commands</div>
+          </div>
         </div>
       ),
       timestamp: new Date()
@@ -355,6 +358,52 @@ export default function Terminal() {
       }
     },
     {
+      name: 'getting started',
+      description: 'Introduction to Henry Reed AI Terminal',
+      usage: 'getting started',
+      handler: () => {
+        return (
+          <div className="text-blue-300">
+            <div className="font-bold text-xl mb-4">🚀 Welcome to Henry Reed AI Terminal</div>
+            
+            <div className="space-y-4">
+              <div className="bg-cyan-900/20 p-4 rounded border border-cyan-500/30">
+                <div className="text-cyan-400 font-bold mb-3">What is this?</div>
+                <div className="text-sm space-y-2">
+                  <div>This is an interactive terminal interface for exploring Henry Reed's AI consulting services, technical expertise, and professional offerings.</div>
+                  <div>Built for business leaders, technical teams, and anyone interested in AI implementation and strategy.</div>
+                </div>
+              </div>
+              
+              <div className="bg-green-900/20 p-4 rounded border border-green-500/30">
+                <div className="text-green-400 font-bold mb-3">🎯 Quick Start Guide</div>
+                <div className="text-sm space-y-2">
+                  <div><span className="text-green-400 font-mono">whoami --detailed</span> - Learn about Henry Reed's expertise</div>
+                  <div><span className="text-blue-400 font-mono">services --consulting</span> - Explore AI consulting services</div>
+                  <div><span className="text-purple-400 font-mono">ls ctx --all-products</span> - View all products and services</div>
+                  <div><span className="text-yellow-400 font-mono">contact --schedule</span> - Book a consultation</div>
+                </div>
+              </div>
+              
+              <div className="bg-blue-900/20 p-4 rounded border border-blue-500/30">
+                <div className="text-blue-400 font-bold mb-3">💡 Pro Tips</div>
+                <div className="text-sm space-y-2">
+                  <div>• Use <span className="text-green-400 font-mono">help [command]</span> for detailed command info</div>
+                  <div>• Press <span className="text-blue-400 font-mono">↑/↓</span> to navigate command history</div>
+                  <div>• Try <span className="text-purple-400 font-mono">ls ctx</span> to explore different contexts</div>
+                  <div>• Type <span className="text-red-400 font-mono">clear</span> to reset the terminal</div>
+                </div>
+              </div>
+              
+              <div className="text-sm text-gray-400">
+                Ready to get started? Try <span className="text-green-400 font-mono">services</span> or <span className="text-blue-400 font-mono">whoami</span> to explore.
+              </div>
+            </div>
+          </div>
+        );
+      }
+    },
+    {
       name: 'clear',
       description: 'Clear the terminal',
       usage: 'clear',
@@ -369,11 +418,21 @@ export default function Terminal() {
     const trimmed = inputStr.trim();
     if (!trimmed) return;
 
-    const parts = trimmed.split(' ');
-    const command = parts[0].toLowerCase();
-    const args = parts.slice(1);
-
-    const config = commandConfigs.find(c => c.name === command);
+    // Handle multi-word commands like 'getting started'
+    let config = commandConfigs.find(c => trimmed.toLowerCase().startsWith(c.name.toLowerCase()));
+    let command = '';
+    let args: string[] = [];
+    
+    if (config) {
+      command = config.name.toLowerCase();
+      args = trimmed.slice(config.name.length).trim().split(' ').filter(arg => arg.length > 0);
+    } else {
+      // Fall back to single word command parsing
+      const parts = trimmed.split(' ');
+      command = parts[0].toLowerCase();
+      args = parts.slice(1);
+      config = commandConfigs.find(c => c.name === command);
+    }
     
     let output: React.ReactNode;
     if (config) {

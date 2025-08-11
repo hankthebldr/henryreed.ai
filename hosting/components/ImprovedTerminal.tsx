@@ -77,13 +77,13 @@ export default function ImprovedTerminal() {
  ╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═╝╚═╝     ╚═╝
 `}
           </pre>
-          <div className="text-base">
+          <div className="text-sm">
             <div className="mb-2">🤖 <strong>Henry Reed AI Terminal</strong></div>
             <div className="text-sm text-gray-400">
               Professional AI consulting and development services
             </div>
             <div className="mt-3 text-sm">
-              <div>• Type <span className="text-green-400 font-bold">help</span> for available commands</div>
+              <div>• Type <span className="text-green-400 font-bold">getting started</span> for an introduction or <span className="text-green-400 font-bold">help</span> for all commands</div>
               <div>• Press <span className="text-blue-400 font-bold">↑/↓</span> for command history</div>
               <div>• Try <span className="text-purple-400 font-bold">pov start</span> to begin a proof-of-value</div>
             </div>
@@ -149,6 +149,53 @@ export default function ImprovedTerminal() {
                 <div>1. Run <span className="text-green-400 font-mono">pov start</span> to begin proof-of-value</div>
                 <div>2. Use <span className="text-blue-400 font-mono">template list</span> to browse detection templates</div>
                 <div>3. Try <span className="text-purple-400 font-mono">detect create</span> to build custom detections</div>
+              </div>
+            </div>
+          </TerminalOutput>
+        );
+      }
+    },
+    {
+      name: 'getting started',
+      description: 'Introduction to Henry Reed AI Terminal',
+      usage: 'getting started',
+      aliases: ['getting-started', 'intro'],
+      handler: () => {
+        return (
+          <TerminalOutput type="info">
+            <div className="space-y-4">
+              <div className="font-bold text-lg text-cyan-300">🚀 Welcome to Henry Reed AI Terminal</div>
+              
+              <div className="bg-cyan-900/20 p-4 rounded border border-cyan-500/30">
+                <div className="text-cyan-400 font-bold mb-3">What is this?</div>
+                <div className="text-sm space-y-2">
+                  <div>This is an interactive terminal interface for exploring AI consulting services, proof-of-value assessments, and custom detection development.</div>
+                  <div>Built for security professionals, AI engineers, and business leaders looking to leverage AI for cybersecurity.</div>
+                </div>
+              </div>
+              
+              <div className="bg-green-900/20 p-4 rounded border border-green-500/30">
+                <div className="text-green-400 font-bold mb-3">🎯 Quick Start Guide</div>
+                <div className="text-sm space-y-2">
+                  <div><span className="text-green-400 font-mono">pov start</span> - Begin a proof-of-value assessment</div>
+                  <div><span className="text-blue-400 font-mono">template list</span> - Browse detection templates</div>
+                  <div><span className="text-purple-400 font-mono">detect create</span> - Build custom detection rules</div>
+                  <div><span className="text-yellow-400 font-mono">whoami</span> - Learn about Henry Reed</div>
+                </div>
+              </div>
+              
+              <div className="bg-blue-900/20 p-4 rounded border border-blue-500/30">
+                <div className="text-blue-400 font-bold mb-3">💡 Pro Tips</div>
+                <div className="text-sm space-y-2">
+                  <div>• Use <span className="text-green-400 font-mono">help [command]</span> for detailed command info</div>
+                  <div>• Press <span className="text-blue-400 font-mono">↑/↓</span> to navigate command history</div>
+                  <div>• Try <span className="text-purple-400 font-mono">Tab</span> for command completion</div>
+                  <div>• Type <span className="text-red-400 font-mono">clear</span> to reset the terminal</div>
+                </div>
+              </div>
+              
+              <div className="text-sm text-gray-400">
+                Ready to get started? Try <span className="text-green-400 font-mono">pov start</span> or <span className="text-blue-400 font-mono">help</span> to explore all commands.
               </div>
             </div>
           </TerminalOutput>
@@ -877,11 +924,21 @@ level: high`}
     const trimmed = inputStr.trim();
     if (!trimmed) return;
 
-    const parts = trimmed.split(' ');
-    const command = parts[0].toLowerCase();
-    const args = parts.slice(1);
-
-    const config = commandConfigs.find(c => c.name === command || c.aliases?.includes(command));
+    // Handle multi-word commands like 'getting started'
+    let config = commandConfigs.find(c => trimmed.toLowerCase().startsWith(c.name.toLowerCase()));
+    let command = '';
+    let args: string[] = [];
+    
+    if (config) {
+      command = config.name.toLowerCase();
+      args = trimmed.slice(config.name.length).trim().split(' ').filter(arg => arg.length > 0);
+    } else {
+      // Fall back to single word command parsing
+      const parts = trimmed.split(' ');
+      command = parts[0].toLowerCase();
+      args = parts.slice(1);
+      config = commandConfigs.find(c => c.name === command || c.aliases?.includes(command));
+    }
     
     let output: React.ReactNode;
     if (config) {

@@ -47,7 +47,10 @@ export default function EnhancedTerminal() {
  ╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═╝╚═╝     ╚═╝
 `}
           </pre>
-          <div className="text-sm text-gray-400 mt-2">Proof-of-Value CLI • Type 'help' for available commands</div>
+          <div className="text-sm text-gray-400 mt-2">
+            <div className="text-lg text-cyan-300 font-semibold mb-1">Next Generation Security Operations Toolkit</div>
+            <div>Proof-of-Value CLI • Type 'getting-started' or 'help' for available commands</div>
+          </div>
         </div>
       ),
       timestamp: new Date()
@@ -55,6 +58,136 @@ export default function EnhancedTerminal() {
   }, []);
 
   const commandConfigs: CommandConfig[] = [
+    {
+      name: 'getting-started',
+      description: 'Introduction to Henry Reed AI services and terminal navigation',
+      usage: 'getting-started',
+      aliases: ['gs', 'start', 'welcome'],
+      handler: () => {
+        return (
+          <div className="text-blue-300">
+            <div className="font-bold mb-4 text-xl">🚀 Welcome to Henry Reed AI</div>
+            <div className="space-y-6">
+              <div className="border-l-4 border-cyan-500 bg-gray-900 p-4 rounded-r">
+                <div className="text-cyan-400 font-bold text-lg mb-3">👋 Welcome to XSIAM & Cortex Security Products</div>
+                <div className="text-gray-300 space-y-2">
+                  <p>Welcome to the next generation of security operations! XSIAM (Extended Security Intelligence and Automation Management) represents the evolution of security operations, providing AI-driven threat detection, investigation, and response capabilities.</p>
+                  <p>Our Cortex security product suite delivers comprehensive protection across your entire digital ecosystem, from endpoints to cloud infrastructure.</p>
+                </div>
+              </div>
+              
+              <div className="border-l-4 border-blue-500 bg-gray-900 p-4 rounded-r">
+                <div className="text-blue-400 font-bold text-lg mb-3">🎯 About POV-CLI (Proof-of-Value CLI)</div>
+                <div className="text-gray-300 space-y-2">
+                  <p>The POV-CLI is your interactive gateway to experiencing our security capabilities firsthand. This terminal provides hands-on access to realistic security scenarios, assessment tools, and demonstration environments.</p>
+                  <p>Deploy, test, and validate security controls in controlled environments that mirror real-world threats and challenges.</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="border border-green-600 p-4 rounded">
+                  <div className="text-green-400 font-bold mb-3">🔒 Security Operations</div>
+                  <div className="text-gray-300 text-sm space-y-2">
+                    <div>• SIEM/SOAR Integration</div>
+                    <div>• Threat Intelligence</div>
+                    <div>• Incident Response</div>
+                    <div>• Security Orchestration</div>
+                  </div>
+                </div>
+                
+                <div className="border border-blue-600 p-4 rounded">
+                  <div className="text-blue-400 font-bold mb-3">🛡️ Threat Detection</div>
+                  <div className="text-gray-300 text-sm space-y-2">
+                    <div>• AI-Powered Analytics</div>
+                    <div>• Behavioral Analysis</div>
+                    <div>• Zero-Day Protection</div>
+                    <div>• Advanced Persistent Threats</div>
+                  </div>
+                </div>
+                
+                <div className="border border-purple-600 p-4 rounded">
+                  <div className="text-purple-400 font-bold mb-3">⚡ Automated Response</div>
+                  <div className="text-gray-300 text-sm space-y-2">
+                    <div>• Playbook Automation</div>
+                    <div>• Threat Containment</div>
+                    <div>• Evidence Collection</div>
+                    <div>• Remediation Workflows</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-gray-800 rounded border border-yellow-600">
+                <div className="text-yellow-400 font-bold mb-3">🗺️ Step-by-Step Navigation Guide</div>
+                <div className="text-gray-300 text-sm space-y-2">
+                  <div className="flex items-start">
+                    <span className="text-cyan-400 font-bold mr-2">1.</span>
+                    <div>Start with <span className="font-mono text-blue-400">scenario list</span> to explore available security scenarios</div>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-cyan-400 font-bold mr-2">2.</span>
+                    <div>Deploy a scenario using <span className="font-mono text-green-400">scenario generate --scenario-type [type]</span></div>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-cyan-400 font-bold mr-2">3.</span>
+                    <div>Monitor deployment with <span className="font-mono text-purple-400">scenario status [id]</span></div>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-cyan-400 font-bold mr-2">4.</span>
+                    <div>Validate security controls using <span className="font-mono text-yellow-400">scenario validate [id]</span></div>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="text-cyan-400 font-bold mr-2">5.</span>
+                    <div>Export results with <span className="font-mono text-orange-400">scenario export [id]</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border border-gray-600 p-4 rounded">
+                <div className="text-gray-200 font-bold mb-3">🚀 Essential Commands to Try</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="font-mono text-green-400">help</span>
+                      <span className="text-gray-400">Show all available commands</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-mono text-blue-400">scenario list</span>
+                      <span className="text-gray-400">Browse security scenarios</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-mono text-purple-400">ls ctx --all-products</span>
+                      <span className="text-gray-400">Explore all services</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="font-mono text-yellow-400">whoami --detailed</span>
+                      <span className="text-gray-400">Learn about expertise</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-mono text-cyan-400">ai [question]</span>
+                      <span className="text-gray-400">Ask the AI assistant</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-mono text-red-400">contact --schedule</span>
+                      <span className="text-gray-400">Book a consultation</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-center p-4 bg-gradient-to-r from-blue-900 to-purple-900 rounded border border-cyan-500">
+                <div className="text-cyan-300 font-semibold text-lg">Ready to Transform Your Security Operations?</div>
+                <div className="text-gray-300 mt-2">Schedule a personalized consultation to discuss your security challenges and explore how XSIAM and Cortex can strengthen your defenses.</div>
+                <div className="mt-3">
+                  <span className="font-mono text-yellow-400 bg-gray-800 px-3 py-1 rounded">contact --schedule</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+    },
     {
       name: 'help',
       description: 'Show available commands',
