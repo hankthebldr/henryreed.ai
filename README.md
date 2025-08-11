@@ -306,11 +306,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Henry Reed** - AI Strategy & Development Consultant
 
-- 🌐 Website: [henryreed.ai](https://henryreed.ai)
-- 💼 LinkedIn: [linkedin.com/in/henryreed](https://linkedin.com/in/henryreed)
-- 📧 Email: hello@henryreed.ai
-- 📅 Schedule: [calendly.com/henryreed](https://calendly.com/henryreed)
-
 ---
 
 **Built with ❤️ for the AI community**
