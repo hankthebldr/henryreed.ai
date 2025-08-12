@@ -1,12 +1,12 @@
 # Proof-of-Value CLI (POV-CLI)
 
-**An Interactive Terminal Interface for AI Strategy & Consulting Services**
+**An Interactive Terminal Interface for Cloud Application Security Scenarios**
 
 [![Deploy to Firebase](https://img.shields.io/badge/deploy-Firebase-orange)](https://henryreedai.web.app)
 [![Built with Next.js](https://img.shields.io/badge/built%20with-Next.js-black)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-POV-CLI is a modern, terminal-inspired web interface that provides AI-powered insights, strategic consulting services, and interactive demonstrations through an intuitive command-line experience. Built with Next.js and TypeScript, it showcases advanced terminal functionality with support for both synchronous and asynchronous command execution.
+POV-CLI is a modern, terminal-inspired web interface that provides cloud security insights, scenario testing, and interactive demonstrations through an intuitive command-line experience. Built with Next.js and TypeScript, it showcases advanced terminal functionality with support for both synchronous and asynchronous command execution.
 
 ![Terminal Screenshot](https://via.placeholder.com/800x400/1a1a1a/00ff00?text=POV-CLI+Terminal+Interface)
 
@@ -19,11 +19,10 @@ POV-CLI is a modern, terminal-inspired web interface that provides AI-powered in
 - **Command Aliases** - Multiple aliases for improved user experience
 - **Real-time Status** - System analytics and performance monitoring
 
-### 🤖 AI-Powered Features
-- **Cortex Questions** - Save questions and get AI-powered insights with mock GenAI integration
-- **Context Point-of-View (ctxpov)** - Dynamic URL generation with role-based content
-- **Strategic Consulting** - Interactive consulting services through CLI commands
-- **Scenario Management** - Advanced scenario deployment integration with Google Cloud Functions
+### 🔐 Cloud Security Features
+- **OWASP Top 10 Reference** - Quick access to common web application risks
+- **Scenario Management** - Deploy cloud security assessment scenarios
+- **CDR Template Downloads** - Retrieve Cloud Detection and Response resources
 
 ### 🛠️ Technical Capabilities
 - **Service Discovery** - Comprehensive listing of AI services and capabilities
