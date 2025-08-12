@@ -84,7 +84,6 @@ npm start
 
 ### Basic Commands
 - `help [command]` - Show available commands or detailed help
-- `whoami [--detailed]` - Display information about Henry Reed
 - `clear` - Clear the terminal screen
 
 ### Authentication
@@ -101,7 +100,6 @@ npm start
 
 ### Command Aliases
 - `help` = `?`, `man`
-- `whoami` = `me`, `info`
 - `clear` = `cls`
 - `login` = `auth`, `signin`
 - `logout` = `signout`

@@ -39,9 +39,7 @@ interface CommandConfig {
 ```typescript
 // Basic synchronous command
 {
-  name: 'whoami',
   description: 'Display information about Henry Reed',
-  usage: 'whoami [--detailed]',
   aliases: ['me', 'info'],
   handler: (args) => <div>Henry Reed - AI Engineer</div>
 }

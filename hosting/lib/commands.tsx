@@ -129,11 +129,6 @@ export const commands: CommandConfig[] = [
                 </div>
               </div>
             </div>
-            <div className="mt-6 p-4 bg-gray-800 rounded border border-yellow-600">
-              <div className="text-yellow-400 font-bold">🎁 Get Started Today</div>
-              <div className="text-gray-300 mt-1">Schedule a free 30-minute consultation to discuss your AI needs</div>
-              <div className="text-green-400 mt-2 font-mono">→ contact --schedule</div>
-            </div>
           </div>
         );
       }
@@ -336,18 +331,13 @@ export const commands: CommandConfig[] = [
               <span className="text-purple-400">services/</span>
               <span className="text-gray-500">Available AI consulting services</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-yellow-400">contact/</span>
-              <span className="text-gray-500">Get in touch and schedule meetings</span>
-            </div>
           </div>
           <div className="mt-6 p-4 bg-gray-800 rounded border border-gray-600">
             <div className="text-yellow-400 font-bold mb-2">💡 Quick Start</div>
             <div className="text-gray-300 text-sm">
               Try these commands to get started:<br/>
               <span className="text-green-400 font-mono">ls ctx --all-products</span> - Explore all services<br/>
-              <span className="text-blue-400 font-mono">whoami --detailed</span> - Learn about Henry Reed<br/>
-              <span className="text-purple-400 font-mono">contact --schedule</span> - Book a consultation
+              <span className="text-green-400 font-mono">cloud-detect</span> - View cloud detection rules
             </div>
           </div>
         </div>

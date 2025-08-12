@@ -388,7 +388,6 @@ console.log('Download initiated:', result);
 For support with the download system:
 - Use `help download` in the terminal
 - Contact: `henry@henryreed.ai`
-- Schedule consultation: `contact --schedule`
 
 ---
 

@@ -175,11 +175,6 @@ export default function EnhancedTerminal() {
                   </div>
                 </div>
               </div>
-              <div className="mt-6 p-4 bg-gray-800 rounded border border-yellow-600">
-                <div className="text-yellow-400 font-bold">🎁 Get Started Today</div>
-                <div className="text-gray-300 mt-1">Schedule a free 30-minute consultation to discuss your AI needs</div>
-                <div className="text-green-400 mt-2 font-mono">→ contact --schedule</div>
-              </div>
             </div>
           );
         }
@@ -383,7 +378,7 @@ export default function EnhancedTerminal() {
                 <span className="text-gray-500">Available AI consulting services</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-yellow-400">contact/</span>
+                <span className="text-green-400">cloud-detect</span>
                 <span className="text-gray-500">Get in touch and schedule meetings</span>
               </div>
             </div>
@@ -392,111 +387,8 @@ export default function EnhancedTerminal() {
               <div className="text-gray-300 text-sm">
                 Try these commands to get started:<br/>
                 <span className="text-green-400 font-mono">ls ctx --all-products</span> - Explore all services<br/>
-                <span className="text-blue-400 font-mono">whoami --detailed</span> - Learn about Henry Reed<br/>
-                <span className="text-purple-400 font-mono">contact --schedule</span> - Book a consultation
+                <span className="text-green-400 font-mono">cloud-detect</span> - View cloud detection rules
               </div>
-            </div>
-          </div>
-        );
-      }
-    },
-    {
-      name: 'whoami',
-      description: 'Display information about Henry Reed',
-      usage: 'whoami [--detailed]',
-      aliases: ['me', 'info'],
-      handler: (args) => {
-        const detailed = args.includes('--detailed');
-        
-        if (detailed) {
-          return (
-            <div className="text-blue-300">
-              <div className="font-bold text-2xl mb-4 text-cyan-300">Henry Reed - AI Engineer & Consultant</div>
-              <div className="space-y-4 text-base">
-                <div className="border-b border-gray-600 pb-3">
-                  <p><span className="text-green-400">🚀 Mission:</span> To bridge the gap between cutting-edge AI research and practical, impactful business applications.</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p><strong className="text-blue-400">Expertise:</strong> Machine Learning, Large Language Models (LLMs), Computer Vision, and Enterprise AI Strategy.</p>
-                  </div>
-                  <div>
-                    <p><strong className="text-purple-400">Focus:</strong> Building scalable, reliable, and high-performance AI systems that deliver measurable ROI.</p>
-                  </div>
-                </div>
-                <div className="mt-4 p-4 bg-gray-800 rounded border border-gray-600">
-                  <p className="text-yellow-400 italic">"I believe in a future where AI is a powerful tool for innovation and problem-solving in every industry. My goal is to help you navigate that future with confidence."</p>
-                </div>
-              </div>
-            </div>
-          );
-        }
-
-        return (
-          <div className="text-blue-300">
-            <div className="text-xl font-bold">Henry Reed</div>
-            <div className="text-gray-300">AI Engineer & Consultant</div>
-            <div className="text-xs text-gray-500 mt-2">Use <span className="font-mono">whoami --detailed</span> for more info</div>
-          </div>
-        );
-      }
-    },
-    {
-      name: 'contact',
-      description: 'Get contact information',
-      usage: 'contact [--all] [--email] [--linkedin] [--schedule]',
-      aliases: ['reach', 'connect'],
-      handler: (args) => {
-        const all = args.includes('--all');
-        const email = args.includes('--email');
-        const linkedin = args.includes('--linkedin');
-        const schedule = args.includes('--schedule');
-
-        if (all || email || linkedin || schedule) {
-          return (
-            <div className="text-blue-300">
-              <div className="font-bold mb-4 text-xl">📞 Get in Touch</div>
-              <div className="space-y-3">
-                {(all || email) && (
-                  <div className="flex items-center text-green-400">
-                    <span className="text-xl mr-3">📧</span>
-                    <div>
-                      <div className="font-bold">Email</div>
-                      <a href="mailto:henry@henryreed.ai" className="text-gray-300 hover:underline">henry@henryreed.ai</a>
-                    </div>
-                  </div>
-                )}
-                {(all || linkedin) && (
-                  <div className="flex items-center text-blue-400">
-                    <span className="text-xl mr-3">💼</span>
-                    <div>
-                      <div className="font-bold">LinkedIn</div>
-                      <a href="https://linkedin.com/in/henryreedai" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:underline">linkedin.com/in/henryreedai</a>
-                    </div>
-                  </div>
-                )}
-                {(all || schedule) && (
-                  <div className="flex items-center text-purple-400">
-                    <span className="text-xl mr-3">📅</span>
-                    <div>
-                      <div className="font-bold">Schedule a Meeting</div>
-                      <a href="https://cal.com/henryreed" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:underline">cal.com/henryreed</a>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        }
-
-        return (
-          <div className="text-blue-300">
-            <div className="font-bold mb-3 text-xl">📞 How to reach me</div>
-            <div className="space-y-2 text-sm">
-              <div className="text-green-400 font-mono">contact --email</div>
-              <div className="text-blue-400 font-mono">contact --linkedin</div>
-              <div className="text-purple-400 font-mono">contact --schedule</div>
-              <div className="text-yellow-400 font-mono mt-2">contact --all</div>
             </div>
           </div>
         );
@@ -652,7 +544,7 @@ export default function EnhancedTerminal() {
                 <br/>
                 3. <span className="text-purple-400">Integration</span>: Seamless integration into everyday business workflows
                 <br/><br/>
-                Want to explore how LLMs can transform your organization? Try: <span className="font-mono text-yellow-400">contact --schedule</span>
+                Want to explore how LLMs can transform your organization? Try: <span className="font-mono text-yellow-400">cloud-detect</span>
               </div>
             </div>
           );
@@ -705,7 +597,7 @@ export default function EnhancedTerminal() {
             <div className="text-gray-300">
               That's an interesting question about "{prompt}"! While I can provide some general insights, I'd love to discuss this in more detail.
               <br/><br/>
-              For personalized advice and detailed answers, let's schedule a consultation: <span className="font-mono text-green-400">contact --schedule</span>
+              For personalized advice and detailed answers, explore detection scenarios: <span className="font-mono text-green-400">cloud-detect --egg</span>
               <br/><br/>
               Or explore my services: <span className="font-mono text-blue-400">ls ctx --all-products</span>
             </div>

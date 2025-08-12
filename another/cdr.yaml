@@ -1,0 +1,9 @@
+detections:
+  - id: cloud-unauthorized-access
+    description: Detect unauthorized access to cloud resources
+    log_source: cloudtrail
+    severity: high
+  - id: iam-policy-change
+    description: Monitor IAM policy changes across accounts
+    log_source: config
+    severity: medium

@@ -65,7 +65,6 @@ export default function DocsPage() {
                 </div>
                 
                 <div className="bg-gray-800/50 p-4 rounded">
-                  <div className="text-green-400 font-mono font-bold">whoami [--detailed]</div>
                   <div className="text-sm text-gray-300 mt-1">
                     Display information about Henry Reed. Use --detailed for comprehensive profile
                   </div>
@@ -199,9 +198,7 @@ export default function DocsPage() {
               <div className="bg-black p-4 rounded font-mono text-sm">
                 <div className="text-blue-400">henry@ai:~$ <span className="text-white">help</span></div>
                 <div className="text-gray-300 mt-2">Shows all available commands with descriptions</div>
-                <div className="text-blue-400 mt-4">henry@ai:~$ <span className="text-white">whoami</span></div>
                 <div className="text-gray-300 mt-2">Basic information about Henry Reed</div>
-                <div className="text-blue-400 mt-4">henry@ai:~$ <span className="text-white">whoami --detailed</span></div>
                 <div className="text-gray-300 mt-2">Comprehensive profile and expertise overview</div>
               </div>
             </div>
@@ -211,7 +208,6 @@ export default function DocsPage() {
               <div className="bg-black p-4 rounded font-mono text-sm">
                 <div className="text-blue-400">henry@ai:~$ <span className="text-white">login</span></div>
                 <div className="text-gray-300 mt-2">Opens login form with email/password and Google options</div>
-                <div className="text-blue-400 mt-4">henry@ai:~$ <span className="text-white">whoami</span></div>
                 <div className="text-gray-300 mt-2">Now shows "✓ Signed in as user@example.com"</div>
                 <div className="text-blue-400 mt-4">henry@ai:~$ <span className="text-white">logout</span></div>
                 <div className="text-gray-300 mt-2">Signs out and shows confirmation message</div>
@@ -235,7 +231,6 @@ export default function DocsPage() {
                   <div className="text-green-400 font-bold mb-2">Command Aliases</div>
                   <div className="text-sm text-gray-300 space-y-1">
                     <div>• <span className="text-blue-400">help</span> = <span className="text-gray-400">? man</span></div>
-                    <div>• <span className="text-blue-400">whoami</span> = <span className="text-gray-400">me info</span></div>
                     <div>• <span className="text-blue-400">clear</span> = <span className="text-gray-400">cls</span></div>
                     <div>• <span className="text-blue-400">login</span> = <span className="text-gray-400">auth signin</span></div>
                   </div>

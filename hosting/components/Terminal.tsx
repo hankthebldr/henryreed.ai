@@ -179,89 +179,10 @@ export default function Terminal() {
               <div className="text-green-400">ctx/           Context and information</div>
               <div className="text-blue-400">projects/      Project portfolio</div>
               <div className="text-purple-400">services/      Available services</div>
-              <div className="text-yellow-400">contact/       Get in touch</div>
+              <div className="text-green-400">cloud-detect   Cloud detection rules</div>
             </div>
             <div className="mt-4 text-gray-400 text-sm">
               Try: ls ctx --all-products
-            </div>
-          </div>
-        );
-      }
-    },
-    {
-      name: 'whoami',
-      description: 'Display information about Henry Reed',
-      usage: 'whoami [--detailed]',
-      handler: (args) => {
-        const detailed = args.includes('--detailed');
-        
-        if (detailed) {
-          return (
-            <div className="text-blue-300">
-              <div className="font-bold text-xl mb-3">Henry Reed</div>
-              <div className="space-y-2 text-sm">
-                <div><span className="text-green-400">Role:</span> AI Engineer & Consultant</div>
-                <div><span className="text-green-400">Expertise:</span> Machine Learning, LLMs, Computer Vision</div>
-                <div><span className="text-green-400">Focus:</span> Enterprise AI implementation and strategy</div>
-                <div><span className="text-green-400">Mission:</span> Making AI accessible and practical for businesses</div>
-                <div className="mt-3 text-gray-400">
-                  "Bridging the gap between cutting-edge AI research and real-world business applications"
-                </div>
-              </div>
-            </div>
-          );
-        }
-
-        return (
-          <div className="text-blue-300">
-            <div className="text-lg font-bold">Henry Reed</div>
-            <div className="text-sm text-gray-300">AI Engineer & Consultant</div>
-            <div className="text-xs text-gray-500 mt-1">Use --detailed for more info</div>
-          </div>
-        );
-      }
-    },
-    {
-      name: 'contact',
-      description: 'Get contact information',
-      usage: 'contact [--email] [--linkedin] [--schedule]',
-      handler: (args) => {
-        const email = args.includes('--email');
-        const linkedin = args.includes('--linkedin');
-        const schedule = args.includes('--schedule');
-
-        if (email || linkedin || schedule) {
-          return (
-            <div className="text-blue-300">
-              <div className="font-bold mb-3">📞 Contact Information</div>
-              <div className="space-y-2">
-                {email && (
-                  <div className="text-green-400">
-                    📧 Email: henry@henryreed.ai
-                  </div>
-                )}
-                {linkedin && (
-                  <div className="text-blue-400">
-                    💼 LinkedIn: /in/henryreedai
-                  </div>
-                )}
-                {schedule && (
-                  <div className="text-purple-400">
-                    📅 Schedule: cal.com/henryreed
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        }
-
-        return (
-          <div className="text-blue-300">
-            <div className="font-bold mb-3">📞 How to reach me</div>
-            <div className="space-y-1 text-sm">
-              <div className="text-green-400">• --email     Get email address</div>
-              <div className="text-blue-400">• --linkedin  LinkedIn profile</div>
-              <div className="text-purple-400">• --schedule  Book a meeting</div>
             </div>
           </div>
         );

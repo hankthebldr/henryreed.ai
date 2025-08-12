@@ -116,27 +116,9 @@ validation_rules:
 
 ---
 
-## 3. Information & Identity Commands
+## 3. Information Commands
 
-### 3.1 `whoami` Command
-
-```yaml
-name: whoami
-aliases: ['me', 'info']
-usage: whoami [--detailed]
-parameters:
-  --detailed:
-    type: boolean
-    required: false
-    description: "Show comprehensive profile information"
-    default_behavior: "Basic name and title display"
-
-output_modes:
-  basic: "Name, title, usage hint"
-  detailed: "Mission, expertise, philosophy, comprehensive profile"
-```
-
-### 3.2 `status` Command
+### 3.1 `status` Command
 
 ```yaml
 name: status
@@ -175,44 +157,9 @@ flag_combinations:
 
 ---
 
-## 4. Contact & Communication Commands
+## 4. Service Commands
 
-### 4.1 `contact` Command
-
-```yaml
-name: contact
-aliases: ['reach', 'connect']
-usage: contact [--all] [--email] [--linkedin] [--schedule]
-parameters:
-  --all:
-    type: boolean
-    required: false
-    description: "Show all contact methods"
-    overrides: ['--email', '--linkedin', '--schedule']
-    
-  --email:
-    type: boolean
-    required: false
-    description: "Display email contact information"
-    output: "henry@henryreed.ai with clickable mailto link"
-    
-  --linkedin:
-    type: boolean
-    required: false
-    description: "Show LinkedIn profile link"
-    output: "linkedin.com/in/henryreedai with external link"
-    
-  --schedule:
-    type: boolean
-    required: false
-    description: "Display meeting scheduling link"
-    output: "cal.com/henryreed with external calendar link"
-
-default_behavior: "Show available flag options when no flags provided"
-validation: "All flags are optional, mutually combinable"
-```
-
-### 4.2 `services` Command
+### 4.1 `services` Command
 
 ```yaml
 name: services
@@ -247,9 +194,26 @@ redirect_behavior: "Currently redirects to 'ls ctx --all-products'"
 
 ---
 
-## 5. AI-Powered Commands
+## 5. Cloud Detection Commands
 
-### 5.1 `cortex-questions` Command
+### 5.1 `cloud-detect` Command
+
+```yaml
+name: cloud-detect
+usage: cloud-detect [--egg]
+parameters:
+  --egg:
+    type: boolean
+    required: false
+    description: "Reveal hidden message"
+source: another/cdr.yaml
+```
+
+---
+
+## 6. AI-Powered Commands
+
+### 6.1 `cortex-questions` Command
 
 ```yaml
 name: cortex-questions
@@ -286,7 +250,7 @@ special_parsing:
   - Timestamp: "2024-01-15T10:30:00.000Z"
 ```
 
-### 5.2 `ai` Command
+### 6.2 `ai` Command
 
 ```yaml
 name: ai
@@ -324,7 +288,7 @@ parsing_logic:
   - Pattern matching for response selection
 ```
 
-### 5.3 `search` Command
+### 6.3 `search` Command
 
 ```yaml
 name: search

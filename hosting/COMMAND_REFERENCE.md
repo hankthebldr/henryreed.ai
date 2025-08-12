@@ -8,14 +8,15 @@ Point-of-View CLI (POV-CLI) is an interactive terminal interface that provides A
 ### Basic Commands
 - `help` - Show available commands
 - `clear` - Clear the terminal screen
-- `whoami` - Display information about Henry Reed
 - `status` - Show system status and analytics
 
 ### Context & Information
 - `ls` - List and explore context (use with flags like --all-products, --skills, --recent)
 - `search "query"` - Search through knowledge base and documentation
-- `contact` - Get contact information (--email, --linkedin, --schedule)
 - `services` - Explore available AI services
+
+### Detection
+- `cloud-detect` - Display cloud detection rules from `another/cdr.yaml`
 
 ### AI-Powered Features
 - `cortex-questions "question"` - Save questions and get AI-powered insights
@@ -48,8 +49,6 @@ Generate custom URLs based on perspective:
 ## Command Aliases
 - `help`: `?`, `man`
 - `ls`: `list`, `dir`
-- `whoami`: `me`, `info`
-- `contact`: `reach`, `connect`
 - `services`: `offerings`, `solutions`
 - `clear`: `cls`
 - `ai`: `ask`, `chat`

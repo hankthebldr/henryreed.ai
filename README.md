@@ -29,7 +29,6 @@ POV-CLI is a modern, terminal-inspired web interface that provides AI-powered in
 - **Service Discovery** - Comprehensive listing of AI services and capabilities
 - **Knowledge Base Search** - Advanced search through documentation and insights
 - **Download Management** - Resource and template download functionality
-- **Contact Integration** - Direct access to scheduling and contact information
 
 ## 🏗️ Architecture
 
@@ -157,14 +156,12 @@ npm run deploy:preview
 ### Core Commands
 - `help` - Show available commands and usage information
 - `clear` - Clear the terminal screen
-- `whoami` - Display information about Henry Reed
 - `status` - Show system status and analytics
 
 ### Context & Information
 - `ls ctx --all-products` - List all AI products and services
 - `ls ctx --skills` - Display technical expertise
 - `search "query"` - Search knowledge base and documentation
-- `contact` - Get contact information and scheduling
 
 ### AI-Powered Features
 - `cortex-questions "question"` - Save questions for AI analysis
@@ -177,11 +174,13 @@ npm run deploy:preview
 - `scenario status [name]` - Check deployment status
 - `scenario delete [name]` - Remove a scenario deployment
 
+### Detection
+- `cloud-detect` - Display cloud detection rules
+
 ### Aliases
 Most commands support aliases for faster typing:
 - `help` → `?`, `man`
 - `ls` → `list`, `dir`
-- `contact` → `reach`, `connect`
 - `cortex-questions` → `cq`, `ask-cortex`, `genai`
 
 ## ⚙️ Configuration

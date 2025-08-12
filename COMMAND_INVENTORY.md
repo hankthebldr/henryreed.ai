@@ -65,15 +65,7 @@ The system organizes commands across four main files:
 
 ---
 
-### 2.2 Information & Identity Commands
-
-#### `whoami`
-- **Aliases:** `me`, `info`
-- **Usage:** `whoami [--detailed]`
-- **Description:** Display information about Henry Reed
-- **Modes:**
-  - Basic: Name, title, quick info
-  - Detailed: Comprehensive profile with mission, expertise, and philosophy
+### 2.2 Information Commands
 
 #### `status`
 - **Aliases:** `info`, `stats`
@@ -86,16 +78,7 @@ The system organizes commands across four main files:
 
 ---
 
-### 2.3 Contact & Communication Commands
-
-#### `contact`
-- **Aliases:** `reach`, `connect`
-- **Usage:** `contact [--all] [--email] [--linkedin] [--schedule]`
-- **Description:** Get contact information and scheduling
-- **Integration Points:**
-  - Direct email links (`henry@henryreed.ai`)
-  - LinkedIn profile integration
-  - Calendar scheduling system (`cal.com/henryreed`)
+### 2.3 Service Commands
 
 #### `services`
 - **Aliases:** `offerings`, `solutions`
@@ -105,7 +88,16 @@ The system organizes commands across four main files:
 
 ---
 
-### 2.4 AI-Powered Commands
+### 2.4 Cloud Detection Commands
+
+#### `cloud-detect`
+- **Usage:** `cloud-detect [--egg]`
+- **Description:** Display cloud detection rules from `another/cdr.yaml`
+- **Easter Egg:** Use `--egg` to reveal a hidden message
+
+---
+
+### 2.5 AI-Powered Commands
 
 #### `cortex-questions`
 - **Aliases:** `cq`, `ask-cortex`, `genai`
@@ -139,7 +131,7 @@ The system organizes commands across four main files:
 
 ---
 
-### 2.5 Context Point-of-View Commands
+### 2.6 Context Point-of-View Commands
 
 #### `ctxpov`
 - **Aliases:** `ctx-pov`, `perspective`
@@ -212,7 +204,7 @@ The system organizes commands across four main files:
 
 ### 3.1 Synchronous vs Asynchronous Handlers
 
-**Synchronous Commands:** Most basic commands (help, whoami, contact, ls)
+**Synchronous Commands:** Most basic commands (help, ls)
 - Immediate React component return
 - Direct UI rendering
 
@@ -249,7 +241,6 @@ if (result && typeof result === 'object' && 'then' in result) {
 |---------|---------|---------------|
 | `help` | `?`, `man` | Universal help access |
 | `ls` | `list`, `dir` | Familiar file system analogy |
-| `contact` | `reach`, `connect` | Communication synonyms |
 | `cortex-questions` | `cq`, `ask-cortex`, `genai` | AI query shortcuts |
 | `ai` | `ask`, `chat` | Conversational interfaces |
 | `search` | `find`, `lookup` | Search operation variants |
@@ -260,7 +251,6 @@ if (result && typeof result === 'object' && 'then' in result) {
 | `terraform` | `tf`, `infra` | DevOps abbreviations |
 | `detection` | `detect`, `security` | Security context |
 | `cdr` | `cloud-detection`, `detection-box` | Platform naming |
-| `whoami` | `me`, `info` | Identity queries |
 | `status` | `info`, `stats` | System information |
 | `ctxpov` | `ctx-pov`, `perspective` | Context switching |
 

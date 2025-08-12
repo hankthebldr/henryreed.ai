@@ -104,9 +104,7 @@ const allCommands: CommandConfig[] = [
 ```typescript
 // Command with Aliases Example (commands-ext.tsx, lines 7-10)
 {
-  name: 'whoami',
   description: 'Display information about Henry Reed',
-  usage: 'whoami [--detailed]',
   aliases: ['me', 'info'],  // Multiple alias support
 }
 
@@ -124,7 +122,6 @@ const cmd = commands.find(c =>
 ### 2.3 Dynamic Command Registration
 
 Commands are registered through modular inclusion:
-- **Base Commands**: Core terminal functionality (help, ls, whoami, contact)
 - **Extended Commands**: Advanced features (AI, search, status)
 - **Download Commands**: Specialized download modules
 - **Scenario Commands**: Security scenario management

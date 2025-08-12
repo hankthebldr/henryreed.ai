@@ -28,9 +28,7 @@
 | **help** | Show available commands with context-aware help | `help [command]` | `?`, `man` | `command: string?` | None | Synchronous | Terminal UI |
 | **clear** | Clear the terminal screen | `clear` | `cls` | None | None | Special Handler | Terminal State |
 | **ls** | List and explore context with hierarchical display | `ls [ctx\|projects\|services] [flags]` | `list`, `dir` | `context: enum?` | `--all-products`, `--skills`, `--recent` | Synchronous | Content Management |
-| **whoami** | Display information about Henry Reed | `whoami [--detailed]` | `me`, `info` | None | `--detailed` | Synchronous | Profile Data |
 | **status** | Show system status and analytics | `status [flags]` | `info`, `stats` | None | `--detailed`, `--analytics`, `--performance` | Synchronous | System Metrics |
-| **contact** | Get contact information and scheduling | `contact [flags]` | `reach`, `connect` | None | `--all`, `--email`, `--linkedin`, `--schedule` | Synchronous | External Links |
 | **services** | Explore available AI services | `services [flags]` | `offerings`, `solutions` | None | `--all`, `--consulting`, `--development`, `--training` | Redirect Handler | Content Redirect |
 | **cortex-questions** | Save questions and get AI-powered insights | `cortex-questions "question"` | `cq`, `ask-cortex`, `genai` | `question: string!` | None | Synchronous | Mock GenAI Service |
 | **ai** | Interact with Henry Reed AI assistant | `ai [prompt]` | `ask`, `chat` | `prompt: string?` | None | Synchronous | AI Pattern Matching |
@@ -44,8 +42,6 @@
 
 ### Command Categories
 
-- **🛠️ Core System**: `help`, `clear`, `ls`, `whoami`, `status`
-- **🤝 Communication**: `contact`, `services`
 - **🧠 AI-Powered**: `cortex-questions`, `ai`, `search`
 - **🎯 Context Management**: `ctxpov`
 - **📦 Resource Management**: `download`, `terraform`, `detection`, `cdr`
@@ -71,7 +67,6 @@ interface CommandConfig {
 
 | Handler Type | Behavior | Return Type | Processing | Examples |
 |-------------|----------|-------------|------------|----------|
-| **Synchronous** | Immediate execution | `React.ReactNode` | Direct UI rendering | `help`, `whoami`, `contact` |
 | **Asynchronous** | Promise-based execution | `Promise<React.ReactNode>` | Loading state → Result | `scenario`, `terraform`, `detection` |
 | **Special Handler** | Custom processing | `null` (intercepted) | Component-level handling | `clear` |
 | **Delegation Handler** | Routes to sub-commands | Varies | Conditional routing | `download` |
@@ -128,7 +123,6 @@ interface GCPBackendSchema {
 | **cortex-questions** | Technical | `cq`, `ask-cortex`, `genai` | AI shortcuts | Domain-specific |
 | **scenario** | Business | `deploy`, `pov` | Operations context | Business terminology |
 | **terraform** | DevOps | `tf`, `infra` | Technical abbreviation | Industry standard |
-| **contact** | Action-based | `reach`, `connect` | Communication | Semantic variants |
 
 ---
 
@@ -174,12 +168,10 @@ graph LR
         A[help] --> A1[Context-aware help]
         B[clear] --> B1[Terminal state management]
         C[ls] --> C1[Content exploration]
-        D[whoami] --> D1[Profile information]
         E[status] --> E1[System metrics]
     end
     
     subgraph "Communication"
-        F[contact] --> F1[External links]
         G[services] --> G1[Redirects to ls ctx]
     end
     
@@ -503,8 +495,6 @@ if (cloud && c1) {
 │                                                   │
 │ 🆘 help                  Show available commands  │
 │ 🧹 clear                 Clear terminal screen    │
-│ 👤 whoami               Who am I?                 │
-│ 📞 contact              Get in touch              │
 │ 📋 ls ctx --all-products All services overview   │
 │                                                   │
 │ 🧠 AI-Powered:                                   │
