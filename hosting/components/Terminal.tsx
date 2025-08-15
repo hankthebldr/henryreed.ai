@@ -12,6 +12,7 @@ interface CommandConfig {
   name: string;
   description: string;
   usage: string;
+  aliases?: string[];
   handler: (args: string[]) => React.ReactNode;
 }
 
@@ -30,7 +31,6 @@ export default function Terminal() {
   }, [commands]);
 
   useEffect(() => {
-    // Add welcome message
     setCommands([{
       input: '',
       output: (
@@ -65,7 +65,7 @@ export default function Terminal() {
           }
           return <div className="text-red-400">Command '{args[0]}' not found</div>;
         }
-        
+
         return (
           <div className="text-blue-300">
             <div className="font-bold mb-2">Available Commands:</div>
@@ -84,111 +84,26 @@ export default function Terminal() {
     },
     {
       name: 'ls',
-      description: 'List and explore context',
-      usage: 'ls [ctx] [--all-products] [--skills] [--projects]',
+      description: 'List available security scenario categories',
+      usage: 'ls scenarios',
       handler: (args) => {
-        const hasCtx = args.includes('ctx');
-        const allProducts = args.includes('--all-products');
-        const skills = args.includes('--skills');
-        const projects = args.includes('--projects');
-
-        if (hasCtx && allProducts) {
+        if (args.includes('scenarios')) {
           return (
             <div className="text-blue-300">
-              <div className="font-bold mb-3">🚀 All Products & Services</div>
-              <div className="space-y-3">
-                <div className="border-l-2 border-green-400 pl-3">
-                  <div className="text-green-400 font-bold">AI Consulting</div>
-                  <div className="text-sm text-gray-300">Strategic AI implementation for enterprises</div>
-                  <div className="text-xs text-gray-500">• Machine Learning Strategy • Data Architecture • AI Governance</div>
-                </div>
-                <div className="border-l-2 border-blue-400 pl-3">
-                  <div className="text-blue-400 font-bold">Custom AI Development</div>
-                  <div className="text-sm text-gray-300">Tailored AI solutions and models</div>
-                  <div className="text-xs text-gray-500">• LLM Fine-tuning • Computer Vision • NLP Solutions</div>
-                </div>
-                <div className="border-l-2 border-purple-400 pl-3">
-                  <div className="text-purple-400 font-bold">AI Training & Workshops</div>
-                  <div className="text-sm text-gray-300">Upskill your team with AI expertise</div>
-                  <div className="text-xs text-gray-500">• Technical Training • Executive Briefings • Hands-on Workshops</div>
-                </div>
+              <div className="font-bold mb-3">🧪 Security Scenario Categories</div>
+              <div className="space-y-1 text-sm">
+                <div className="text-green-400">cloud-posture – misconfigured cloud resources</div>
+                <div className="text-blue-400">container-vuln – vulnerable container images</div>
+                <div className="text-purple-400">code-vuln – application code flaws</div>
+                <div className="text-yellow-400">insider-threat – simulated insider attacks</div>
+                <div className="text-red-400">ransomware – encryption behavior simulation</div>
+                <div className="text-cyan-400">waas-exploit – web application exploits</div>
+                <div className="text-orange-400">pipeline-breach – CI/CD pipeline attacks</div>
               </div>
             </div>
           );
         }
-
-        if (hasCtx && skills) {
-          return (
-            <div className="text-blue-300">
-              <div className="font-bold mb-3">🛠️ Technical Skills</div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <div className="text-green-400 font-bold">AI/ML</div>
-                  <div className="text-gray-300">• PyTorch, TensorFlow</div>
-                  <div className="text-gray-300">• Transformers, LLMs</div>
-                  <div className="text-gray-300">• Computer Vision</div>
-                </div>
-                <div>
-                  <div className="text-blue-400 font-bold">Engineering</div>
-                  <div className="text-gray-300">• Python, TypeScript</div>
-                  <div className="text-gray-300">• React, Next.js</div>
-                  <div className="text-gray-300">• Cloud Architecture</div>
-                </div>
-              </div>
-            </div>
-          );
-        }
-
-        if (hasCtx && projects) {
-          return (
-            <div className="text-blue-300">
-              <div className="font-bold mb-3">📁 Recent Projects</div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-green-400">enterprise-llm-deployment/</span>
-                  <span className="text-gray-500 text-xs">2 days ago</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-blue-400">computer-vision-pipeline/</span>
-                  <span className="text-gray-500 text-xs">1 week ago</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-purple-400">ai-training-curriculum/</span>
-                  <span className="text-gray-500 text-xs">2 weeks ago</span>
-                </div>
-              </div>
-            </div>
-          );
-        }
-
-        if (hasCtx) {
-          return (
-            <div className="text-blue-300">
-              <div className="font-bold mb-2">📋 Available Context</div>
-              <div className="text-sm space-y-1">
-                <div className="text-gray-300">Use flags to explore specific areas:</div>
-                <div className="text-green-400">• --all-products  Show all products and services</div>
-                <div className="text-blue-400">• --skills        Show technical skills</div>
-                <div className="text-purple-400">• --projects      Show recent projects</div>
-              </div>
-            </div>
-          );
-        }
-
-        return (
-          <div className="text-blue-300">
-            <div className="font-bold mb-2">📁 Terminal Directory</div>
-            <div className="space-y-1 font-mono text-sm">
-              <div className="text-green-400">ctx/           Context and information</div>
-              <div className="text-blue-400">projects/      Project portfolio</div>
-              <div className="text-purple-400">services/      Available services</div>
-              <div className="text-yellow-400">contact/       Get in touch</div>
-            </div>
-            <div className="mt-4 text-gray-400 text-sm">
-              Try: ls ctx --all-products
-            </div>
-          </div>
-        );
+        return <div className="text-gray-400">Usage: ls scenarios</div>;
       }
     },
     {
@@ -404,6 +319,28 @@ export default function Terminal() {
       }
     },
     {
+      name: 'owasp',
+      description: 'List the OWASP Top 10 application security risks',
+      usage: 'owasp',
+      handler: () => (
+        <div className="text-blue-300">
+          <div className="font-bold mb-3">OWASP Top 10 (2021)</div>
+          <ol className="list-decimal ml-5 space-y-1 text-sm">
+            <li>Broken Access Control</li>
+            <li>Cryptographic Failures</li>
+            <li>Injection</li>
+            <li>Insecure Design</li>
+            <li>Security Misconfiguration</li>
+            <li>Vulnerable and Outdated Components</li>
+            <li>Identification and Authentication Failures</li>
+            <li>Software and Data Integrity Failures</li>
+            <li>Security Logging and Monitoring Failures</li>
+            <li>Server-Side Request Forgery (SSRF)</li>
+          </ol>
+        </div>
+      )
+    },
+    {
       name: 'clear',
       description: 'Clear the terminal',
       usage: 'clear',
@@ -433,29 +370,14 @@ export default function Terminal() {
       args = parts.slice(1);
       config = commandConfigs.find(c => c.name === command);
     }
-    
     let output: React.ReactNode;
     if (config) {
-      if (command === 'clear') {
-        config.handler(args);
-        return;
-      }
       output = config.handler(args);
     } else {
-      output = (
-        <div className="text-red-400">
-          Command '{command}' not found. Type 'help' for available commands.
-        </div>
-      );
+      output = <div className="text-red-400">Command '{command}' not found</div>;
     }
 
-    const newCommand: Command = {
-      input: trimmed,
-      output,
-      timestamp: new Date()
-    };
-
-    setCommands(prev => [...prev, newCommand]);
+    setCommands(prev => [...prev, { input: trimmed, output, timestamp: new Date() }]);
     setHistory(prev => [...prev, trimmed]);
     setHistoryIndex(-1);
   };
@@ -493,9 +415,9 @@ export default function Terminal() {
 
   return (
     <div className="bg-black text-green-400 font-mono text-sm h-screen flex flex-col">
-      <div 
+      <div
         ref={terminalRef}
-        className="flex-1 p-4 overflow-y-auto"
+        className="flex-1 p-4 overflow-y-auto terminal-scrollbar"
       >
         {commands.map((cmd, index) => (
           <div key={index} className="mb-4">
@@ -513,7 +435,7 @@ export default function Terminal() {
           </div>
         ))}
       </div>
-      
+
       <form onSubmit={handleSubmit} className="border-t border-gray-700 p-4">
         <div className="flex">
           <span className="text-blue-400 mr-2">henry@ai:~$</span>
