@@ -85,7 +85,7 @@ export default function ImprovedTerminal() {
             <div className="mt-3 text-sm">
               <div>• Type <span className="text-green-400 font-bold">getting started</span> for an introduction or <span className="text-green-400 font-bold">help</span> for all commands</div>
               <div>• Press <span className="text-blue-400 font-bold">↑/↓</span> for command history</div>
-              <div>• Try <span className="text-purple-400 font-bold">pov start</span> to begin a proof-of-value</div>
+              <div>• Try <span className="text-purple-400 font-bold">proof-of-value start</span> to begin a proof of value</div>
             </div>
           </div>
         </TerminalOutput>
@@ -129,7 +129,7 @@ export default function ImprovedTerminal() {
         
         return (
           <TerminalOutput type="info">
-            <div className="font-bold mb-4 text-xl text-blue-300">🎯 POV-CLI Commands</div>
+            <div className="font-bold mb-4 text-xl text-blue-300">🎯 PoV-CLI Commands</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {commandConfigs.map(cmd => (
                 <div key={cmd.name} className="border border-gray-600 p-3 rounded bg-gray-800/50">
@@ -146,7 +146,7 @@ export default function ImprovedTerminal() {
             <div className="mt-6 p-4 bg-cyan-900/20 rounded border border-cyan-500/30">
               <div className="text-cyan-400 font-bold mb-2">🚀 Quick Start</div>
               <div className="text-sm space-y-1">
-                <div>1. Run <span className="text-green-400 font-mono">pov start</span> to begin proof-of-value</div>
+                <div>1. Run <span className="text-green-400 font-mono">proof-of-value start</span> to begin proof of value</div>
                 <div>2. Use <span className="text-blue-400 font-mono">template list</span> to browse detection templates</div>
                 <div>3. Try <span className="text-purple-400 font-mono">detect create</span> to build custom detections</div>
               </div>
@@ -177,7 +177,7 @@ export default function ImprovedTerminal() {
               <div className="bg-green-900/20 p-4 rounded border border-green-500/30">
                 <div className="text-green-400 font-bold mb-3">🎯 Quick Start Guide</div>
                 <div className="text-sm space-y-2">
-                  <div><span className="text-green-400 font-mono">pov start</span> - Begin a proof-of-value assessment</div>
+                  <div><span className="text-green-400 font-mono">proof-of-value start</span> - Begin a proof of value assessment</div>
                   <div><span className="text-blue-400 font-mono">template list</span> - Browse detection templates</div>
                   <div><span className="text-purple-400 font-mono">detect create</span> - Build custom detection rules</div>
                   <div><span className="text-yellow-400 font-mono">whoami</span> - Learn about Henry Reed</div>
@@ -195,7 +195,7 @@ export default function ImprovedTerminal() {
               </div>
               
               <div className="text-sm text-gray-400">
-                Ready to get started? Try <span className="text-green-400 font-mono">pov start</span> or <span className="text-blue-400 font-mono">help</span> to explore all commands.
+                Ready to get started? Try <span className="text-green-400 font-mono">proof-of-value start</span> or <span className="text-blue-400 font-mono">help</span> to explore all commands.
               </div>
             </div>
           </TerminalOutput>
@@ -1098,7 +1098,7 @@ level: high`}
       {/* Header */}
       <div className="bg-gray-900 border-b border-gray-700 p-3 flex justify-between items-center">
         <div className="flex items-center space-x-4">
-          <div className="text-lg font-bold text-cyan-400">POV-CLI Terminal</div>
+          <div className="text-lg font-bold text-cyan-400">PoV-CLI Terminal</div>
           <div className="text-sm text-gray-400">Henry Reed AI Platform</div>
         </div>
         <div className="flex items-center space-x-4 text-sm">

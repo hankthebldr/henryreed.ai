@@ -1,4 +1,4 @@
-# Proof-of-Value CLI (POV-CLI)
+# Proof of Value CLI (PoV-CLI)
 
 **An Interactive Terminal Interface for Cloud Application Security Scenarios**
 
@@ -6,9 +6,9 @@
 [![Built with Next.js](https://img.shields.io/badge/built%20with-Next.js-black)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-POV-CLI is a modern, terminal-inspired web interface that provides cloud security insights, scenario testing, and interactive demonstrations through an intuitive command-line experience. Built with Next.js and TypeScript, it showcases advanced terminal functionality with support for both synchronous and asynchronous command execution.
+PoV-CLI is a modern, terminal-inspired web interface that provides cloud security insights, scenario testing, and interactive demonstrations through an intuitive command-line experience. Built with Next.js and TypeScript, it showcases advanced terminal functionality with support for both synchronous and asynchronous command execution.
 
-![Terminal Screenshot](https://via.placeholder.com/800x400/1a1a1a/00ff00?text=POV-CLI+Terminal+Interface)
+![Terminal Screenshot](https://via.placeholder.com/800x400/1a1a1a/00ff00?text=PoV-CLI+Terminal+Interface)
 
 ## 🚀 Features
 
