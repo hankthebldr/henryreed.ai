@@ -301,10 +301,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ASCII art generated for terminal branding
 - Terminal inspiration from classic CLI interfaces
 
-## 📞 Contact
-
-**Henry Reed** - AI Strategy & Development Consultant
 
 ---
 
-**Built with ❤️ for the AI community**
+**Built with ❤️ **
