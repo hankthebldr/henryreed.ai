@@ -1029,7 +1029,8 @@ level: high`}
       persistData
     };
     
-    let output: React.ReactNode;
+    let output: React.ReactNode = null;
+    
     if (config) {
       if (command === 'clear' || config.name === 'clear') {
         setCommands([]);
@@ -1066,7 +1067,7 @@ level: high`}
               const newCommands = [...prev];
               newCommands[newCommands.length - 1] = {
                 input: trimmed,
-                output: asyncOutput,
+                output: asyncOutput || null, // Allow null outputs
                 timestamp: new Date(),
                 cwd: newCommands[newCommands.length - 1].cwd // preserve original cwd
               };
@@ -1098,7 +1099,7 @@ level: high`}
           }
           return;
         } else {
-          output = result as React.ReactNode;
+          output = result; // Allow null outputs
         }
       } catch (error) {
         output = (
@@ -1131,6 +1132,8 @@ level: high`}
       );
     }
 
+    // ALWAYS create a new command entry, even for null outputs (like successful cd)
+    // This ensures Enter key always advances to a new line like in Linux terminals
     const newCommand: Command = {
       input: trimmed,
       output,

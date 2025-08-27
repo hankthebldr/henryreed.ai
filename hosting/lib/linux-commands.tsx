@@ -1,5 +1,11 @@
 import React from 'react';
 import { TerminalOutput } from '../components/TerminalOutput';
+import {
+  ErrorOutput,
+  TextOutput,
+  PreformattedOutput,
+  ListingOutput
+} from '../components/TerminalOutputs';
 import { 
   resolvePath, 
   getNode, 
@@ -93,11 +99,7 @@ export function buildLinuxCommands(): CommandConfig[] {
         // Handle cd - (previous directory)
         if (targetPath === '-') {
           if (!ctx.prevCwd) {
-            return (
-              <TerminalOutput type="error">
-                cd: OLDPWD not set
-              </TerminalOutput>
-            );
+            return <ErrorOutput command="cd" message="OLDPWD not set" />;
           }
           targetPath = ctx.prevCwd;
         }
@@ -107,19 +109,11 @@ export function buildLinuxCommands(): CommandConfig[] {
           const { node } = getNode(ctx.vfs, resolvedPath);
           
           if (!node) {
-            return (
-              <TerminalOutput type="error">
-                cd: {targetPath}: No such file or directory
-              </TerminalOutput>
-            );
+            return <ErrorOutput command="cd" message={`${targetPath}: No such file or directory`} />;
           }
           
           if (node.type !== 'dir') {
-            return (
-              <TerminalOutput type="error">
-                cd: {targetPath}: Not a directory
-              </TerminalOutput>
-            );
+            return <ErrorOutput command="cd" message={`${targetPath}: Not a directory`} />;
           }
           
           // Success - update directories
