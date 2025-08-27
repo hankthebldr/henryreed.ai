@@ -3,8 +3,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import LoginForm from './LoginForm';
-import { scenarioCommands } from '../lib/scenario-commands';
+import { TerminalOutput } from './TerminalOutput';
 import { contextStorage, UserContext } from '../lib/context-storage';
+import { VFS, initVFS, serializeVFS, deserializeVFS } from '../lib/vfs';
+import { buildLinuxCommands } from '../lib/linux-commands';
 
 interface Command {
   input: string;
@@ -13,35 +15,27 @@ interface Command {
   cwd?: string; // Current working directory when command was executed
 }
 
+interface CommandHandlerCtx {
+  rawInput: string;
+  cwd: string;
+  setCwd: (p: string) => void;
+  vfs: VFS;
+  user?: { email?: string } | null;
+  history: string[];
+  bootTimeMs: number;
+  prevCwd: string | null;
+  setPrevCwd: (p: string | null) => void;
+  persistData: () => void;
+}
+
 interface CommandConfig {
   name: string;
   description: string;
   usage: string;
   aliases?: string[];
-  handler: (args: string[]) => React.ReactNode | Promise<React.ReactNode>;
+  handler: (args: string[], ctx?: CommandHandlerCtx) => React.ReactNode | Promise<React.ReactNode>;
 }
 
-interface TerminalOutputProps {
-  children: React.ReactNode;
-  type?: 'success' | 'error' | 'warning' | 'info' | 'default';
-}
-
-function TerminalOutput({ children, type = 'default' }: TerminalOutputProps) {
-  const baseClasses = "p-4 rounded-lg border font-mono text-sm leading-relaxed";
-  const typeClasses = {
-    success: "bg-green-900/20 border-green-500/30 text-green-200",
-    error: "bg-red-900/20 border-red-500/30 text-red-200", 
-    warning: "bg-yellow-900/20 border-yellow-500/30 text-yellow-200",
-    info: "bg-blue-900/20 border-blue-500/30 text-blue-200",
-    default: "bg-gray-900/40 border-gray-600/30 text-gray-200"
-  };
-
-  return (
-    <div className={`${baseClasses} ${typeClasses[type]}`}>
-      {children}
-    </div>
-  );
-}
 
 export default function ImprovedTerminal() {
   const [commands, setCommands] = useState<Command[]>([]);
@@ -49,13 +43,70 @@ export default function ImprovedTerminal() {
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [showLogin, setShowLogin] = useState(false);
-  const [cwd, setCwd] = useState<string>('/');
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [cwd, setCwd] = useState<string>('/home/guest');
+  const [prevCwd, setPrevCwd] = useState<string | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
+  const vfsRef = useRef<VFS>(initVFS());
+  const bootRef = useRef(Date.now());
   const { user, logout } = useAuth();
   
   // Helper for formatting the prompt with current directory
   const formatPrompt = (p: string) => `henry@ai:${p}$`;
+
+  // Auto-resize textarea based on content
+  const adjustHeight = (element: HTMLTextAreaElement) => {
+    element.style.height = 'auto';
+    element.style.height = `${element.scrollHeight}px`;
+  };
+
+  // Adjust height when input changes
+  useEffect(() => {
+    if (inputRef.current) {
+      adjustHeight(inputRef.current);
+    }
+  }, [input]);
+
+  // Persist VFS and current directory
+  const persistData = () => {
+    try {
+      localStorage.setItem('terminal.cwd', cwd);
+      localStorage.setItem('terminal.vfs', serializeVFS(vfsRef.current));
+      localStorage.setItem('terminal.prevCwd', prevCwd || '');
+    } catch (error) {
+      console.warn('Failed to persist terminal data:', error);
+    }
+  };
+
+  // Load persisted data on mount
+  useEffect(() => {
+    try {
+      const savedCwd = localStorage.getItem('terminal.cwd');
+      const savedVFS = localStorage.getItem('terminal.vfs');
+      const savedPrevCwd = localStorage.getItem('terminal.prevCwd');
+      
+      if (savedCwd) {
+        setCwd(savedCwd);
+      }
+      
+      if (savedVFS) {
+        vfsRef.current = deserializeVFS(savedVFS);
+      }
+      
+      if (savedPrevCwd) {
+        setPrevCwd(savedPrevCwd || null);
+      }
+    } catch (error) {
+      console.warn('Failed to load persisted terminal data:', error);
+      // Fall back to defaults
+      vfsRef.current = initVFS();
+    }
+  }, []);
+
+  // Persist data when cwd or prevCwd changes
+  useEffect(() => {
+    persistData();
+  }, [cwd, prevCwd]);
 
   useEffect(() => {
     if (terminalRef.current) {
@@ -99,7 +150,8 @@ export default function ImprovedTerminal() {
     }]);
   }, []);
 
-  const commandConfigs: CommandConfig[] = [
+  // Build command configs from AI-focused commands and Linux primitives
+  const aiCommands: CommandConfig[] = [
     {
       name: 'help',
       description: 'Show available commands',
@@ -151,9 +203,9 @@ export default function ImprovedTerminal() {
             <div className="mt-6 p-4 bg-cyan-900/20 rounded border border-cyan-500/30">
               <div className="text-cyan-400 font-bold mb-2">🚀 Quick Start</div>
               <div className="text-sm space-y-1">
-                <div>1. Run <span className="text-green-400 font-mono">proof-of-value start</span> to begin proof of value</div>
-                <div>2. Use <span className="text-blue-400 font-mono">template list</span> to browse detection templates</div>
-                <div>3. Try <span className="text-purple-400 font-mono">detect create</span> to build custom detections</div>
+                <div>1. Use <span className="text-green-400 font-mono">Shift+Enter</span> to add new lines; <span className="text-blue-400 font-mono">Enter</span> to execute</div>
+                <div>2. Try <span className="text-purple-400 font-mono">mkdir test && cd test && touch file.txt && echo Hello</span></div>
+                <div>3. Run <span className="text-cyan-400 font-mono">proof-of-value start</span> to begin AI assessments</div>
               </div>
             </div>
           </TerminalOutput>
@@ -192,10 +244,10 @@ export default function ImprovedTerminal() {
               <div className="bg-blue-900/20 p-4 rounded border border-blue-500/30">
                 <div className="text-blue-400 font-bold mb-3">💡 Pro Tips</div>
                 <div className="text-sm space-y-2">
-                  <div>• Use <span className="text-green-400 font-mono">help [command]</span> for detailed command info</div>
-                  <div>• Press <span className="text-blue-400 font-mono">↑/↓</span> to navigate command history</div>
-                  <div>• Try <span className="text-purple-400 font-mono">Tab</span> for command completion</div>
-                  <div>• Type <span className="text-red-400 font-mono">clear</span> to reset the terminal</div>
+                  <div>• Use <span className="text-green-400 font-mono">Shift+Enter</span> for multiline input, <span className="text-blue-400 font-mono">Enter</span> to execute</div>
+                  <div>• Try Linux commands: <span className="text-yellow-400 font-mono">ls -la</span>, <span className="text-purple-400 font-mono">pwd</span>, <span className="text-cyan-400 font-mono">cat readme.txt</span></div>
+                  <div>• Press <span className="text-blue-400 font-mono">↑/↓</span> for history, <span className="text-purple-400 font-mono">Tab</span> for completion</div>
+                  <div>• Type <span className="text-red-400 font-mono">clear</span> to reset or <span className="text-green-400 font-mono">help</span> for commands</div>
                 </div>
               </div>
               
@@ -830,12 +882,23 @@ level: high`}
     },
     {
       name: 'whoami',
-      description: 'Display information about Henry Reed',
-      usage: 'whoami [--detailed]',
+      description: 'Display information about Henry Reed or current user',
+      usage: 'whoami [--detailed] [--linux|-l|--system]',
       aliases: [],
-      handler: (args) => {
+      handler: (args, ctx) => {
         const detailed = args.includes('--detailed');
+        const linuxMode = args.includes('--linux') || args.includes('-l') || args.includes('--system');
         const isLoggedIn = !!user;
+        
+        // Linux-style whoami
+        if (linuxMode) {
+          const username = ctx?.user?.email ? ctx.user.email.split('@')[0] : 'guest';
+          return (
+            <TerminalOutput type="default">
+              {username}
+            </TerminalOutput>
+          );
+        }
         
         if (detailed) {
           return (
@@ -905,7 +968,7 @@ level: high`}
                   </div>
                 )}
                 <div className="text-xs text-gray-500 mt-2">
-                  Use <span className="text-cyan-400 font-mono">whoami --detailed</span> for more info
+                  Use <span className="text-cyan-400 font-mono">whoami --detailed</span> for more info or <span className="text-green-400 font-mono">whoami --linux</span> for username
                 </div>
               </div>
             </div>
@@ -925,25 +988,46 @@ level: high`}
     }
   ];
 
+  // Combine AI commands with Linux primitives
+  const linuxCommands = buildLinuxCommands();
+  const commandConfigs: CommandConfig[] = [...aiCommands, ...linuxCommands];
+
   const executeCommand = async (inputStr: string) => {
     const trimmed = inputStr.trim();
     if (!trimmed) return;
 
+    // Parse command from first line for multi-word commands
+    const firstLine = trimmed.split(/\r?\n/)[0];
+    
     // Handle multi-word commands like 'getting started'
-    let config = commandConfigs.find(c => trimmed.toLowerCase().startsWith(c.name.toLowerCase()));
+    let config = commandConfigs.find(c => firstLine.toLowerCase().startsWith(c.name.toLowerCase()));
     let command = '';
     let args: string[] = [];
     
     if (config) {
       command = config.name.toLowerCase();
-      args = trimmed.slice(config.name.length).trim().split(' ').filter(arg => arg.length > 0);
+      args = firstLine.slice(config.name.length).trim().split(' ').filter(arg => arg.length > 0);
     } else {
       // Fall back to single word command parsing
-      const parts = trimmed.split(' ');
+      const parts = firstLine.split(' ');
       command = parts[0].toLowerCase();
       args = parts.slice(1);
       config = commandConfigs.find(c => c.name === command || c.aliases?.includes(command));
     }
+    
+    // Build context object for command handlers
+    const ctx: CommandHandlerCtx = {
+      rawInput: trimmed,
+      cwd,
+      setCwd,
+      vfs: vfsRef.current,
+      user,
+      history,
+      bootTimeMs: bootRef.current,
+      prevCwd,
+      setPrevCwd,
+      persistData
+    };
     
     let output: React.ReactNode;
     if (config) {
@@ -954,7 +1038,7 @@ level: high`}
       
       try {
         // Handle both sync and async handlers
-        const result = config.handler(args);
+        const result = config.handler(args, ctx);
         if (result && typeof result === 'object' && 'then' in result) {
           // Show loading state for async operations
           const loadingCommand: Command = {
@@ -1067,17 +1151,41 @@ level: high`}
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const target = e.target as HTMLTextAreaElement;
+    
+    if (e.key === 'Enter') {
+      if (e.shiftKey) {
+        // Shift+Enter: allow default (insert newline)
+        return;
+      } else {
+        // Enter: prevent default and execute command
+        e.preventDefault();
+        handleSubmit(e);
+        return;
+      }
+    }
+    
     if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      if (history.length > 0) {
+      // Only navigate history if at first line
+      const { selectionStart, value } = target;
+      const beforeCursor = value.substring(0, selectionStart);
+      const isAtFirstLine = !beforeCursor.includes('\n');
+      
+      if (isAtFirstLine && history.length > 0) {
+        e.preventDefault();
         const newIndex = historyIndex === -1 ? history.length - 1 : Math.max(0, historyIndex - 1);
         setHistoryIndex(newIndex);
         setInput(history[newIndex]);
       }
     } else if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      if (historyIndex >= 0) {
+      // Only navigate history if at last line
+      const { selectionEnd, value } = target;
+      const afterCursor = value.substring(selectionEnd);
+      const isAtLastLine = !afterCursor.includes('\n');
+      
+      if (isAtLastLine && historyIndex >= 0) {
+        e.preventDefault();
         const newIndex = historyIndex + 1;
         if (newIndex >= history.length) {
           setHistoryIndex(-1);
@@ -1089,14 +1197,29 @@ level: high`}
       }
     } else if (e.key === 'Tab') {
       e.preventDefault();
-      // Simple tab completion for commands
-      if (input.trim() && !input.includes(' ')) {
+      // Enhanced tab completion for current line's last token
+      const { selectionStart, value } = target;
+      const beforeCursor = value.substring(0, selectionStart);
+      const lines = beforeCursor.split('\n');
+      const currentLine = lines[lines.length - 1];
+      const tokens = currentLine.trim().split(/\s+/);
+      const lastToken = tokens[tokens.length - 1] || '';
+      
+      if (tokens.length === 1 && lastToken) {
+        // Complete command name
         const matchingCommands = commandConfigs
-          .filter(c => c.name.startsWith(input.toLowerCase()) || c.aliases?.some(a => a.startsWith(input.toLowerCase())))
+          .filter(c => c.name.startsWith(lastToken.toLowerCase()) || c.aliases?.some(a => a.startsWith(lastToken.toLowerCase())))
           .map(c => c.name);
           
         if (matchingCommands.length === 1) {
-          setInput(matchingCommands[0] + ' ');
+          const newValue = value.substring(0, selectionStart - lastToken.length) + matchingCommands[0] + ' ' + value.substring(selectionStart);
+          setInput(newValue);
+          setTimeout(() => {
+            if (inputRef.current) {
+              const newCursorPos = selectionStart - lastToken.length + matchingCommands[0].length + 1;
+              inputRef.current.setSelectionRange(newCursorPos, newCursorPos);
+            }
+          }, 0);
         }
       }
     }
@@ -1142,9 +1265,9 @@ level: high`}
         {commands.map((cmd, index) => (
           <div key={index} className="mb-4">
             {cmd.input && (
-              <div className="flex items-center mb-2">
-                <span className="text-blue-400 mr-2 select-none">{formatPrompt(cmd.cwd ?? cwd)}</span>
-                <span className="text-white font-mono">{cmd.input}</span>
+              <div className="flex items-start mb-2">
+                <span className="text-blue-400 mr-2 select-none whitespace-nowrap">{formatPrompt(cmd.cwd ?? cwd)}</span>
+                <span className="text-white font-mono whitespace-pre-wrap break-words">{cmd.input}</span>
               </div>
             )}
             {cmd.output && (
@@ -1158,18 +1281,18 @@ level: high`}
       
       {/* Input Form */}
       <form onSubmit={handleSubmit} className="border-t border-gray-700 bg-gray-900 p-4">
-        <div className="flex items-center">
-          <span className="text-blue-400 mr-2 select-none">{formatPrompt(cwd)}</span>
-          <input
+        <div className="flex items-start">
+          <span className="text-blue-400 mr-2 select-none whitespace-nowrap mt-1">{formatPrompt(cwd)}</span>
+          <textarea
             ref={inputRef}
-            type="text"
+            rows={1}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent outline-none text-white font-mono text-sm"
-            placeholder="Type a command and press Enter..."
+            className="flex-1 bg-transparent outline-none text-white font-mono text-sm resize-none min-h-[1.5em] max-h-40 overflow-y-auto"
+            placeholder="Enter = run • Shift+Enter = newline • ↑/↓ history • Tab completion"
             autoFocus
-            style={{ fontSize: '14px' }}
+            style={{ fontSize: '14px', lineHeight: '1.5' }}
           />
         </div>
       </form>
