@@ -161,7 +161,7 @@ export const ListingOutput = ({
   longFormat?: boolean; 
 }) => {
   if (items.length === 0) {
-    return <TerminalOutput type="default"></TerminalOutput>;
+    return <TerminalOutput type="default"> </TerminalOutput>;
   }
 
   if (longFormat) {

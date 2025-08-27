@@ -14,6 +14,7 @@ interface Command {
   output: React.ReactNode;
   timestamp: Date;
   cwd?: string; // Current working directory when command was executed
+  showPrompt?: boolean; // Whether to show the prompt line
 }
 
 interface CommandHandlerCtx {
@@ -148,7 +149,8 @@ export default function ImprovedTerminal() {
           </div>
         </TerminalOutput>
       ),
-      timestamp: new Date()
+      timestamp: new Date(),
+      showPrompt: false
     }]);
   }, []);
 
@@ -1026,7 +1028,18 @@ level: high`}
 
   const executeCommand = async (inputStr: string) => {
     const trimmed = inputStr.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      // Handle empty input - add a blank prompt line
+      const newCommand: Command = {
+        input: '',
+        output: null,
+        timestamp: new Date(),
+        cwd
+      };
+      setCommands(prev => [...prev, newCommand]);
+      setHistoryIndex(-1); // don't add blank lines to history
+      return;
+    }
 
     // Parse command from first line for multi-word commands
     const firstLine = trimmed.split(/\r?\n/)[0];
@@ -1180,10 +1193,8 @@ level: high`}
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (input.trim()) {
-      executeCommand(input);
-      setInput('');
-    }
+    executeCommand(input);
+    setInput('');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -1299,7 +1310,7 @@ level: high`}
       >
         {commands.map((cmd, index) => (
           <div key={index} className="mb-4">
-            {cmd.input && (
+            {cmd.showPrompt !== false && (
               <div className="flex items-start mb-2">
                 <span className="text-blue-400 mr-2 select-none whitespace-nowrap">{formatPrompt(cmd.cwd ?? cwd)}</span>
                 <span className="text-white font-mono whitespace-pre-wrap break-words">{cmd.input}</span>

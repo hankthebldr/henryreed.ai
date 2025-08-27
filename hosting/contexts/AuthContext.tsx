@@ -34,14 +34,25 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [firebaseAvailable, setFirebaseAvailable] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    // Check if Firebase is properly configured
+    try {
+      // This will throw if Firebase is not configured
+      if (typeof window !== 'undefined' && auth) {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+          setUser(user);
+          setLoading(false);
+          setFirebaseAvailable(true);
+        });
+        return () => unsubscribe();
+      }
+    } catch (error) {
+      console.warn('Firebase authentication is not available:', error);
+      setFirebaseAvailable(false);
       setLoading(false);
-    });
-
-    return () => unsubscribe();
+    }
   }, []);
 
   const signIn = async (email: string, password: string) => {

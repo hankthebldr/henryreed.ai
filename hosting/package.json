@@ -3,10 +3,12 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "build:exp": "cross-env NEXT_ENABLE_WEBPACK_EXPERIMENTS=1 next build",
     "start": "next start",
     "export": "next build",
-    "deploy": "npm run build && firebase deploy --only hosting",
-    "deploy:preview": "npm run build && firebase hosting:channel:deploy preview",
+    "deploy": "npm run build:exp && firebase deploy --only hosting",
+    "deploy:preview": "npm run build:exp && firebase hosting:channel:deploy preview",
+    "deploy:std": "npm run build && firebase deploy --only hosting",
     "firebase:init": "firebase init",
     "firebase:serve": "firebase serve",
     "firebase:emulators": "firebase emulators:start --only hosting"
@@ -22,6 +24,7 @@
     "@types/react": "18.2.47",
     "@types/react-dom": "18.2.18",
     "autoprefixer": "^10.4.16",
+    "cross-env": "^10.0.0",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.3.3"

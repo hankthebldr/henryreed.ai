@@ -270,7 +270,7 @@ Each scenario deployment creates isolated, secure testing environments that can 
       
       case 'validate':
         // Note: scenarioCommands may not have validate yet, so provide a placeholder
-        if (scenarioCommands.validate) {
+        if ('validate' in scenarioCommands && typeof scenarioCommands.validate === 'function') {
           return await scenarioCommands.validate(subArgs);
         } else {
           return (
@@ -283,7 +283,7 @@ Each scenario deployment creates isolated, secure testing environments that can 
         }
       
       case 'export':
-        if (scenarioCommands.export) {
+        if ('export' in scenarioCommands && typeof scenarioCommands.export === 'function') {
           return await scenarioCommands.export(subArgs);
         } else {
           return (
@@ -295,7 +295,7 @@ Each scenario deployment creates isolated, secure testing environments that can 
         }
       
       case 'destroy':
-        if (scenarioCommands.destroy) {
+        if ('destroy' in scenarioCommands && typeof scenarioCommands.destroy === 'function') {
           return await scenarioCommands.destroy(subArgs);
         } else {
           return (

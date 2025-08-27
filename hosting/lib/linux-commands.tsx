@@ -171,7 +171,7 @@ export function buildLinuxCommands(): CommandConfig[] {
             : items.filter(item => !item.name.startsWith('.'));
           
           if (filteredItems.length === 0) {
-            return <TerminalOutput type="default"></TerminalOutput>;
+            return <TerminalOutput type="default"> </TerminalOutput>;
           }
           
           if (longFormat) {
@@ -282,7 +282,7 @@ export function buildLinuxCommands(): CommandConfig[] {
         // Use rawInput to preserve spaces and newlines
         const echoIndex = ctx.rawInput.toLowerCase().indexOf('echo');
         if (echoIndex === -1) {
-          return <TerminalOutput type="default"></TerminalOutput>;
+          return <TerminalOutput type="default"> </TerminalOutput>;
         }
         
         const afterEcho = ctx.rawInput.slice(echoIndex + 4).trimStart();
@@ -562,7 +562,7 @@ export function buildLinuxCommands(): CommandConfig[] {
           }
           
           if (results.length === 0) {
-            return <TerminalOutput type="default"></TerminalOutput>;
+            return <TerminalOutput type="default"> </TerminalOutput>;
           }
           
           return (
@@ -635,7 +635,7 @@ export function buildLinuxCommands(): CommandConfig[] {
         }
         
         if (ctx.history.length === 0) {
-          return <TerminalOutput type="default"></TerminalOutput>;
+          return <TerminalOutput type="default"> </TerminalOutput>;
         }
         
         return (

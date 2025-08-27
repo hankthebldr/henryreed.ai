@@ -10,8 +10,8 @@ echo "🚀 Starting deployment process..."
 # Navigate to hosting directory
 cd hosting
 
-echo "📦 Building Next.js application..."
-npm run build
+echo "📦 Building Next.js application with experimental webpack..."
+npm run build:exp
 
 # Navigate back to root for Firebase deployment
 cd ..

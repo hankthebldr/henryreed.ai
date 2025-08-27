@@ -44,15 +44,15 @@ export function resolvePath(cwd: string, target?: string): string | null {
 export function listDir(path: string): string[] {
   const prefix = path === '/' ? '/' : `${path}/`;
   const children = new Set<string>();
-  for (const p of VFS) {
-    if (p === path) continue;
+  VFS.forEach((p) => {
+    if (p === path) return;
     if (p.startsWith(prefix)) {
       const rest = p.slice(prefix.length);
-      if (!rest) continue;
+      if (!rest) return;
       const first = rest.split('/')[0];
       children.add(first);
     }
-  }
+  });
   return Array.from(children).sort();
 }
 

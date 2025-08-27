@@ -69,12 +69,12 @@ export const CATEGORY_INFO: Record<CommandCategory, CategoryInfo> = {
 function enhanceCommand(cmd: LegacyCommandConfig, defaultCategory: CommandCategory): EnhancedCommandConfig {
   return {
     ...cmd,
-    help: cmd.help || {
+    help: {
       category: defaultCategory,
       topics: [cmd.name, ...(cmd.aliases || [])],
       examples: []
     }
-  } as EnhancedCommandConfig;
+  };
 }
 
 // Categorize existing commands
