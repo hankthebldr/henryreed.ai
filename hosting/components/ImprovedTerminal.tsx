@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import LoginForm from './LoginForm';
 import { TerminalOutput } from './TerminalOutput';
@@ -50,6 +51,7 @@ export default function ImprovedTerminal() {
   const vfsRef = useRef<VFS>(initVFS());
   const bootRef = useRef(Date.now());
   const { user, logout } = useAuth();
+  const router = useRouter();
   
   // Helper for formatting the prompt with current directory
   const formatPrompt = (p: string) => `henry@ai:${p}$`;
@@ -984,6 +986,36 @@ level: high`}
       handler: () => {
         // This will be handled in the main component
         return null;
+      }
+    },
+    {
+      name: 'exit',
+      description: 'Exit the terminal and return to login',
+      usage: 'exit',
+      aliases: ['quit'],
+      handler: () => {
+        // Clear session storage and redirect to landing
+        sessionStorage.removeItem('authenticated');
+        sessionStorage.removeItem('auth_user');
+        
+        // Show goodbye message then redirect
+        setTimeout(() => {
+          router.push('/');
+        }, 1500);
+        
+        return (
+          <TerminalOutput type="success">
+            <div className="flex items-center">
+              <div className="mr-3 text-2xl">👋</div>
+              <div>
+                <div className="font-bold">Session ended</div>
+                <div className="text-sm text-gray-300 mt-1">
+                  Thank you for using Henry Reed AI Terminal! Redirecting to login...
+                </div>
+              </div>
+            </div>
+          </TerminalOutput>
+        );
       }
     }
   ];
