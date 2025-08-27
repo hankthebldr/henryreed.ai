@@ -10,6 +10,7 @@ interface Command {
   input: string;
   output: React.ReactNode;
   timestamp: Date;
+  cwd?: string; // Current working directory when command was executed
 }
 
 interface CommandConfig {
@@ -48,9 +49,13 @@ export default function ImprovedTerminal() {
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [showLogin, setShowLogin] = useState(false);
+  const [cwd, setCwd] = useState<string>('/');
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
+  
+  // Helper for formatting the prompt with current directory
+  const formatPrompt = (p: string) => `henry@ai:${p}$`;
 
   useEffect(() => {
     if (terminalRef.current) {
@@ -962,7 +967,8 @@ level: high`}
                 </div>
               </TerminalOutput>
             ),
-            timestamp: new Date()
+            timestamp: new Date(),
+            cwd // capture at execution
           };
           
           setCommands(prev => [...prev, loadingCommand]);
@@ -977,7 +983,8 @@ level: high`}
               newCommands[newCommands.length - 1] = {
                 input: trimmed,
                 output: asyncOutput,
-                timestamp: new Date()
+                timestamp: new Date(),
+                cwd: newCommands[newCommands.length - 1].cwd // preserve original cwd
               };
               return newCommands;
             });
@@ -999,7 +1006,8 @@ level: high`}
                     </div>
                   </TerminalOutput>
                 ),
-                timestamp: new Date()
+                timestamp: new Date(),
+                cwd: newCommands[newCommands.length - 1].cwd // preserve original cwd
               };
               return newCommands;
             });
@@ -1042,7 +1050,8 @@ level: high`}
     const newCommand: Command = {
       input: trimmed,
       output,
-      timestamp: new Date()
+      timestamp: new Date(),
+      cwd // capture at execution
     };
 
     setCommands(prev => [...prev, newCommand]);
@@ -1134,7 +1143,7 @@ level: high`}
           <div key={index} className="mb-4">
             {cmd.input && (
               <div className="flex items-center mb-2">
-                <span className="text-blue-400 mr-2 select-none">henry@ai:~$</span>
+                <span className="text-blue-400 mr-2 select-none">{formatPrompt(cmd.cwd ?? cwd)}</span>
                 <span className="text-white font-mono">{cmd.input}</span>
               </div>
             )}
@@ -1150,7 +1159,7 @@ level: high`}
       {/* Input Form */}
       <form onSubmit={handleSubmit} className="border-t border-gray-700 bg-gray-900 p-4">
         <div className="flex items-center">
-          <span className="text-blue-400 mr-2 select-none">henry@ai:~$</span>
+          <span className="text-blue-400 mr-2 select-none">{formatPrompt(cwd)}</span>
           <input
             ref={inputRef}
             type="text"
