@@ -3,12 +3,26 @@
 import { ScenarioConfig, ScenarioDeployment, ScenarioCommand, ScenarioType } from './scenario-types';
 
 export class CloudFunctionsAPI {
-  private readonly baseUrl: string;
+  private baseUrl: string;
   private readonly projectId: string;
 
   constructor(projectId: string = 'henryreedai') {
     this.projectId = projectId;
-    this.baseUrl = `https://us-central1-${projectId}.cloudfunctions.net`;
+    // Allow override via env for emulator or custom domain
+    const fromEnv = typeof window !== 'undefined' ? (window as any).NEXT_PUBLIC_FUNCTIONS_BASE_URL || process.env.NEXT_PUBLIC_FUNCTIONS_BASE_URL : process.env.NEXT_PUBLIC_FUNCTIONS_BASE_URL;
+    this.baseUrl = fromEnv || `https://us-central1-${projectId}.cloudfunctions.net`;
+  }
+
+  private async getAuthHeaders(): Promise<Record<string, string>> {
+    try {
+      const mod = await import('./firebase-config');
+      const user = (mod as any).auth?.currentUser;
+      if (user && typeof (user as any).getIdToken === 'function') {
+        const token = await (user as any).getIdToken();
+        return { Authorization: `Bearer ${token}` };
+      }
+    } catch {}
+    return {};
   }
 
   async deployScenario(command: ScenarioCommand): Promise<{
@@ -21,7 +35,8 @@ export class CloudFunctionsAPI {
       const response = await fetch(`${this.baseUrl}/scenario-deploy`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+'Content-Type': 'application/json',
+          ...(await this.getAuthHeaders()),
         },
         body: JSON.stringify(command),
       });
@@ -45,7 +60,7 @@ export class CloudFunctionsAPI {
     message: string;
   }> {
     try {
-      const response = await fetch(`${this.baseUrl}/scenario-status/${deploymentId}`);
+      const response = await fetch(`${this.baseUrl}/scenario-status/${deploymentId}`, { headers: await this.getAuthHeaders() });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -100,7 +115,8 @@ export class CloudFunctionsAPI {
       const response = await fetch(`${this.baseUrl}/scenario-validate`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+'Content-Type': 'application/json',
+          ...(await this.getAuthHeaders()),
         },
         body: JSON.stringify({ deploymentId }),
       });
@@ -131,7 +147,8 @@ export class CloudFunctionsAPI {
       const response = await fetch(`${this.baseUrl}/scenario-destroy`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+'Content-Type': 'application/json',
+          ...(await this.getAuthHeaders()),
         },
         body: JSON.stringify({ deploymentId }),
       });
@@ -158,7 +175,8 @@ export class CloudFunctionsAPI {
       const response = await fetch(`${this.baseUrl}/scenario-export`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+'Content-Type': 'application/json',
+          ...(await this.getAuthHeaders()),
         },
         body: JSON.stringify({ deploymentId, format }),
       });

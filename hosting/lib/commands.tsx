@@ -35,7 +35,7 @@ export const commands: CommandConfig[] = [
       
       return (
         <div className="text-blue-300">
-          <div className="font-bold mb-4 text-lg">🤖 Henry Reed AI Terminal - Available Commands</div>
+<div className="font-bold mb-4 text-lg">🔐 XSIAM & Cortex Terminal - Available Commands</div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {commands.map(cmd => (
               <div key={cmd.name} className="border border-gray-600 p-3 rounded">
@@ -130,9 +130,10 @@ export const commands: CommandConfig[] = [
               </div>
             </div>
             <div className="mt-6 p-4 bg-gray-800 rounded border border-yellow-600">
-              <div className="text-yellow-400 font-bold">🎁 Get Started Today</div>
-              <div className="text-gray-300 mt-1">Schedule a free 30-minute consultation to discuss your AI needs</div>
-              <div className="text-green-400 mt-2 font-mono">→ contact --schedule</div>
+              <div className="text-yellow-400 font-bold">🎯 Explore</div>
+              <div className="text-gray-300 mt-1">Try the following to get started:</div>
+              <div className="text-green-400 mt-2 font-mono">→ scenario list</div>
+              <div className="text-blue-400 mt-1 font-mono">→ scenario mitre --scenario-type cloud-posture</div>
             </div>
           </div>
         );

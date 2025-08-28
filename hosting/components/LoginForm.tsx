@@ -141,6 +141,7 @@ export default function LoginForm({ onClose }: LoginFormProps) {
             }
           </button>
         </div>
+        <div className="mt-6 text-center text-xs text-gray-500">Developed by Henry Reed</div>
       </div>
     </div>
   );

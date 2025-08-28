@@ -156,6 +156,34 @@ const extendedCommands: CommandConfig[] = [
     }
   },
   {
+    name: 'detect',
+    description: 'Output a MITRE-mapped stub detection event (no execution)',
+    usage: 'detect [--technique TXXXX] [--scenario-type <type>]',
+    aliases: ['detection-stub'],
+    handler: (args) => {
+      const tidIndex = args.indexOf('--technique');
+      const technique = tidIndex >= 0 ? args[tidIndex + 1] || 'T1078' : 'T1078';
+      const stIndex = args.indexOf('--scenario-type');
+      const scenarioType = stIndex >= 0 ? args[stIndex + 1] || 'identity-compromise' : 'identity-compromise';
+
+      const event = {
+        event_type: 'simulation_detection',
+        scenario_type: scenarioType,
+        mapped_techniques: [technique],
+        timestamp: new Date().toISOString(),
+        vendor: 'Cortex/XSIAM (simulated output)'
+      };
+
+      return (
+        <div className="text-blue-300">
+          <div className="font-bold mb-2">📎 Detection Stub</div>
+          <pre className="text-xs bg-black p-3 rounded border border-gray-700 whitespace-pre-wrap">{JSON.stringify(event, null, 2)}</pre>
+          <div className="text-gray-400 text-xs mt-2">Informational only. No actions executed.</div>
+        </div>
+      );
+    }
+  },
+  {
     name: 'cortex-questions',
     description: 'Save questions and get AI-powered insights',
     usage: 'cortex-questions "your question here"',

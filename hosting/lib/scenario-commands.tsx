@@ -5,6 +5,54 @@ import { cloudFunctionsAPI } from './cloud-functions-api';
 // Storage for active deployments (in a real app, this would be in a database)
 const activeDeployments = new Map<string, any>();
 
+const MITRE_MAP: Record<string, { technique: string; tid: string; description: string }[]> = {
+  'cloud-posture': [
+    { technique: 'Cloud Infrastructure Discovery', tid: 'T1580', description: 'Enumerating cloud resources and configurations' },
+    { technique: 'Modify Cloud Compute Infrastructure', tid: 'T1578', description: 'Unsafe changes to cloud resources may be detected' }
+  ],
+  'container-vuln': [
+    { technique: 'Exploit Public-Facing Application', tid: 'T1190', description: 'Vulnerable container images surface exploitable components' },
+    { technique: 'Command and Control via Web Service', tid: 'T1102', description: 'Unexpected egress to external services from containers' }
+  ],
+  'code-vuln': [
+    { technique: 'Exploitation for Client Execution', tid: 'T1203', description: 'Application code flaws leading to execution' }
+  ],
+  'insider-threat': [
+    { technique: 'Data from Cloud Storage', tid: 'T1530', description: 'Unusual access to storage resources' },
+    { technique: 'Valid Accounts', tid: 'T1078', description: 'Credential misuse patterns' }
+  ],
+  'ransomware': [
+    { technique: 'Data Encrypted for Impact', tid: 'T1486', description: 'Encryption-like behavior' }
+  ],
+  'waas-exploit': [
+    { technique: 'Exploit Public-Facing Application', tid: 'T1190', description: 'Web app exploitation patterns' }
+  ],
+  'ai-threat': [
+    { technique: 'User Execution: Malicious/Untrusted Input', tid: 'T1204', description: 'Prompt injection-like input flows' }
+  ],
+  'pipeline-breach': [
+    { technique: 'Continuous Integration/Continuous Deployment', tid: 'T1653', description: 'Manipulation of CI/CD pipeline components' }
+  ],
+  'identity-compromise': [
+    { technique: 'Valid Accounts', tid: 'T1078', description: 'Credential theft/misuse patterns' },
+    { technique: 'Account Discovery', tid: 'T1087', description: 'Account enumeration behaviors' }
+  ],
+  'lateral-movement-sim': [
+    { technique: 'Lateral Tool Transfer', tid: 'T1570', description: 'Movement-like transfer patterns (simulated)' },
+    { technique: 'Remote Services', tid: 'T1021', description: 'Service access patterns across resources' }
+  ],
+  'data-exfil-behavior': [
+    { technique: 'Exfiltration Over Web Service', tid: 'T1567', description: 'Egress to external endpoints (synthetic)' }
+  ],
+  'beacon-emulation': [
+    { technique: 'Application Layer Protocol', tid: 'T1071', description: 'Periodic communications resembling beacons' }
+  ],
+  'phishing-sim': [
+    { technique: 'Phishing', tid: 'T1566', description: 'Phishing campaign indicators (metadata only)' }
+  ]
+};
+
+const USE_FUNCTIONS = process.env.NEXT_PUBLIC_USE_FUNCTIONS === '1';
 export const scenarioCommands = {
   list: async (args: string[]) => {
     const command = parseScenarioCommand(['list', ...args]);
@@ -129,8 +177,10 @@ export const scenarioCommands = {
     );
 
     try {
-      // Use simulation for demo - replace with actual API call for production
-      const result = await cloudFunctionsAPI.simulateDeployment(command);
+      // Prefer Cloud Functions if enabled, otherwise simulate
+      const result = USE_FUNCTIONS
+        ? await cloudFunctionsAPI.deployScenario(command)
+        : await cloudFunctionsAPI.simulateDeployment(command);
       
       if (result.success) {
         const deploymentId = result.deploymentId!;
@@ -243,7 +293,9 @@ export const scenarioCommands = {
     const deploymentId = args[0];
     
     try {
-      const result = await cloudFunctionsAPI.simulateStatus(deploymentId);
+      const result = USE_FUNCTIONS
+        ? await cloudFunctionsAPI.getDeploymentStatus(deploymentId)
+        : await cloudFunctionsAPI.simulateStatus(deploymentId);
       
       if (result.success && result.deployment) {
         const deployment = result.deployment;
@@ -357,8 +409,12 @@ export const scenarioCommands = {
     const deploymentId = args[0];
     
     try {
-      // Simulate validation process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      if (USE_FUNCTIONS) {
+        await cloudFunctionsAPI.validateScenario(deploymentId);
+      } else {
+        // Simulate validation process
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
       
       return (
         <div className="text-green-300">
@@ -425,8 +481,12 @@ export const scenarioCommands = {
     const deploymentId = args[0];
     
     try {
-      // Simulate destroy process
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (USE_FUNCTIONS) {
+        await cloudFunctionsAPI.destroyScenario(deploymentId);
+      } else {
+        // Simulate destroy process
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
       
       // Remove from active deployments
       activeDeployments.delete(deploymentId);
@@ -473,10 +533,14 @@ export const scenarioCommands = {
     const format = args.includes('--format') ? args[args.indexOf('--format') + 1] || 'json' : 'json';
     
     try {
-      // Simulate export process
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const downloadUrl = `https://storage.googleapis.com/henryreedai-exports/${deploymentId}.${format}`;
+      let downloadUrl = `https://storage.googleapis.com/henryreedai-exports/${deploymentId}.${format}`;
+      if (USE_FUNCTIONS) {
+        const r = await cloudFunctionsAPI.exportScenarioData(deploymentId, (format as any) || 'json');
+        if (r.success && r.downloadUrl) downloadUrl = r.downloadUrl;
+      } else {
+        // Simulate export process
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
       
       return (
         <div className="text-green-300">
@@ -518,5 +582,58 @@ export const scenarioCommands = {
         </div>
       );
     }
+  },
+
+  mitre: async (args: string[]) => {
+    // Use lightweight arg parser for clarity
+    const { parseArgs } = await import('./arg-parser');
+    const parsed = parseArgs([
+      { flag: '--scenario-type', type: 'string' },
+      { flag: '--simulate-detection', type: 'boolean', default: false }
+    ], args);
+
+    const scenarioType = parsed['--scenario-type'] as string | undefined;
+    const simulate = !!parsed['--simulate-detection'];
+
+    const types = scenarioType ? [scenarioType] : Object.keys(MITRE_MAP);
+
+    return (
+      <div className="text-blue-300">
+        <div className="font-bold mb-3 text-xl">🗺️ MITRE ATT&CK Mapping</div>
+        <div className="text-gray-300 mb-2 text-sm">Mappings are informational and based on scenario intent; no actions are executed.</div>
+        <div className="space-y-4">
+          {types.map((t) => (
+            <div key={t} className="border border-gray-600 rounded p-3">
+              <div className="text-cyan-400 font-mono font-bold mb-2">{t}</div>
+              {(MITRE_MAP[t] || []).length === 0 ? (
+                <div className="text-gray-500 text-sm">No mappings available</div>
+              ) : (
+                <ul className="text-sm space-y-1">
+                  {(MITRE_MAP[t] || []).map((m) => (
+                    <li key={m.tid}>
+                      <span className="text-green-400">{m.tid}</span> – {m.technique} <span className="text-gray-400">({m.description})</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </div>
+        {simulate && (
+          <div className="mt-4 p-3 bg-gray-800 rounded border border-yellow-600">
+            <div className="text-yellow-400 font-bold mb-2">📎 Simulated Detection Event (Stub)</div>
+            <div className="text-xs text-gray-300">
+              <pre className="whitespace-pre-wrap">{JSON.stringify({
+                event_type: 'simulation_detection',
+                scenario_type: scenarioType || 'multi',
+                mapped_techniques: (scenarioType ? (MITRE_MAP[scenarioType] || []) : []).map(m => m.tid),
+                timestamp: new Date().toISOString(),
+                vendor: 'Cortex/XSIAM (simulated output)'
+              }, null, 2)}</pre>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   }
 };

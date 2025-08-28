@@ -24,7 +24,7 @@ export const CATEGORY_INFO: Record<CommandCategory, CategoryInfo> = {
   context: {
     name: 'context',
     displayName: 'Context & Information',
-    description: 'Learn about Henry Reed AI and available services',
+    description: 'Learn about XSIAM and Cortex capabilities and features',
     icon: '👤'
   },
   ai: {

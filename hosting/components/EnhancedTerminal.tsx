@@ -58,13 +58,13 @@ export default function EnhancedTerminal() {
   const baseCommands: CommandConfig[] = [
     {
       name: 'getting-started',
-      description: 'Introduction to Henry Reed AI services and terminal navigation',
+      description: 'Introduction to the XSIAM & Cortex Terminal',
       usage: 'getting-started',
       aliases: ['gs', 'start', 'welcome'],
       handler: () => {
         return (
           <div className="text-blue-300">
-            <div className="font-bold mb-4 text-xl">🚀 Welcome to Henry Reed AI</div>
+            <div className="font-bold mb-4 text-xl">🚀 Welcome to the XSIAM & Cortex Terminal</div>
             <div className="space-y-6">
               <div className="border-l-4 border-cyan-500 bg-gray-900 p-4 rounded-r">
                 <div className="text-cyan-400 font-bold text-lg mb-3">👋 Welcome to XSIAM & Cortex Security Products</div>
@@ -153,8 +153,8 @@ export default function EnhancedTerminal() {
                       <span className="text-gray-400">Browse security scenarios</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-mono text-purple-400">ls ctx --all-products</span>
-                      <span className="text-gray-400">Explore all services</span>
+                      <span className="font-mono text-purple-400">scenario mitre --scenario-type cloud-posture</span>
+                      <span className="text-gray-400">View MITRE mappings</span>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -167,18 +167,18 @@ export default function EnhancedTerminal() {
                       <span className="text-gray-400">Ask the AI assistant</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-mono text-red-400">contact --schedule</span>
-                      <span className="text-gray-400">Book a consultation</span>
+                      <span className="font-mono text-cyan-400">detect</span>
+                      <span className="text-gray-400">Output MITRE-mapped stub event</span>
                     </div>
                   </div>
                 </div>
               </div>
               
               <div className="text-center p-4 bg-gradient-to-r from-blue-900 to-purple-900 rounded border border-cyan-500">
-                <div className="text-cyan-300 font-semibold text-lg">Ready to Transform Your Security Operations?</div>
-                <div className="text-gray-300 mt-2">Schedule a personalized consultation to discuss your security challenges and explore how XSIAM and Cortex can strengthen your defenses.</div>
+                <div className="text-cyan-300 font-semibold text-lg">Ready to Validate Your Detection Content?</div>
+                <div className="text-gray-300 mt-2">Explore scenarios and MITRE mappings to accelerate your XSIAM & Cortex workflows.</div>
                 <div className="mt-3">
-                  <span className="font-mono text-yellow-400 bg-gray-800 px-3 py-1 rounded">contact --schedule</span>
+                  <span className="font-mono text-yellow-400 bg-gray-800 px-3 py-1 rounded">scenario mitre</span>
                 </div>
               </div>
             </div>

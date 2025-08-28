@@ -46,7 +46,7 @@ Each scenario deployment creates isolated, secure testing environments that can 
       {
         flag: '--scenario-type',
         type: 'enum',
-        enumValues: ['cloud-posture', 'container-vuln', 'code-vuln', 'insider-threat', 'ransomware', 'ai-threat', 'custom'],
+        enumValues: ['cloud-posture', 'container-vuln', 'code-vuln', 'insider-threat', 'ransomware', 'ai-threat', 'pipeline-breach', 'identity-compromise', 'lateral-movement-sim', 'data-exfil-behavior', 'beacon-emulation', 'phishing-sim', 'custom'],
         required: false,
         description: 'Type of security scenario to deploy or filter by'
       },
@@ -103,7 +103,7 @@ Each scenario deployment creates isolated, secure testing environments that can 
           {
             flag: '--scenario-type',
             type: 'enum',
-            enumValues: ['cloud-posture', 'container-vuln', 'code-vuln', 'insider-threat', 'ransomware', 'ai-threat'],
+            enumValues: ['cloud-posture', 'container-vuln', 'code-vuln', 'insider-threat', 'ransomware', 'ai-threat', 'pipeline-breach', 'identity-compromise', 'lateral-movement-sim', 'data-exfil-behavior', 'beacon-emulation', 'phishing-sim'],
             required: false,
             description: 'Filter templates by scenario type'
           }
@@ -120,7 +120,7 @@ Each scenario deployment creates isolated, secure testing environments that can 
           {
             flag: '--scenario-type',
             type: 'enum',
-            enumValues: ['cloud-posture', 'container-vuln', 'code-vuln', 'insider-threat', 'ransomware', 'ai-threat'],
+            enumValues: ['cloud-posture', 'container-vuln', 'code-vuln', 'insider-threat', 'ransomware', 'ai-threat', 'pipeline-breach', 'identity-compromise', 'lateral-movement-sim', 'data-exfil-behavior', 'beacon-emulation', 'phishing-sim'],
             required: true,
             description: 'Type of scenario to deploy'
           },
@@ -175,6 +175,30 @@ Each scenario deployment creates isolated, secure testing environments that can 
             default: 'json',
             required: false,
             description: 'Export format'
+          }
+        ]
+      },
+      {
+        name: 'mitre',
+        description: 'Map scenarios to MITRE ATT&CK techniques and simulate mapped detections (safe output only)',
+        examples: [
+          { cmd: 'scenario mitre --scenario-type cloud-posture', description: 'Show MITRE mappings for cloud posture scenarios' },
+          { cmd: 'scenario mitre --scenario-type identity-compromise --simulate-detection', description: 'Emit a stub detection payload for testing' }
+        ],
+        options: [
+          {
+            flag: '--scenario-type',
+            type: 'enum',
+            enumValues: ['cloud-posture', 'container-vuln', 'code-vuln', 'insider-threat', 'ransomware', 'ai-threat', 'pipeline-breach', 'identity-compromise', 'lateral-movement-sim', 'data-exfil-behavior', 'beacon-emulation', 'phishing-sim'],
+            required: false,
+            description: 'Filter mappings by scenario type'
+          },
+          {
+            flag: '--simulate-detection',
+            type: 'boolean',
+            default: false,
+            required: false,
+            description: 'Output a sample, MITRE-mapped detection event (no execution)'
           }
         ]
       },
@@ -293,6 +317,17 @@ Each scenario deployment creates isolated, secure testing environments that can 
             </div>
           );
         }
+      
+      case 'mitre':
+        if ('mitre' in scenarioCommands && typeof (scenarioCommands as any).mitre === 'function') {
+          return await (scenarioCommands as any).mitre(subArgs);
+        }
+        return (
+          <div className="text-yellow-400">
+            <div className="font-bold mb-2">⚠️ MITRE Mapping Not Available</div>
+            <div className="text-sm">The MITRE mapping function is not implemented.</div>
+          </div>
+        );
       
       case 'destroy':
         if ('destroy' in scenarioCommands && typeof scenarioCommands.destroy === 'function') {

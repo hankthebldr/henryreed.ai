@@ -71,7 +71,7 @@ export default function AuthLanding() {
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">AI Terminal Access</h1>
           <p className="text-gray-400 text-sm">
-            Secure access to Henry Reed AI Proof-of-Value CLI
+            Secure access to the XSIAM & Cortex POV-CLI
           </p>
         </div>
 
@@ -164,8 +164,8 @@ export default function AuthLanding() {
 
         {/* Bottom Info */}
         <div className="text-center mt-8 text-xs text-gray-500">
-          <p>Henry Reed AI Consulting Platform</p>
-          <p className="mt-1">v2.1 • Proof-of-Value Terminal Interface</p>
+          <p>Developed by Henry Reed</p>
+          <p className="mt-1">v2.1 • XSIAM/Cortex Proof-of-Value Terminal</p>
         </div>
       </div>
     </div>

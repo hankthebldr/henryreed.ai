@@ -10,6 +10,11 @@ export type ScenarioType =
   | 'waas-exploit' 
   | 'ai-threat' 
   | 'pipeline-breach' 
+  | 'identity-compromise'
+  | 'lateral-movement-sim'
+  | 'data-exfil-behavior'
+  | 'beacon-emulation'
+  | 'phishing-sim'
   | 'custom';
 
 export type Provider = 'aws' | 'gcp' | 'azure' | 'k8s' | 'local';
@@ -241,6 +246,91 @@ export const SCENARIO_TEMPLATES: Record<ScenarioType, ScenarioConfig[]> = {
       }
     }
   ],
+'identity-compromise': [
+    {
+      id: 'idc-credential-misuse',
+      name: 'Credential Misuse Simulation',
+      type: 'identity-compromise',
+      description: 'Simulate credential misuse and anomalous sign-in behavior (safe, synthetic telemetry).',
+      provider: 'gcp',
+      region: 'us-central1',
+      template: 'identity-credential-misuse',
+      estimatedDuration: '20-40 minutes',
+      difficulty: 'intermediate',
+      tags: ['identity', 'anomalous-login', 'UEBA', 'account-takeover'],
+      resources: {
+        compute: 'Function to emit synthetic auth events'
+      }
+    }
+  ],
+  'lateral-movement-sim': [
+    {
+      id: 'lm-anomalous-access-patterns',
+      name: 'Lateral Movement Behavioral Patterns',
+      type: 'lateral-movement-sim',
+      description: 'Emulate resource access patterns that resemble lateral movement for detection validation.',
+      provider: 'gcp',
+      region: 'us-central1',
+      template: 'lateral-movement-behavior',
+      estimatedDuration: '30-60 minutes',
+      difficulty: 'advanced',
+      tags: ['lateral-movement', 'behavioral', 'anomalies'],
+      resources: {
+        compute: 'Orchestrated functions producing access logs'
+      }
+    }
+  ],
+  'data-exfil-behavior': [
+    {
+      id: 'dx-volume-anomaly',
+      name: 'Data Egress Volume Anomaly',
+      type: 'data-exfil-behavior',
+      description: 'Generate safe, synthetic egress telemetry to validate exfiltration anomaly detections.',
+      provider: 'gcp',
+      region: 'us-central1',
+      template: 'data-egress-anomaly',
+      estimatedDuration: '20-45 minutes',
+      difficulty: 'intermediate',
+      tags: ['exfiltration', 'egress', 'network', 'UEBA'],
+      resources: {
+        network: 'Synthetic egress logs via logging sink'
+      }
+    }
+  ],
+  'beacon-emulation': [
+    {
+      id: 'beacon-timing-irregular',
+      name: 'Beacon Timing Irregularities (Emulated)',
+      type: 'beacon-emulation',
+      description: 'Emit synthetic periodic signals to emulate benign beacon-like telemetry for analytics tuning.',
+      provider: 'gcp',
+      region: 'us-central1',
+      template: 'beacon-timing-emulation',
+      estimatedDuration: '25-50 minutes',
+      difficulty: 'intermediate',
+      tags: ['beaconing', 'network', 'timing-anomaly'],
+      resources: {
+        compute: 'Scheduler + function to emit synthetic events'
+      }
+    }
+  ],
+  'phishing-sim': [
+    {
+      id: 'phish-sim-email-flow',
+      name: 'Phishing Simulation (Safe Metadata)',
+      type: 'phishing-sim',
+      description: 'Simulate phishing campaign metadata (headers/indicators only) for mail flow detection mapping.',
+      provider: 'gcp',
+      region: 'us-central1',
+      template: 'phishing-simulated-metadata',
+      estimatedDuration: '15-30 minutes',
+      difficulty: 'beginner',
+      tags: ['phishing', 'email', 'metadata', 'detections'],
+      resources: {
+        storage: 'Static JSON indicators delivered via logs'
+      }
+    }
+  ],
   'custom': []
 };
 
@@ -270,56 +360,55 @@ export const parseScenarioCommand = (args: string[]): ScenarioCommand | null => 
     return null;
   }
 
-  const command: ScenarioCommand = { action };
-  
-  for (let i = 1; i < args.length; i++) {
-    const arg = args[i];
-    
-    if (arg.startsWith('--scenario-type') && args[i + 1]) {
-      command.scenarioType = args[i + 1] as ScenarioType;
-      i++;
-    } else if (arg.startsWith('--provider') && args[i + 1]) {
-      command.provider = args[i + 1] as Provider;
-      i++;
-    } else if (arg.startsWith('--region') && args[i + 1]) {
-      command.region = args[i + 1];
-      i++;
-    } else if (arg.startsWith('--template') && args[i + 1]) {
-      command.template = args[i + 1];
-      i++;
-    } else if (arg.startsWith('--file') && args[i + 1]) {
-      command.file = args[i + 1];
-      i++;
-    } else if (arg === '--auto-validate') {
-      command.autoValidate = true;
-    } else if (arg.startsWith('--destroy-after') && args[i + 1]) {
-      command.destroyAfter = args[i + 1];
-      i++;
-    } else if (arg.startsWith('--output') && args[i + 1]) {
-      command.output = args[i + 1];
-      i++;
-    } else if (arg.startsWith('--xsiam-token') && args[i + 1]) {
-      command.xsiamToken = args[i + 1];
-      i++;
-    } else if (arg.startsWith('--xsoar-playbook') && args[i + 1]) {
-      command.xsoarPlaybook = args[i + 1];
-      i++;
-    } else if (arg.startsWith('--pipeline') && args[i + 1]) {
-      command.pipeline = args[i + 1] as Pipeline;
-      i++;
-    } else if (arg === '--verbose') {
-      command.verbose = true;
-    } else if (arg === '--dry-run') {
-      command.dryRun = true;
-    } else if (arg.startsWith('--tag') && args[i + 1]) {
-      const tagPair = args[i + 1].split(':');
-      if (tagPair.length === 2) {
-        command.tags = command.tags || {};
-        command.tags[tagPair[0]] = tagPair[1];
-      }
-      i++;
+  // Use the shared arg parser for consistency
+  const rest = args.slice(1);
+  // Import inline to avoid server-side issues
+  const { parseArgs } = require('./arg-parser');
+  const parsed = parseArgs([
+    { flag: '--scenario-type', type: 'enum', enumValues: ['cloud-posture','container-vuln','code-vuln','insider-threat','ransomware','waas-exploit','ai-threat','pipeline-breach','identity-compromise','lateral-movement-sim','data-exfil-behavior','beacon-emulation','phishing-sim','custom'] },
+    { flag: '--provider', type: 'enum', enumValues: ['gcp','aws','azure','kubernetes','local'], default: 'gcp' },
+    { flag: '--region', type: 'string', default: 'us-central1' },
+    { flag: '--template', type: 'string' },
+    { flag: '--file', type: 'string' },
+    { flag: '--auto-validate', type: 'boolean', default: false },
+    { flag: '--destroy-after', type: 'string' },
+    { flag: '--output', type: 'string' },
+    { flag: '--xsiam-token', type: 'string' },
+    { flag: '--xsoar-playbook', type: 'string' },
+    { flag: '--pipeline', type: 'enum', enumValues: ['ci','gitlab','github'] },
+    { flag: '--verbose', type: 'boolean', default: false },
+    { flag: '--dry-run', type: 'boolean', default: false },
+    { flag: '--tag', type: 'string' }
+  ], rest);
+
+  const command: ScenarioCommand = {
+    action,
+    scenarioType: parsed['--scenario-type'],
+    provider: parsed['--provider'],
+    region: parsed['--region'],
+    template: parsed['--template'],
+    file: parsed['--file'],
+    autoValidate: parsed['--auto-validate'],
+    destroyAfter: parsed['--destroy-after'],
+    output: parsed['--output'],
+    xsiamToken: parsed['--xsiam-token'],
+    xsoarPlaybook: parsed['--xsoar-playbook'],
+    pipeline: parsed['--pipeline'],
+    verbose: parsed['--verbose'],
+    dryRun: parsed['--dry-run']
+  };
+
+  // Handle tags: can appear multiple times --tag key:value
+  const tags: Record<string,string> = {};
+  const positions = rest.reduce<number[]>((acc, t, i) => (t === '--tag' ? (acc.push(i), acc) : acc), []);
+  for (const idx of positions) {
+    const val = rest[idx + 1];
+    if (val && !val.startsWith('--')) {
+      const [k, v] = val.split(':');
+      if (k && v) tags[k] = v;
     }
   }
-  
+  if (Object.keys(tags).length > 0) command.tags = tags;
+
   return command;
 };

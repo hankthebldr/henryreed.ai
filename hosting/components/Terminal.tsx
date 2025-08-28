@@ -35,9 +35,9 @@ export default function Terminal() {
       input: '',
       output: (
         <div className="text-green-400 mb-4">
-          <div className="text-xl font-bold text-cyan-400">Henry Reed AI Terminal</div>
+<div className="text-xl font-bold text-cyan-400">XSIAM & Cortex Terminal</div>
           <div className="text-sm text-gray-400 mt-2">
-            <div className="text-lg text-cyan-300 font-semibold mb-1">Professional AI Services & Consulting</div>
+<div className="text-lg text-cyan-300 font-semibold mb-1">Explore AI in Cortex capabilities</div>
             <div>Type 'getting started' or 'help' for available commands</div>
           </div>
         </div>
@@ -98,7 +98,12 @@ export default function Terminal() {
                 <div className="text-yellow-400">insider-threat – simulated insider attacks</div>
                 <div className="text-red-400">ransomware – encryption behavior simulation</div>
                 <div className="text-cyan-400">waas-exploit – web application exploits</div>
-                <div className="text-orange-400">pipeline-breach – CI/CD pipeline attacks</div>
+<div className="text-orange-400">pipeline-breach – CI/CD pipeline attacks</div>
+                <div className="text-pink-400">identity-compromise – credential misuse simulation</div>
+                <div className="text-teal-400">lateral-movement-sim – behavioral movement patterns</div>
+                <div className="text-emerald-400">data-exfil-behavior – synthetic egress anomalies</div>
+                <div className="text-rose-400">beacon-emulation – periodic signal emulation</div>
+                <div className="text-indigo-400">phishing-sim – safe phishing metadata</div>
               </div>
             </div>
           );
@@ -118,7 +123,7 @@ export default function Terminal() {
             <div className="text-blue-300">
               <div className="font-bold text-xl mb-3">Henry Reed</div>
               <div className="space-y-2 text-sm">
-                <div><span className="text-green-400">Role:</span> AI Engineer & Consultant</div>
+<div><span className="text-green-400">Role:</span> AI/Security Engineer</div>
                 <div><span className="text-green-400">Expertise:</span> Machine Learning, LLMs, Computer Vision</div>
                 <div><span className="text-green-400">Focus:</span> Enterprise AI implementation and strategy</div>
                 <div><span className="text-green-400">Mission:</span> Making AI accessible and practical for businesses</div>
@@ -133,7 +138,7 @@ export default function Terminal() {
         return (
           <div className="text-blue-300">
             <div className="text-lg font-bold">Henry Reed</div>
-            <div className="text-sm text-gray-300">AI Engineer & Consultant</div>
+<div className="text-sm text-gray-300">AI/Security Engineer</div>
             <div className="text-xs text-gray-500 mt-1">Use --detailed for more info</div>
           </div>
         );
@@ -436,6 +441,7 @@ export default function Terminal() {
         ))}
       </div>
 
+      <div className="border-t border-gray-800 px-4 py-1 text-right text-xs text-gray-500">Developed by Henry Reed</div>
       <form onSubmit={handleSubmit} className="border-t border-gray-700 p-4">
         <div className="flex">
           <span className="text-blue-400 mr-2">henry@ai:~$</span>
