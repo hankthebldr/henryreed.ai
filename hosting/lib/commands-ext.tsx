@@ -1,6 +1,9 @@
 import React from 'react';
 import { commands as baseCommands, CommandConfig } from './commands';
 import { downloadCommands } from './download-commands';
+import { cdrCommands } from './cdr-commands';
+import { cloudConfigCommands } from './cloud-config-commands';
+import { enhancedCdrCommands } from './enhanced-cdr-commands';
 
 const extendedCommands: CommandConfig[] = [
   {
@@ -746,5 +749,8 @@ const extendedCommands: CommandConfig[] = [
 export const allCommands: CommandConfig[] = [
   ...baseCommands, 
   ...extendedCommands.filter(extCmd => !baseCommands.some(baseCmd => baseCmd.name === extCmd.name)),
-  ...downloadCommands.filter(dlCmd => !baseCommands.some(baseCmd => baseCmd.name === dlCmd.name) && !extendedCommands.some(extCmd => extCmd.name === dlCmd.name))
+  ...downloadCommands.filter(dlCmd => !baseCommands.some(baseCmd => baseCmd.name === dlCmd.name) && !extendedCommands.some(extCmd => extCmd.name === dlCmd.name)),
+  ...cdrCommands.filter(cdrCmd => !baseCommands.some(baseCmd => baseCmd.name === cdrCmd.name) && !extendedCommands.some(extCmd => extCmd.name === cdrCmd.name)),
+  ...cloudConfigCommands.filter(cloudCmd => !baseCommands.some(baseCmd => baseCmd.name === baseCmd.name) && !extendedCommands.some(extCmd => extCmd.name === cloudCmd.name)),
+  ...enhancedCdrCommands.filter(enhCmd => !baseCommands.some(baseCmd => baseCmd.name === enhCmd.name) && !extendedCommands.some(extCmd => extCmd.name === enhCmd.name) && !cdrCommands.some(cdrCmd => cdrCmd.name === enhCmd.name))
 ];

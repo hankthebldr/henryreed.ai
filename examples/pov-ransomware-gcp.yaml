@@ -1,0 +1,313 @@
+# POV Plan: Ransomware Attack Chain on GCP
+# This plan demonstrates a complete ransomware attack scenario with mandatory destroy path
+
+apiVersion: cdrlab.pov/v1
+kind: PovPlan
+metadata:
+  id: pov-ransomware-gcp
+  title: "Ransomware POV on GCP and Kubernetes"
+  description: "Complete attack chain from initial access to data exfiltration with cleanup"
+  author: "CDR Lab Team"
+  version: "1.0"
+  created: "2024-01-15T10:00:00Z"
+
+# Mandatory cleanup policy - every POV plan must define this
+cleanupPolicy:
+  onSuccess: destroy              # Clean up after successful completion
+  onFailure: retain-with-ttl      # Keep resources for debugging on failure
+  ttl: 4h                         # Auto-cleanup after 4 hours regardless
+  confirmationRequired: true      # Require explicit confirmation before destroy
+  
+# Execution settings
+execution:
+  parallel: false                 # Execute steps sequentially
+  continueOnError: false          # Stop execution on any step failure
+  timeout: 2h                     # Maximum execution time
+  
+# Resource constraints
+constraints:
+  maxConcurrentScenarios: 3
+  maxResourcesTotal: 50
+  allowedProviders: [k8s, gcp]
+  requiredPermissions:
+    - k8s:cluster-admin
+    - gcp:compute.instanceAdmin
+    - gcp:storage.admin
+
+# Scenario execution steps with dependencies
+steps:
+  - id: initial-access
+    scenario: phishing-simulation
+    description: "Simulate phishing attack for initial access"
+    provider: k8s
+    timeout: 10m
+    overlay: safe
+    parameters:
+      target_email: "admin@company.local"
+      payload_type: "credential_harvester"
+    
+    # Expected outcomes for validation
+    expectedOutcomes:
+      - type: credential_capture
+        count: 1
+      - type: log_events
+        count: ">= 3"
+    
+    # Validation checks
+    validation:
+      preDeployment:
+        - check: cluster_connectivity
+        - check: namespace_available
+      postDeployment:
+        - check: pods_running
+        - check: logs_generated
+        - check: detections_triggered
+
+  - id: persistence
+    scenario: container-backdoor
+    description: "Establish persistence via container backdoor"
+    provider: k8s
+    timeout: 15m
+    overlay: safe
+    depends: [initial-access]         # Dependency on previous step
+    parameters:
+      backdoor_type: "reverse_shell"
+      c2_server: "sinkhole.cdr-lab.svc.cluster.local"
+    
+    expectedOutcomes:
+      - type: persistent_access
+        count: 1
+      - type: network_connections
+        count: ">= 1"
+
+  - id: lateral-movement
+    scenario: k8s-privilege-escalation
+    description: "Escalate privileges and move laterally"
+    provider: k8s
+    timeout: 20m
+    overlay: safe
+    depends: [persistence]
+    parameters:
+      escalation_method: "service_account_token"
+      target_namespace: "kube-system"
+    
+    expectedOutcomes:
+      - type: privilege_escalation
+        count: 1
+      - type: service_discovery
+        count: ">= 5"
+
+  - id: data-discovery
+    scenario: cloud-data-enumeration
+    description: "Discover and enumerate cloud storage"
+    provider: gcp
+    timeout: 15m
+    overlay: safe
+    depends: [lateral-movement]
+    parameters:
+      storage_type: "gcs"
+      enumeration_scope: "project"
+    
+    expectedOutcomes:
+      - type: bucket_enumeration
+        count: ">= 1"
+      - type: data_classification
+        count: ">= 10"
+
+  - id: data-exfiltration
+    scenario: gcs-data-exfiltration
+    description: "Simulate data exfiltration to external storage"
+    provider: gcp
+    timeout: 25m
+    overlay: safe
+    depends: [data-discovery]
+    parameters:
+      source_bucket: "company-sensitive-data"
+      destination: "attacker-controlled-bucket"
+      exfil_rate: "1MB/s"
+    
+    expectedOutcomes:
+      - type: data_transfer
+        count: ">= 100MB"
+      - type: network_egress
+        count: ">= 1"
+
+  - id: ransomware-deployment
+    scenario: ransomware-encryption-sim
+    description: "Deploy ransomware simulation (safe mode)"
+    provider: k8s
+    timeout: 30m
+    overlay: safe
+    depends: [data-exfiltration]
+    parameters:
+      encryption_target: "/tmp/simulation"
+      encryption_algorithm: "simulated-aes"
+      ransom_note: true
+    
+    expectedOutcomes:
+      - type: file_encryption_simulation
+        count: ">= 1000"
+      - type: ransom_note_creation
+        count: 1
+
+# Global labels applied to all resources
+labels:
+  cdrlab.pov: pov-ransomware-gcp
+  project: security-training
+  environment: lab
+  cost-center: security-team
+  owner: cdr-lab-admin
+
+# Telemetry and monitoring configuration
+telemetry:
+  enabled: true
+  retention: 30d
+  exportFormats: [json, csv, junit]
+  
+  # Metrics to collect
+  metrics:
+    - name: time_to_detection
+      description: "Time from attack start to first detection"
+      unit: seconds
+    - name: attack_success_rate
+      description: "Percentage of attack steps that completed successfully"
+      unit: percent
+    - name: resources_created
+      description: "Total number of resources created across all steps"
+      unit: count
+    - name: cleanup_duration
+      description: "Time taken to clean up all resources"
+      unit: seconds
+
+# Detection rules to deploy alongside scenarios
+detections:
+  enabled: true
+  platforms: [xsiam, splunk]
+  
+  # Generate detections for each step
+  autoGenerate: true
+  
+  # Custom detection rules
+  customRules:
+    - name: "POV Ransomware Attack Chain"
+      platform: xsiam
+      query: |
+        dataset = xdr_data
+        | where timestamp >= datetime_sub(now(), interval 2 hour)
+        | where agent_hostname contains "cdr-lab"
+        | where (
+            (action_process_file_name contains "phish" and event_type = "Process") or
+            (action_network_remote_ip = "sinkhole.cdr-lab.svc.cluster.local" and event_type = "Network") or
+            (action_file_path contains "/tmp/simulation" and event_type = "File")
+          )
+        | project _time, agent_hostname, event_type, action_process_file_name, action_network_remote_ip, action_file_path
+      severity: High
+      description: "Detects POV ransomware attack chain indicators"
+
+# Reporting configuration
+reporting:
+  enabled: true
+  formats: [markdown, json, html]
+  
+  # Report sections
+  sections:
+    - name: executive_summary
+      template: templates/executive-summary.md
+    - name: technical_details
+      template: templates/technical-details.md
+    - name: detection_coverage
+      template: templates/detection-coverage.md
+    - name: recommendations
+      template: templates/recommendations.md
+  
+  # Metrics to include in reports
+  includeMetrics:
+    - attack_timeline
+    - detection_effectiveness
+    - resource_utilization
+    - cleanup_verification
+
+# Cleanup specification
+cleanup:
+  # Validation before cleanup
+  preCleanupValidation:
+    - check: no_real_data_affected
+    - check: safe_mode_verified
+    - check: all_steps_completed
+  
+  # Cleanup order (reverse dependency order)
+  order:
+    - step: ransomware-deployment
+      timeout: 5m
+    - step: data-exfiltration
+      timeout: 5m
+    - step: data-discovery
+      timeout: 3m
+    - step: lateral-movement
+      timeout: 5m
+    - step: persistence
+      timeout: 3m
+    - step: initial-access
+      timeout: 3m
+  
+  # Post-cleanup validation
+  postCleanupValidation:
+    - check: zero_residual_resources
+    - check: ledger_reconciliation
+    - check: no_orphaned_resources
+    - check: metrics_exported
+
+# Risk assessment
+risk:
+  level: medium
+  factors:
+    - "Multi-cloud resource creation"
+    - "Simulated but realistic attack patterns"
+    - "Potential for resource sprawl"
+  
+  mitigations:
+    - "Safe mode overlay enforced"
+    - "Resource limits and quotas"
+    - "Mandatory TTL cleanup"
+    - "Comprehensive monitoring"
+
+# Prerequisites
+prerequisites:
+  - description: "Kubernetes cluster with cdr-lab namespace"
+    check: "kubectl get namespace cdr-lab"
+  - description: "GCP project with compute and storage APIs enabled"
+    check: "gcloud services list --enabled --filter='compute|storage'"
+  - description: "XSIAM/XDR connectivity for detection deployment"
+    check: "xsiam-cli connectivity-test"
+
+# Usage examples
+examples:
+  - name: "Deploy POV plan"
+    command: "cdrlab pov run pov-ransomware-gcp.yaml"
+    description: "Deploy the complete ransomware POV scenario"
+  
+  - name: "Monitor POV execution"
+    command: "cdrlab pov status pov-ransomware-gcp"
+    description: "Check execution status and progress"
+  
+  - name: "Generate report"
+    command: "cdrlab pov report pov-ransomware-gcp --format html"
+    description: "Generate comprehensive POV report"
+  
+  - name: "Clean up POV"
+    command: "cdrlab pov destroy pov-ransomware-gcp.yaml"
+    description: "Clean up all resources created by the POV"
+
+# Notes for POV execution
+notes: |
+  This POV plan demonstrates a realistic ransomware attack chain while maintaining
+  safety through:
+  
+  1. Safe mode overlays that simulate rather than execute real attacks
+  2. Sinkhole services to capture malicious network traffic
+  3. Sandboxed environments that don't affect production data
+  4. Comprehensive cleanup with zero-residual validation
+  5. Detailed telemetry and reporting for learning outcomes
+  
+  The plan is designed for security training and product demonstrations,
+  providing realistic attack scenarios without actual security risks.
