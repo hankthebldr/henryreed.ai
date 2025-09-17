@@ -320,7 +320,7 @@ export const bigQueryCommands: CommandConfig[] = [
             break;
           case 'pov_action':
             trackCommand('bq-track', args, 'pov_action_tracked', 0);
-            bigQueryService.trackPOVAction(component, eventData.pov_id || 'manual', eventData);
+            bigQueryService.trackPOVAction(component, (eventData as any).pov_id || 'manual', eventData);
             break;
           default:
             // Generic tracking

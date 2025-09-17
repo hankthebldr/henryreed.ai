@@ -56,14 +56,14 @@ export default function LoginForm({ onClose }: LoginFormProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-      <div className="bg-gray-900 border border-gray-600 rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="cortex-card-elevated p-6 max-w-md w-full mx-4">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-green-400">
+          <h2 className="text-xl font-bold text-cortex-green">
             {isLogin ? 'Sign In' : 'Sign Up'}
           </h2>
           <button 
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-xl"
+            className="text-cortex-text-muted hover:text-cortex-text-primary text-xl"
           >
             ×
           </button>
@@ -77,28 +77,28 @@ export default function LoginForm({ onClose }: LoginFormProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-cortex-text-secondary mb-1">
               Email
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 bg-black border border-gray-600 rounded text-white focus:outline-none focus:border-blue-400"
+              className="w-full px-3 py-2 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded text-cortex-text-primary focus:outline-none focus:border-cortex-green focus:ring-2 focus:ring-cortex-green/20"
               placeholder="your@email.com"
               disabled={loading}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-cortex-text-secondary mb-1">
               Password
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-black border border-gray-600 rounded text-white focus:outline-none focus:border-blue-400"
+              className="w-full px-3 py-2 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded text-cortex-text-primary focus:outline-none focus:border-cortex-green focus:ring-2 focus:ring-cortex-green/20"
               placeholder="••••••••"
               disabled={loading}
             />
@@ -107,18 +107,18 @@ export default function LoginForm({ onClose }: LoginFormProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 text-white py-2 rounded font-medium transition-colors"
+            className="w-full btn-cortex-primary disabled:bg-cortex-bg-hover disabled:text-cortex-text-disabled py-2 rounded font-medium transition-colors"
           >
             {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
           </button>
         </form>
 
-        <div className="my-4 text-center text-gray-400">or</div>
+        <div className="my-4 text-center text-cortex-text-muted">or</div>
 
         <button
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-700 text-white py-2 rounded font-medium transition-colors flex items-center justify-center"
+          className="w-full bg-cortex-error hover:bg-cortex-error-dark disabled:bg-cortex-bg-hover text-white py-2 rounded font-medium transition-colors flex items-center justify-center"
         >
           <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
             <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -133,7 +133,7 @@ export default function LoginForm({ onClose }: LoginFormProps) {
           <button
             type="button"
             onClick={() => setIsLogin(!isLogin)}
-            className="text-blue-400 hover:text-blue-300 text-sm"
+            className="text-cortex-green hover:text-cortex-green-light text-sm"
           >
             {isLogin 
               ? "Don't have an account? Sign up" 
@@ -141,7 +141,7 @@ export default function LoginForm({ onClose }: LoginFormProps) {
             }
           </button>
         </div>
-        <div className="mt-6 text-center text-xs text-gray-500">Developed by Henry Reed</div>
+        <div className="mt-6 text-center text-xs text-cortex-text-muted">Developed by Henry Reed</div>
       </div>
     </div>
   );

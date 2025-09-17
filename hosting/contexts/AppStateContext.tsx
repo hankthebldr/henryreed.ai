@@ -45,7 +45,7 @@ type AppAction =
   | { type: 'ADD_TERMINAL_COMMAND'; payload: string }
   | { type: 'UPDATE_BREADCRUMBS'; payload: Array<{ label: string; path: string }> }
   | { type: 'UPDATE_DATA'; payload: { key: keyof AppState['data']; data: any } }
-  | { type: 'ADD_NOTIFICATION'; payload: Omit<AppState['ui']['notifications'][0], 'id' | 'timestamp'> }
+  | { type: 'ADD_NOTIFICATION'; payload: { id: string; type: 'success' | 'error' | 'info' | 'warning'; message: string; timestamp: number } }
   | { type: 'REMOVE_NOTIFICATION'; payload: string }
   | { type: 'SET_LOADING'; payload: { key: string; loading: boolean } }
   | { type: 'OPEN_MODAL'; payload: { key: string; data?: any } }
@@ -113,11 +113,7 @@ function appStateReducer(state: AppState, action: AppAction): AppState {
       };
       
     case 'ADD_NOTIFICATION':
-      const notification = {
-        ...action.payload,
-        id: Math.random().toString(36).substring(2, 15),
-        timestamp: Date.now(),
-      };
+      const notification = action.payload;
       return {
         ...state,
         ui: {
@@ -234,11 +230,14 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     }, []),
     
     notify: useCallback((type: 'success' | 'error' | 'info' | 'warning', message: string) => {
-      dispatch({ type: 'ADD_NOTIFICATION', payload: { type, message } });
+      const notificationId = Math.random().toString(36).substring(2, 15);
+      const timestamp = Date.now();
+      
+      dispatch({ type: 'ADD_NOTIFICATION', payload: { id: notificationId, type, message, timestamp } });
       
       // Auto-remove notifications after 5 seconds
       setTimeout(() => {
-        dispatch({ type: 'REMOVE_NOTIFICATION', payload: Math.random().toString() });
+        dispatch({ type: 'REMOVE_NOTIFICATION', payload: notificationId });
       }, 5000);
     }, []),
     

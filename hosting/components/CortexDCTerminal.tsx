@@ -21,37 +21,37 @@ const DC_MODES = {
     name: 'POV Management',
     icon: '🎯',
     description: 'Proof-of-Value lifecycle management',
-    color: 'text-green-400'
+    color: 'text-cortex-primary'
   },
   template: {
     name: 'Templates',
     icon: '📋',
     description: 'Scenario template management',
-    color: 'text-blue-400'
+    color: 'text-cortex-info'
   },
   customer: {
     name: 'Customers',
     icon: '🏢',
     description: 'Customer environment setup',
-    color: 'text-purple-400'
+    color: 'text-cortex-green'
   },
   scenarios: {
     name: 'Scenarios',
     icon: '🔬',
     description: 'Security scenario execution',
-    color: 'text-cyan-400'
+    color: 'text-cortex-light'
   },
   trr: {
     name: 'TRR Management',
     icon: '📊',
     description: 'Technical Requirements Review tracking',
-    color: 'text-orange-400'
+    color: 'text-cortex-warning'
   },
   help: {
     name: 'Help & Guides',
     icon: '❓',
     description: 'Documentation and guides',
-    color: 'text-yellow-400'
+    color: 'text-cortex-warning-light'
   }
 };
 
@@ -94,7 +94,7 @@ export default function CortexDCTerminal() {
       input: '',
       output: (
         <TerminalOutput type="info">
-          <pre className="text-lg font-bold text-cyan-400 mb-2">
+          <pre className="text-lg font-bold text-cortex-green mb-2">
 {`
  ██████╗ ██████╗ ██████╗ ████████╗███████╗██╗  ██╗    ██████╗  ██████╗
 ██╔════╝██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝╚██╗██╔╝    ██╔══██╗██╔════╝
@@ -105,29 +105,29 @@ export default function CortexDCTerminal() {
 `}
           </pre>
           <div className="text-sm">
-            <div className="mb-2">🛡️ <strong>Cortex Domain Consultant Portal</strong></div>
-            <div className="text-sm text-gray-400 mb-4">
-              Professional XSIAM POV Management & Security Demonstration Platform
+            <div className="mb-2 text-cortex-text-primary">🛡️ <strong>Cortex Domain Consultant Portal</strong></div>
+            <div className="text-sm text-cortex-text-muted mb-4">
+              Palo Alto Networks Security Operations Platform
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div className="bg-green-900/20 p-3 rounded border border-green-500/30">
-                <div className="text-green-400 font-bold mb-2">🚀 Quick Start</div>
-                <div className="text-sm space-y-1">
+              <div className="bg-cortex-success-bg p-3 rounded border border-cortex-green/30">
+                <div className="text-cortex-green font-bold mb-2">🚀 Quick Start</div>
+                <div className="text-sm space-y-1 text-cortex-text-secondary">
                   <div>• Use the <strong>navigation tabs</strong> above to switch between DC functions</div>
-                  <div>• Try <span className="font-mono text-green-400">pov init customer-name</span> to start a POV</div>
-                  <div>• Run <span className="font-mono text-blue-400">help</span> for complete command reference</div>
+                  <div>• Try <span className="font-mono text-cortex-green">pov init customer-name</span> to start a POV</div>
+                  <div>• Run <span className="font-mono text-cortex-info">help</span> for complete command reference</div>
                 </div>
               </div>
               
-              <div className="bg-blue-900/20 p-3 rounded border border-blue-500/30">
-                <div className="text-blue-400 font-bold mb-2">💡 Navigation</div>
-                <div className="text-sm space-y-1">
-                  <div>• <strong>POV Management:</strong> End-to-end engagement orchestration with Gantt charts</div>
+              <div className="bg-cortex-info-bg p-3 rounded border border-cortex-info/30">
+                <div className="text-cortex-info font-bold mb-2">💡 Navigation</div>
+                <div className="text-sm space-y-1 text-cortex-text-secondary">
+                  <div>• <strong>POV Management:</strong> End-to-end engagement orchestration</div>
                   <div>• <strong>Templates:</strong> Customizable scenario templates</div>
                   <div>• <strong>Customers:</strong> Environment setup and configuration</div>
                   <div>• <strong>Scenarios:</strong> Security demonstration scenarios</div>
-                  <div>• <strong>TRR Management:</strong> Technical Requirements Review with CSV import</div>
+                  <div>• <strong>TRR Management:</strong> Technical Requirements Review</div>
                 </div>
               </div>
             </div>
@@ -460,7 +460,7 @@ export default function CortexDCTerminal() {
           {', '}
           <span className="font-mono text-blue-400">pov init customer-name</span>
           {', '}
-          <span className="font-mono text-purple-400">template list</span>
+          <span className="font-mono text-cortex-green-light">template list</span>
         </div>
       </form>
     </div>

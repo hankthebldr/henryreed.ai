@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAppState } from '../contexts/AppStateContext';
@@ -8,12 +8,39 @@ import { useAppState } from '../contexts/AppStateContext';
 export default function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
-  const { state } = useAppState();
+  const { state, actions } = useAppState();
+  const { setMode, updateBreadcrumbs } = actions;
 
   const isGUI = pathname?.startsWith("/gui");
   const isTerminal = pathname?.startsWith("/terminal");
   const isDocs = pathname?.startsWith("/docs");
+  const isAlignmentGuide = pathname?.startsWith("/alignment-guide");
   const isHome = pathname === "/";
+
+  // Keep global mode and breadcrumbs in sync with the current route
+  useEffect(() => {
+    if (!pathname) return;
+
+    if (pathname.startsWith('/terminal')) {
+      setMode('terminal');
+      updateBreadcrumbs([
+        { label: 'Home', path: '/gui' },
+        { label: 'Terminal', path: '/terminal' },
+      ]);
+    } else if (pathname.startsWith('/gui')) {
+      setMode('gui');
+      updateBreadcrumbs([
+        { label: 'Home', path: '/gui' },
+      ]);
+    } else if (pathname.startsWith('/docs')) {
+      // Treat docs as a separate top-level area but keep mode consistent with GUI by default
+      setMode('gui');
+      updateBreadcrumbs([
+        { label: 'Home', path: '/gui' },
+        { label: 'Docs', path: '/docs' },
+      ]);
+    }
+  }, [pathname, setMode, updateBreadcrumbs]);
 
   const handleLogout = () => {
     if (typeof window !== "undefined") {
@@ -32,18 +59,18 @@ export default function AppHeader() {
   if (isHome) return null;
 
   return (
-    <header className="bg-gray-900 border-b border-gray-700 p-3 sticky top-0 z-40">
+    <header className="bg-cortex-bg-secondary border-b border-cortex-border-secondary p-3 sticky top-0 z-40 backdrop-blur-sm">
       <div className="flex justify-between items-center">
         {/* Brand */}
         <div className="flex items-center space-x-2 md:space-x-4">
           <Link 
             href="/gui" 
-            className="text-base md:text-lg font-bold text-cyan-400 hover:text-cyan-300 transition-colors"
+className="text-base md:text-lg font-bold text-cortex-green hover:text-cortex-green-light transition-colors"
           >
-            <span className="sm:hidden">🛑 Cortex DC</span>
-            <span className="hidden sm:inline">Cortex DC Portal</span>
+            <span className="sm:hidden">🛡️ Cortex DC</span>
+            <span className="hidden sm:inline">🛡️ Cortex DC Portal</span>
           </Link>
-          <div className="text-xs md:text-sm text-gray-400 hidden md:inline">Domain Consultant Hub</div>
+          <div className="text-xs md:text-sm text-cortex-text-muted hidden md:inline">Palo Alto Networks</div>
         </div>
 
         {/* Main Navigation */}
@@ -54,8 +81,8 @@ export default function AppHeader() {
               href="/gui"
               className={`p-2 rounded-lg font-medium text-sm transition-all duration-200 ${
                 isGUI 
-                  ? "bg-blue-600 text-white shadow-lg" 
-                  : "text-gray-300 hover:text-white hover:bg-gray-800"
+? "bg-cortex-green text-black shadow-lg cortex-glow" 
+                  : "text-cortex-text-secondary hover:text-cortex-green hover:bg-cortex-bg-hover"
               }`}
               title="GUI Interface"
             >
@@ -65,8 +92,8 @@ export default function AppHeader() {
               href="/terminal"
               className={`p-2 rounded-lg font-medium text-sm transition-all duration-200 ${
                 isTerminal 
-                  ? "bg-green-600 text-white shadow-lg" 
-                  : "text-gray-300 hover:text-white hover:bg-gray-800"
+                  ? "bg-cortex-green text-black shadow-lg cortex-glow-green" 
+                  : "text-cortex-text-secondary hover:text-cortex-green hover:bg-cortex-bg-hover"
               }`}
               title="Terminal Interface"
             >
@@ -76,12 +103,23 @@ export default function AppHeader() {
               href="/docs"
               className={`p-2 rounded-lg font-medium text-sm transition-all duration-200 ${
                 isDocs 
-                  ? "bg-purple-600 text-white shadow-lg" 
-                  : "text-gray-300 hover:text-white hover:bg-gray-800"
+                  ? "bg-cortex-info text-black shadow-lg" 
+                  : "text-cortex-text-secondary hover:text-cortex-info hover:bg-cortex-bg-hover"
               }`}
               title="Documentation"
             >
               <span className="text-base">📖</span>
+            </Link>
+            <Link
+              href="/alignment-guide"
+              className={`p-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                isAlignmentGuide 
+                  ? "bg-cortex-text-accent text-black shadow-lg" 
+                  : "text-cortex-text-secondary hover:text-cortex-text-accent hover:bg-cortex-bg-hover"
+              }`}
+              title="Command Alignment Guide"
+            >
+              <span className="text-base">🔄</span>
             </Link>
           </nav>
 
@@ -91,8 +129,8 @@ export default function AppHeader() {
               href="/gui"
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 flex items-center space-x-2 ${
                 isGUI 
-                  ? "bg-blue-600 text-white shadow-lg transform scale-105" 
-                  : "text-gray-300 hover:text-white hover:bg-gray-800"
+? "bg-cortex-green text-black shadow-lg transform scale-105 cortex-glow" 
+                  : "text-cortex-text-secondary hover:text-cortex-green hover:bg-cortex-bg-hover"
               }`}
             >
               <span className="text-base">🎨</span>
@@ -102,8 +140,8 @@ export default function AppHeader() {
               href="/terminal"
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 flex items-center space-x-2 ${
                 isTerminal 
-                  ? "bg-green-600 text-white shadow-lg transform scale-105" 
-                  : "text-gray-300 hover:text-white hover:bg-gray-800"
+                  ? "bg-cortex-green text-black shadow-lg transform scale-105 cortex-glow-green" 
+                  : "text-cortex-text-secondary hover:text-cortex-green hover:bg-cortex-bg-hover"
               }`}
             >
               <span className="text-base">💻</span>
@@ -113,24 +151,35 @@ export default function AppHeader() {
               href="/docs"
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 flex items-center space-x-2 ${
                 isDocs 
-                  ? "bg-purple-600 text-white shadow-lg transform scale-105" 
-                  : "text-gray-300 hover:text-white hover:bg-gray-800"
+                  ? "bg-cortex-info text-black shadow-lg transform scale-105" 
+                  : "text-cortex-text-secondary hover:text-cortex-info hover:bg-cortex-bg-hover"
               }`}
             >
               <span className="text-base">📖</span>
               <span>Docs</span>
             </Link>
+            <Link
+              href="/alignment-guide"
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 flex items-center space-x-2 ${
+                isAlignmentGuide 
+                  ? "bg-cortex-text-accent text-black shadow-lg transform scale-105" 
+                  : "text-cortex-text-secondary hover:text-cortex-text-accent hover:bg-cortex-bg-hover"
+              }`}
+            >
+              <span className="text-base">🔄</span>
+              <span>Align</span>
+            </Link>
           </nav>
 
           {/* User Info & Actions */}
-          <div className="flex items-center space-x-2 md:space-x-4 text-sm border-l border-gray-700 pl-2 md:pl-6">
+          <div className="flex items-center space-x-2 md:space-x-4 text-sm border-l border-cortex-border-secondary pl-2 md:pl-6">
             <div className="flex items-center space-x-1 md:space-x-2">
-              <span className="text-cyan-400">👤</span>
-              <span className="text-gray-300 font-medium hidden sm:inline">{currentUser}</span>
+<span className="text-cortex-green">👤</span>
+              <span className="text-cortex-text-primary font-medium hidden sm:inline">{currentUser}</span>
               {/* Show current mode indicator */}
               {(isGUI || isTerminal) && (
-                <span className={`px-1 md:px-2 py-1 rounded text-xs font-mono ${
-                  isGUI ? 'bg-blue-900/50 text-blue-400' : 'bg-green-900/50 text-green-400'
+<span className={`px-1 md:px-2 py-1 rounded text-xs font-mono border ${
+                  isGUI ? 'bg-cortex-green/20 text-cortex-green border-cortex-green/30' : 'bg-cortex-green/20 text-cortex-green border-cortex-green/30'
                 }`}>
                   {isGUI ? 'GUI' : 'Terminal'}
                 </span>
@@ -138,36 +187,16 @@ export default function AppHeader() {
             </div>
             <button
               onClick={handleLogout}
-              className="text-red-400 hover:text-red-300 px-2 md:px-3 py-1 rounded border border-red-600/30 hover:border-red-500/50 transition-colors text-xs font-medium"
+              className="text-cortex-error hover:text-cortex-error-light px-2 md:px-3 py-1 rounded border border-cortex-error/30 hover:border-cortex-error/50 transition-colors text-xs font-medium"
               title="Logout"
             >
               <span className="hidden sm:inline">Logout</span>
-              <span className="sm:hidden">🚪</span>
+              <span className="sm:hidden">🚺</span>
             </button>
           </div>
         </div>
       </div>
       
-      {/* Optional context info bar for authenticated pages */}
-      {(isGUI || isTerminal) && (
-        <div className="bg-gray-800/50 px-3 py-1 text-xs text-gray-400 border-t border-gray-700">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 md:space-x-4">
-              <span className="text-green-400">•</span>
-              <span className="hidden sm:inline">Online</span>
-              {state?.commandBridge?.lastExecutedCommand && (
-                <span className="hidden md:inline">
-                  Last: <span className="font-mono text-gray-300">{state.commandBridge.lastExecutedCommand}</span>
-                </span>
-              )}
-            </div>
-            <div className="text-gray-500 text-xs">
-              <span className="hidden sm:inline">{currentUser} • </span>
-              {isGUI ? 'GUI' : 'Terminal'}
-            </div>
-          </div>
-        </div>
-      )}
     </header>
   );
 }

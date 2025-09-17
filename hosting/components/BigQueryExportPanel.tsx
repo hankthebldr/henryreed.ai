@@ -24,7 +24,7 @@ export default function BigQueryExportPanel() {
   
   const [isExporting, setIsExporting] = useState(false);
   const [lastExportResult, setLastExportResult] = useState<ExportResult | null>(null);
-  const [queueStatus, setQueueStatus] = useState({ queueSize: 0, oldestItem: '', newestItem: '' });
+  const [queueStatus, setQueueStatus] = useState<{ queueSize: number; oldestItem?: string; newestItem?: string }>({ queueSize: 0, oldestItem: '', newestItem: '' });
 
   useEffect(() => {
     // Update queue status periodically
@@ -129,12 +129,12 @@ export default function BigQueryExportPanel() {
   };
 
   return (
-    <div className="bg-gray-900 bg-opacity-50 p-6 rounded border border-gray-700">
+    <div className="cortex-card p-6">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-bold text-cyan-400">📊 BigQuery Data Export</h3>
+        <h3 className="text-xl font-bold text-cortex-orange">📊 BigQuery Data Export</h3>
         <div className="flex items-center space-x-2 text-sm">
-          <div className={`w-2 h-2 rounded-full ${isExporting ? 'bg-yellow-400 animate-pulse' : 'bg-green-400'}`}></div>
-          <span className="text-gray-400">
+          <div className={`w-2 h-2 rounded-full ${isExporting ? 'bg-cortex-warning animate-pulse' : 'bg-cortex-success'}`}></div>
+          <span className="text-cortex-text-secondary">
             {isExporting ? 'Exporting...' : 'Ready'}
           </span>
         </div>
@@ -145,7 +145,7 @@ export default function BigQueryExportPanel() {
         <button
           onClick={() => handleExport(true)}
           disabled={isExporting}
-          className="p-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center space-x-2"
+          className="p-4 btn-cortex-primary disabled:bg-cortex-bg-quaternary disabled:cursor-not-allowed disabled:text-cortex-text-disabled text-sm font-medium flex items-center justify-center space-x-2"
         >
           <span className="text-lg">⚡</span>
           <div className="text-left">
@@ -157,7 +157,7 @@ export default function BigQueryExportPanel() {
         <button
           onClick={() => handleExport(false)}
           disabled={isExporting}
-          className="p-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center space-x-2"
+          className="p-4 btn-cortex-success disabled:bg-cortex-bg-quaternary disabled:cursor-not-allowed disabled:text-cortex-text-disabled text-sm font-medium flex items-center justify-center space-x-2"
         >
           <span className="text-lg">📋</span>
           <div className="text-left">
@@ -169,9 +169,9 @@ export default function BigQueryExportPanel() {
         <button
           onClick={handleClearQueue}
           disabled={isExporting}
-          className="p-4 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center space-x-2"
+          className="p-4 bg-cortex-error hover:bg-cortex-error-dark disabled:bg-cortex-bg-quaternary disabled:cursor-not-allowed text-black rounded-lg transition-colors text-sm font-medium flex items-center justify-center space-x-2"
         >
-          <span className="text-lg">🗑️</span>
+          <span className="text-lg">🗱️</span>
           <div className="text-left">
             <div>Clear Queue</div>
             <div className="text-xs opacity-80">{queueStatus.queueSize} items</div>

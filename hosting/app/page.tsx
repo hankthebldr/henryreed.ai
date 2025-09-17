@@ -13,6 +13,8 @@ export default function Page() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedInterface, setSelectedInterface] = useState<'gui' | 'terminal'>('gui');
+  const [showInterfaceSelection, setShowInterfaceSelection] = useState(false);
   const router = useRouter();
 
   // If already authenticated, send users straight to GUI
@@ -36,14 +38,19 @@ export default function Page() {
       sessionStorage.setItem('dc_authenticated', 'true');
       sessionStorage.setItem('dc_user', username);
       
-      // Route to GUI (primary experience)
-      router.push('/gui');
+      // Show interface selection instead of directly routing
+      setShowInterfaceSelection(true);
+      setIsLoading(false);
     } else {
       setError('Invalid credentials. Please try again.');
       setIsLoading(false);
       // Clear password field on error
       setPassword('');
     }
+  };
+
+  const handleInterfaceSelection = (interfaceType: 'gui' | 'terminal') => {
+    router.push(`/${interfaceType}`);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -53,11 +60,11 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center">
+    <div className="min-h-screen bg-cortex-bg-primary flex items-center justify-center">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0)`,
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(0,204,102,0.3) 1px, transparent 0)`,
           backgroundSize: '20px 20px'
         }}></div>
       </div>
@@ -66,7 +73,7 @@ export default function Page() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="mb-4">
-            <pre className="text-cyan-400 text-sm font-mono leading-tight">
+<pre className="text-cortex-green text-sm font-mono leading-tight">
 {`
  ██████╗ ██████╗ ██████╗ ████████╗███████╗██╗  ██╗    ██████╗  ██████╗
 ██╔════╝██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝╚██╗██╔╝    ██╔══██╗██╔════╝
@@ -77,18 +84,72 @@ export default function Page() {
 `}
             </pre>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Domain Consultant Access</h1>
-          <p className="text-gray-400 text-sm">
+<h1 className="text-3xl font-bold text-cortex-text-primary mb-2">Cortex DC Access</h1>
+          <p className="text-cortex-text-muted text-sm">
             Secure access to the Cortex DC Engagement Portal
           </p>
         </div>
 
-        {/* Login Card */}
-        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow-2xl p-8">
+        {/* Login Card / Interface Selection */}
+        <div className="cortex-card-elevated p-8">
+          {showInterfaceSelection ? (
+            <div className="space-y-6">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-cortex-green mb-2">Choose Your Experience</h2>
+                <p className="text-cortex-text-secondary text-sm">
+                  Select your preferred interface for the Cortex DC Portal
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* GUI Option */}
+                <button
+                  onClick={() => handleInterfaceSelection('gui')}
+                  className="group p-6 border-2 border-cortex-border-secondary hover:border-cortex-green rounded-lg transition-all duration-200 hover:shadow-lg hover:cortex-glow-green text-left"
+                >
+                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">🎨</div>
+                  <h3 className="text-xl font-bold text-cortex-text-primary mb-2">Graphical Interface</h3>
+                  <p className="text-cortex-text-secondary text-sm mb-3">
+                    Modern web interface with forms, dashboards, and visual workflows. Perfect for comprehensive project management and data visualization.
+                  </p>
+                  <div className="text-xs text-cortex-green">
+                    ✓ Visual dashboards  ✓ Form-based inputs  ✓ Charts & reports
+                  </div>
+                </button>
+                
+                {/* Terminal Option */}
+                <button
+                  onClick={() => handleInterfaceSelection('terminal')}
+                  className="group p-6 border-2 border-cortex-border-secondary hover:border-cortex-info rounded-lg transition-all duration-200 hover:shadow-lg text-left"
+                >
+                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">💻</div>
+                  <h3 className="text-xl font-bold text-cortex-text-primary mb-2">Terminal Interface</h3>
+                  <p className="text-cortex-text-secondary text-sm mb-3">
+                    Command-line experience for power users. Fast, efficient, and scriptable. Ideal for automation and advanced workflows.
+                  </p>
+                  <div className="text-xs text-cortex-info">
+                    ✓ Command-line power  ✓ Scriptable workflows  ✓ Expert efficiency
+                  </div>
+                </button>
+              </div>
+              
+              <div className="text-center pt-4 border-t border-cortex-border-secondary">
+                <p className="text-xs text-cortex-text-muted mb-2">
+                  You can switch between interfaces at any time using the navigation header
+                </p>
+                <button
+                  onClick={() => setShowInterfaceSelection(false)}
+                  className="text-cortex-text-accent hover:text-cortex-green text-sm underline"
+                >
+                  ← Back to Login
+                </button>
+              </div>
+            </div>
+          ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username Field */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="username" className="block text-sm font-medium text-cortex-text-secondary mb-2">
                 Username
               </label>
               <input
@@ -96,7 +157,7 @@ export default function Page() {
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-colors font-mono"
+                className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:border-cortex-green focus:ring-2 focus:ring-cortex-green/20 transition-colors font-mono"
                 placeholder="Enter username"
                 required
                 autoComplete="username"
@@ -105,7 +166,7 @@ export default function Page() {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-cortex-text-secondary mb-2">
                 Password
               </label>
               <input
@@ -114,7 +175,7 @@ export default function Page() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-colors font-mono"
+                className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:border-cortex-green focus:ring-2 focus:ring-cortex-green/20 transition-colors font-mono"
                 placeholder="Enter password"
                 required
                 autoComplete="current-password"
@@ -123,10 +184,10 @@ export default function Page() {
 
             {/* Error Message */}
             {error && (
-              <div className="p-3 bg-red-900/20 border border-red-600/30 rounded-lg">
+              <div className="p-3 status-error rounded-lg">
                 <div className="flex items-center">
-                  <div className="text-red-400 mr-2">⚠️</div>
-                  <div className="text-red-300 text-sm">{error}</div>
+                  <div className="mr-2">⚠️</div>
+                  <div className="text-sm">{error}</div>
                 </div>
               </div>
             )}
@@ -135,11 +196,11 @@ export default function Page() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
+              className="w-full btn-cortex-primary disabled:bg-cortex-bg-hover disabled:text-cortex-text-disabled disabled:cursor-not-allowed flex items-center justify-center"
             >
               {isLoading ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                  <div className="cortex-spinner mr-3"></div>
                   Authenticating...
                 </>
               ) : (
@@ -150,20 +211,21 @@ export default function Page() {
               )}
             </button>
           </form>
+          )}
 
           {/* Footer Info */}
-          <div className="mt-6 pt-6 border-t border-gray-700">
+          <div className="mt-6 pt-6 border-t border-cortex-border-secondary">
             <div className="text-center">
-              <p className="text-xs text-gray-500 mb-2">
+              <p className="text-xs text-cortex-text-muted mb-2">
                 Authorized domain consultants only
               </p>
-              <div className="flex items-center justify-center space-x-4 text-xs text-gray-600">
+              <div className="flex items-center justify-center space-x-4 text-xs text-cortex-text-muted">
                 <div className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></div>
+                  <div className="w-2 h-2 bg-cortex-green rounded-full mr-1 animate-pulse"></div>
                   <span>System Online</span>
                 </div>
                 <div className="flex items-center">
-                  <div className="w-2 h-2 bg-cyan-500 rounded-full mr-1"></div>
+                  <div className="w-2 h-2 bg-cortex-green rounded-full mr-1"></div>
                   <span>Portal Ready</span>
                 </div>
               </div>
@@ -172,7 +234,7 @@ export default function Page() {
         </div>
 
         {/* Bottom Info */}
-        <div className="text-center mt-8 text-xs text-gray-500">
+        <div className="text-center mt-8 text-xs text-cortex-text-muted">
           <p>Cortex DC Engagement Portal</p>
           <p className="mt-1">v2.2 • Professional POV Management Platform</p>
         </div>

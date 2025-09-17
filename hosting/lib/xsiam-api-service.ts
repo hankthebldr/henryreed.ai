@@ -73,7 +73,9 @@ class XSIAMAPIService {
   private credentials: XSIAMCredentials | null = null;
 
   constructor() {
-    this.loadCredentials();
+    if (typeof window !== 'undefined') {
+      this.loadCredentials();
+    }
   }
 
   /**
@@ -142,7 +144,9 @@ class XSIAMAPIService {
       credentials.lastTested = new Date().toISOString();
 
       const encrypted = this.encryptData(JSON.stringify(credentials));
-      localStorage.setItem(this.STORAGE_KEY, encrypted);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(this.STORAGE_KEY, encrypted);
+      }
       this.credentials = credentials;
 
       console.log('XSIAM credentials stored successfully');
@@ -157,6 +161,8 @@ class XSIAMAPIService {
    */
   private loadCredentials(): void {
     try {
+      if (typeof window === 'undefined') return;
+      
       const encrypted = localStorage.getItem(this.STORAGE_KEY);
       if (encrypted) {
         const decrypted = this.decryptData(encrypted);
@@ -179,7 +185,9 @@ class XSIAMAPIService {
    * Clear stored credentials
    */
   clearCredentials(): void {
-    localStorage.removeItem(this.STORAGE_KEY);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(this.STORAGE_KEY);
+    }
     this.credentials = null;
   }
 

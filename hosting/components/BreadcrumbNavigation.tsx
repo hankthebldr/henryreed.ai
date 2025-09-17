@@ -25,7 +25,7 @@ export default function BreadcrumbNavigation() {
   if (breadcrumbs.length <= 1) return null;
 
   return (
-    <div className="bg-gray-800 border-b border-gray-700 px-3 md:px-4 py-2">
+    <div className="bg-cortex-bg-tertiary border-b border-cortex-border-secondary px-3 md:px-4 py-2">
       <nav className="flex overflow-x-auto" aria-label="Breadcrumb">
         <ol className="flex items-center space-x-1 md:space-x-2 text-sm whitespace-nowrap">
           {breadcrumbs.map((crumb, index) => {
@@ -34,19 +34,19 @@ export default function BreadcrumbNavigation() {
             return (
               <li key={crumb.path} className="flex items-center">
                 {index > 0 && (
-                  <span className="text-gray-500 mx-1 md:mx-2">
+                  <span className="text-cortex-text-muted mx-1 md:mx-2">
                     <svg className="w-3 h-3 md:w-4 md:h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                     </svg>
                   </span>
                 )}
                 {isLast ? (
-                  <span className="text-cyan-400 font-medium text-xs md:text-sm">{crumb.label}</span>
+<span className="text-cortex-green font-medium text-xs md:text-sm">{crumb.label}</span>
                 ) : (
                   <Link
                     href={crumb.path}
                     onClick={() => handleBreadcrumbClick(crumb.path)}
-                    className="text-gray-300 hover:text-cyan-400 transition-colors font-medium text-xs md:text-sm"
+className="text-cortex-text-secondary hover:text-cortex-green transition-colors font-medium text-xs md:text-sm"
                   >
                     {crumb.label}
                   </Link>

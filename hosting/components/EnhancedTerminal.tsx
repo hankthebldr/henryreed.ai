@@ -36,8 +36,8 @@ export default function EnhancedTerminal() {
     setCommands([{
       input: '',
       output: (
-        <div className="text-green-400 mb-4">
-          <pre className="text-lg font-bold text-cyan-400">{`
+<div className="text-cortex-green mb-4">
+<pre className="text-lg font-bold text-cortex-green">{`
  ██╗  ██╗███████╗██╗ █████╗ ███╗   ███╗
  ╚██╗██╔╝██╔════╝██║██╔══██╗████╗ ████║
   ╚███╔╝ ███████╗██║███████║██╔████╔██║
@@ -45,9 +45,9 @@ export default function EnhancedTerminal() {
  ██╔╝ ██╗███████║██║██║  ██║██║ ╚═╝ ██║
  ╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═╝╚═╝     ╚═╝
 `}</pre>
-          <div className="text-sm text-gray-400 mt-2">
-            <div className="text-lg text-cyan-300 font-semibold mb-1">Next Generation Security Operations Toolkit</div>
-            <div>Proof-of-Value CLI • Type 'getting-started' or 'help' for available commands</div>
+          <div className="text-sm text-cortex-text-muted mt-2">
+<div className="text-lg text-cortex-green-light font-semibold mb-1">Palo Alto Networks Security Operations</div>
+            <div className="text-cortex-text-secondary">Extended Security Intelligence & Automation • Type 'getting-started' or 'help' for commands</div>
           </div>
         </div>
       ),
@@ -63,20 +63,20 @@ export default function EnhancedTerminal() {
       aliases: ['gs', 'start', 'welcome'],
       handler: () => {
         return (
-          <div className="text-blue-300">
-            <div className="font-bold mb-4 text-xl">🚀 Welcome to the XSIAM & Cortex Terminal</div>
+<div className="text-cortex-info">
+            <div className="font-bold mb-4 text-xl text-cortex-green">🚀 Welcome to the XSIAM & Cortex Terminal</div>
             <div className="space-y-6">
-              <div className="border-l-4 border-cyan-500 bg-gray-900 p-4 rounded-r">
-                <div className="text-cyan-400 font-bold text-lg mb-3">👋 Welcome to XSIAM & Cortex Security Products</div>
-                <div className="text-gray-300 space-y-2">
+              <div className="border-l-4 border-cortex-green cortex-card p-4 rounded-r">
+                <div className="text-cortex-green font-bold text-lg mb-3">👋 Welcome to Palo Alto Networks Security Platform</div>
+                <div className="text-cortex-text-primary space-y-2">
                   <p>Welcome to the next generation of security operations! XSIAM (Extended Security Intelligence and Automation Management) represents the evolution of security operations, providing AI-driven threat detection, investigation, and response capabilities.</p>
                   <p>Our Cortex security product suite delivers comprehensive protection across your entire digital ecosystem, from endpoints to cloud infrastructure.</p>
                 </div>
               </div>
               
-              <div className="border-l-4 border-blue-500 bg-gray-900 p-4 rounded-r">
-                <div className="text-blue-400 font-bold text-lg mb-3">🎯 About POV-CLI (Proof-of-Value CLI)</div>
-                <div className="text-gray-300 space-y-2">
+              <div className="border-l-4 border-cortex-info cortex-card p-4 rounded-r">
+                <div className="text-cortex-info font-bold text-lg mb-3">🎯 About POV-CLI (Proof-of-Value CLI)</div>
+                <div className="text-cortex-text-primary space-y-2">
                   <p>The POV-CLI is your interactive gateway to experiencing our security capabilities firsthand. This terminal provides hands-on access to realistic security scenarios, assessment tools, and demonstration environments.</p>
                   <p>Deploy, test, and validate security controls in controlled environments that mirror real-world threats and challenges.</p>
                 </div>
@@ -196,36 +196,36 @@ export default function EnhancedTerminal() {
           const cmdName = args[0].toLowerCase();
           const cmd = commandConfigs.find(c => c.name === cmdName || c.aliases?.includes(cmdName));
           if (cmd) {
-            return (
-              <div className="text-blue-300">
-                <div className="font-bold text-lg">{cmd.name}</div>
-                <div className="text-gray-300 mt-1">{cmd.description}</div>
-                <div className="text-yellow-400 mt-2">Usage: <span className="font-mono">{cmd.usage}</span></div>
-                {cmd.aliases && (
-                  <div className="text-gray-500 mt-1 text-sm">Aliases: {cmd.aliases.join(', ')}</div>
-                )}
-              </div>
-            );
+          return (
+            <div className="text-cortex-green">
+              <div className="font-bold text-lg">{cmd.name}</div>
+              <div className="text-cortex-text-secondary mt-1">{cmd.description}</div>
+              <div className="text-cortex-green-light mt-2">Usage: <span className="font-mono">{cmd.usage}</span></div>
+              {cmd.aliases && (
+                <div className="text-cortex-text-muted mt-1 text-sm">Aliases: {cmd.aliases.join(', ')}</div>
+              )}
+            </div>
+          );
           }
           return <div className="text-red-400">Command '{args[0]}' not found</div>;
         }
         return (
-          <div className="text-blue-300">
+          <div className="text-cortex-green">
             <div className="font-bold mb-4 text-lg">🔐 Cloud Security Terminal - Available Commands</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {commandConfigs.map(cmd => (
-                <div key={cmd.name} className="border border-gray-600 p-3 rounded">
-                  <div className="text-green-400 font-mono font-bold">{cmd.name}</div>
-                  <div className="text-sm text-gray-300 mt-1">{cmd.description}</div>
+                <div key={cmd.name} className="cortex-card p-3 rounded">
+                  <div className="text-cortex-green font-mono font-bold">{cmd.name}</div>
+                  <div className="text-sm text-cortex-text-secondary mt-1">{cmd.description}</div>
                   {cmd.aliases && (
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="text-xs text-cortex-text-muted mt-1">
                       Aliases: {cmd.aliases.join(', ')}
                     </div>
                   )}
                 </div>
               ))}
             </div>
-            <div className="mt-6 text-gray-400 text-sm border-t border-gray-600 pt-4">
+            <div className="mt-6 text-cortex-text-secondary text-sm border-t border-cortex-border-secondary pt-4">
               💡 <strong>Pro Tips:</strong><br/>
               • Use 'help [command]' for detailed usage<br/>
               • Press ↑/↓ arrows to navigate command history<br/>
