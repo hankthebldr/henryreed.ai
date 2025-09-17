@@ -26,6 +26,8 @@ export const enhancedHelpCommands: CommandConfig[] = [
         if (n.startsWith('gemini') || n === 'ai' || n === 'cortex-questions') return 'ai';
         if (n.includes('gui') || n.includes('create-gui')) return 'gui';
         if (n.startsWith('report') || n.includes('analytics') || n.includes('metrics') || n.includes('dashboard')) return 'reporting';
+        if (n.startsWith('bq-') || n.includes('bigquery') || n.includes('track') || n.includes('export')) return 'data';
+        if (n.startsWith('xsiam-') || n.includes('xql') || n === 'xql') return 'integration';
         return 'system';
       };
 
@@ -100,10 +102,12 @@ export const enhancedHelpCommands: CommandConfig[] = [
         ai: { name: 'Gemini AI Integration', icon: '🤖', color: 'text-indigo-400', description: 'AI-powered insights, analysis, and interactive consultations' },
         gui: { name: 'GUI & Manual Creation', icon: '🛠️', color: 'text-rose-400', description: 'Notion-inspired block editor for creating POVs, templates, and scenarios' },
         reporting: { name: 'Reporting & Analytics', icon: '📊', color: 'text-yellow-400', description: 'Professional reporting, business analytics, and real-time dashboards' },
+        data: { name: 'BigQuery Export & Analytics', icon: '📊', color: 'text-teal-400', description: 'Export analytics data to BigQuery for advanced analysis and reporting' },
+        integration: { name: 'XSIAM Integration', icon: '🔗', color: 'text-indigo-400', description: 'Connect to XSIAM tenant API for health monitoring, analytics, and XQL queries' },
         system: { name: 'System & Utilities', icon: '⚙️', color: 'text-gray-400', description: 'System utilities, search capabilities, and session management' }
       } as const;
 
-      const orderedKeys = ['pov','trr','template','customer','detection','ai','gui','reporting','system'];
+      const orderedKeys = ['pov','trr','template','customer','detection','ai','gui','reporting','data','integration','system'];
       const selectedKeys = category ? orderedKeys.filter(k => k === category) : orderedKeys;
 
       return (
@@ -120,6 +124,8 @@ export const enhancedHelpCommands: CommandConfig[] = [
               <div>• <strong>AI Integration:</strong> Gemini AI for analysis, optimization, and intelligent insights</div>
               <div>• <strong>Project Management:</strong> Gantt charts, Kanban boards, and stakeholder tracking</div>
               <div>• <strong>Blockchain Security:</strong> Immutable TRR validations and audit trails</div>
+              <div>• <strong>BigQuery Analytics:</strong> Export data to Google BigQuery for advanced reporting</div>
+              <div>• <strong>XSIAM Integration:</strong> Direct API connection to XSIAM tenant for real-time data</div>
               <div>• Try <span className="font-mono text-green-400">getting-started</span> for guided introduction</div>
             </div>
           </div>
@@ -161,6 +167,8 @@ export const enhancedHelpCommands: CommandConfig[] = [
               <div>• <span className="font-mono text-cyan-400">gemini chat</span> for AI-powered consultations</div>
               <div>• <span className="font-mono text-orange-400">trr-signoff create</span> for blockchain-secured validations</div>
               <div>• <span className="font-mono text-rose-400">project dashboard</span> for Gantt charts and task management</div>
+              <div>• <span className="font-mono text-teal-400">bq-export --quick</span> for analytics export to BigQuery</div>
+              <div>• <span className="font-mono text-indigo-400">xsiam-connect</span> to connect to your XSIAM tenant API</div>
               <div>• Press <span className="font-mono text-gray-400">↑/↓</span> for command history, <span className="font-mono text-gray-400">Shift+Enter</span> for multi-line</div>
             </div>
           </div>

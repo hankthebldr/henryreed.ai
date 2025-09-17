@@ -1,0 +1,30 @@
+{
+  "name": "bigquery-export-function",
+  "version": "1.0.0",
+  "description": "Cloud Function to export analytics data to Google BigQuery",
+  "main": "index.js",
+  "engines": {
+    "node": "18"
+  },
+  "dependencies": {
+    "@google-cloud/bigquery": "^7.3.0",
+    "@google-cloud/functions-framework": "^3.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "scripts": {
+    "start": "functions-framework --target=exportToBigQuery",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "gcloud functions deploy bigquery-export --runtime nodejs18 --trigger-http --allow-unauthenticated --entry-point exportToBigQuery"
+  },
+  "keywords": [
+    "bigquery",
+    "analytics",
+    "cloud-function",
+    "gcp",
+    "data-export"
+  ],
+  "author": "Henry Reed AI",
+  "license": "MIT"
+}

@@ -1,6 +1,8 @@
 import './globals.css';
 import AppHeader from '../components/AppHeader';
+import NotificationSystem from '../components/NotificationSystem';
 import { AuthProvider } from '../contexts/AuthContext';
+import { AppStateProvider } from '../contexts/AppStateContext';
 
 export default function RootLayout({
   children,
@@ -15,8 +17,11 @@ export default function RootLayout({
       </head>
       <body>
         <AuthProvider>
-          <AppHeader />
-          {children}
+          <AppStateProvider>
+            <AppHeader />
+            <NotificationSystem />
+            {children}
+          </AppStateProvider>
         </AuthProvider>
       </body>
     </html>

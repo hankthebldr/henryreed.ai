@@ -15,6 +15,8 @@ import { enhancedTrrCommands } from './enhanced-trr-commands';
 import { enhancedPovCommands } from './enhanced-pov-commands';
 import { trrBlockchainSignoffCommands } from './trr-blockchain-signoff';
 import { geminiCommands } from './gemini-commands';
+import { bigQueryCommands } from './bigquery-commands';
+import { xsiamCommands } from './xsiam-commands';
 import { fetchAnalytics } from './data-service';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
@@ -1054,6 +1056,8 @@ export const allCommands: CommandConfig[] = [
   ...enhancedTrrCommands.filter(etrrCmd => !baseCommands.some(baseCmd => baseCmd.name === etrrCmd.name) && !extendedCommands.some(extCmd => extCmd.name === etrrCmd.name)),
   ...trrBlockchainSignoffCommands.filter(bsCmd => !baseCommands.some(baseCmd => baseCmd.name === bsCmd.name) && !extendedCommands.some(extCmd => extCmd.name === bsCmd.name)),
   ...geminiCommands.filter(gCmd => !baseCommands.some(baseCmd => baseCmd.name === gCmd.name) && !extendedCommands.some(extCmd => extCmd.name === gCmd.name)),
+  ...bigQueryCommands.filter(bqCmd => !baseCommands.some(baseCmd => baseCmd.name === bqCmd.name) && !extendedCommands.some(extCmd => extCmd.name === bqCmd.name)),
+  ...xsiamCommands.filter(xsiamCmd => !baseCommands.some(baseCmd => baseCmd.name === xsiamCmd.name) && !extendedCommands.some(extCmd => extCmd.name === xsiamCmd.name)),
   ...templateConfigCommands.filter(tmplCmd => !baseCommands.some(baseCmd => baseCmd.name === tmplCmd.name) && !extendedCommands.some(extCmd => extCmd.name === tmplCmd.name)),
   ...enhancedHelpCommands.filter(helpCmd => !baseCommands.some(baseCmd => baseCmd.name === helpCmd.name) && !extendedCommands.some(extCmd => extCmd.name === helpCmd.name))
 ];
