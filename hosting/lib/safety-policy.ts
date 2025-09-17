@@ -103,7 +103,7 @@ export class SafetyPolicyManager {
   private locks: Map<string, ExecutionLock> = new Map();
 
   constructor(policy?: SafetyPolicy) {
-    this.policy = policy || this.getDefaultPolicy();
+    this.policy = policy || SafetyPolicyManager.getDefaultPolicy();
   }
 
   /**

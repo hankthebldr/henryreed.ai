@@ -4,6 +4,25 @@ import { downloadCommands } from './download-commands';
 import { cdrCommands } from './cdr-commands';
 import { cloudConfigCommands } from './cloud-config-commands';
 import { enhancedCdrCommands } from './enhanced-cdr-commands';
+import { cortexDCCommands } from './cortex-dc-commands';
+import { guideCommands } from './guide-commands';
+import { resourceCommands } from './resources-commands';
+import { projectCommands } from './project-commands';
+import { povCommands } from './pov-commands';
+import { templateConfigCommands } from './template-config-commands';
+import { enhancedHelpCommands } from './enhanced-help-commands';
+import { enhancedTrrCommands } from './enhanced-trr-commands';
+import { enhancedPovCommands } from './enhanced-pov-commands';
+import { trrBlockchainSignoffCommands } from './trr-blockchain-signoff';
+import { geminiCommands } from './gemini-commands';
+import { fetchAnalytics } from './data-service';
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+
+const EnhancedManualCreationGUI = dynamic(() => import('../components/EnhancedManualCreationGUI'), {
+  ssr: false,
+  loading: () => <div className="text-cyan-400">Loading GUI...</div>,
+});
 
 const extendedCommands: CommandConfig[] = [
   {
@@ -184,6 +203,50 @@ const extendedCommands: CommandConfig[] = [
           <div className="text-gray-400 text-xs mt-2">Informational only. No actions executed.</div>
         </div>
       );
+    }
+  },
+  {
+    name: 'create-gui',
+    description: 'Open manual creation interface for POVs, templates, and detection scenarios',
+    usage: 'create-gui',
+    aliases: ['gui', 'manual-create', 'create-interface'],
+    handler: () => {
+      return (
+        <div className="space-y-4">
+          <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 p-4 rounded-lg border border-blue-500/30">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="text-2xl">🛠️</div>
+              <div>
+                <div className="text-lg font-bold text-blue-400">Manual Creation Interface</div>
+                <div className="text-sm text-gray-300">Interactive forms for creating POVs, templates, and Cloud Detection and Response scenarios</div>
+              </div>
+            </div>
+          </div>
+          <Suspense fallback={<div className="text-cyan-400">Loading GUI...</div>}>
+            <EnhancedManualCreationGUI />
+          </Suspense>
+        </div>
+      );
+    }
+  },
+  {
+    name: 'logout',
+    description: 'Log out of Cortex DC Portal',
+    usage: 'logout',
+    aliases: ['exit', 'quit'],
+    handler: () => {
+      // This will be handled in the main component
+      return null;
+    }
+  },
+  {
+    name: 'exit',
+    description: 'Exit the Cortex DC Portal session',
+    usage: 'exit',
+    aliases: ['quit'],
+    handler: () => {
+      // This will be handled in the main component
+      return null;
     }
   },
   {
@@ -493,6 +556,235 @@ const extendedCommands: CommandConfig[] = [
     }
   },
   {
+    name: 'jy2k',
+    description: 'Regional/theatre analytics for DC activity, TRR win rate, OKRs and KPIs',
+    usage: 'jy2k [--region AMER|EMEA|APJ|GLOBAL] [--theatre <name>] [--user <name>] [--since <30d|90d|180d|365d>] [--json] [--detailed] [--okrs] [--kpi] [--map]',
+    aliases: ['jy', 'j2k'],
+    category: 'reporting',
+    tags: ['analytics','dashboard','okrs','kpi','trr','dc','regional','theatre'],
+    handler: async (args) => {
+      const getArg = (flag: string, def: string | null = null) => {
+        const idx = args.indexOf(flag);
+        if (idx >= 0 && idx + 1 < args.length) return args[idx + 1];
+        return def;
+      };
+      const region = (getArg('--region', 'GLOBAL') || 'GLOBAL').toUpperCase();
+      const theatre = getArg('--theatre', 'all');
+      const userFilter = getArg('--user', 'all');
+      const sinceRaw = getArg('--since', '90d') || '90d';
+      const detailed = args.includes('--detailed');
+      const wantJson = args.includes('--json');
+      const wantOkrs = args.includes('--okrs');
+      const wantKpi = args.includes('--kpi');
+
+      const sinceDays = (() => {
+        const m = sinceRaw.match(/(\d+)/);
+        return m ? parseInt(m[1], 10) : 90;
+      })();
+
+      type Rec = {
+        region: 'AMER'|'EMEA'|'APJ';
+        theatre: string;
+        user: string;
+        location: string; // country or city
+        engagements: number;
+        povsInitiated: number;
+        povsCompleted: number;
+        trrWins: number;
+        trrLosses: number;
+        cycleDays: number; // avg cycle in days
+        okrs: { id: string; name: string; progress: number }[];
+      };
+
+      // Attempt to fetch from Firestore
+      const fetched = await fetchAnalytics({
+        region,
+        theatre: theatre === 'all' ? null : theatre,
+        user: userFilter === 'all' ? null : userFilter,
+        sinceDays
+      });
+
+      // Sample dataset (used if Firestore empty)
+      const data: Rec[] = [
+        { region: 'AMER', theatre: 'North America', user: 'alex', location: 'US', engagements: 14, povsInitiated: 10, povsCompleted: 7, trrWins: 6, trrLosses: 1, cycleDays: 41, okrs: [ {id:'O1', name:'POV velocity', progress:0.72}, {id:'O2', name:'TRR win rate', progress:0.86} ] },
+        { region: 'AMER', theatre: 'North America', user: 'maria', location: 'US', engagements: 9, povsInitiated: 7, povsCompleted: 5, trrWins: 4, trrLosses: 1, cycleDays: 39, okrs: [ {id:'O1', name:'POV velocity', progress:0.69}, {id:'O3', name:'Customer sat', progress:0.93} ] },
+        { region: 'AMER', theatre: 'LATAM', user: 'lucas', location: 'BR', engagements: 7, povsInitiated: 5, povsCompleted: 3, trrWins: 2, trrLosses: 1, cycleDays: 52, okrs: [ {id:'O2', name:'TRR win rate', progress:0.67} ] },
+        { region: 'EMEA', theatre: 'Western Europe', user: 'sofia', location: 'DE', engagements: 13, povsInitiated: 9, povsCompleted: 8, trrWins: 7, trrLosses: 1, cycleDays: 36, okrs: [ {id:'O1', name:'POV velocity', progress:0.81} ] },
+        { region: 'EMEA', theatre: 'UKI', user: 'liam', location: 'UK', engagements: 8, povsInitiated: 6, povsCompleted: 4, trrWins: 3, trrLosses: 1, cycleDays: 44, okrs: [ {id:'O2', name:'TRR win rate', progress:0.75} ] },
+        { region: 'APJ', theatre: 'JAPAC', user: 'yuki', location: 'JP', engagements: 12, povsInitiated: 8, povsCompleted: 6, trrWins: 5, trrLosses: 1, cycleDays: 38, okrs: [ {id:'O4', name:'Time to value', progress:0.79} ] },
+        { region: 'APJ', theatre: 'ANZ', user: 'oliver', location: 'AU', engagements: 6, povsInitiated: 4, povsCompleted: 2, trrWins: 1, trrLosses: 1, cycleDays: 49, okrs: [ {id:'O1', name:'POV velocity', progress:0.61} ] },
+      ];
+
+      // Build records from fetched data or fallback mock
+      const fromFetched: Rec[] = (fetched.records || []).map((r:any) => ({
+        region: (r.region || 'UNKNOWN').toUpperCase() as 'AMER'|'EMEA'|'APJ',
+        theatre: r.theatre || 'UNKNOWN',
+        user: (r.user || 'unknown').toLowerCase(),
+        location: r.location || 'N/A',
+        engagements: 1,
+        povsInitiated: 1,
+        povsCompleted: r.completedAt ? 1 : 0,
+        trrWins: r.trrOutcome === 'win' ? 1 : 0,
+        trrLosses: r.trrOutcome === 'loss' ? 1 : 0,
+        cycleDays: r.cycleDays ?? 0,
+        okrs: []
+      }));
+
+      const dataset: Rec[] = fromFetched.length ? fromFetched : data;
+
+      const filtered = dataset.filter(r =>
+        (region === 'GLOBAL' || r.region === region) &&
+        (theatre === 'all' || r.theatre.toLowerCase() === theatre?.toLowerCase()) &&
+        (userFilter === 'all' || r.user.toLowerCase() === userFilter?.toLowerCase())
+      );
+
+      const sum = (arr: number[]) => arr.reduce((a,b)=>a+b,0);
+      const safeDiv = (a:number,b:number) => b === 0 ? 0 : a/b;
+
+      const totals = {
+        engagements: sum(filtered.map(r=>r.engagements)),
+        initiated: sum(filtered.map(r=>r.povsInitiated)),
+        completed: sum(filtered.map(r=>r.povsCompleted)),
+        trrWins: sum(filtered.map(r=>r.trrWins)),
+        trrLosses: sum(filtered.map(r=>r.trrLosses)),
+        avgCycleDays: filtered.length ? Math.round(sum(filtered.map(r=>r.cycleDays))/filtered.length) : 0,
+      };
+      const winRate = safeDiv(totals.trrWins, totals.trrWins+totals.trrLosses);
+      const completionRate = safeDiv(totals.completed, Math.max(1, totals.initiated));
+
+      // Group helpers
+      const groupBy = <T, K extends string|number>(arr: T[], key: (t:T)=>K) => arr.reduce((acc: Record<K,T[]>, item)=>{ const k=key(item); (acc[k]=acc[k]||[]).push(item); return acc;}, {} as Record<K, T[]>);
+      const byUser = Object.entries(groupBy(filtered, r=>r.user)).map(([user, recs])=>{
+        const t = {
+          user,
+          engagements: sum(recs.map(r=>r.engagements)),
+          initiated: sum(recs.map(r=>r.povsInitiated)),
+          completed: sum(recs.map(r=>r.povsCompleted)),
+          wins: sum(recs.map(r=>r.trrWins)),
+          losses: sum(recs.map(r=>r.trrLosses)),
+          winRate: safeDiv(sum(recs.map(r=>r.trrWins)), sum(recs.map(r=>r.trrWins))+sum(recs.map(r=>r.trrLosses))),
+          avgCycle: recs.length ? Math.round(sum(recs.map(r=>r.cycleDays))/recs.length) : 0,
+        };
+        return t;
+      }).sort((a,b)=> b.engagements - a.engagements);
+
+      const byLocation = Object.entries(groupBy(filtered, r=>r.location)).map(([loc, recs])=>({
+        location: loc,
+        engagements: sum(recs.map(r=>r.engagements)),
+        initiated: sum(recs.map(r=>r.povsInitiated)),
+        completed: sum(recs.map(r=>r.povsCompleted)),
+        winRate: safeDiv(sum(recs.map(r=>r.trrWins)), sum(recs.map(r=>r.trrWins))+sum(recs.map(r=>r.trrLosses)))
+      })).sort((a,b)=> b.engagements - a.engagements);
+
+      const okrRollup = (()=>{
+        const fetchedOkrs = fetched.okrs && fetched.okrs.length ? fetched.okrs : [];
+        if (fetchedOkrs.length) return fetchedOkrs;
+        const all = filtered.flatMap(r=>r.okrs);
+        const byId = groupBy(all, o=>o.id);
+        return Object.entries(byId).map(([id, items])=>({
+          id,
+          name: items[0]?.name || id,
+          progress: safeDiv(sum(items.map(i=>i.progress)), items.length)
+        })).sort((a,b)=> a.id.localeCompare(b.id));
+      })();
+
+      if (wantJson) {
+        const payload = { filters: { region, theatre, user: userFilter, sinceDays }, totals, winRate, completionRate, byUser, byLocation, okrs: okrRollup };
+        return (
+          <pre className="text-xs bg-black p-3 rounded border border-gray-700 whitespace-pre-wrap">{JSON.stringify(payload, null, 2)}</pre>
+        );
+      }
+
+      return (
+        <div className="text-blue-300">
+          <div className="font-bold mb-2 text-xl text-cyan-400">📊 JY2K - DC Analytics Dashboard</div>
+          <div className="text-sm text-gray-400 mb-4">Region: <span className="text-white">{region}</span> • Theatre: <span className="text-white">{theatre}</span> • User: <span className="text-white">{userFilter}</span> • Since: <span className="text-white">{sinceDays}d</span></div>
+
+          {/* KPI Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+            <div className="p-4 rounded border border-green-500/40 bg-green-900/10">
+              <div className="text-green-400 text-xs">Engagements</div>
+              <div className="text-2xl font-mono text-white">{totals.engagements}</div>
+            </div>
+            <div className="p-4 rounded border border-blue-500/40 bg-blue-900/10">
+              <div className="text-blue-400 text-xs">POVs Completed</div>
+              <div className="text-2xl font-mono text-white">{totals.completed}</div>
+              <div className="text-xs text-gray-400">Completion Rate: {(completionRate*100).toFixed(0)}%</div>
+            </div>
+            <div className="p-4 rounded border border-yellow-500/40 bg-yellow-900/10">
+              <div className="text-yellow-400 text-xs">TRR Win Rate</div>
+              <div className="text-2xl font-mono text-white">{Math.round(winRate*100)}%</div>
+            </div>
+            <div className="p-4 rounded border border-purple-500/40 bg-purple-900/10">
+              <div className="text-purple-400 text-xs">Avg Cycle (days)</div>
+              <div className="text-2xl font-mono text-white">{totals.avgCycleDays}</div>
+            </div>
+          </div>
+
+          {/* By User */}
+          <div className="mb-4">
+            <div className="text-cyan-400 font-bold mb-2">👥 By User</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {byUser.slice(0, detailed ? byUser.length : 6).map((u) => (
+                <div key={u.user} className="p-3 rounded bg-gray-800/50 border border-gray-600">
+                  <div className="flex justify-between">
+                    <div className="text-white font-mono">{u.user}</div>
+                    <div className="text-xs text-gray-400">Win: {(u.winRate*100).toFixed(0)}% • Cycle: {u.avgCycle}d</div>
+                  </div>
+                  <div className="text-xs text-gray-400 mt-1">Eng: {u.engagements} • Init: {u.initiated} • Comp: {u.completed}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* By Location */}
+          <div className="mb-4">
+            <div className="text-cyan-400 font-bold mb-2">🌍 By Location</div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              {byLocation.slice(0, detailed ? byLocation.length : 9).map((l) => (
+                <div key={l.location} className="p-3 rounded bg-gray-800/50 border border-gray-600">
+                  <div className="flex justify-between">
+                    <div className="text-white font-mono">{l.location}</div>
+                    <div className="text-xs text-gray-400">Win: {(l.winRate*100).toFixed(0)}%</div>
+                  </div>
+                  <div className="text-xs text-gray-400 mt-1">Eng: {l.engagements} • Comp: {l.completed}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* OKRs */}
+          <div className="mb-2">
+            <div className="text-cyan-400 font-bold mb-2">🎯 OKRs</div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              {okrRollup.map(o => (
+                <div key={o.id} className="p-3 rounded bg-gray-800/50 border border-gray-600">
+                  <div className="flex justify-between mb-1">
+                    <div className="text-white font-mono">{o.id}</div>
+                    <div className="text-xs text-gray-400">{Math.round(o.progress*100)}%</div>
+                  </div>
+                  <div className="text-xs text-gray-300">{o.name}</div>
+                  <div className="mt-2 h-2 bg-gray-700 rounded">
+                    <div className="h-2 bg-green-500 rounded" style={{ width: `${Math.min(100, Math.round(o.progress*100))}%` }}></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Tips */}
+          <div className="mt-4 p-3 bg-gray-800/50 rounded border border-gray-600 text-xs text-gray-400">
+            <div className="text-yellow-400 font-bold mb-1">ℹ️ Tips</div>
+            <div>Filter examples:</div>
+            <div className="font-mono text-gray-300 mt-1">jy2k --region AMER --theatre "North America" --since 180d</div>
+            <div className="font-mono text-gray-300">jy2k --user sofia --detailed</div>
+            <div className="font-mono text-gray-300">jy2k --json</div>
+          </div>
+        </div>
+      );
+    }
+  },
+  {
     name: 'ctxpov',
     description: 'Generate custom context point-of-view URLs and resources',
     usage: 'ctxpov [--cloud] [--c1] [--enterprise] [--startups] [--all]',
@@ -752,5 +1044,21 @@ export const allCommands: CommandConfig[] = [
   ...downloadCommands.filter(dlCmd => !baseCommands.some(baseCmd => baseCmd.name === dlCmd.name) && !extendedCommands.some(extCmd => extCmd.name === dlCmd.name)),
   ...cdrCommands.filter(cdrCmd => !baseCommands.some(baseCmd => baseCmd.name === cdrCmd.name) && !extendedCommands.some(extCmd => extCmd.name === cdrCmd.name)),
   ...cloudConfigCommands.filter(cloudCmd => !baseCommands.some(baseCmd => baseCmd.name === baseCmd.name) && !extendedCommands.some(extCmd => extCmd.name === cloudCmd.name)),
-  ...enhancedCdrCommands.filter(enhCmd => !baseCommands.some(baseCmd => baseCmd.name === enhCmd.name) && !extendedCommands.some(extCmd => extCmd.name === enhCmd.name) && !cdrCommands.some(cdrCmd => cdrCmd.name === enhCmd.name))
+  ...enhancedCdrCommands.filter(enhCmd => !baseCommands.some(baseCmd => baseCmd.name === enhCmd.name) && !extendedCommands.some(extCmd => extCmd.name === enhCmd.name) && !cdrCommands.some(cdrCmd => cdrCmd.name === enhCmd.name)),
+  ...cortexDCCommands.filter(cortexCmd => !baseCommands.some(baseCmd => baseCmd.name === cortexCmd.name) && !extendedCommands.some(extCmd => extCmd.name === cortexCmd.name)),
+  ...guideCommands.filter(guideCmd => !baseCommands.some(baseCmd => baseCmd.name === guideCmd.name) && !extendedCommands.some(extCmd => extCmd.name === guideCmd.name)),
+  ...resourceCommands.filter(resCmd => !baseCommands.some(baseCmd => baseCmd.name === resCmd.name) && !extendedCommands.some(extCmd => extCmd.name === resCmd.name)),
+  ...projectCommands.filter(projCmd => !baseCommands.some(baseCmd => baseCmd.name === projCmd.name) && !extendedCommands.some(extCmd => extCmd.name === projCmd.name)),
+  ...povCommands.filter(povCmd => !baseCommands.some(baseCmd => baseCmd.name === povCmd.name) && !extendedCommands.some(extCmd => extCmd.name === povCmd.name)),
+  ...enhancedPovCommands.filter(epovCmd => !baseCommands.some(baseCmd => baseCmd.name === epovCmd.name) && !extendedCommands.some(extCmd => extCmd.name === epovCmd.name) && !povCommands.some(povCmd => povCmd.name === epovCmd.name)),
+  ...enhancedTrrCommands.filter(etrrCmd => !baseCommands.some(baseCmd => baseCmd.name === etrrCmd.name) && !extendedCommands.some(extCmd => extCmd.name === etrrCmd.name)),
+  ...trrBlockchainSignoffCommands.filter(bsCmd => !baseCommands.some(baseCmd => baseCmd.name === bsCmd.name) && !extendedCommands.some(extCmd => extCmd.name === bsCmd.name)),
+  ...geminiCommands.filter(gCmd => !baseCommands.some(baseCmd => baseCmd.name === gCmd.name) && !extendedCommands.some(extCmd => extCmd.name === gCmd.name)),
+  ...templateConfigCommands.filter(tmplCmd => !baseCommands.some(baseCmd => baseCmd.name === tmplCmd.name) && !extendedCommands.some(extCmd => extCmd.name === tmplCmd.name)),
+  ...enhancedHelpCommands.filter(helpCmd => !baseCommands.some(baseCmd => baseCmd.name === helpCmd.name) && !extendedCommands.some(extCmd => extCmd.name === helpCmd.name))
 ];
+
+// Expose the resolved command registry globally for dynamic help without circular imports
+if (typeof globalThis !== 'undefined') {
+  (globalThis as any).__ALL_COMMANDS__ = allCommands;
+}

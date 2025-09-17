@@ -307,10 +307,10 @@ export default function DocsPage() {
             <p className="text-sm text-gray-400">Henry Reed AI Terminal - Complete Guide</p>
           </div>
           <a 
-            href="/"
+            href="/gui"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
           >
-            ← Back to Terminal
+            ← Back to App
           </a>
         </div>
       </header>

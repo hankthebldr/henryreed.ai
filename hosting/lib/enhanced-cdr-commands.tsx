@@ -1,7 +1,7 @@
 import React from 'react';
 import { CommandConfig } from './commands';
 import { SafetyPolicyManager, DeploymentRequest, PolicyValidationResult } from './safety-policy';
-import { ResourceLedgerManager, ScenarioLedger, DeploymentSummary, CleanupPlan } from './resource-ledger';
+import { ResourceLedgerManager, ScenarioLedger, DeploymentSummary, CleanupPlan, Resource } from './resource-ledger';
 import { CloudProfile } from './cloud-config-commands';
 
 // Mock instances for demonstration
@@ -18,8 +18,56 @@ const mockScenarios = [
 ];
 
 const mockCloudProfiles: CloudProfile[] = [
-  { id: 'aws-dev', name: 'AWS Development', provider: 'aws', isDefault: true, lastUsed: new Date(), status: 'active' },
-  { id: 'gcp-lab', name: 'GCP Security Lab', provider: 'gcp', isDefault: false, lastUsed: new Date(), status: 'active' }
+  { 
+    name: 'aws-dev', 
+    provider: 'aws', 
+    status: 'active',
+    lastUsed: new Date(),
+    resourceCount: 5,
+    credentials: {
+      provider: 'aws',
+      profileName: 'aws-dev',
+      region: 'us-west-2',
+      accountId: '123456789012',
+      credentials: {},
+      metadata: {
+        createdAt: new Date(),
+        environment: 'dev',
+        owner: 'lab-user'
+      },
+      security: {
+        encrypted: true,
+        maxResources: 50,
+        allowedRegions: ['us-west-2'],
+        allowedServices: ['ec2', 's3']
+      }
+    }
+  },
+  { 
+    name: 'gcp-lab', 
+    provider: 'gcp', 
+    status: 'active',
+    lastUsed: new Date(),
+    resourceCount: 3,
+    credentials: {
+      provider: 'gcp',
+      profileName: 'gcp-lab',
+      region: 'us-central1',
+      projectId: 'cdr-lab-project',
+      credentials: {},
+      metadata: {
+        createdAt: new Date(),
+        environment: 'lab',
+        owner: 'lab-user'
+      },
+      security: {
+        encrypted: true,
+        maxResources: 30,
+        allowedRegions: ['us-central1'],
+        allowedServices: ['compute', 'storage']
+      }
+    }
+  }
 ];
 
 interface DeploymentOptions {
@@ -40,11 +88,11 @@ interface CleanupOptions {
   expired?: boolean;
 }
 
-// Enhanced CDR Commands with Safety Integration
+// Enhanced Cloud Detection and Response Commands with Safety Integration
 export const enhancedCdrCommands: CommandConfig[] = [
   {
     name: 'cdrlab',
-    description: 'CDR Lab management system with safety policies and resource tracking',
+    description: 'Cloud Detection and Response Lab management system with safety policies and resource tracking',
     usage: 'cdrlab <command> [options]',
     aliases: ['cdr'],
     handler: async (args: string[]) => {
@@ -362,7 +410,7 @@ function parseCleanupArgs(args: string[]): CleanupOptions {
 
 async function simulateDeployment(ledger: ScenarioLedger, request: DeploymentRequest): Promise<void> {
   // Simulate resource creation for demo
-  const resources = [
+  const resources: Array<Omit<Resource, 'createdAt' | 'status'>> = [
     {
       identity: {
         provider: 'kubernetes' as const,
@@ -371,6 +419,7 @@ async function simulateDeployment(ledger: ScenarioLedger, request: DeploymentReq
         namespace: undefined
       },
       labels: {},
+      createdBy: 'system',
       metadata: {},
       deletionPolicy: 'delete' as const
     },
@@ -382,6 +431,7 @@ async function simulateDeployment(ledger: ScenarioLedger, request: DeploymentReq
         namespace: `cdrlab-${ledger.scenarioId}`
       },
       labels: {},
+      createdBy: 'system',
       metadata: {},
       deletionPolicy: 'delete' as const
     }
@@ -396,6 +446,7 @@ async function simulateDeployment(ledger: ScenarioLedger, request: DeploymentReq
         region: 'us-west-2'
       },
       labels: {},
+      createdBy: 'system',
       metadata: {},
       deletionPolicy: 'delete' as const,
       cost: { estimated: 0.12, currency: 'USD' as const, period: 'hour' as const }
@@ -417,7 +468,7 @@ async function simulateDeployment(ledger: ScenarioLedger, request: DeploymentReq
 // React Components
 const CdrLabHelp = () => (
   <div className="text-blue-300 space-y-2">
-    <div className="text-white font-bold">CDR Lab - Cloud Detection & Response Laboratory</div>
+    <div className="text-white font-bold">Cloud Detection and Response Lab - Cloud Detection & Response Laboratory</div>
     <div className="ml-4 space-y-1 text-sm">
       <div><span className="text-yellow-300">cdrlab list</span> - List available scenarios</div>
       <div><span className="text-yellow-300">cdrlab deploy &lt;scenario&gt;</span> - Deploy a security scenario</div>
@@ -696,7 +747,7 @@ const ScenarioStatus = ({ summary }: { summary: DeploymentSummary }) => (
 
 const OverallStatus = ({ scenarios }: { scenarios: DeploymentSummary[] }) => (
   <div className="space-y-3">
-    <div className="text-blue-300 font-semibold">📊 Overall CDR Lab Status</div>
+    <div className="text-blue-300 font-semibold">📊 Overall Cloud Detection and Response Lab Status</div>
     
     {scenarios.length === 0 ? (
       <div className="text-gray-400">No active scenarios</div>

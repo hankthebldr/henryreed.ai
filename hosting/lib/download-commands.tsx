@@ -93,7 +93,7 @@ export const downloadCommands: CommandConfig[] = [
                 </div>
 
                 <div className="border border-green-500 bg-gray-900 p-4 rounded cursor-pointer hover:bg-gray-800">
-                  <div className="text-green-400 font-bold text-lg mb-2">📦 CDR (Cloud Detection in a Box)</div>
+                  <div className="text-green-400 font-bold text-lg mb-2">📦 Cloud Detection and Response (Cloud Detection in a Box)</div>
                   <div className="text-gray-300 text-sm mb-3">
                     Complete cloud detection and response platform
                   </div>
@@ -376,7 +376,7 @@ export const downloadCommands: CommandConfig[] = [
       const custom = args.includes('--custom');
       const config = args.includes('--config');
 
-      // Special handling for CDR - direct to the specified URL
+      // Special handling for Cloud Detection and Response - direct to the specified URL
       const cdrUrl = 'https://raw.githubusercontent.com/hankthebldr/CDR/refs/heads/master/cdr.yml';
 
       const backendSchema: GCPBackendSchema = {
@@ -410,9 +410,9 @@ export const downloadCommands: CommandConfig[] = [
           <div className="font-bold mb-4 text-xl">📦 Cloud Detection & Response (CDR) Download</div>
           
           <div className="mb-4 p-4 bg-gray-900 rounded border border-green-500">
-            <div className="text-cyan-400 font-bold mb-2">🎯 CDR Configuration Direct Access</div>
+            <div className="text-cyan-400 font-bold mb-2">🎯 Cloud Detection and Response Configuration Direct Access</div>
             <div className="text-sm text-gray-300 mb-2">
-              Primary CDR configuration and deployment files:
+              Primary Cloud Detection and Response configuration and deployment files:
             </div>
             <div className="font-mono text-xs bg-black p-2 rounded border border-cyan-600">
               <a 
@@ -498,7 +498,7 @@ export const downloadCommands: CommandConfig[] = [
           </div>
 
           <div className="mt-6 p-4 bg-gray-800 rounded border border-green-600">
-            <div className="text-green-400 font-bold mb-2">📥 CDR Package Contents:</div>
+            <div className="text-green-400 font-bold mb-2">📥 Cloud Detection and Response Package Contents:</div>
             <div className="text-sm text-gray-300 space-y-1">
               <div>• Docker Compose deployment configurations</div>
               <div>• Kubernetes manifests and Helm charts</div>

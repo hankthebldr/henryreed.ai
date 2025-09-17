@@ -1,9 +1,21 @@
 'use client';
 
-import CortexDCTerminal from '../../components/CortexDCTerminal';
+import dynamic from 'next/dynamic';
 import { useAuthGuard } from '../../hooks/useAuthGuard';
 
-export default function TerminalPage() {
+const CortexGUIInterface = dynamic(() => import('../../components/CortexGUIInterface'), {
+  ssr: false,
+  loading: () => (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mx-auto mb-4"></div>
+        <div className="text-cyan-400 font-mono">Loading GUI...</div>
+      </div>
+    </div>
+  ),
+});
+
+export default function GUIPage() {
   const isAuthenticated = useAuthGuard();
 
   if (isAuthenticated === null) {
@@ -18,8 +30,9 @@ export default function TerminalPage() {
   }
 
   if (isAuthenticated) {
-    return <CortexDCTerminal />;
+    return <CortexGUIInterface />;
   }
 
   return null;
 }
+

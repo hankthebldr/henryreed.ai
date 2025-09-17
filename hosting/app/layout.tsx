@@ -1,6 +1,5 @@
-'use client';
-
 import './globals.css';
+import AppHeader from '../components/AppHeader';
 import { AuthProvider } from '../contexts/AuthContext';
 
 export default function RootLayout({
@@ -11,11 +10,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>POV-CLI - Proof-of-Value Command Line Interface | Henry Reed AI</title>
-        <meta name="description" content="Interactive Proof-of-Value CLI for AI consulting, development services, and technical demonstrations" />
+        <title>Cortex DC Portal - Domain Consultant Hub | Henry Reed AI</title>
+        <meta name="description" content="Professional XSIAM POV Management & Security Demonstration Platform for Domain Consultants" />
       </head>
       <body>
         <AuthProvider>
+          <AppHeader />
           {children}
         </AuthProvider>
       </body>

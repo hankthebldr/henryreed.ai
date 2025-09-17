@@ -39,7 +39,7 @@ interface CloudCredentials {
   };
 }
 
-interface CloudProfile {
+export interface CloudProfile {
   name: string;
   provider: CloudProvider;
   status: 'active' | 'inactive' | 'expired' | 'invalid';
@@ -127,7 +127,7 @@ export const cloudConfigCommands: CommandConfig[] = [
           <div className="text-blue-300">
             <div className="font-bold mb-4 text-xl">☁️ Cloud Provider Management</div>
             <div className="text-gray-300 mb-4">
-              Configure and manage cloud provider credentials for CDR Lab scenarios.
+              Configure and manage cloud provider credentials for Cloud Detection and Response Lab scenarios.
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -446,7 +446,7 @@ const handleCloudValidate = (args: string[]) => {
       <div className="mt-4 p-3 bg-green-800 rounded">
         <div className="text-green-200 font-bold">🎉 Profile Valid</div>
         <div className="text-sm mt-1">
-          Profile '{profileName}' is ready for CDR Lab scenarios. 
+          Profile '{profileName}' is ready for Cloud Detection and Response Lab scenarios. 
           Last validated: {new Date().toLocaleString()}
         </div>
       </div>

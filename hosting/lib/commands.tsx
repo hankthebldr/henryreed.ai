@@ -5,6 +5,11 @@ export interface CommandConfig {
   description: string;
   usage: string;
   aliases?: string[];
+  // Optional metadata to improve help and discovery
+  category?: string; // e.g., 'pov', 'trr', 'template', 'customer', 'detection', 'ai', 'gui', 'reporting', 'system'
+  tags?: string[];
+  examples?: string[];
+  hidden?: boolean;
   handler: (args: string[]) => React.ReactNode;
 }
 

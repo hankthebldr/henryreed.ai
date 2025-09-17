@@ -1,7 +1,7 @@
 import React from 'react';
 import { CommandConfig } from './commands';
 
-// CDR Lab resource ledger for tracking deployments
+// Cloud Detection and Response Lab resource ledger for tracking deployments
 interface ResourceLedgerEntry {
   id: string;
   type: string;
@@ -29,6 +29,14 @@ interface ScenarioLedger {
     message: string;
   }>;
 }
+
+// Standard Cloud Detection and Response Lab labels enforced on all resources
+const CDR_LABELS = {
+  'managed-by': 'cdrlab',
+  'cdrlab.version': 'v1.0',
+  'owner': 'user',
+  'created-at': new Date().toISOString(),
+};
 
 // Mock ledger storage (in production this would be persisted)
 const scenarioLedgers = new Map<string, ScenarioLedger>();
@@ -102,14 +110,6 @@ scenarioLedgers.set('cryptominer-demo', {
   ]
 });
 
-// Standard CDR Lab labels enforced on all resources
-const CDR_LABELS = {
-  'managed-by': 'cdrlab',
-  'cdrlab.version': 'v1.0',
-  'owner': 'user',
-  'created-at': new Date().toISOString(),
-};
-
 // POV Plan schema for multi-scenario orchestration
 interface PovPlan {
   apiVersion: 'cdrlab.pov/v1';
@@ -171,14 +171,14 @@ const TECHNIQUE_DATASOURCES: Record<string, string[]> = {
 export const cdrCommands: CommandConfig[] = [
   {
     name: 'cdrlab',
-    description: 'CDR Lab unified CLI for scenario management and cleanup',
+    description: 'Cloud Detection and Response Lab unified CLI for scenario management and cleanup',
     usage: 'cdrlab <command> [options]',
     aliases: ['cdr'],
     handler: (args) => {
       if (args.length === 0) {
         return (
           <div className="text-blue-300">
-            <div className="font-bold mb-4 text-xl">🔬 CDR Lab - Container Detection & Response</div>
+            <div className="font-bold mb-4 text-xl">🔬 Cloud Detection and Response Lab - Container Detection & Response</div>
             <div className="text-gray-300 mb-4">
               Kubernetes-based security training environment for hands-on container security experience.
             </div>
@@ -433,7 +433,7 @@ const handleCdrStatus = async (args: string[]) => {
 
     return (
       <div className="text-blue-300">
-        <div className="font-bold mb-4 text-xl">📊 CDR Lab Status Overview</div>
+        <div className="font-bold mb-4 text-xl">📊 Cloud Detection and Response Lab Status Overview</div>
         <div className="space-y-4">
           {allScenarios.map(scenario => {
             const activeResources = scenario.resources.filter(r => r.status === 'active').length;
@@ -966,7 +966,21 @@ const handleCdrDeploy = async (args: string[]) => {
   await new Promise(resolve => setTimeout(resolve, 2000));
 
   // Create deployment entry in ledger
-  const deploymentLedger = {
+  const deploymentLedger: {
+    scenarioId: string;
+    originalScenario: string;
+    createdAt: Date;
+    overlay: 'safe' | 'unsafe';
+    accountContext: string;
+    cloudProfile?: string | null;
+    resources: ResourceLedgerEntry[];
+    opsLog: Array<{
+      timestamp: Date;
+      operation: 'deploy' | 'validate' | 'destroy';
+      outcome: 'success' | 'failure' | 'pending';
+      message: string;
+    }>;
+  } = {
     scenarioId: deploymentId,
     originalScenario: scenario,
     createdAt: new Date(),
@@ -977,7 +991,7 @@ const handleCdrDeploy = async (args: string[]) => {
       {
         id: `ns-${deploymentId}`,
         type: 'Namespace',
-        provider: 'k8s' as 'k8s',
+        provider: 'k8s' as const,
         identity: `cdr-lab-${scenario}`,
         location: 'default-cluster',
         labels: { ...CDR_LABELS, 'cdrlab.scenario': deploymentId },
@@ -988,7 +1002,7 @@ const handleCdrDeploy = async (args: string[]) => {
       {
         id: `job-${deploymentId}`,
         type: 'Job',
-        provider: 'k8s' as 'k8s',
+        provider: 'k8s' as const,
         identity: `${scenario}-job`,
         location: `cdr-lab-${scenario}`,
         labels: { ...CDR_LABELS, 'cdrlab.scenario': deploymentId },
@@ -1014,7 +1028,7 @@ const handleCdrDeploy = async (args: string[]) => {
       {
         id: `vm-${deploymentId}`,
         type: 'VirtualMachine',
-        provider: cloudProvider as 'aws',
+        provider: cloudProvider as 'gcp' | 'aws' | 'azure',
         identity: `cdr-${scenario}-vm-001`,
         location: profile.includes('aws') ? 'us-west-2' : profile.includes('gcp') ? 'us-central1' : 'eastus',
         labels: { ...CDR_LABELS, 'cdrlab.scenario': deploymentId, 'cdrlab.profile': profile },
@@ -1025,7 +1039,7 @@ const handleCdrDeploy = async (args: string[]) => {
       {
         id: `storage-${deploymentId}`,
         type: 'StorageBucket',
-        provider: cloudProvider as 'aws',
+        provider: cloudProvider as 'gcp' | 'aws' | 'azure',
         identity: `cdr-${scenario}-storage`,
         location: profile.includes('aws') ? 'us-west-2' : profile.includes('gcp') ? 'us-central1' : 'eastus',
         labels: { ...CDR_LABELS, 'cdrlab.scenario': deploymentId, 'cdrlab.profile': profile },

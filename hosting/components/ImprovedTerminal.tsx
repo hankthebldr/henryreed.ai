@@ -128,23 +128,24 @@ export default function ImprovedTerminal() {
         <TerminalOutput type="info">
           <pre className="text-lg font-bold text-cyan-400 mb-2">
 {`
- ██╗  ██╗███████╗██╗ █████╗ ███╗   ███╗
- ╚██╗██╔╝██╔════╝██║██╔══██╗████╗ ████║
-  ╚███╔╝ ███████╗██║███████║██╔████╔██║
-  ██╔██╗ ╚════██║██║██╔══██║██║╚██╔╝██║
- ██╔╝ ██╗███████║██║██║  ██║██║ ╚═╝ ██║
- ╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═╝╚═╝     ╚═╝
+ ██████╗ ██████╗ ██████╗ ████████╗███████╗██╗  ██╗
+ ██╔════╝██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝╚██╗██╔╝
+ ██║     ██║   ██║██████╔╝   ██║   █████╗   ╚███╔╝
+ ██║     ██║   ██║██╔══██╗   ██║   ██╔══╝   ██╔██╗
+ ╚██████╗╚██████╔╝██║  ██║   ██║   ███████╗██╔╝ ██╗
+  ╚═════╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
 `}
           </pre>
           <div className="text-sm">
-            <div className="mb-2">🤖 <strong>Henry Reed AI Terminal</strong></div>
+            <div className="mb-2">🛡️ <strong>Cortex DC Engagement Portal</strong></div>
             <div className="text-sm text-gray-400">
-              Professional AI consulting and development services
+              Domain Consultant Hub for XSIAM Proof-of-Value Excellence
             </div>
             <div className="mt-3 text-sm">
-              <div>• Type <span className="text-green-400 font-bold">getting started</span> for an introduction or <span className="text-green-400 font-bold">help</span> for all commands</div>
-              <div>• Press <span className="text-blue-400 font-bold">↑/↓</span> for command history</div>
-              <div>• Try <span className="text-purple-400 font-bold">proof-of-value start</span> to begin a proof of value</div>
+              <div>• Type <span className="text-green-400 font-bold">project</span> to manage customer engagement projects or <span className="text-green-400 font-bold">help</span> for all commands</div>
+              <div>• Use <span className="text-blue-400 font-bold">trr</span> for technical requirements review and validation</div>
+              <div>• Try <span className="text-purple-400 font-bold">xsiam demo</span> to explore demonstration scenarios</div>
+              <div>• Run <span className="text-cyan-400 font-bold">guide</span> for interactive how-to guides and best practices</div>
             </div>
           </div>
         </TerminalOutput>
@@ -190,7 +191,7 @@ export default function ImprovedTerminal() {
         
         return (
           <TerminalOutput type="info">
-            <div className="font-bold mb-4 text-xl text-blue-300">🎯 PoV-CLI Commands</div>
+            <div className="font-bold mb-4 text-xl text-blue-300">🎯 Cortex DC Portal Commands</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {commandConfigs.map(cmd => (
                 <div key={cmd.name} className="border border-gray-600 p-3 rounded bg-gray-800/50">
