@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
 import EnhancedManualCreationGUI from './EnhancedManualCreationGUI';
+import { TRRManagement } from './TRRManagement';
+import { EnhancedContentCreator as NewEnhancedContentCreator } from './EnhancedContentCreator';
 import BreadcrumbNavigation from './BreadcrumbNavigation';
 import CortexButton from './CortexButton';
 import CortexCommandButton from './CortexCommandButton';
@@ -1659,8 +1661,8 @@ const guiTabs: GUITab[] = [
     id: 'trr',
     name: 'TRR Management',
     icon: '📋',
-    component: EnhancedTRRManagement,
-    description: 'Advanced TRR management with blockchain validation',
+    component: TRRManagement,
+    description: 'Technical Requirements Review with full lifecycle management',
     breadcrumb: 'TRR Management'
   },
   {
@@ -1675,9 +1677,17 @@ const guiTabs: GUITab[] = [
     id: 'creator',
     name: 'Content Creator',
     icon: '🛠️',
-    component: EnhancedContentCreator,
-    description: 'Visual creation tools for POVs and scenarios',
+    component: NewEnhancedContentCreator,
+    description: 'Advanced template-based content creation with full CRUD operations',
     breadcrumb: 'Content Creator'
+  },
+  {
+    id: 'legacy-creator',
+    name: 'Legacy Creator',
+    icon: '📝',
+    component: EnhancedManualCreationGUI,
+    description: 'Original Notion-style content creator',
+    breadcrumb: 'Legacy Creator'
   },
   {
     id: 'xsiam',

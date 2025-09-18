@@ -808,7 +808,9 @@ const TRRList: React.FC<{
                       icon="🗑️"
                       ariaLabel={`Delete TRR ${trr.id}`}
                       className="text-cortex-error hover:text-cortex-error"
-                    />
+                    >
+                      Delete
+                    </CortexButton>
                   </div>
                 </div>
               </div>

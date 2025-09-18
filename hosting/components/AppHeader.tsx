@@ -15,6 +15,8 @@ export default function AppHeader() {
   const isTerminal = pathname?.startsWith("/terminal");
   const isDocs = pathname?.startsWith("/docs");
   const isAlignmentGuide = pathname?.startsWith("/alignment-guide");
+  const isTRR = pathname?.startsWith("/trr");
+  const isContent = pathname?.startsWith("/content");
   const isHome = pathname === "/";
 
   // Keep global mode and breadcrumbs in sync with the current route
@@ -31,6 +33,18 @@ export default function AppHeader() {
       setMode('gui');
       updateBreadcrumbs([
         { label: 'Home', path: '/gui' },
+      ]);
+    } else if (pathname.startsWith('/trr')) {
+      setMode('gui');
+      updateBreadcrumbs([
+        { label: 'Home', path: '/gui' },
+        { label: 'TRR Management', path: '/trr' },
+      ]);
+    } else if (pathname.startsWith('/content')) {
+      setMode('gui');
+      updateBreadcrumbs([
+        { label: 'Home', path: '/gui' },
+        { label: 'Content Studio', path: '/content' },
       ]);
     } else if (pathname.startsWith('/docs')) {
       // Treat docs as a separate top-level area but keep mode consistent with GUI by default
@@ -109,6 +123,28 @@ className="text-base md:text-lg font-bold text-cortex-green hover:text-cortex-gr
               title="Documentation"
             >
               <span className="text-base">📖</span>
+            </Link>
+            <Link
+              href="/trr"
+              className={`p-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                isTRR 
+                  ? "bg-cortex-warning text-black shadow-lg" 
+                  : "text-cortex-text-secondary hover:text-cortex-warning hover:bg-cortex-bg-hover"
+              }`}
+              title="TRR Management"
+            >
+              <span className="text-base">📋</span>
+            </Link>
+            <Link
+              href="/content"
+              className={`p-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                isContent 
+                  ? "bg-cortex-success text-black shadow-lg" 
+                  : "text-cortex-text-secondary hover:text-cortex-success hover:bg-cortex-bg-hover"
+              }`}
+              title="Content Creation"
+            >
+              <span className="text-base">✏️</span>
             </Link>
             <Link
               href="/alignment-guide"

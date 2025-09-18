@@ -274,16 +274,26 @@ const TemplateBuilder: React.FC<{
   onCancel: () => void;
   isEditing?: boolean;
 }> = ({ template, onSave, onCancel, isEditing = false }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    description: string;
+    category: ContentTemplate['category'];
+    type: ContentTemplate['type'];
+    fields: ContentField[];
+    defaultValues: Record<string, any>;
+    validationRules: ValidationRule[];
+    tags: string[];
+    isPublic: boolean;
+  }>({
     name: template?.name || '',
     description: template?.description || '',
-    category: template?.category || 'pov' as ContentTemplate['category'],
-    type: template?.type || 'form-based' as ContentTemplate['type'],
+    category: template?.category || 'pov',
+    type: template?.type || 'form-based',
     fields: template?.fields || [],
     defaultValues: template?.defaultValues || {},
     validationRules: template?.validationRules || [],
     tags: template?.tags || [],
-    isPublic: template?.isPublic || true
+    isPublic: template?.isPublic ?? true
   });
 
   const [newField, setNewField] = useState<Partial<ContentField>>({
@@ -472,9 +482,11 @@ const TemplateBuilder: React.FC<{
                   onClick={() => removeField(index)}
                   variant="outline"
                   size="sm"
-                  icon="🗑️"
+                  icon="🛠️"
                   ariaLabel={`Remove field ${field.label}`}
-                />
+                >
+                  Remove
+                </CortexButton>
               </div>
             ))}
           </div>
@@ -581,7 +593,7 @@ const TemplateBuilder: React.FC<{
             <input
               type="checkbox"
               checked={formData.isPublic}
-              onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })}
+              onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked as boolean })}
               className="mr-2"
             />
             <span className="text-cortex-text-primary">Make template public (visible to all users)</span>
@@ -1018,10 +1030,12 @@ const ContentList: React.FC<{
                   onClick={() => onDelete(instance.id)}
                   variant="outline"
                   size="sm"
-                  icon="🗑️"
+                  icon="🛠️"
                   ariaLabel={`Delete ${instance.name}`}
                   className="text-cortex-error hover:text-cortex-error"
-                />
+                >
+                  Delete
+                </CortexButton>
               </div>
             </div>
           </div>
