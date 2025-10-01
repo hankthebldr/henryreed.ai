@@ -46,7 +46,7 @@ Each scenario deployment creates isolated, secure testing environments that can 
       {
         flag: '--scenario-type',
         type: 'enum',
-        enumValues: ['cloud-posture', 'container-vuln', 'code-vuln', 'insider-threat', 'ransomware', 'ai-threat', 'pipeline-breach', 'identity-compromise', 'lateral-movement-sim', 'data-exfil-behavior', 'beacon-emulation', 'phishing-sim', 'custom'],
+        enumValues: ['cloud-posture', 'container-vuln', 'code-vuln', 'insider-threat', 'ransomware', 'waas-exploit', 'ai-threat', 'pipeline-breach', 'identity-compromise', 'lateral-movement-sim', 'data-exfil-behavior', 'beacon-emulation', 'phishing-sim', 'apt-simulation', 'supply-chain', 'deepfake-detection', 'social-engineering', 'zero-day-simulation', 'evasion-techniques', 'iot-security', 'ot-security', 'custom'],
         required: false,
         description: 'Type of security scenario to deploy or filter by'
       },
@@ -103,7 +103,7 @@ Each scenario deployment creates isolated, secure testing environments that can 
           {
             flag: '--scenario-type',
             type: 'enum',
-            enumValues: ['cloud-posture', 'container-vuln', 'code-vuln', 'insider-threat', 'ransomware', 'ai-threat', 'pipeline-breach', 'identity-compromise', 'lateral-movement-sim', 'data-exfil-behavior', 'beacon-emulation', 'phishing-sim'],
+            enumValues: ['cloud-posture', 'container-vuln', 'code-vuln', 'insider-threat', 'ransomware', 'waas-exploit', 'ai-threat', 'pipeline-breach', 'identity-compromise', 'lateral-movement-sim', 'data-exfil-behavior', 'beacon-emulation', 'phishing-sim', 'apt-simulation', 'supply-chain', 'deepfake-detection', 'social-engineering', 'zero-day-simulation', 'evasion-techniques', 'iot-security', 'ot-security'],
             required: false,
             description: 'Filter templates by scenario type'
           }
@@ -120,7 +120,7 @@ Each scenario deployment creates isolated, secure testing environments that can 
           {
             flag: '--scenario-type',
             type: 'enum',
-            enumValues: ['cloud-posture', 'container-vuln', 'code-vuln', 'insider-threat', 'ransomware', 'ai-threat', 'pipeline-breach', 'identity-compromise', 'lateral-movement-sim', 'data-exfil-behavior', 'beacon-emulation', 'phishing-sim'],
+            enumValues: ['cloud-posture', 'container-vuln', 'code-vuln', 'insider-threat', 'ransomware', 'waas-exploit', 'ai-threat', 'pipeline-breach', 'identity-compromise', 'lateral-movement-sim', 'data-exfil-behavior', 'beacon-emulation', 'phishing-sim', 'apt-simulation', 'supply-chain', 'deepfake-detection', 'social-engineering', 'zero-day-simulation', 'evasion-techniques', 'iot-security', 'ot-security'],
             required: true,
             description: 'Type of scenario to deploy'
           },
@@ -189,7 +189,7 @@ Each scenario deployment creates isolated, secure testing environments that can 
           {
             flag: '--scenario-type',
             type: 'enum',
-            enumValues: ['cloud-posture', 'container-vuln', 'code-vuln', 'insider-threat', 'ransomware', 'ai-threat', 'pipeline-breach', 'identity-compromise', 'lateral-movement-sim', 'data-exfil-behavior', 'beacon-emulation', 'phishing-sim'],
+            enumValues: ['cloud-posture', 'container-vuln', 'code-vuln', 'insider-threat', 'ransomware', 'waas-exploit', 'ai-threat', 'pipeline-breach', 'identity-compromise', 'lateral-movement-sim', 'data-exfil-behavior', 'beacon-emulation', 'phishing-sim', 'apt-simulation', 'supply-chain', 'deepfake-detection', 'social-engineering', 'zero-day-simulation', 'evasion-techniques', 'iot-security', 'ot-security'],
             required: false,
             description: 'Filter mappings by scenario type'
           },

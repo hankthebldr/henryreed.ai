@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { TRR } from '../../types/trr';
-import { CortexButton } from '../CortexButton';
+import CortexButton from '../CortexButton';
 
 interface Comment {
   id: string;

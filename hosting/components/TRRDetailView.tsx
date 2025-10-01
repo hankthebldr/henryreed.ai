@@ -3,8 +3,8 @@
 import React, { useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { TRR, RiskAssessment, TRRStatusEvent, DORStatus, SDWStatus, AIPrediction } from '../types/trr';
-import { CortexButton } from './CortexButton';
-import { CortexCommandButton } from './CortexCommandButton';
+import CortexButton from './CortexButton';
+import CortexCommandButton from './CortexCommandButton';
 
 // Dynamically import heavy visualization components
 const TRRTimeline = dynamic(() => import('./TRRTimeline').then(mod => mod.TRRTimeline), {

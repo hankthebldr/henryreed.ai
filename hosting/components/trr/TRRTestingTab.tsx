@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { TRR, TRRTestCase } from '../../types/trr';
-import { CortexButton } from '../CortexButton';
-import { CortexCommandButton } from '../CortexCommandButton';
+import CortexButton from '../CortexButton';
+import CortexCommandButton from '../CortexCommandButton';
 
 interface TRRTestingTabProps {
   trr: TRR;

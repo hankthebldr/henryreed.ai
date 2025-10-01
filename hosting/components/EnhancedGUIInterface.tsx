@@ -5,6 +5,7 @@ import { useAppState } from '../contexts/AppStateContext';
 import EnhancedManualCreationGUI from './EnhancedManualCreationGUI';
 import { TRRManagement } from './TRRManagement';
 import { EnhancedContentCreator as NewEnhancedContentCreator } from './EnhancedContentCreator';
+import ContentCreatorManager from './ContentCreatorManager';
 import BreadcrumbNavigation from './BreadcrumbNavigation';
 import CortexButton from './CortexButton';
 import CortexCommandButton from './CortexCommandButton';
@@ -90,6 +91,13 @@ const EnhancedPOVDashboard = () => {
       className: 'cortex-card hover:border-cortex-text-accent text-cortex-text-accent hover:shadow-lg border border-cortex-text-accent/30'
     },
     {
+      name: 'Content Creator',
+      icon: '🎨',
+      description: 'Access unified POV and scenario content creator',
+      action: 'open_unified_creator',
+      className: 'cortex-card hover:border-cortex-text-accent text-cortex-text-accent hover:shadow-lg border border-cortex-text-accent/30'
+    },
+    {
       name: 'Badass Blueprint',
       icon: '🧭',
       description: 'Create transformation blueprint and download PDF',
@@ -102,7 +110,11 @@ const EnhancedPOVDashboard = () => {
     if (action.command) {
       executeCommand(action.command);
     } else if (action.action) {
-      actions.triggerGUIAction(action.action, action.data);
+      if (action.action === 'open_unified_creator') {
+        actions.setActiveGUITab('unified-creator');
+      } else {
+        actions.triggerGUIAction(action.action, action.data);
+      }
     }
   };
 
@@ -1674,20 +1686,28 @@ const guiTabs: GUITab[] = [
     breadcrumb: 'AI Insights'
   },
   {
+    id: 'unified-creator',
+    name: 'Content Creator Hub',
+    icon: '🎨',
+    component: ContentCreatorManager,
+    description: 'Unified POV and scenario content creation with 25+ detection scenarios',
+    breadcrumb: 'Content Creator Hub'
+  },
+  {
     id: 'creator',
-    name: 'Content Creator',
-    icon: '🛠️',
+    name: 'Template Creator',
+    icon: '📝',
     component: NewEnhancedContentCreator,
     description: 'Advanced template-based content creation with full CRUD operations',
-    breadcrumb: 'Content Creator'
+    breadcrumb: 'Template Creator'
   },
   {
     id: 'legacy-creator',
-    name: 'Legacy Creator',
-    icon: '📝',
+    name: 'Manual Forms',
+    icon: '🛠️',
     component: EnhancedManualCreationGUI,
-    description: 'Original Notion-style content creator',
-    breadcrumb: 'Legacy Creator'
+    description: 'Traditional form-based content creation',
+    breadcrumb: 'Manual Forms'
   },
   {
     id: 'xsiam',

@@ -2258,6 +2258,15 @@ const TRRList: React.FC<{
               >
                 Export
               </CortexCommandButton>
+              <CortexCommandButton
+                command={`trr-signoff bulk --ids ${selectedTRRs.join(',')}`}
+                variant="outline"
+                size="sm"
+                icon="⛓️"
+                tooltip="Create blockchain signoffs for selected TRRs"
+              >
+                Bulk Sign
+              </CortexCommandButton>
               <CortexButton variant="outline" size="sm" icon="🔄">
                 Bulk Update
               </CortexButton>
@@ -2767,7 +2776,7 @@ export const EnhancedTRRManagement: React.FC = () => {
 
   // Filter TRRs based on selection
   const filteredTRRs = useMemo(() => {
-    let result = [...trrDatabase];
+    let result = [...trrs]; // Use trrs state instead of trrDatabase directly
     
     if (selectedProjectId) {
       result = result.filter(trr => trr.project === selectedProject?.name);
@@ -2806,18 +2815,18 @@ export const EnhancedTRRManagement: React.FC = () => {
     }
     
     return result;
-  }, [trrDatabase, selectedProjectId, selectedPortfolioId, selectedProject, filters]);
+  }, [trrs, selectedProjectId, selectedPortfolioId, selectedProject, filters]);
 
-  // Calculate TRR counts per project for sidebar
+  // Calculate TRR counts per project for sidebar based on filtered results
   const trrCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     
     projects.forEach(project => {
-      counts[project.id] = trrDatabase.filter(trr => trr.project === project.name).length;
+      counts[project.id] = trrs.filter(trr => trr.project === project.name).length;
     });
     
     return counts;
-  }, [trrDatabase]);
+  }, [trrs]);
 
   const handleCreateTRR = (formData: CreateTRRFormData) => {
     const newTRR: TRR = {
@@ -2860,8 +2869,13 @@ export const EnhancedTRRManagement: React.FC = () => {
       }
     };
     
-    setTRRs([...trrs, newTRR]);
-    trrDatabase.push(newTRR);
+    const updatedTRRs = [...trrs, newTRR];
+    setTRRs(updatedTRRs);
+    // Update global database
+    const dbIndex = trrDatabase.findIndex(trr => trr.id === newTRR.id);
+    if (dbIndex === -1) {
+      trrDatabase.push(newTRR);
+    }
     setView('list');
   };
 
@@ -2884,7 +2898,9 @@ export const EnhancedTRRManagement: React.FC = () => {
       ]
     };
 
-    setTRRs(trrs.map(trr => trr.id === currentTRR.id ? updatedTRR : trr));
+    const updatedTRRs = trrs.map(trr => trr.id === currentTRR.id ? updatedTRR : trr);
+    setTRRs(updatedTRRs);
+    // Update global database
     const index = trrDatabase.findIndex(trr => trr.id === currentTRR.id);
     if (index !== -1) trrDatabase[index] = updatedTRR;
     
@@ -2894,8 +2910,13 @@ export const EnhancedTRRManagement: React.FC = () => {
 
   const handleDeleteTRR = (trrId: string) => {
     if (confirm('Are you sure you want to delete this TRR? This action cannot be undone.')) {
-      setTRRs(trrs.filter(trr => trr.id !== trrId));
-      trrDatabase = trrDatabase.filter(trr => trr.id !== trrId);
+      const updatedTRRs = trrs.filter(trr => trr.id !== trrId);
+      setTRRs(updatedTRRs);
+      // Update global database
+      const index = trrDatabase.findIndex(trr => trr.id === trrId);
+      if (index !== -1) {
+        trrDatabase.splice(index, 1);
+      }
       setSelectedTRRs(selectedTRRs.filter(id => id !== trrId));
     }
   };
@@ -3114,12 +3135,22 @@ export const EnhancedTRRManagement: React.FC = () => {
                 </select>
               </div>
               
-              <button
-                onClick={() => setFilters({})}
-                className="text-cortex-text-secondary hover:text-cortex-text-primary transition-colors"
-              >
-                Clear Filters
-              </button>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => setFilters({})}
+                  className="text-cortex-text-secondary hover:text-cortex-text-primary transition-colors"
+                >
+                  Clear Filters
+                </button>
+                
+                {/* Filter Summary */}
+                <div className="text-sm text-cortex-text-muted">
+                  Showing {filteredTRRs.length} of {trrs.length} TRRs
+                  {(filters.searchQuery || filters.status || filters.priority) && (
+                    <span className="ml-1 text-cortex-warning">(filtered)</span>
+                  )}
+                </div>
+              </div>
             </div>
             
             {/* Content based on selected view */}

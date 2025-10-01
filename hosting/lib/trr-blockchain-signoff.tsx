@@ -369,11 +369,77 @@ export const trrBlockchainSignoffCommands: CommandConfig[] = [
   {
     name: 'trr-signoff',
     description: 'Create blockchain-secured TRR signoffs with cryptographic verification',
-    usage: 'trr-signoff [create|list|verify] [trr-id] [options]',
+    usage: 'trr-signoff [create|list|verify|bulk] [trr-id|options] [options]',
     aliases: ['signoff', 'blockchain-sign'],
     handler: (args) => {
       const subcommand = args[0] || 'dashboard';
       const trrId = args[1] || '';
+
+      if (subcommand === 'bulk') {
+        const idsArg = args.find(arg => arg.startsWith('--ids'));
+        const trrIds = idsArg ? idsArg.split('=')[1]?.split(',') || [] : [];
+        
+        if (trrIds.length === 0) {
+          return (
+            <TerminalOutput type="error">
+              <div>Please specify TRR IDs. Usage: trr-signoff bulk --ids TRR-001,TRR-002,TRR-003</div>
+            </TerminalOutput>
+          );
+        }
+        
+        return (
+          <TerminalOutput type="info">
+            <div className="space-y-6">
+              <div className="flex items-center mb-6">
+                <div className="text-3xl mr-4">⛓️</div>
+                <div>
+                  <div className="font-bold text-2xl text-purple-400">Bulk Blockchain TRR Signoffs</div>
+                  <div className="text-sm text-gray-300">Create multiple immutable, cryptographically secured validation records</div>
+                </div>
+              </div>
+              
+              <div className="bg-gray-800 p-6 rounded-lg border border-purple-500">
+                <div className="mb-4">
+                  <h3 className="text-lg font-bold text-purple-400 mb-2">📋 Bulk Signoff Summary</h3>
+                  <div className="text-sm text-gray-300">
+                    Processing {trrIds.length} TRR signoffs: {trrIds.join(', ')}
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  {trrIds.map((id, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-700 rounded">
+                      <div className="flex items-center space-x-3">
+                        <span className="font-mono text-blue-400">{id}</span>
+                        <span className="text-xs bg-purple-700 text-purple-200 px-2 py-1 rounded">
+                          READY FOR SIGNOFF
+                        </span>
+                      </div>
+                      <div className="text-xs text-green-400">
+                        ✅ Blockchain ready
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-6 p-4 bg-purple-900/20 rounded border border-purple-500/30">
+                  <div className="text-purple-400 font-bold mb-2">🚀 Bulk Operation Status</div>
+                  <div className="text-sm text-gray-300 space-y-1">
+                    <div>• All {trrIds.length} TRRs validated for blockchain signing</div>
+                    <div>• Estimated gas cost: {trrIds.length * 21000} units</div>
+                    <div>• Batch transaction will be submitted to cortex-testnet-001</div>
+                    <div>• Individual signoff forms available via: <span className="font-mono text-blue-400">trr-signoff create [TRR-ID]</span></div>
+                  </div>
+                </div>
+                
+                <div className="mt-4 text-xs text-gray-400">
+                  💡 Use individual signoff commands for detailed approval workflows
+                </div>
+              </div>
+            </div>
+          </TerminalOutput>
+        );
+      }
 
       if (subcommand === 'create') {
         if (!trrId) {

@@ -8,47 +8,114 @@ const activeDeployments = new Map<string, any>();
 const MITRE_MAP: Record<string, { technique: string; tid: string; description: string }[]> = {
   'cloud-posture': [
     { technique: 'Cloud Infrastructure Discovery', tid: 'T1580', description: 'Enumerating cloud resources and configurations' },
-    { technique: 'Modify Cloud Compute Infrastructure', tid: 'T1578', description: 'Unsafe changes to cloud resources may be detected' }
+    { technique: 'Modify Cloud Compute Infrastructure', tid: 'T1578', description: 'Unsafe changes to cloud resources may be detected' },
+    { technique: 'Unsecured Credentials', tid: 'T1526', description: 'Cloud credentials in unsecured locations' }
   ],
   'container-vuln': [
     { technique: 'Exploit Public-Facing Application', tid: 'T1190', description: 'Vulnerable container images surface exploitable components' },
-    { technique: 'Command and Control via Web Service', tid: 'T1102', description: 'Unexpected egress to external services from containers' }
+    { technique: 'Escape to Host', tid: 'T1611', description: 'Container breakout to host system' },
+    { technique: 'Process Injection', tid: 'T1055', description: 'Runtime process injection in containers' }
   ],
   'code-vuln': [
-    { technique: 'Exploitation for Client Execution', tid: 'T1203', description: 'Application code flaws leading to execution' }
+    { technique: 'Exploit Public-Facing Application', tid: 'T1190', description: 'Web application vulnerabilities' },
+    { technique: 'Exploitation for Client Execution', tid: 'T1203', description: 'Application code flaws leading to execution' },
+    { technique: 'Process Injection', tid: 'T1055', description: 'Code injection vulnerabilities' }
   ],
   'insider-threat': [
     { technique: 'Data from Cloud Storage', tid: 'T1530', description: 'Unusual access to storage resources' },
-    { technique: 'Valid Accounts', tid: 'T1078', description: 'Credential misuse patterns' }
+    { technique: 'Valid Accounts', tid: 'T1078', description: 'Credential misuse patterns' },
+    { technique: 'Account Discovery', tid: 'T1087', description: 'Internal reconnaissance activities' },
+    { technique: 'File and Directory Discovery', tid: 'T1083', description: 'Unauthorized data discovery' }
   ],
   'ransomware': [
-    { technique: 'Data Encrypted for Impact', tid: 'T1486', description: 'Encryption-like behavior' }
+    { technique: 'Data Encrypted for Impact', tid: 'T1486', description: 'File encryption activities' },
+    { technique: 'Inhibit System Recovery', tid: 'T1490', description: 'Backup and recovery system tampering' },
+    { technique: 'Service Stop', tid: 'T1489', description: 'Critical service disruption' },
+    { technique: 'Remote Services', tid: 'T1021', description: 'Lateral movement for ransomware spread' }
   ],
   'waas-exploit': [
-    { technique: 'Exploit Public-Facing Application', tid: 'T1190', description: 'Web app exploitation patterns' }
+    { technique: 'Exploit Public-Facing Application', tid: 'T1190', description: 'Web app exploitation patterns' },
+    { technique: 'Process Injection', tid: 'T1055', description: 'Web shell and payload injection' },
+    { technique: 'Exploitation for Client Execution', tid: 'T1203', description: 'Client-side exploitation' }
   ],
   'ai-threat': [
-    { technique: 'User Execution: Malicious/Untrusted Input', tid: 'T1204', description: 'Prompt injection-like input flows' }
+    { technique: 'User Execution: Malicious/Untrusted Input', tid: 'T1204', description: 'Prompt injection-like input flows' },
+    { technique: 'Data Manipulation', tid: 'T1565', description: 'AI model and training data manipulation' },
+    { technique: 'Trusted Relationship', tid: 'T1199', description: 'AI system trust exploitation' }
   ],
   'pipeline-breach': [
-    { technique: 'Continuous Integration/Continuous Deployment', tid: 'T1653', description: 'Manipulation of CI/CD pipeline components' }
+    { technique: 'Supply Chain Compromise', tid: 'T1195', description: 'CI/CD pipeline compromise' },
+    { technique: 'Valid Accounts', tid: 'T1078', description: 'Compromised pipeline credentials' },
+    { technique: 'Boot or Logon Autostart Execution', tid: 'T1547', description: 'Persistent pipeline access' }
   ],
   'identity-compromise': [
     { technique: 'Valid Accounts', tid: 'T1078', description: 'Credential theft/misuse patterns' },
-    { technique: 'Account Discovery', tid: 'T1087', description: 'Account enumeration behaviors' }
+    { technique: 'Brute Force', tid: 'T1110', description: 'Password attacks and credential stuffing' },
+    { technique: 'Exploitation for Privilege Escalation', tid: 'T1068', description: 'Identity-based privilege escalation' },
+    { technique: 'Access Token Manipulation', tid: 'T1134', description: 'Token theft and manipulation' }
   ],
   'lateral-movement-sim': [
     { technique: 'Lateral Tool Transfer', tid: 'T1570', description: 'Movement-like transfer patterns (simulated)' },
-    { technique: 'Remote Services', tid: 'T1021', description: 'Service access patterns across resources' }
+    { technique: 'Remote Services', tid: 'T1021', description: 'Service access patterns across resources' },
+    { technique: 'Remote System Discovery', tid: 'T1018', description: 'Network reconnaissance activities' },
+    { technique: 'OS Credential Dumping', tid: 'T1003', description: 'Credential harvesting for lateral movement' }
   ],
   'data-exfil-behavior': [
-    { technique: 'Exfiltration Over Web Service', tid: 'T1567', description: 'Egress to external endpoints (synthetic)' }
+    { technique: 'Exfiltration Over Web Service', tid: 'T1567', description: 'Egress to external endpoints (synthetic)' },
+    { technique: 'Exfiltration Over C2 Channel', tid: 'T1041', description: 'Data exfiltration via command channel' },
+    { technique: 'Automated Exfiltration', tid: 'T1020', description: 'Automated data collection and transfer' }
   ],
   'beacon-emulation': [
-    { technique: 'Application Layer Protocol', tid: 'T1071', description: 'Periodic communications resembling beacons' }
+    { technique: 'Application Layer Protocol', tid: 'T1071', description: 'Periodic communications resembling beacons' },
+    { technique: 'Non-Standard Port', tid: 'T1095', description: 'Covert channel communications' },
+    { technique: 'Web Service', tid: 'T1102', description: 'Legitimate service abuse for C2' }
   ],
   'phishing-sim': [
-    { technique: 'Phishing', tid: 'T1566', description: 'Phishing campaign indicators (metadata only)' }
+    { technique: 'Phishing', tid: 'T1566', description: 'Phishing campaign indicators (metadata only)' },
+    { technique: 'User Execution', tid: 'T1204', description: 'User interaction with malicious content' },
+    { technique: 'Valid Accounts', tid: 'T1078', description: 'Credential harvesting via phishing' }
+  ],
+  'apt-simulation': [
+    { technique: 'Spearphishing Link', tid: 'T1566.002', description: 'Targeted phishing for initial access' },
+    { technique: 'Remote Services', tid: 'T1021', description: 'Persistent remote access' },
+    { technique: 'Boot or Logon Autostart Execution', tid: 'T1547', description: 'Persistence mechanisms' },
+    { technique: 'Exfiltration Over C2 Channel', tid: 'T1041', description: 'Covert data exfiltration' }
+  ],
+  'supply-chain': [
+    { technique: 'Supply Chain Compromise', tid: 'T1195', description: 'Third-party software compromise' },
+    { technique: 'Boot or Logon Autostart Execution', tid: 'T1547', description: 'Persistent backdoor installation' },
+    { technique: 'Hijack Execution Flow', tid: 'T1574', description: 'DLL hijacking and execution redirection' }
+  ],
+  'deepfake-detection': [
+    { technique: 'Phishing', tid: 'T1566', description: 'Deepfake-enhanced social engineering' },
+    { technique: 'User Execution', tid: 'T1204', description: 'Synthetic media-driven user actions' },
+    { technique: 'Trusted Relationship', tid: 'T1199', description: 'Identity spoofing via deepfakes' }
+  ],
+  'social-engineering': [
+    { technique: 'Phishing', tid: 'T1566', description: 'Advanced social engineering campaigns' },
+    { technique: 'User Execution', tid: 'T1204', description: 'Human manipulation for execution' },
+    { technique: 'Trusted Relationship', tid: 'T1199', description: 'Relationship exploitation' }
+  ],
+  'zero-day-simulation': [
+    { technique: 'Exploitation for Client Execution', tid: 'T1203', description: 'Unknown vulnerability exploitation' },
+    { technique: 'Exploitation for Privilege Escalation', tid: 'T1068', description: 'Zero-day privilege escalation' },
+    { technique: 'Process Injection', tid: 'T1055', description: 'Novel injection techniques' }
+  ],
+  'evasion-techniques': [
+    { technique: 'Obfuscated Files or Information', tid: 'T1027', description: 'Advanced obfuscation methods' },
+    { technique: 'Deobfuscate/Decode Files or Information', tid: 'T1140', description: 'Runtime deobfuscation' },
+    { technique: 'Process Injection', tid: 'T1055', description: 'Stealthy process injection' },
+    { technique: 'System Binary Proxy Execution', tid: 'T1218', description: 'Living-off-the-land techniques' }
+  ],
+  'iot-security': [
+    { technique: 'Exploit Public-Facing Application', tid: 'T1190', description: 'IoT device exploitation' },
+    { technique: 'Hardware Additions', tid: 'T1200', description: 'Physical device compromise' },
+    { technique: 'Adversary-in-the-Middle', tid: 'T1557', description: 'IoT communication interception' }
+  ],
+  'ot-security': [
+    { technique: 'Human Machine Interface', tid: 'T0883', description: 'HMI-based attacks' },
+    { technique: 'Modify Parameter', tid: 'T0836', description: 'Control system parameter manipulation' },
+    { technique: 'Spoof Reporting Message', tid: 'T0856', description: 'False status reporting' }
   ]
 };
 

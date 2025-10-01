@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { xsiamApiService, XSIAMCredentials, XSIAMHealthData, XSIAMAnalyticsData } from '../lib/xsiam-api-service';
+import CortexButton from './CortexButton';
 
 interface ConnectionStatus {
   status: 'disconnected' | 'connecting' | 'connected' | 'error';
@@ -30,6 +31,8 @@ export default function XSIAMIntegrationPanel() {
   const [activeTab, setActiveTab] = useState<'setup' | 'health' | 'analytics' | 'query'>('setup');
   const [customQuery, setCustomQuery] = useState('');
   const [queryResult, setQueryResult] = useState<any>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [lastError, setLastError] = useState<string | null>(null);
 
   useEffect(() => {
     // Load existing credentials on component mount
@@ -110,20 +113,32 @@ export default function XSIAMIntegrationPanel() {
     setActiveTab('setup');
   };
 
-  const loadHealthData = async () => {
+  const loadHealthData = async (isRetry = false) => {
     try {
+      setLastError(null);
       const health = await xsiamApiService.getHealthData();
       setHealthData(health);
+      if (isRetry) {
+        setRetryCount(0);
+      }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load health data';
+      setLastError(errorMessage);
       console.error('Failed to load health data:', error);
     }
   };
 
-  const loadAnalyticsData = async () => {
+  const loadAnalyticsData = async (isRetry = false) => {
     try {
+      setLastError(null);
       const analytics = await xsiamApiService.getAnalyticsData('7d');
       setAnalyticsData(analytics);
+      if (isRetry) {
+        setRetryCount(0);
+      }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load analytics data';
+      setLastError(errorMessage);
       console.error('Failed to load analytics data:', error);
     }
   };
@@ -132,15 +147,27 @@ export default function XSIAMIntegrationPanel() {
     if (!customQuery.trim()) return;
     
     setLoading(true);
+    setLastError(null);
     try {
       const result = await xsiamApiService.executeQuery(customQuery);
       setQueryResult(result);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Query execution failed';
+      setLastError(errorMessage);
       setQueryResult({
-        error: error instanceof Error ? error.message : 'Query execution failed'
+        error: errorMessage
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRetry = async () => {
+    setRetryCount(prev => prev + 1);
+    if (activeTab === 'health') {
+      await loadHealthData(true);
+    } else if (activeTab === 'analytics') {
+      await loadAnalyticsData(true);
     }
   };
 
@@ -201,25 +228,29 @@ export default function XSIAMIntegrationPanel() {
       {/* Tab Navigation */}
       <div className="flex space-x-1 bg-gray-800 rounded-lg p-1">
         {[
-          { id: 'setup', name: 'Setup', icon: '⚙️' },
-          { id: 'health', name: 'Health', icon: '💓', disabled: connectionStatus.status !== 'connected' },
-          { id: 'analytics', name: 'Analytics', icon: '📊', disabled: connectionStatus.status !== 'connected' },
-          { id: 'query', name: 'Query', icon: '🔍', disabled: connectionStatus.status !== 'connected' }
+          { id: 'setup', name: 'Setup', icon: '⚙️', description: 'Configure connection' },
+          { id: 'health', name: 'Health', icon: '💓', disabled: connectionStatus.status !== 'connected', description: 'System status' },
+          { id: 'analytics', name: 'Analytics', icon: '📊', disabled: connectionStatus.status !== 'connected', description: 'Security metrics' },
+          { id: 'query', name: 'Query', icon: '🔍', disabled: connectionStatus.status !== 'connected', description: 'Custom XQL queries' }
         ].map(tab => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => !tab.disabled && setActiveTab(tab.id as any)}
             disabled={tab.disabled}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            title={tab.disabled ? `Connect to XSIAM to access ${tab.name}` : tab.description}
+            className={`group flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
               activeTab === tab.id 
-                ? 'bg-blue-600 text-white' 
+                ? 'bg-blue-600 text-white shadow-lg' 
                 : tab.disabled 
-                  ? 'text-gray-500 cursor-not-allowed' 
-                  : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                  ? 'text-gray-500 cursor-not-allowed opacity-50' 
+                  : 'text-gray-300 hover:text-white hover:bg-gray-700 hover:shadow-md'
             }`}
           >
-            <span>{tab.icon}</span>
+            <span className="group-hover:scale-110 transition-transform">{tab.icon}</span>
             <span>{tab.name}</span>
+            {tab.disabled && (
+              <span className="text-xs opacity-75">🔒</span>
+            )}
           </button>
         ))}
       </div>
@@ -323,20 +354,50 @@ export default function XSIAMIntegrationPanel() {
                   
                   <div className="flex space-x-3">
                     {connectionStatus.status === 'connected' ? (
-                      <button
-                        onClick={handleDisconnect}
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
-                      >
-                        🔌 Disconnect
-                      </button>
+                      <div className="flex flex-col space-y-2">
+                        <CortexButton
+                          variant="success"
+                          size="md"
+                          icon="🔍"
+                          onClick={() => xsiamApiService.testConnection()}
+                          tooltip="Test current connection"
+                          className="flex-1"
+                        >
+                          Test Connection
+                        </CortexButton>
+                        <CortexButton
+                          variant="danger"
+                          size="md"
+                          icon="🔌"
+                          onClick={handleDisconnect}
+                          tooltip="Disconnect from XSIAM tenant"
+                          className="flex-1"
+                        >
+                          Disconnect
+                        </CortexButton>
+                      </div>
                     ) : (
-                      <button
-                        onClick={handleConnect}
-                        disabled={loading || !credentials.apiAddress || !credentials.apiId || !credentials.apiKey}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-md transition-colors"
-                      >
-                        {loading ? '🔄 Connecting...' : '🔗 Connect to XSIAM'}
-                      </button>
+                      <div className="flex flex-col space-y-3 w-full">
+                        <CortexButton
+                          variant="primary"
+                          size="lg"
+                          icon="🔗"
+                          onClick={handleConnect}
+                          disabled={!credentials.apiAddress || !credentials.apiId || !credentials.apiKey}
+                          loading={loading}
+                          tooltip={!credentials.apiAddress || !credentials.apiId || !credentials.apiKey 
+                            ? "Fill in all required fields to connect" 
+                            : "Connect to your XSIAM tenant"}
+                          className="w-full"
+                        >
+                          {loading ? 'Connecting...' : 'Connect to XSIAM'}
+                        </CortexButton>
+                        
+                        {/* Connection guidance */}
+                        <div className="text-xs text-gray-400 text-center">
+                          <div>💡 Need help? Check the Security Notice below</div>
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -363,8 +424,36 @@ export default function XSIAMIntegrationPanel() {
       )}
 
       {/* Health Tab */}
-      {activeTab === 'health' && healthData && (
+      {activeTab === 'health' && (
         <div className="space-y-6">
+          {/* Error Banner */}
+          {lastError && (
+            <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-start space-x-3">
+                  <div className="text-red-400 text-xl">❌</div>
+                  <div>
+                    <div className="text-red-400 font-bold mb-1">Health Data Error</div>
+                    <div className="text-sm text-gray-300">{lastError}</div>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <CortexButton
+                    variant="outline"
+                    size="sm"
+                    icon="🔄"
+                    onClick={handleRetry}
+                    tooltip="Retry loading health data"
+                  >
+                    Retry
+                  </CortexButton>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {healthData ? (
+            <>
           <div className="bg-gray-800 rounded-lg p-6">
             <div className="text-lg font-bold text-white mb-4">Tenant Health Overview</div>
             
@@ -451,12 +540,63 @@ export default function XSIAMIntegrationPanel() {
               </div>
             </div>
           </div>
+            </>
+          ) : !lastError ? (
+            <div className="bg-gray-800 rounded-lg p-8 text-center">
+              <div className="text-4xl mb-4">⏳</div>
+              <div className="text-lg font-bold text-white mb-2">Loading Health Data</div>
+              <div className="text-sm text-gray-400">Fetching tenant health information...</div>
+            </div>
+          ) : (
+            <div className="bg-gray-800 rounded-lg p-8 text-center">
+              <div className="text-4xl mb-4">📊</div>
+              <div className="text-lg font-bold text-white mb-2">Health Monitoring</div>
+              <div className="text-sm text-gray-400 mb-4">Monitor your XSIAM tenant's system health and performance metrics</div>
+              <CortexButton
+                variant="primary"
+                size="md"
+                icon="🔄"
+                onClick={() => loadHealthData()}
+                tooltip="Load health data"
+              >
+                Load Health Data
+              </CortexButton>
+            </div>
+          )}
         </div>
       )}
 
       {/* Analytics Tab */}
-      {activeTab === 'analytics' && analyticsData && (
+      {activeTab === 'analytics' && (
         <div className="space-y-6">
+          {/* Error Banner */}
+          {lastError && (
+            <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-start space-x-3">
+                  <div className="text-red-400 text-xl">❌</div>
+                  <div>
+                    <div className="text-red-400 font-bold mb-1">Analytics Data Error</div>
+                    <div className="text-sm text-gray-300">{lastError}</div>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <CortexButton
+                    variant="outline"
+                    size="sm"
+                    icon="🔄"
+                    onClick={handleRetry}
+                    tooltip="Retry loading analytics data"
+                  >
+                    Retry
+                  </CortexButton>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {analyticsData ? (
+            <>
           <div className="bg-gray-800 rounded-lg p-6">
             <div className="text-lg font-bold text-white mb-4">Analytics Summary (Last 7 Days)</div>
             
@@ -532,6 +672,29 @@ export default function XSIAMIntegrationPanel() {
               </div>
             </div>
           </div>
+            </>
+          ) : !lastError ? (
+            <div className="bg-gray-800 rounded-lg p-8 text-center">
+              <div className="text-4xl mb-4">⏳</div>
+              <div className="text-lg font-bold text-white mb-2">Loading Analytics Data</div>
+              <div className="text-sm text-gray-400">Fetching security analytics and metrics...</div>
+            </div>
+          ) : (
+            <div className="bg-gray-800 rounded-lg p-8 text-center">
+              <div className="text-4xl mb-4">📊</div>
+              <div className="text-lg font-bold text-white mb-2">Security Analytics</div>
+              <div className="text-sm text-gray-400 mb-4">View comprehensive security metrics, threat analysis, and MITRE ATT&CK coverage</div>
+              <CortexButton
+                variant="primary"
+                size="md"
+                icon="📊"
+                onClick={() => loadAnalyticsData()}
+                tooltip="Load analytics data"
+              >
+                Load Analytics Data
+              </CortexButton>
+            </div>
+          )}
         </div>
       )}
 
@@ -553,24 +716,47 @@ export default function XSIAMIntegrationPanel() {
               />
             </div>
             
-            <div className="flex space-x-3">
-              <button
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+              <CortexButton
+                variant="primary"
+                size="md"
+                icon="▶️"
                 onClick={executeCustomQuery}
-                disabled={loading || !customQuery.trim()}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-md transition-colors"
+                disabled={!customQuery.trim()}
+                loading={loading}
+                tooltip={!customQuery.trim() ? "Enter a query to execute" : "Execute XQL query"}
+                className="flex-1 sm:flex-initial"
               >
-                {loading ? '🔄 Executing...' : '▶️ Execute Query'}
-              </button>
+                {loading ? 'Executing...' : 'Execute Query'}
+              </CortexButton>
               
-              <button
+              <CortexButton
+                variant="secondary"
+                size="md"
+                icon="🗑️"
                 onClick={() => {
                   setCustomQuery('');
                   setQueryResult(null);
+                  setLastError(null);
                 }}
-                className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                tooltip="Clear query and results"
+                className="flex-1 sm:flex-initial"
               >
-                🗑️ Clear
-              </button>
+                Clear
+              </CortexButton>
+              
+              <CortexButton
+                variant="outline"
+                size="md"
+                icon="💡"
+                onClick={() => setCustomQuery(
+                  'dataset = xdr_data\n| filter action_local_ip != null\n| comp count() by action_local_ip\n| sort count desc\n| limit 10'
+                )}
+                tooltip="Load example query"
+                className="flex-1 sm:flex-initial"
+              >
+                Example
+              </CortexButton>
             </div>
 
             {queryResult && (
@@ -590,27 +776,53 @@ export default function XSIAMIntegrationPanel() {
       {/* Quick Actions */}
       {connectionStatus.status === 'connected' && (
         <div className="bg-gray-800 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div className="text-sm font-medium text-gray-300">Quick Actions:</div>
-            <div className="flex space-x-3">
-              <button
-                onClick={loadHealthData}
-                className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md transition-colors"
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
+            <div>
+              <div className="text-sm font-medium text-gray-300">Quick Actions</div>
+              <div className="text-xs text-gray-500">Refresh data and test connectivity</div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <CortexButton
+                variant="info"
+                size="xs"
+                icon="💓"
+                onClick={() => loadHealthData()}
+                tooltip="Refresh health data"
               >
-                🔄 Refresh Health
-              </button>
-              <button
-                onClick={loadAnalyticsData}
-                className="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md transition-colors"
+                Refresh Health
+              </CortexButton>
+              <CortexButton
+                variant="info"
+                size="xs"
+                icon="📊"
+                onClick={() => loadAnalyticsData()}
+                tooltip="Refresh analytics data"
               >
-                📊 Refresh Analytics
-              </button>
-              <button
+                Refresh Analytics
+              </CortexButton>
+              <CortexButton
+                variant="success"
+                size="xs"
+                icon="🔍"
                 onClick={() => xsiamApiService.testConnection()}
-                className="text-xs bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-md transition-colors"
+                tooltip="Test XSIAM connection"
               >
-                🔍 Test Connection
-              </button>
+                Test Connection
+              </CortexButton>
+            </div>
+          </div>
+          
+          {/* Connection Quality Indicator */}
+          <div className="mt-3 pt-3 border-t border-gray-700">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-gray-400">Connection Status:</span>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                <span className="text-green-400">Active</span>
+                {connectionStatus.lastTested && (
+                  <span className="text-gray-500">• Last tested {new Date(connectionStatus.lastTested).toLocaleString()}</span>
+                )}
+              </div>
             </div>
           </div>
         </div>

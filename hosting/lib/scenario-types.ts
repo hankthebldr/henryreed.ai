@@ -15,6 +15,14 @@ export type ScenarioType =
   | 'data-exfil-behavior'
   | 'beacon-emulation'
   | 'phishing-sim'
+  | 'apt-simulation'
+  | 'supply-chain'
+  | 'deepfake-detection'
+  | 'social-engineering'
+  | 'zero-day-simulation'
+  | 'evasion-techniques'
+  | 'iot-security'
+  | 'ot-security'
   | 'custom';
 
 export type Provider = 'aws' | 'gcp' | 'azure' | 'k8s' | 'local';
@@ -331,6 +339,150 @@ export const SCENARIO_TEMPLATES: Record<ScenarioType, ScenarioConfig[]> = {
       }
     }
   ],
+  'apt-simulation': [
+    {
+      id: 'apt-advanced-campaign',
+      name: 'Advanced Persistent Threat Campaign',
+      type: 'apt-simulation',
+      description: 'Multi-stage APT attack simulation with stealth and persistence techniques',
+      provider: 'gcp',
+      region: 'us-central1',
+      template: 'apt-campaign-simulation',
+      estimatedDuration: '90-120 minutes',
+      difficulty: 'expert',
+      tags: ['apt', 'persistence', 'lateral-movement', 'exfiltration'],
+      resources: {
+        compute: 'Multiple Cloud Functions simulating APT stages',
+        storage: 'Staged attack artifacts and C&C simulation'
+      }
+    }
+  ],
+  'supply-chain': [
+    {
+      id: 'supply-chain-compromise',
+      name: 'Supply Chain Attack Vectors',
+      type: 'supply-chain',
+      description: 'Third-party software compromise and dependency attacks simulation',
+      provider: 'gcp',
+      region: 'us-central1',
+      template: 'supply-chain-attack',
+      estimatedDuration: '60-90 minutes',
+      difficulty: 'advanced',
+      tags: ['supply-chain', 'dependencies', 'backdoor', 'software-composition'],
+      resources: {
+        compute: 'Cloud Build pipeline with compromised dependencies',
+        storage: 'Malicious package repository'
+      }
+    }
+  ],
+  'deepfake-detection': [
+    {
+      id: 'deepfake-media-analysis',
+      name: 'Deepfake and Synthetic Media Detection',
+      type: 'deepfake-detection',
+      description: 'Detection of AI-generated fake content and synthetic identities',
+      provider: 'gcp',
+      region: 'us-central1',
+      template: 'deepfake-detection-analysis',
+      estimatedDuration: '45-60 minutes',
+      difficulty: 'advanced',
+      tags: ['deepfake', 'ai-security', 'media-authentication', 'synthetic-content'],
+      resources: {
+        compute: 'ML models for deepfake detection',
+        storage: 'Sample synthetic media datasets'
+      }
+    }
+  ],
+  'social-engineering': [
+    {
+      id: 'social-eng-vectors',
+      name: 'Social Engineering Attack Vectors',
+      type: 'social-engineering',
+      description: 'Human manipulation techniques beyond traditional phishing',
+      provider: 'gcp',
+      region: 'us-central1',
+      template: 'social-engineering-simulation',
+      estimatedDuration: '30-45 minutes',
+      difficulty: 'intermediate',
+      tags: ['social-engineering', 'pretexting', 'baiting', 'human-factors'],
+      resources: {
+        compute: 'Behavioral simulation functions',
+        storage: 'Social engineering scenario datasets'
+      }
+    }
+  ],
+  'zero-day-simulation': [
+    {
+      id: 'zero-day-exploit-sim',
+      name: 'Zero-Day Exploit Detection',
+      type: 'zero-day-simulation',
+      description: 'Unknown vulnerability exploitation and novel attack techniques simulation',
+      provider: 'gcp',
+      region: 'us-central1',
+      template: 'zero-day-simulation',
+      estimatedDuration: '75-90 minutes',
+      difficulty: 'expert',
+      tags: ['zero-day', 'novel-attacks', 'unknown-threats', 'behavioral-analysis'],
+      resources: {
+        compute: 'Behavior analysis engines',
+        storage: 'Novel attack pattern databases'
+      }
+    }
+  ],
+  'evasion-techniques': [
+    {
+      id: 'advanced-evasion-sim',
+      name: 'Advanced Evasion Techniques',
+      type: 'evasion-techniques',
+      description: 'Anti-detection and anti-analysis techniques used by sophisticated threats',
+      provider: 'gcp',
+      region: 'us-central1',
+      template: 'evasion-techniques-simulation',
+      estimatedDuration: '60-75 minutes',
+      difficulty: 'expert',
+      tags: ['evasion', 'obfuscation', 'anti-analysis', 'stealth'],
+      resources: {
+        compute: 'Obfuscated payload simulation',
+        storage: 'Evasion technique libraries'
+      }
+    }
+  ],
+  'iot-security': [
+    {
+      id: 'iot-device-security',
+      name: 'IoT Device Security Threats',
+      type: 'iot-security',
+      description: 'Internet of Things device vulnerabilities and attack vectors',
+      provider: 'gcp',
+      region: 'us-central1',
+      template: 'iot-security-simulation',
+      estimatedDuration: '45-60 minutes',
+      difficulty: 'intermediate',
+      tags: ['iot', 'device-security', 'firmware', 'protocol-abuse'],
+      resources: {
+        compute: 'IoT device simulators',
+        network: 'Protocol analysis and monitoring'
+      }
+    }
+  ],
+  'ot-security': [
+    {
+      id: 'ot-industrial-threats',
+      name: 'Operational Technology Threats',
+      type: 'ot-security',
+      description: 'Industrial control system and SCADA security threats',
+      provider: 'gcp',
+      region: 'us-central1',
+      template: 'ot-security-simulation',
+      estimatedDuration: '90-120 minutes',
+      difficulty: 'expert',
+      tags: ['ot', 'scada', 'industrial', 'safety-systems'],
+      resources: {
+        compute: 'Industrial protocol simulators',
+        network: 'OT network monitoring systems'
+      }
+    }
+  ],
   'custom': []
 };
 
@@ -365,7 +517,7 @@ export const parseScenarioCommand = (args: string[]): ScenarioCommand | null => 
   // Import inline to avoid server-side issues
   const { parseArgs } = require('./arg-parser');
   const parsed = parseArgs([
-    { flag: '--scenario-type', type: 'enum', enumValues: ['cloud-posture','container-vuln','code-vuln','insider-threat','ransomware','waas-exploit','ai-threat','pipeline-breach','identity-compromise','lateral-movement-sim','data-exfil-behavior','beacon-emulation','phishing-sim','custom'] },
+    { flag: '--scenario-type', type: 'enum', enumValues: ['cloud-posture','container-vuln','code-vuln','insider-threat','ransomware','waas-exploit','ai-threat','pipeline-breach','identity-compromise','lateral-movement-sim','data-exfil-behavior','beacon-emulation','phishing-sim','apt-simulation','supply-chain','deepfake-detection','social-engineering','zero-day-simulation','evasion-techniques','iot-security','ot-security','custom'] },
     { flag: '--provider', type: 'enum', enumValues: ['gcp','aws','azure','kubernetes','local'], default: 'gcp' },
     { flag: '--region', type: 'string', default: 'us-central1' },
     { flag: '--template', type: 'string' },

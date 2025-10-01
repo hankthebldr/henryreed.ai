@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useAuthGuard } from '../../hooks/useAuthGuard';
 
-const EnhancedContentCreator = dynamic(() => import('../../components/EnhancedContentCreator'), {
+const EnhancedContentCreator = dynamic(() => import('../../components/EnhancedContentCreator').then((mod) => ({ default: mod.EnhancedContentCreator })), {
   ssr: false,
   loading: () => (
     <div className="min-h-screen bg-cortex-bg-primary flex items-center justify-center">

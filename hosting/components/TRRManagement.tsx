@@ -5,8 +5,11 @@ import { TRR, CreateTRRFormData, UpdateTRRFormData, TRRFilters, TRRStatus, TRRPr
 import CortexButton from './CortexButton';
 import CortexCommandButton from './CortexCommandButton';
 
+// Re-export types for other components
+export type { TRR, CreateTRRFormData, UpdateTRRFormData, TRRFilters, TRRStatus, TRRPriority, TRRCategory, RiskLevel, ValidationMethod };
+
 // Mock data store
-let trrDatabase: TRR[] = [
+export let trrDatabase: TRR[] = [
   {
     id: 'TRR-2024-001',
     title: 'SIEM Integration Validation',
