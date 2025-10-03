@@ -13,7 +13,7 @@ export default function Page() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedInterface, setSelectedInterface] = useState<'gui' | 'terminal'>('gui');
+  const [selectedInterface] = useState<'gui'>('gui');
   const [showInterfaceSelection, setShowInterfaceSelection] = useState(false);
   const router = useRouter();
 
@@ -38,8 +38,8 @@ export default function Page() {
       sessionStorage.setItem('dc_authenticated', 'true');
       sessionStorage.setItem('dc_user', username);
       
-      // Show interface selection instead of directly routing
-      setShowInterfaceSelection(true);
+      // Route directly to GUI for GUI-only experience
+      router.push('/gui');
       setIsLoading(false);
     } else {
       setError('Invalid credentials. Please try again.');
@@ -49,8 +49,8 @@ export default function Page() {
     }
   };
 
-  const handleInterfaceSelection = (interfaceType: 'gui' | 'terminal') => {
-    router.push(`/${interfaceType}`);
+  const handleInterfaceSelection = (interfaceType: 'gui') => {
+    router.push(`/gui`);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -101,8 +101,8 @@ export default function Page() {
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* GUI Option */}
+              <div className="grid grid-cols-1 gap-4">
+                {/* GUI Only */}
                 <button
                   onClick={() => handleInterfaceSelection('gui')}
                   className="group p-6 border-2 border-cortex-border-secondary hover:border-cortex-green rounded-lg transition-all duration-200 hover:shadow-lg hover:cortex-glow-green text-left"
@@ -110,25 +110,10 @@ export default function Page() {
                   <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">🎨</div>
                   <h3 className="text-xl font-bold text-cortex-text-primary mb-2">Graphical Interface</h3>
                   <p className="text-cortex-text-secondary text-sm mb-3">
-                    Modern web interface with forms, dashboards, and visual workflows. Perfect for comprehensive project management and data visualization.
+                    Modern web interface with forms, dashboards, and visual workflows. Optimized for the Domain Consultant experience.
                   </p>
                   <div className="text-xs text-cortex-green">
                     ✓ Visual dashboards  ✓ Form-based inputs  ✓ Charts & reports
-                  </div>
-                </button>
-                
-                {/* Terminal Option */}
-                <button
-                  onClick={() => handleInterfaceSelection('terminal')}
-                  className="group p-6 border-2 border-cortex-border-secondary hover:border-cortex-info rounded-lg transition-all duration-200 hover:shadow-lg text-left"
-                >
-                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">💻</div>
-                  <h3 className="text-xl font-bold text-cortex-text-primary mb-2">Terminal Interface</h3>
-                  <p className="text-cortex-text-secondary text-sm mb-3">
-                    Command-line experience for power users. Fast, efficient, and scriptable. Ideal for automation and advanced workflows.
-                  </p>
-                  <div className="text-xs text-cortex-info">
-                    ✓ Command-line power  ✓ Scriptable workflows  ✓ Expert efficiency
                   </div>
                 </button>
               </div>

@@ -1,6 +1,6 @@
-# Proof of Value CLI (PoV-CLI)
+# Cortex DC Portal (GUI)
 
-**An Interactive Terminal Interface for Cloud Application Security Scenarios**
+A GUI-first experience for Domain Consultant workflows: AI Insights, TRR Management, Unified Content Creator, XSIAM Integration, and BigQuery Export. Built with Next.js static export for Firebase Hosting.
 
 [![Deploy to Firebase](https://img.shields.io/badge/deploy-Firebase-orange)](https://henryreedai.web.app)
 [![Built with Next.js](https://img.shields.io/badge/built%20with-Next.js-black)](https://nextjs.org)
@@ -12,23 +12,24 @@ PoV-CLI is a modern, terminal-inspired web interface that provides cloud securit
 
 ## 🚀 Features
 
-### 🎯 Core Functionality
-- **Interactive Terminal Interface** - Modern terminal UI with command history and tab completion
-- **Async Command Support** - Full support for asynchronous command handlers with loading indicators
-- **Dynamic Help System** - Context-aware help with detailed command documentation
-- **Command Aliases** - Multiple aliases for improved user experience
-- **Real-time Status** - System analytics and performance monitoring
+### 🖥️ GUI Tabs
+- 📊 Dashboard: Overview cards, quick actions, activity
+- 📋 TRR Management: Create, upload, validate, and track TRRs
+- 🤖 AI Insights: AI dashboard, chat, deep analysis, recommendations
+- 🛠️ Content Creator: Unified creation flows for POVs, templates, scenarios
+- 🔗 XSIAM Integration: Setup, Health, Analytics, Query
+- 📊 BigQuery Export: Configuration, exports, and history
 
-### 🔐 Cloud Security Features
-- **OWASP Top 10 Reference** - Quick access to common web application risks
-- **Scenario Management** - Deploy cloud security assessment scenarios
-- **CDR Template Downloads** - Retrieve Cloud Detection and Response resources
+### ⚙️ Platform
+- Next.js static export (output: 'export'), Firebase Hosting
+- TypeScript with strict typing
+- Client-side routing via Firebase rewrites
+- Images unoptimized for static hosting compatibility
 
-### 🛠️ Technical Capabilities
-- **Service Discovery** - Comprehensive listing of AI services and capabilities
-- **Knowledge Base Search** - Advanced search through documentation and insights
-- **Download Management** - Resource and template download functionality
-- **Contact Integration** - Direct access to scheduling and contact information
+### 🔐 Security Scenario Support
+- Scenario templates (cloud-posture, container-vuln, code-vuln, insider-threat, ransomware, etc.)
+- Providers: GCP, AWS, Azure, Kubernetes, local
+- Lifecycle: generate → deploy → validate → export → destroy
 
 ## 🏗️ Architecture
 
@@ -43,9 +44,8 @@ PoV-CLI is a modern, terminal-inspired web interface that provides cloud securit
 - **Firebase Hosting** - Static site hosting with CDN caching
 - **Firebase Storage** - Asset and resource storage
 
-### Command System
-```typescript
-interface CommandConfig {
+### Command Architecture (legacy)
+This repository previously included a terminal-based command system. The current experience is GUI-first. The legacy terminal remains in the codebase for reference but is not part of the primary UX.
   name: string;
   description: string;
   usage: string;
@@ -63,8 +63,8 @@ interface CommandConfig {
 │   │   ├── layout.tsx         # Root layout
 │   │   └── page.tsx           # Main page
 │   ├── components/            # React components
-│   │   ├── EnhancedTerminal.tsx   # Main terminal component
-│   │   └── Terminal.tsx           # Base terminal component
+│   │   ├── EnhancedGUIInterface.tsx   # Main GUI component
+│   │   └── CortexGUIInterface.tsx     # Alternate GUI variant
 │   ├── lib/                   # Library modules
 │   │   ├── scenario-commands.tsx  # Scenario management commands
 │   │   ├── scenario-types.ts      # Type definitions
@@ -80,7 +80,7 @@ interface CommandConfig {
 └── README.md                  # This file
 ```
 
-## 🚦 Getting Started
+## 🚦 Getting Started (GUI)
 
 ### Prerequisites
 - **Node.js** (Latest LTS version recommended)
@@ -151,7 +151,9 @@ cd hosting
 npm run deploy:preview
 ```
 
-## 🎮 Available Commands
+<!-- Legacy Terminal Section (Deprecated) -->
+## 🧪 Legacy Terminal (Deprecated)
+The terminal UI and command inventory are deprecated in favor of the GUI. If needed for testing, see hosting/SETUP.md and hosting/COMMAND_REFERENCE.md. Do not expose terminal in production.
 
 ### Core Commands
 - `help` - Show available commands and usage information

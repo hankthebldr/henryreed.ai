@@ -103,17 +103,6 @@ className="text-base md:text-lg font-bold text-cortex-green hover:text-cortex-gr
               <span className="text-base">🎨</span>
             </Link>
             <Link
-              href="/terminal"
-              className={`p-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-                isTerminal 
-                  ? "bg-cortex-green text-black shadow-lg cortex-glow-green" 
-                  : "text-cortex-text-secondary hover:text-cortex-green hover:bg-cortex-bg-hover"
-              }`}
-              title="Terminal Interface"
-            >
-              <span className="text-base">💻</span>
-            </Link>
-            <Link
               href="/docs"
               className={`p-2 rounded-lg font-medium text-sm transition-all duration-200 ${
                 isDocs 
@@ -173,17 +162,6 @@ className="text-base md:text-lg font-bold text-cortex-green hover:text-cortex-gr
               <span>GUI</span>
             </Link>
             <Link
-              href="/terminal"
-              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 flex items-center space-x-2 ${
-                isTerminal 
-                  ? "bg-cortex-green text-black shadow-lg transform scale-105 cortex-glow-green" 
-                  : "text-cortex-text-secondary hover:text-cortex-green hover:bg-cortex-bg-hover"
-              }`}
-            >
-              <span className="text-base">💻</span>
-              <span>Terminal</span>
-            </Link>
-            <Link
               href="/docs"
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 flex items-center space-x-2 ${
                 isDocs 
@@ -213,11 +191,9 @@ className="text-base md:text-lg font-bold text-cortex-green hover:text-cortex-gr
 <span className="text-cortex-green">👤</span>
               <span className="text-cortex-text-primary font-medium hidden sm:inline">{currentUser}</span>
               {/* Show current mode indicator */}
-              {(isGUI || isTerminal) && (
-<span className={`px-1 md:px-2 py-1 rounded text-xs font-mono border ${
-                  isGUI ? 'bg-cortex-green/20 text-cortex-green border-cortex-green/30' : 'bg-cortex-green/20 text-cortex-green border-cortex-green/30'
-                }`}>
-                  {isGUI ? 'GUI' : 'Terminal'}
+              {isGUI && (
+<span className={`px-1 md:px-2 py-1 rounded text-xs font-mono border bg-cortex-green/20 text-cortex-green border-cortex-green/30`}>
+                  GUI
                 </span>
               )}
             </div>

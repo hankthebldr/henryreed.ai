@@ -17,6 +17,7 @@ import { trrBlockchainSignoffCommands } from './trr-blockchain-signoff';
 import { geminiCommands } from './gemini-commands';
 import { bigQueryCommands } from './bigquery-commands';
 import { xsiamCommands } from './xsiam-commands';
+import { scenarioCommands } from './scenario-commands';
 import { fetchAnalytics } from './data-service';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
@@ -1040,12 +1041,34 @@ const extendedCommands: CommandConfig[] = [
   }
 ];
 
+// Provide a wrapper for the scenario command family so it is available in the legacy terminal registry
+const scenarioWrapper: CommandConfig = {
+  name: 'scenario',
+  description: 'Deploy and manage security assessment scenarios',
+  usage: 'scenario <list|generate|status|validate|export|destroy|mitre> [options]',
+  aliases: ['scenarios', 'sec-scenario'],
+  handler: (args) => {
+    const sub = (args[0] || 'list').toLowerCase();
+    const subArgs = args.slice(1);
+    const impl = (scenarioCommands as any)[sub];
+    if (typeof impl !== 'function') {
+      return (
+        <div className="text-red-400">
+          <div className="font-bold mb-1">Unknown subcommand: {sub}</div>
+          <div className="text-sm text-gray-300">Use <span className="font-mono text-yellow-400">scenario list</span> or <span className="font-mono text-yellow-400">scenario --help</span></div>
+        </div>
+      );
+    }
+    return impl(subArgs);
+  }
+};
+
 export const allCommands: CommandConfig[] = [
   ...baseCommands, 
   ...extendedCommands.filter(extCmd => !baseCommands.some(baseCmd => baseCmd.name === extCmd.name)),
   ...downloadCommands.filter(dlCmd => !baseCommands.some(baseCmd => baseCmd.name === dlCmd.name) && !extendedCommands.some(extCmd => extCmd.name === dlCmd.name)),
   ...cdrCommands.filter(cdrCmd => !baseCommands.some(baseCmd => baseCmd.name === cdrCmd.name) && !extendedCommands.some(extCmd => extCmd.name === cdrCmd.name)),
-  ...cloudConfigCommands.filter(cloudCmd => !baseCommands.some(baseCmd => baseCmd.name === baseCmd.name) && !extendedCommands.some(extCmd => extCmd.name === cloudCmd.name)),
+  ...cloudConfigCommands.filter(cloudCmd => !baseCommands.some(baseCmd => baseCmd.name === cloudCmd.name) && !extendedCommands.some(extCmd => extCmd.name === cloudCmd.name)),
   ...enhancedCdrCommands.filter(enhCmd => !baseCommands.some(baseCmd => baseCmd.name === enhCmd.name) && !extendedCommands.some(extCmd => extCmd.name === enhCmd.name) && !cdrCommands.some(cdrCmd => cdrCmd.name === enhCmd.name)),
   ...cortexDCCommands.filter(cortexCmd => !baseCommands.some(baseCmd => baseCmd.name === cortexCmd.name) && !extendedCommands.some(extCmd => extCmd.name === cortexCmd.name)),
   ...guideCommands.filter(guideCmd => !baseCommands.some(baseCmd => baseCmd.name === guideCmd.name) && !extendedCommands.some(extCmd => extCmd.name === guideCmd.name)),
@@ -1059,6 +1082,8 @@ export const allCommands: CommandConfig[] = [
   ...bigQueryCommands.filter(bqCmd => !baseCommands.some(baseCmd => baseCmd.name === bqCmd.name) && !extendedCommands.some(extCmd => extCmd.name === bqCmd.name)),
   ...xsiamCommands.filter(xsiamCmd => !baseCommands.some(baseCmd => baseCmd.name === xsiamCmd.name) && !extendedCommands.some(extCmd => extCmd.name === xsiamCmd.name)),
   ...templateConfigCommands.filter(tmplCmd => !baseCommands.some(baseCmd => baseCmd.name === tmplCmd.name) && !extendedCommands.some(extCmd => extCmd.name === tmplCmd.name)),
+  // Ensure scenario command is present
+  scenarioWrapper,
   ...enhancedHelpCommands.filter(helpCmd => !baseCommands.some(baseCmd => baseCmd.name === helpCmd.name) && !extendedCommands.some(extCmd => extCmd.name === helpCmd.name))
 ];
 

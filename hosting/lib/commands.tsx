@@ -38,11 +38,16 @@ export const commands: CommandConfig[] = [
         return <div className="text-red-400">Command '{args[0]}' not found</div>;
       }
       
+      // Prefer the globally aggregated command registry if available
+      const inventory: CommandConfig[] = (typeof globalThis !== 'undefined' && (globalThis as any).__ALL_COMMANDS__)
+        ? (globalThis as any).__ALL_COMMANDS__
+        : commands;
+
       return (
         <div className="text-blue-300">
-<div className="font-bold mb-4 text-lg">🔐 XSIAM & Cortex Terminal - Available Commands</div>
+          <div className="font-bold mb-4 text-lg">🔐 XSIAM & Cortex Terminal - Available Commands</div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {commands.map(cmd => (
+            {inventory.map(cmd => (
               <div key={cmd.name} className="border border-gray-600 p-3 rounded">
                 <div className="text-green-400 font-mono font-bold">{cmd.name}</div>
                 <div className="text-sm text-gray-300 mt-1">{cmd.description}</div>

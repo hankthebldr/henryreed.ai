@@ -330,17 +330,23 @@ className="text-xs text-cortex-green hover:text-cortex-green-light underline"
   );
 };
 
-// Enhanced TRR Management with full user flow
+// Enhanced TRR Management with full user flow and DC context integration
 const EnhancedTRRManagement = () => {
   const { state, actions } = useAppState();
   const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'upload' | 'validate'>('dashboard');
   const [selectedTRR, setSelectedTRR] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   
   useEffect(() => {
     actions.updateBreadcrumbs([
       { label: 'Home', path: '/gui' },
       { label: 'TRR Management', path: '/gui/trr' },
     ]);
+    
+    // Initialize sample data if empty
+    if (dcContextStore.getAllCustomerEngagements().length === 0) {
+      dcContextStore.initializeSampleData();
+    }
   }, [actions]);
 
   // Execute command from GUI
@@ -354,12 +360,26 @@ const EnhancedTRRManagement = () => {
     }, 1500);
   };
 
-  // Mock TRR data
-  const mockTRRs = [
-    { id: 'TRR-001', title: 'SIEM Integration Validation', status: 'in-progress', priority: 'critical', assignee: 'john.doe', dueDate: '2024-01-25' },
-    { id: 'TRR-002', title: 'Network Connectivity Check', status: 'validated', priority: 'high', assignee: 'sarah.engineer', dueDate: '2024-01-20' },
-    { id: 'TRR-003', title: 'Performance Baseline Test', status: 'pending', priority: 'medium', assignee: 'alex.consultant', dueDate: '2024-01-30' }
-  ];
+  // Get real DC context data
+  const allTRRs = dcContextStore.getAllTRRRecords();
+  const customers = dcContextStore.getAllCustomerEngagements();
+  const activePOVs = dcContextStore.getAllActivePOVs();
+  const workflowContext = dcContextStore.getCurrentWorkflowContext();
+  
+  // Calculate TRR statistics
+  const trrStats = {
+    total: allTRRs.length,
+    validated: allTRRs.filter(t => t.status === 'validated').length,
+    pending: allTRRs.filter(t => t.status === 'pending').length,
+    inReview: allTRRs.filter(t => t.status === 'in-review').length,
+    highPriority: allTRRs.filter(t => t.priority === 'high').length,
+    overdue: allTRRs.filter(t => {
+      const dueDate = new Date(t.timeline.targetValidation);
+      return dueDate < new Date() && t.status !== 'validated';
+    }).length
+  };
+  
+  const completionRate = trrStats.total > 0 ? Math.round((trrStats.validated / trrStats.total) * 100) : 0;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -381,16 +401,47 @@ const EnhancedTRRManagement = () => {
 
   const TRRDashboard = () => (
     <div className="space-y-6">
-      {/* TRR Stats Overview */}
-      <div className="bg-gradient-to-r from-cortex-success-bg to-cortex-info-bg p-6 rounded-lg border border-cortex-green/30">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-cortex-green mb-4">📋 TRR Management Dashboard</h2>
+      {/* Real-time TRR Context Overview */}
+      <div className="bg-gradient-to-r from-cyan-900/20 to-blue-900/20 p-6 rounded-lg border border-cyan-500/30">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-cyan-400">🔍 Technical Risk Review Dashboard</h2>
+            <p className="text-gray-400 text-sm mt-1">
+              {customers.length > 0 ? `Managing TRRs for ${customers[0].name} - ${customers[0].industry}` : 'DC TRR Management System'}
+            </p>
+          </div>
           <div className="flex space-x-2">
             <button 
-              onClick={() => executeCommand('trr list')}
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  const customer = customers[0];
+                  if (customer) {
+                    const context: DCWorkflowContext = {
+                      workflowType: 'trr_validation',
+                      customerProfile: {
+                        industry: customer.industry,
+                        size: customer.size,
+                        maturityLevel: customer.maturityLevel,
+                        primaryConcerns: customer.primaryConcerns,
+                        techStack: customer.techStack
+                      }
+                    };
+                    await dcAIClient.accelerateTRRValidation([], context);
+                    actions.notify('success', `TRR guidance generated for ${customer.name}`);
+                  } else {
+                    executeCommand('trr list');
+                  }
+                } catch (error) {
+                  actions.notify('error', `TRR generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
               className="btn-cortex-secondary text-sm"
+              disabled={isLoading}
             >
-              📋 List TRRs
+              {isLoading ? '⏳ Generating...' : '📋 Smart TRR Generation'}
             </button>
             <button 
               onClick={() => setActiveView('create')}
@@ -399,16 +450,36 @@ const EnhancedTRRManagement = () => {
               ➕ Create New TRR
             </button>
             <button 
-              onClick={() => setActiveView('upload')}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
-            >
-              📤 Import CSV
-            </button>
-            <button 
-              onClick={() => setActiveView('validate')}
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  const pendingTRRs = allTRRs.filter(t => t.status === 'pending' || t.status === 'in-review');
+                  if (pendingTRRs.length > 0) {
+                    const customer = customers[0];
+                    const context: DCWorkflowContext = {
+                      workflowType: 'trr_validation',
+                      customerProfile: customer ? {
+                        industry: customer.industry,
+                        size: customer.size,
+                        maturityLevel: customer.maturityLevel,
+                        primaryConcerns: customer.primaryConcerns
+                      } : undefined
+                    };
+                    await dcAIClient.accelerateTRRValidation(pendingTRRs, context);
+                    actions.notify('success', `AI-accelerated validation complete for ${pendingTRRs.length} TRRs`);
+                  } else {
+                    setActiveView('validate');
+                  }
+                } catch (error) {
+                  actions.notify('error', `Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
               className="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm transition-colors"
+              disabled={isLoading}
             >
-              ✅ Validate
+              {isLoading ? '⏳ Validating...' : '✅ AI Auto-validate'}
             </button>
             <button 
               onClick={() => executeCommand('trr export --format csv')}
@@ -419,38 +490,51 @@ const EnhancedTRRManagement = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="cortex-card p-4 border border-cortex-green/20 cursor-pointer hover:border-cortex-green/50 transition-all"
-               onClick={() => executeCommand('trr list --status pending')}>
-            <h3 className="text-lg font-bold text-cortex-green mb-2">Pending TRRs</h3>
-            <div className="text-3xl font-mono text-cortex-green-light">
-              {mockTRRs.filter(t => t.status === 'pending').length}
-            </div>
-            <div className="text-sm text-gray-400 mt-2">Awaiting validation</div>
+        {/* Real TRR Statistics Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+          <div className="bg-gray-800/50 p-4 rounded border border-cyan-500/20 text-center">
+            <div className="text-3xl font-mono text-white">{trrStats.total}</div>
+            <div className="text-sm text-cyan-300">Total TRRs</div>
           </div>
-          <div className="bg-gray-800/50 p-4 rounded border border-yellow-500/20 cursor-pointer hover:bg-opacity-70 transition-all"
-               onClick={() => executeCommand('trr list --status in-progress')}>
-            <h3 className="text-lg font-bold text-yellow-300 mb-2">In Progress</h3>
-            <div className="text-3xl font-mono text-yellow-400">
-              {mockTRRs.filter(t => t.status === 'in-progress').length}
-            </div>
-            <div className="text-sm text-gray-400 mt-2">Active validations</div>
-          </div>
-          <div className="bg-gray-800/50 p-4 rounded border border-green-500/20 cursor-pointer hover:bg-opacity-70 transition-all"
+          <div className="bg-gray-800/50 p-4 rounded border border-green-500/20 text-center cursor-pointer hover:bg-opacity-70 transition-all"
                onClick={() => executeCommand('trr list --status validated')}>
-            <h3 className="text-lg font-bold text-green-300 mb-2">Validated</h3>
-            <div className="text-3xl font-mono text-green-400">
-              {mockTRRs.filter(t => t.status === 'validated').length}
-            </div>
-            <div className="text-sm text-gray-400 mt-2">Completed TRRs</div>
+            <div className="text-3xl font-mono text-green-400">{trrStats.validated}</div>
+            <div className="text-sm text-green-300">Validated</div>
           </div>
-          <div className="bg-gray-800/50 p-4 rounded border border-purple-500/20 cursor-pointer hover:bg-opacity-70 transition-all"
-               onClick={() => executeCommand('trr-signoff list --blockchain')}>
-            <h3 className="text-lg font-bold text-purple-300 mb-2">Blockchain</h3>
-            <div className="text-3xl font-mono text-purple-400">2</div>
-            <div className="text-sm text-gray-400 mt-2">Signed validations</div>
+          <div className="bg-gray-800/50 p-4 rounded border border-yellow-500/20 text-center cursor-pointer hover:bg-opacity-70 transition-all"
+               onClick={() => executeCommand('trr list --status pending')}>
+            <div className="text-3xl font-mono text-yellow-400">{trrStats.pending}</div>
+            <div className="text-sm text-yellow-300">Pending</div>
+          </div>
+          <div className="bg-gray-800/50 p-4 rounded border border-blue-500/20 text-center cursor-pointer hover:bg-opacity-70 transition-all"
+               onClick={() => executeCommand('trr list --status in-review')}>
+            <div className="text-3xl font-mono text-blue-400">{trrStats.inReview}</div>
+            <div className="text-sm text-blue-300">In Review</div>
+          </div>
+          <div className="bg-gray-800/50 p-4 rounded border border-red-500/20 text-center cursor-pointer hover:bg-opacity-70 transition-all">
+            <div className="text-3xl font-mono text-red-400">{trrStats.highPriority}</div>
+            <div className="text-sm text-red-300">High Priority</div>
+          </div>
+          <div className="bg-gray-800/50 p-4 rounded border border-orange-500/20 text-center cursor-pointer hover:bg-opacity-70 transition-all">
+            <div className="text-3xl font-mono text-orange-400">{trrStats.overdue}</div>
+            <div className="text-sm text-orange-300">Overdue</div>
           </div>
         </div>
+        
+        {/* Completion Progress Bar */}
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-white font-medium">Overall TRR Completion Progress</span>
+            <span className="text-cyan-400 font-bold">{completionRate}%</span>
+          </div>
+          <div className="w-full bg-gray-700 rounded-full h-3">
+            <div 
+              className="bg-gradient-to-r from-cyan-500 to-blue-500 h-3 rounded-full transition-all duration-500"
+              style={{ width: `${completionRate}%` }}
+            ></div>
+          </div>
+        </div>
+        
       </div>
 
       {/* TRR List */}
@@ -474,47 +558,286 @@ const EnhancedTRRManagement = () => {
         </div>
         
         <div className="space-y-3">
-          {mockTRRs.map((trr) => (
-            <div key={trr.id} className="flex justify-between items-center p-4 bg-gray-800/30 rounded hover:bg-gray-700/30 transition-colors cursor-pointer"
-                 onClick={() => {
-                   setSelectedTRR(trr.id);
-                   executeCommand(`trr show --id ${trr.id}`);
-                 }}>
-              <div className="flex-1">
-                <div className="flex items-center space-x-3">
-                  <div className="font-mono text-white text-sm">{trr.id}</div>
-                  <div className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(trr.status)}`}>
-                    {trr.status}
+          {allTRRs.slice(0, 8).map((trr) => {
+            const isOverdue = new Date(trr.timeline.targetValidation) < new Date() && trr.status !== 'validated';
+            const customer = customers.find(c => c.id === trr.customerId);
+            const pov = activePOVs.find(p => p.id === trr.povId);
+            
+            return (
+              <div key={trr.id} className={`flex justify-between items-center p-4 bg-gray-800/30 rounded hover:bg-gray-700/30 transition-colors cursor-pointer ${
+                isOverdue ? 'border border-red-500/30' : ''
+              }`}
+                   onClick={() => {
+                     setSelectedTRR(trr.id);
+                     executeCommand(`trr show --id ${trr.id}`);
+                   }}>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-3">
+                    <div className="font-mono text-white text-sm">{trr.id}</div>
+                    <div className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(trr.status)}`}>
+                      {trr.status}
+                    </div>
+                    <div className={`text-xs ${getPriorityColor(trr.priority)}`}>●</div>
+                    {isOverdue && <div className="text-red-400 text-xs">⚠️ OVERDUE</div>}
                   </div>
-                  <div className={`text-xs ${getPriorityColor(trr.priority)}`}>●</div>
+                  <div className="text-gray-300 text-sm mt-1">{trr.title}</div>
+                  <div className="text-gray-500 text-xs mt-1 space-y-1">
+                    <div>Assigned: {trr.assignedTo || 'Unassigned'} • Due: {new Date(trr.timeline.targetValidation).toLocaleDateString()}</div>
+                    {customer && (
+                      <div className="text-blue-400">
+                        Customer: {customer.name} ({customer.industry})
+                        {pov && <span className="text-purple-400"> • POV: {pov.name}</span>}
+                      </div>
+                    )}
+                    {trr.validationEvidence && trr.validationEvidence.length > 0 && (
+                      <div className="text-green-400">
+                        Evidence: {trr.validationEvidence.length} items collected
+                      </div>
+                    )}
+                    {trr.dependencies && trr.dependencies.length > 0 && (
+                      <div className="text-yellow-400">
+                        Dependencies: {trr.dependencies.join(', ')}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="text-gray-300 text-sm mt-1">{trr.title}</div>
-                <div className="text-gray-500 text-xs mt-1">
-                  Assigned: {trr.assignee} • Due: {trr.dueDate}
+                <div className="flex space-x-2">
+                  <button 
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      setIsLoading(true);
+                      try {
+                        const customer = customers.find(c => c.id === trr.customerId);
+                        const context: DCWorkflowContext = {
+                          workflowType: 'trr_validation',
+                          customerProfile: customer ? {
+                            industry: customer.industry,
+                            size: customer.size,
+                            maturityLevel: customer.maturityLevel,
+                            primaryConcerns: customer.primaryConcerns
+                          } : undefined
+                        };
+                        await dcAIClient.accelerateTRRValidation([trr], context);
+                        actions.notify('success', `AI validation complete for ${trr.id}`);
+                      } catch (error) {
+                        executeCommand(`trr validate --id ${trr.id}`);
+                      } finally {
+                        setIsLoading(false);
+                      }
+                    }}
+                    className="px-3 py-1 bg-green-600 hover:bg-green-700 disabled:bg-green-800 text-white rounded text-xs transition-colors"
+                    disabled={isLoading || trr.status === 'validated'}
+                  >
+                    {trr.status === 'validated' ? '✓ Validated' : 'AI Validate'}
+                  </button>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      executeCommand(`trr edit --id ${trr.id}`);
+                    }}
+                    className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition-colors"
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      executeCommand(`trr details --id ${trr.id}`);
+                    }}
+                    className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded text-xs transition-colors"
+                  >
+                    Details
+                  </button>
                 </div>
               </div>
-              <div className="flex space-x-2">
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    executeCommand(`trr validate --id ${trr.id}`);
-                  }}
-                  className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-xs transition-colors"
-                >
-                  Validate
-                </button>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    executeCommand(`trr edit --id ${trr.id}`);
-                  }}
-                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition-colors"
-                >
-                  Edit
-                </button>
+            );
+          })}
+          
+          {allTRRs.length === 0 && (
+            <div className="text-center py-8">
+              <div className="text-gray-500 text-lg mb-2">📋 No TRRs Found</div>
+              <div className="text-gray-400 text-sm mb-4">Create your first TRR to get started with technical risk validation</div>
+              <button 
+                onClick={() => setActiveView('create')}
+                className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded transition-colors"
+              >
+                Create First TRR
+              </button>
+            </div>
+          )}
+          
+          {allTRRs.length > 8 && (
+            <div className="text-center py-4">
+              <button 
+                onClick={() => executeCommand('trr list --all')}
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors text-sm"
+              >
+                View All {allTRRs.length} TRRs
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* TRR Workflow Intelligence */}
+      <div className="bg-gradient-to-r from-indigo-900/20 to-purple-900/20 p-6 rounded-lg border border-indigo-500/30">
+        <h3 className="text-xl font-bold text-indigo-400 mb-4">🧠 TRR Workflow Intelligence</h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Customer-Specific TRR Insights */}
+          <div className="bg-gray-800/50 p-4 rounded border border-indigo-500/20">
+            <div className="text-indigo-300 font-medium mb-3">🎯 Customer Context Analysis</div>
+            {customers.length > 0 ? (
+              <div className="space-y-2 text-sm">
+                <div className="text-white">
+                  <span className="text-gray-400">Primary Customer:</span> {customers[0].name}
+                </div>
+                <div className="text-blue-400">
+                  <span className="text-gray-400">Industry:</span> {customers[0].industry}
+                </div>
+                <div className="text-green-400">
+                  <span className="text-gray-400">Maturity:</span> {customers[0].maturityLevel}
+                </div>
+                <div className="text-purple-400">
+                  <span className="text-gray-400">Key Concerns:</span> {customers[0].primaryConcerns.slice(0, 2).join(', ')}
+                  {customers[0].primaryConcerns.length > 2 && ' ...'}
+                </div>
+                <div className="text-orange-400">
+                  <span className="text-gray-400">Tech Stack:</span> {customers[0].techStack ? customers[0].techStack.slice(0, 2).join(', ') : 'Not specified'}
+                </div>
+              </div>
+            ) : (
+              <div className="text-gray-500 text-sm">No customer data available</div>
+            )}
+          </div>
+          
+          {/* Priority & Risk Analysis */}
+          <div className="bg-gray-800/50 p-4 rounded border border-yellow-500/20">
+            <div className="text-yellow-300 font-medium mb-3">⚠️ Priority & Risk Factors</div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-400">High Priority TRRs:</span>
+                <span className="text-red-400 font-bold">{trrStats.highPriority}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Overdue Items:</span>
+                <span className="text-orange-400 font-bold">{trrStats.overdue}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">In Review:</span>
+                <span className="text-blue-400 font-bold">{trrStats.inReview}</span>
+              </div>
+              <div className="mt-3 p-2 bg-yellow-900/20 rounded text-xs">
+                <div className="text-yellow-300 font-medium">Risk Assessment:</div>
+                <div className="text-gray-300 mt-1">
+                  {trrStats.overdue > 0 ? `${trrStats.overdue} overdue items require immediate attention` :
+                   trrStats.highPriority > 3 ? 'High priority load detected - consider resource allocation' :
+                   'TRR workflow risk level: LOW'}
+                </div>
               </div>
             </div>
-          ))}
+          </div>
+          
+          {/* Progress & Performance */}
+          <div className="bg-gray-800/50 p-4 rounded border border-green-500/20">
+            <div className="text-green-300 font-medium mb-3">📊 Progress Analytics</div>
+            <div className="space-y-3 text-sm">
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-gray-400">Completion Rate:</span>
+                  <span className="text-green-400 font-bold">{completionRate}%</span>
+                </div>
+                <div className="w-full bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${completionRate}%` }}
+                  ></div>
+                </div>
+              </div>
+              
+              <div className="space-y-1">
+                <div className="text-gray-400">Validation Velocity:</div>
+                <div className="text-white font-mono">
+                  {Math.round(trrStats.validated / Math.max(1, Math.ceil((Date.now() - new Date('2024-01-01').getTime()) / (1000 * 60 * 60 * 24 * 7))))} TRRs/week
+                </div>
+              </div>
+              
+              <div className="mt-3 p-2 bg-green-900/20 rounded text-xs">
+                <div className="text-green-300 font-medium">Performance Status:</div>
+                <div className="text-gray-300 mt-1">
+                  {completionRate >= 80 ? 'Excellent progress - on track' :
+                   completionRate >= 60 ? 'Good progress - minor optimizations needed' :
+                   completionRate >= 40 ? 'Moderate progress - review workflow efficiency' :
+                   'Below target - consider process improvements'}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* AI-Powered TRR Recommendations */}
+        <div className="mt-6 p-4 bg-purple-900/20 rounded border border-purple-500/20">
+          <div className="flex justify-between items-center mb-4">
+            <h4 className="text-lg font-bold text-purple-400">🤖 AI TRR Optimization Recommendations</h4>
+            <button 
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  const customer = customers[0];
+                  const pendingTRRs = allTRRs.filter(t => t.status === 'pending' || t.status === 'in-review');
+                  if (customer && pendingTRRs.length > 0) {
+                    const context: DCWorkflowContext = {
+                      workflowType: 'trr_validation',
+                      customerProfile: {
+                        industry: customer.industry,
+                        size: customer.size,
+                        maturityLevel: customer.maturityLevel,
+                        primaryConcerns: customer.primaryConcerns,
+                        techStack: customer.techStack
+                      },
+                      workInProgress: {
+                        trrsCompleted: trrStats.validated,
+                        blockers: [`${trrStats.overdue} overdue TRRs`]
+                      }
+                    };
+                    await dcAIClient.accelerateTRRValidation(pendingTRRs, context);
+                    actions.notify('success', 'TRR validation acceleration recommendations generated');
+                  } else {
+                    actions.notify('info', 'No data available for TRR optimization');
+                  }
+                } catch (error) {
+                  actions.notify('error', `Optimization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 text-white rounded text-sm transition-colors"
+              disabled={isLoading}
+            >
+              {isLoading ? '⏳ Analyzing...' : '🔄 Generate AI Recommendations'}
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <div className="text-purple-300 font-medium mb-2">📋 Prioritization Suggestions:</div>
+              <ul className="space-y-1 text-gray-300">
+                <li>• Focus on {customers[0]?.industry || 'industry-specific'} compliance TRRs first</li>
+                <li>• Address {trrStats.overdue > 0 ? 'overdue items' : 'high-priority items'} immediately</li>
+                <li>• Leverage {customers[0]?.maturityLevel || 'customer'} maturity level for validation depth</li>
+                <li>• Consider parallel validation for similar technical requirements</li>
+              </ul>
+            </div>
+            <div>
+              <div className="text-purple-300 font-medium mb-2">⚡ Acceleration Opportunities:</div>
+              <ul className="space-y-1 text-gray-300">
+                <li>• Automate evidence collection for {customers[0]?.techStack?.[0] || 'standard'} environments</li>
+                <li>• Template reuse for similar {customers[0]?.industry || 'domain'} scenarios</li>
+                <li>• Batch validation for related infrastructure components</li>
+                <li>• Pre-validate common {customers[0]?.primaryConcerns[0] || 'security'} patterns</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -729,18 +1052,28 @@ const EnhancedTRRManagement = () => {
   }
 };
 
+import { aiInsightsClient } from '../lib/ai-insights-client';
+import { dcAIClient, DCWorkflowContext } from '../lib/dc-ai-client';
+import { dcContextStore } from '../lib/dc-context-store';
+
 // Enhanced AI Insights with comprehensive user flows
 const EnhancedAIInsights = () => {
   const { state, actions } = useAppState();
   const [activeView, setActiveView] = useState<'dashboard' | 'chat' | 'analysis' | 'recommendations'>('dashboard');
   const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'ai'; content: string; timestamp: string }[]>([]);
   const [currentQuery, setCurrentQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
   useEffect(() => {
     actions.updateBreadcrumbs([
       { label: 'Home', path: '/gui' },
       { label: 'AI Insights', path: '/gui/ai' },
     ]);
+    
+    // Initialize sample data if empty
+    if (dcContextStore.getAllCustomerEngagements().length === 0) {
+      dcContextStore.initializeSampleData();
+    }
   }, [actions]);
 
   // Execute command from GUI
@@ -754,8 +1087,8 @@ const EnhancedAIInsights = () => {
     }, 2000);
   };
 
-  const sendChatMessage = (message: string) => {
-    if (!message.trim()) return;
+  const sendChatMessage = async (message: string) => {
+    if (!message.trim() || isLoading) return;
     
     const userMessage = {
       role: 'user' as const,
@@ -765,30 +1098,110 @@ const EnhancedAIInsights = () => {
     
     setChatMessages(prev => [...prev, userMessage]);
     setCurrentQuery('');
+    setIsLoading(true);
     
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse = {
+    try {
+      const response = await aiInsightsClient.chat(message, { context: 'gui_chat', activeView });
+      
+      if (response.success && response.data) {
+        const aiResponse = {
+          role: 'ai' as const,
+          content: (response.data as any)?.content || response.data,
+          timestamp: new Date().toLocaleTimeString()
+        };
+        setChatMessages(prev => [...prev, aiResponse]);
+      } else {
+        throw new Error('No response from AI service');
+      }
+    } catch (error) {
+      const errorMessage = {
         role: 'ai' as const,
-        content: `Based on your query "${message}", here are my insights:\n\n• Analysis of current POV trends shows 85% success rate\n• Recommendation: Focus on cloud-native security scenarios\n• Consider implementing automated validation workflows\n• Next steps: Review TRR completion metrics`,
+        content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
         timestamp: new Date().toLocaleTimeString()
       };
-      setChatMessages(prev => [...prev, aiResponse]);
-    }, 1500);
+      setChatMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const AIDashboard = () => (
+  const AIDashboard = () => {
+    // Get real DC context data
+    const workflowContext = dcContextStore.getCurrentWorkflowContext();
+    const currentUser = dcContextStore.getCurrentUser();
+    const activePOVs = dcContextStore.getAllActivePOVs();
+    const customers = dcContextStore.getAllCustomerEngagements();
+    const recentTRRs = dcContextStore.getAllTRRRecords().slice(0, 5);
+    
+    return (
     <div className="space-y-6">
+      {/* Real-time DC Context */}
+      <div className="bg-gradient-to-r from-green-900/20 to-blue-900/20 p-4 rounded-lg border border-green-500/30">
+        <div className="text-lg font-bold text-green-400 mb-2">📊 Current DC Workload</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div className="text-center">
+            <div className="text-2xl font-mono text-white">{workflowContext.activeCustomers}</div>
+            <div className="text-green-300">Active Customers</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-mono text-white">{workflowContext.activePOVs}</div>
+            <div className="text-blue-300">Active POVs</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-mono text-white">{workflowContext.pendingTRRs}</div>
+            <div className="text-yellow-300">Pending TRRs</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-mono text-white">{workflowContext.upcomingMilestones.length}</div>
+            <div className="text-purple-300">Upcoming Milestones</div>
+          </div>
+        </div>
+      </div>
+      
       {/* AI Overview */}
       <div className="bg-gradient-to-r from-indigo-900/20 to-purple-900/20 p-6 rounded-lg border border-indigo-500/30">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-indigo-400">🤖 AI Insights Dashboard</h2>
           <div className="flex space-x-2">
             <button 
-              onClick={() => executeCommand('ai "help with POV optimization"')}
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  const activePOV = activePOVs[0]; // Use real POV data
+                  const customer = customers.find(c => c.id === activePOV?.customerId);
+                  
+                  if (activePOV && customer) {
+                    const context: DCWorkflowContext = {
+                      workflowType: 'pov_planning',
+                      customerProfile: {
+                        industry: customer.industry,
+                        size: customer.size,
+                        maturityLevel: customer.maturityLevel,
+                        primaryConcerns: customer.primaryConcerns,
+                        techStack: customer.techStack
+                      },
+                      workInProgress: {
+                        povsActive: activePOVs.length,
+                        trrsCompleted: recentTRRs.filter(t => t.status === 'validated').length,
+                        scenariosDeployed: activePOV.scenarios.filter(s => s.status !== 'planned').map(s => s.name)
+                      }
+                    };
+                    
+                    await dcAIClient.optimizePOVPlan(activePOV, context);
+                    actions.notify('success', `POV optimization complete for ${customer.name}`);
+                  } else {
+                    actions.notify('warning', 'No active POV found for analysis');
+                  }
+                } catch (error) {
+                  actions.notify('error', `Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
               className="btn-cortex-secondary text-sm"
+              disabled={isLoading}
             >
-              💬 Quick AI Query
+              {isLoading ? '🔄 Analyzing...' : '💬 Quick AI Query'}
             </button>
             <button 
               onClick={() => setActiveView('chat')}
@@ -797,10 +1210,43 @@ const EnhancedAIInsights = () => {
               💬 Start Chat
             </button>
             <button 
-              onClick={() => executeCommand('gemini analyze --context dashboard')}
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  const pendingTRRs = dcContextStore.getAllTRRRecords().filter(t => t.status === 'pending' || t.status === 'in-review');
+                  const activeCustomer = customers[0];
+                  
+                  if (pendingTRRs.length > 0 && activeCustomer) {
+                    const context: DCWorkflowContext = {
+                      workflowType: 'trr_validation',
+                      customerProfile: {
+                        industry: activeCustomer.industry,
+                        size: activeCustomer.size,
+                        maturityLevel: activeCustomer.maturityLevel,
+                        primaryConcerns: activeCustomer.primaryConcerns,
+                        techStack: activeCustomer.techStack
+                      },
+                      workInProgress: {
+                        trrsCompleted: dcContextStore.getAllTRRRecords().filter(t => t.status === 'validated').length,
+                        povsActive: activePOVs.length
+                      }
+                    };
+                    
+                    await dcAIClient.accelerateTRRValidation(pendingTRRs, context);
+                    actions.notify('success', `TRR acceleration analysis complete for ${pendingTRRs.length} TRRs`);
+                  } else {
+                    actions.notify('info', 'No pending TRRs found for analysis');
+                  }
+                } catch (error) {
+                  actions.notify('error', `Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
               className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors"
+              disabled={isLoading}
             >
-              📈 Run Analysis
+              {isLoading ? '🔄 Running...' : '📈 Run Analysis'}
             </button>
             <button 
               onClick={() => setActiveView('recommendations')}
@@ -813,28 +1259,92 @@ const EnhancedAIInsights = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-gray-800/50 p-4 rounded border border-indigo-500/20 cursor-pointer hover:bg-opacity-70 transition-all"
-               onClick={() => executeCommand('gemini analyze --context pov')}>
+               onClick={async () => {
+                 if (activePOVs.length > 0) {
+                   const customer = customers.find(c => c.id === activePOVs[0].customerId);
+                   const context: DCWorkflowContext = {
+                     workflowType: 'pov_planning',
+                     customerProfile: customer ? {
+                       industry: customer.industry,
+                       size: customer.size,
+                       maturityLevel: customer.maturityLevel,
+                       primaryConcerns: customer.primaryConcerns
+                     } : undefined
+                   };
+                   await dcAIClient.optimizePOVPlan(activePOVs[0], context);
+                   actions.notify('success', 'POV insights generated');
+                 }
+               }}>
             <h3 className="text-lg font-bold text-indigo-300 mb-2">POV Insights</h3>
-            <div className="text-3xl font-mono text-indigo-400">87%</div>
-            <div className="text-sm text-gray-400 mt-2">Success prediction</div>
+            <div className="text-3xl font-mono text-indigo-400">{activePOVs.length > 0 ? Math.round((activePOVs[0].scenarios.filter(s => s.status === 'completed').length / activePOVs[0].scenarios.length) * 100) + '%' : 'N/A'}</div>
+            <div className="text-sm text-gray-400 mt-2">Scenario completion</div>
           </div>
           <div className="bg-gray-800/50 p-4 rounded border border-purple-500/20 cursor-pointer hover:bg-opacity-70 transition-all"
-               onClick={() => executeCommand('gemini analyze --context scenarios')}>
+               onClick={async () => {
+                 const customer = customers[0];
+                 if (customer) {
+                   const context: DCWorkflowContext = {
+                     workflowType: 'scenario_selection',
+                     customerProfile: {
+                       industry: customer.industry,
+                       size: customer.size,
+                       maturityLevel: customer.maturityLevel,
+                       primaryConcerns: customer.primaryConcerns,
+                       techStack: customer.techStack
+                     }
+                   };
+                   await dcAIClient.recommendScenarios(customer, context);
+                   actions.notify('success', 'Scenario recommendations generated');
+                 }
+               }}>
             <h3 className="text-lg font-bold text-purple-300 mb-2">Scenario Optimization</h3>
-            <div className="text-3xl font-mono text-purple-400">23</div>
-            <div className="text-sm text-gray-400 mt-2">Recommendations</div>
+            <div className="text-3xl font-mono text-purple-400">{customers.length > 0 ? customers[0].primaryConcerns.length : 0}</div>
+            <div className="text-sm text-gray-400 mt-2">Customer priorities</div>
           </div>
           <div className="bg-gray-800/50 p-4 rounded border border-cyan-500/20 cursor-pointer hover:bg-opacity-70 transition-all"
-               onClick={() => executeCommand('gemini analyze --context trr')}>
+               onClick={async () => {
+                 const allTRRs = dcContextStore.getAllTRRRecords();
+                 const validatedTRRs = allTRRs.filter(t => t.status === 'validated');
+                 const completionRate = allTRRs.length > 0 ? Math.round((validatedTRRs.length / allTRRs.length) * 100) : 0;
+                 actions.notify('info', `TRR completion rate: ${completionRate}%`);
+               }}>
             <h3 className="text-lg font-bold text-cyan-300 mb-2">TRR Analysis</h3>
-            <div className="text-3xl font-mono text-cyan-400">94%</div>
+            <div className="text-3xl font-mono text-cyan-400">{(() => {
+              const allTRRs = dcContextStore.getAllTRRRecords();
+              const validatedTRRs = allTRRs.filter(t => t.status === 'validated');
+              return allTRRs.length > 0 ? Math.round((validatedTRRs.length / allTRRs.length) * 100) + '%' : '0%';
+            })()}</div>
             <div className="text-sm text-gray-400 mt-2">Completion rate</div>
           </div>
           <div className="bg-gray-800/50 p-4 rounded border border-green-500/20 cursor-pointer hover:bg-opacity-70 transition-all"
-               onClick={() => executeCommand('gemini predict --engagement-success')}>
+               onClick={async () => {
+                 const customer = customers[0];
+                 const pov = activePOVs[0];
+                 if (customer && pov) {
+                   const context: DCWorkflowContext = {
+                     workflowType: 'engagement_summary',
+                     customerProfile: {
+                       industry: customer.industry,
+                       size: customer.size,
+                       maturityLevel: customer.maturityLevel
+                     },
+                     workInProgress: {
+                       povsActive: activePOVs.length,
+                       trrsCompleted: dcContextStore.getAllTRRRecords().filter(t => t.status === 'validated').length
+                     }
+                   };
+                   await dcAIClient.generateEngagementSummary({ customer, pov }, context);
+                   actions.notify('success', 'Engagement health assessment complete');
+                 }
+               }}>
             <h3 className="text-lg font-bold text-green-300 mb-2">Engagement Health</h3>
-            <div className="text-3xl font-mono text-green-400">A+</div>
-            <div className="text-sm text-gray-400 mt-2">Overall score</div>
+            <div className="text-3xl font-mono text-green-400">{(() => {
+              const customer = customers[0];
+              if (!customer) return 'N/A';
+              const daysToDecision = Math.ceil((new Date(customer.timeline.targetDecision).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+              return daysToDecision > 0 ? `${daysToDecision}d` : 'Due';
+            })()}</div>
+            <div className="text-sm text-gray-400 mt-2">To decision</div>
           </div>
         </div>
       </div>
@@ -866,10 +1376,22 @@ const EnhancedAIInsights = () => {
               🔮 Predict Timeline & Risks
             </button>
             <button 
-              onClick={() => executeCommand('gemini generate --executive-summary')}
-              className="w-full p-3 bg-green-600 hover:bg-green-700 text-white rounded transition-colors text-left"
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  const mockScenario = { name: 'executive-summary', type: 'reporting' };
+                  await aiInsightsClient.generateDetection(mockScenario);
+                  actions.notify('success', 'Executive summary generated');
+                } catch (error) {
+                  actions.notify('error', `Generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              className="w-full p-3 bg-green-600 hover:bg-green-700 disabled:bg-green-800 text-white rounded transition-colors text-left"
+              disabled={isLoading}
             >
-              📄 Generate Executive Summary
+              {isLoading ? '🔄 Generating...' : '📄 Generate Executive Summary'}
             </button>
           </div>
         </div>
@@ -927,8 +1449,119 @@ const EnhancedAIInsights = () => {
           </div>
         </div>
       </div>
+
+      {/* Recent Activity Insights */}
+      <div className="bg-gray-800/30 p-6 rounded-lg border border-gray-600/30">
+        <h3 className="text-xl font-bold text-white mb-4">🔄 Recent Workflow Activity</h3>
+        <div className="space-y-3">
+          {workflowContext.recentActivity.slice(0, 5).map((activity, index) => (
+            <div key={index} className="flex items-center justify-between bg-gray-700/30 p-3 rounded border border-gray-600/20">
+              <div>
+                <div className="text-white font-medium">{activity.action}</div>
+                <div className="text-sm text-gray-400">{activity.context}</div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-500">{new Date(activity.timestamp).toLocaleDateString()}</div>
+                {activity.aiRecommendations && (
+                  <div className="text-xs text-blue-400 mt-1">💡 AI suggestion available</div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Upcoming Milestones */}
+      <div className="bg-gradient-to-r from-orange-900/20 to-red-900/20 p-6 rounded-lg border border-orange-500/30">
+        <h3 className="text-xl font-bold text-orange-400 mb-4">⏰ Upcoming Milestones</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {workflowContext.upcomingMilestones.map((milestone, index) => {
+            const daysUntil = Math.ceil((new Date(milestone.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+            const urgencyColor = daysUntil <= 3 ? 'text-red-400' : daysUntil <= 7 ? 'text-orange-400' : 'text-yellow-400';
+            
+            return (
+              <div key={index} className="bg-gray-800/50 p-4 rounded border border-orange-500/20">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="text-white font-medium">{milestone.name}</div>
+                    <div className="text-sm text-gray-400 mt-1">{milestone.type}</div>
+                  </div>
+                  <div className={`text-right ${urgencyColor}`}>
+                    <div className="font-bold">{daysUntil}d</div>
+                    <div className="text-xs">remaining</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* AI Recommendations */}
+      <div className="bg-gradient-to-r from-violet-900/20 to-purple-900/20 p-6 rounded-lg border border-violet-500/30">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xl font-bold text-violet-400">🧠 AI-Powered Recommendations</h3>
+          <button 
+            className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded transition-colors"
+            onClick={async () => {
+              setIsLoading(true);
+              try {
+                const customer = customers[0];
+                const pov = activePOVs[0];
+                if (customer && pov) {
+                  const context: DCWorkflowContext = {
+                    workflowType: 'pov_planning',
+                    customerProfile: {
+                      industry: customer.industry,
+                      size: customer.size,
+                      maturityLevel: customer.maturityLevel,
+                      primaryConcerns: customer.primaryConcerns
+                    },
+                    workInProgress: {
+                      povsActive: activePOVs.length,
+                      trrsCompleted: dcContextStore.getAllTRRRecords().filter(t => t.status === 'validated').length,
+                      blockers: [`${workflowContext.upcomingMilestones.length} upcoming milestones`]
+                    }
+                  };
+                  await dcAIClient.optimizePOVPlan(pov, context);
+                  actions.notify('success', 'POV optimization recommendations generated');
+                }
+              } catch (error) {
+                actions.notify('error', `Failed to generate recommendations: ${error instanceof Error ? error.message : 'Unknown error'}`);
+              } finally {
+                setIsLoading(false);
+              }
+            }}
+            disabled={isLoading}
+          >
+            {isLoading ? '⏳ Generating...' : '🔄 Refresh Recommendations'}
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-gray-800/50 p-4 rounded border border-violet-500/20">
+            <div className="text-violet-300 font-medium mb-2">📋 Next Best Actions</div>
+            <ul className="space-y-2 text-sm text-gray-300">
+              <li>• Schedule technical deep-dive for {customers[0]?.name || 'current customer'}</li>
+              <li>• Review pending TRRs for validation gaps</li>
+              <li>• Prepare executive summary for decision milestone</li>
+              <li>• Update POV scenario timelines based on progress</li>
+            </ul>
+          </div>
+          <div className="bg-gray-800/50 p-4 rounded border border-violet-500/20">
+            <div className="text-violet-300 font-medium mb-2">⚠️ Risk Mitigation</div>
+            <ul className="space-y-2 text-sm text-gray-300">
+              <li>• Timeline compression risk for current POV</li>
+              <li>• Stakeholder engagement gaps identified</li>
+              <li>• Technical validation dependencies pending</li>
+              <li>• Budget approval milestone approaching</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   );
+  };
 
   const AIChat = () => (
     <div className="space-y-6">
@@ -981,10 +1614,10 @@ const EnhancedAIInsights = () => {
             />
             <button 
               onClick={() => sendChatMessage(currentQuery)}
-              disabled={!currentQuery.trim()}
+              disabled={!currentQuery.trim() || isLoading}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded transition-colors"
             >
-              Send
+              {isLoading ? 'Sending...' : 'Send'}
             </button>
           </div>
           
@@ -998,7 +1631,8 @@ const EnhancedAIInsights = () => {
               <button 
                 key={idx}
                 onClick={() => sendChatMessage(suggestion)}
-                className="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded text-xs transition-colors"
+                disabled={isLoading}
+                className="px-2 py-1 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 disabled:cursor-not-allowed text-gray-300 rounded text-xs transition-colors"
               >
                 {suggestion}
               </button>
@@ -1029,10 +1663,22 @@ const EnhancedAIInsights = () => {
           <h3 className="text-lg font-bold text-purple-300">Analysis Types</h3>
           <div className="space-y-3">
             <button 
-              onClick={() => executeCommand('gemini deep-analysis --pov --performance')}
-              className="w-full p-3 bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors text-left"
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  const mockPOV = { id: 'current', performance: { metrics: 'detailed' } };
+                  const result = await aiInsightsClient.analyzePOV(mockPOV);
+                  actions.notify('success', 'POV performance analysis complete');
+                } catch (error) {
+                  actions.notify('error', `Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              className="w-full p-3 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 text-white rounded transition-colors text-left"
+              disabled={isLoading}
             >
-              📈 POV Performance Deep Dive
+              {isLoading ? '🔄 Analyzing...' : '📈 POV Performance Deep Dive'}
             </button>
             <button 
               onClick={() => executeCommand('gemini deep-analysis --customer --fit')}

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import CortexButton from './CortexButton';
+import CortexCommandButton from './CortexCommandButton';
 
 interface OnboardingStep {
   id: string;

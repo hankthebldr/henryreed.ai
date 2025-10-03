@@ -19,7 +19,7 @@ import {
 } from 'firebase/firestore';
 import { 
   getStorage, 
-  Storage, 
+  FirebaseStorage, 
   connectStorageEmulator 
 } from 'firebase/storage';
 import { 
@@ -69,14 +69,14 @@ const validateConfig = (config: FirebaseConfig): void => {
 let app: FirebaseApp;
 let auth: Auth;
 let firestore: Firestore;
-let storage: Storage;
+let storage: FirebaseStorage;
 let functions: Functions;
 
 export const initializeFirebase = (): {
   app: FirebaseApp;
   auth: Auth;
   firestore: Firestore;
-  storage: Storage;
+  storage: FirebaseStorage;
   functions: Functions;
 } => {
   try {

@@ -9,18 +9,18 @@ The GUI interface has 6 main tabs, each with comprehensive user flows:
 ### 1. 📊 Dashboard (Default)
 **Entry Point:** Main GUI landing page
 **User Flow:**
-- **Overview Cards** → Click any stat card to execute related terminal command
-- **Quick Actions** → 6 action buttons that either execute commands or switch to related sections
+- **Overview Cards** → Click any stat card to open the related GUI panel
+- **Quick Actions** → 6 action buttons that switch to related sections or perform in-app actions
 - **Recent Activity** → Click activity items to see detailed command results
-- **Terminal Integration** → Switch to terminal mode or view command help
+- **Context Help** → View inline help or open documentation
 
 **Button Flows:**
-- `New POV` → Executes `pov create --interactive`
-- `Run Analytics` → Executes `jy2k --region GLOBAL --detailed`
-- `Generate Report` → Executes `pov report --current --executive`
-- `Deploy Scenario` → Executes `scenario deploy --interactive`
-- `AI Analysis` → Executes `gemini analyze --context dashboard`
-- `Badass Blueprint` → Executes `pov --badass-blueprint`
+- New POV → Opens POV creation flow
+- Run Analytics → Opens analytics dashboard
+- Generate Report → Opens report builder
+- Deploy Scenario → Opens scenario deploy wizard
+- AI Analysis → Opens AI insights panel
+- Badass Blueprint → Opens blueprint overview
 
 ### 2. 📋 TRR Management
 **Entry Point:** TRR Management tab
@@ -51,7 +51,7 @@ The GUI interface has 6 main tabs, each with comprehensive user flows:
    - `Back to Dashboard` → Returns to main view
 
 **Button Flows:**
-- All TRR action buttons execute appropriate `trr` or `trr-signoff` commands
+- All TRR action buttons trigger in-app workflows (create, upload, validate)
 - Navigation is circular: Dashboard ↔ Sub-views
 
 ### 3. 🤖 AI Insights
@@ -80,7 +80,7 @@ The GUI interface has 6 main tabs, each with comprehensive user flows:
    - Actions execute relevant commands or dismiss recommendations
 
 **Button Flows:**
-- All AI buttons execute `gemini` commands with specific parameters
+- AI buttons trigger in-app AI workflows (dashboard, chat, analysis, recommendations)
 - Navigation: Dashboard ↔ Sub-views with "Back to Dashboard" buttons
 
 ### 4. 🛠️ Content Creator
@@ -151,14 +151,14 @@ The GUI interface has 6 main tabs, each with comprehensive user flows:
 - `Quick Export` → Executes `bq-export --quick`
 - `Custom Export` → Opens configuration options
 - `Clear Queue` → Executes `bq-export --clear-queue`
-- All export buttons execute `bq-*` commands
+- Export buttons run in-app export flows
 
 ## Navigation Patterns
 
 ### Primary Navigation
 - **Tab Switching:** All main tabs are accessible from any view
 - **Breadcrumb Navigation:** Shows current location and path
-- **Mode Switching:** "Switch to Terminal Mode" button navigates to `/terminal`
+- **Mode Switching:** Single GUI mode; no terminal switching
 
 ### Secondary Navigation
 - **Back Buttons:** Every sub-view has a "← Back to [Parent]" button
@@ -173,31 +173,18 @@ The GUI interface has 6 main tabs, each with comprehensive user flows:
 
 ## Command Integration
 
-### Terminal Command Execution
-Every GUI action that executes a terminal command:
-1. Shows immediate visual feedback (loading state)
-2. Executes the command in the background
-3. Displays success/error notifications
-4. Updates relevant data displays
-5. Logs the command in command history
+### Execution and Feedback
+- Loading indicators for async processes
+- Success/error notifications
+- Data refresh after operations
 
-### Bidirectional Integration
-- **GUI → Terminal:** Actions in GUI can trigger terminal commands
-- **Terminal → GUI:** Terminal commands can trigger GUI state changes
-- **Cross-Interface Data:** Shared state between GUI and terminal modes
+### Single-Mode UX
+- The app runs in GUI-only mode. Legacy terminal commands are not used in the GUI.
 
-### Command Examples by Section
-```bash
-# Dashboard Commands
-pov create --interactive
-jy2k --region GLOBAL --detailed  
-scenario deploy --interactive
-gemini analyze --context dashboard
-
-# TRR Management Commands
-trr create --interactive
-trr import --file sample.csv
-trr validate --all --status pending
+### Examples
+- Deploy Scenario → Scenario Deploy Wizard (GUI)
+- Validate TRRs → Bulk Validate View (GUI)
+- Run Analytics → Analytics Dashboard (GUI)
 trr-signoff create --batch
 
 # AI Insights Commands
