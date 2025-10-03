@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Portfolio, Project } from '../../types/trr';
-import { CortexButton } from '../CortexButton';
+import CortexButton from '../CortexButton';
 
 interface ProjectHeaderProps {
   selectedPortfolio: Portfolio | null;

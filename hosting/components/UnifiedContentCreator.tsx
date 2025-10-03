@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { EnhancedContentCreator } from './EnhancedContentCreator';
 import { ManualCreationGUI } from './ManualCreationGUI';
+import { ContentItem } from './ContentLibrary';
 import CortexButton from './CortexButton';
-import CortexCommandButton from './CortexCommandButton';
 
 // Extended POV Detection Scenario types covering all security domains
 const POV_DETECTION_SCENARIOS = {
@@ -207,7 +207,9 @@ const POV_DETECTION_SCENARIOS = {
 
 interface ScenarioCreatorProps {
   mode: 'enhanced' | 'manual' | 'unified';
-  onModeChange: (mode: 'enhanced' | 'manual' | 'unified') => void;
+  onModeChange: (mode: 'enhanced' | 'manual' | 'unified' | 'library') => void;
+  selectedLibraryItem?: ContentItem | null;
+  onClearLibraryItem?: () => void;
 }
 
 const ScenarioOverviewCard: React.FC<{
@@ -402,22 +404,24 @@ const ScenarioDetailView: React.FC<{
           </div>
           
           <div className="flex space-x-3">
-            <CortexCommandButton
-              command={`scenario generate --scenario-type ${scenarioKey} --provider gcp`}
+            <CortexButton
               variant="outline"
               icon="🚀"
-              tooltip="Deploy this scenario via terminal"
+              onClick={() => {
+                console.log(`scenario generate --scenario-type ${scenarioKey} --provider gcp`);
+              }}
             >
               Deploy Now
-            </CortexCommandButton>
-            <CortexCommandButton
-              command={`scenario list --scenario-type ${scenarioKey}`}
+            </CortexButton>
+            <CortexButton
               variant="outline"
               icon="📋"
-              tooltip="List related scenario templates"
+              onClick={() => {
+                console.log(`scenario list --scenario-type ${scenarioKey}`);
+              }}
             >
               View Templates
-            </CortexCommandButton>
+            </CortexButton>
           </div>
         </div>
       </div>
@@ -425,7 +429,12 @@ const ScenarioDetailView: React.FC<{
   );
 };
 
-export const UnifiedContentCreator: React.FC<ScenarioCreatorProps> = ({ mode, onModeChange }) => {
+export const UnifiedContentCreator: React.FC<ScenarioCreatorProps> = ({ 
+  mode, 
+  onModeChange, 
+  selectedLibraryItem,
+  onClearLibraryItem 
+}) => {
   const [view, setView] = useState<'overview' | 'detail' | 'create'>('overview');
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
   const [createMode, setCreateMode] = useState<'enhanced' | 'manual'>('enhanced');
@@ -471,6 +480,14 @@ export const UnifiedContentCreator: React.FC<ScenarioCreatorProps> = ({ mode, on
         </div>
         <div className="flex items-center space-x-3">
           <CortexButton 
+            onClick={() => onModeChange('library')}
+            variant="outline" 
+            icon="📚"
+            tooltip="Browse content library"
+          >
+            Library
+          </CortexButton>
+          <CortexButton 
             onClick={() => onModeChange(mode === 'unified' ? 'enhanced' : 'unified')}
             variant="outline" 
             icon="🔄"
@@ -479,6 +496,44 @@ export const UnifiedContentCreator: React.FC<ScenarioCreatorProps> = ({ mode, on
           </CortexButton>
         </div>
       </div>
+      
+      {/* Selected Library Item */}
+      {selectedLibraryItem && (
+        <div className="cortex-card p-6 border-cortex-info">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-cortex-text-primary">📚 Library Item Selected</h3>
+            <CortexButton
+              onClick={onClearLibraryItem}
+              variant="outline"
+              size="sm"
+              icon="✕"
+            >
+              Clear Selection
+            </CortexButton>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-bold text-cortex-text-primary mb-2">{selectedLibraryItem.title}</h4>
+              <p className="text-sm text-cortex-text-secondary mb-3">{selectedLibraryItem.description}</p>
+              <div className="flex flex-wrap gap-2 mb-3">
+                {selectedLibraryItem.tags.map(tag => (
+                  <span key={tag} className="px-2 py-1 text-xs bg-cortex-info/10 text-cortex-info rounded">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="space-y-2 text-sm text-cortex-text-secondary">
+                <div><strong>Category:</strong> {selectedLibraryItem.category.replace('-', ' ')}</div>
+                <div><strong>Difficulty:</strong> {selectedLibraryItem.difficulty}</div>
+                <div><strong>Version:</strong> {selectedLibraryItem.version}</div>
+                <div><strong>Rating:</strong> ⭐ {selectedLibraryItem.rating}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Search and Filter */}
       <div className="cortex-card p-6">

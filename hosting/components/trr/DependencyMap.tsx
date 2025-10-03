@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 import { TRR } from '../../types/trr';
-import { CortexButton } from '../CortexButton';
+import CortexButton from '../CortexButton';
 
 // Simple node and edge interfaces for dependency visualization
 interface DependencyNode {

@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { TRR } from '../../types/trr';
-import { CortexButton } from '../CortexButton';
+import CortexButton from '../CortexButton';
 
 interface ResourcePlannerProps {
   trrs: TRR[];

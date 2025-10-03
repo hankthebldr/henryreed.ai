@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import { TRRRequirement, TRRTestCase } from '../../types/trr';
-import { CortexButton } from '../CortexButton';
-import { CortexCommandButton } from '../CortexCommandButton';
+import CortexButton from '../CortexButton';
 
 interface RequirementListProps {
   trrId: string;
@@ -373,14 +372,17 @@ export const RequirementList: React.FC<RequirementListProps> = ({
               </span>
             </div>
             <div className="flex items-center space-x-3">
-              <CortexCommandButton
-                command={`requirements export --trr ${trrId} --ids ${selectedRequirements.join(',')}`}
+              <CortexButton
                 variant="outline"
                 size="sm"
                 icon="📤"
+                onClick={() => {
+                  // TODO: Integrate with terminal command system
+                  console.log(`requirements export --trr ${trrId} --ids ${selectedRequirements.join(',')}`);
+                }}
               >
                 Export
-              </CortexCommandButton>
+              </CortexButton>
               <CortexButton
                 variant="outline"
                 size="sm"

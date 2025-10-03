@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { UnifiedContentCreator } from './UnifiedContentCreator';
 import { EnhancedContentCreator } from './EnhancedContentCreator';
 import { ManualCreationGUI } from './ManualCreationGUI';
+import ContentLibrary, { ContentItem } from './ContentLibrary';
 import CortexButton from './CortexButton';
-import CortexCommandButton from './CortexCommandButton';
 
 interface CreatorMode {
-  id: 'unified' | 'enhanced' | 'manual';
+  id: 'unified' | 'enhanced' | 'manual' | 'library';
   name: string;
   description: string;
   icon: string;
@@ -61,12 +61,27 @@ const CREATOR_MODES: CreatorMode[] = [
       'Quick statistics'
     ],
     recommended: false
+  },
+  {
+    id: 'library',
+    name: 'Content Library',
+    description: 'Browse and reuse existing SecOps and Cloud Security content',
+    icon: '📚',
+    features: [
+      'Curated SecOps content',
+      'Cloud Security templates',
+      'Detection rules library',
+      'Search and filtering',
+      'Usage analytics',
+      'Favorite collections'
+    ],
+    recommended: false
   }
 ];
 
 const CreatorModeSelector: React.FC<{
-  currentMode: 'unified' | 'enhanced' | 'manual';
-  onModeChange: (mode: 'unified' | 'enhanced' | 'manual') => void;
+  currentMode: 'unified' | 'enhanced' | 'manual' | 'library';
+  onModeChange: (mode: 'unified' | 'enhanced' | 'manual' | 'library') => void;
 }> = ({ currentMode, onModeChange }) => {
   return (
     <div className="cortex-card p-6 mb-6">
@@ -75,7 +90,7 @@ const CreatorModeSelector: React.FC<{
         Choose your preferred content creation experience. All modes support full interoperability and can work with the same data.
       </p>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {CREATOR_MODES.map((mode) => (
           <div
             key={mode.id}
@@ -217,8 +232,9 @@ const IntegrationStatus: React.FC = () => {
 };
 
 export const ContentCreatorManager: React.FC = () => {
-  const [currentMode, setCurrentMode] = useState<'unified' | 'enhanced' | 'manual'>('unified');
+  const [currentMode, setCurrentMode] = useState<'unified' | 'enhanced' | 'manual' | 'library'>('unified');
   const [showModeSelector, setShowModeSelector] = useState(false);
+  const [selectedLibraryItem, setSelectedLibraryItem] = useState<ContentItem | null>(null);
 
   const renderCurrentCreator = () => {
     switch (currentMode) {
@@ -227,12 +243,28 @@ export const ContentCreatorManager: React.FC = () => {
           <UnifiedContentCreator
             mode={currentMode}
             onModeChange={setCurrentMode}
+            selectedLibraryItem={selectedLibraryItem}
+            onClearLibraryItem={() => setSelectedLibraryItem(null)}
           />
         );
       case 'enhanced':
         return <EnhancedContentCreator />;
       case 'manual':
         return <ManualCreationGUI />;
+      case 'library':
+        return (
+          <ContentLibrary
+            onSelectItem={(item) => {
+              setSelectedLibraryItem(item);
+              // You can optionally switch to unified mode when selecting an item
+              // setCurrentMode('unified');
+            }}
+            onUseTemplate={(item) => {
+              setSelectedLibraryItem(item);
+              setCurrentMode('unified'); // Switch to creation mode with template
+            }}
+          />
+        );
       default:
         return null;
     }
@@ -251,14 +283,23 @@ export const ContentCreatorManager: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <CortexCommandButton
-            command="scenario list"
+          <CortexButton
+            onClick={() => setCurrentMode('library')}
+            variant={currentMode === 'library' ? 'primary' : 'outline'}
+            icon="📚"
+            tooltip="Browse content library"
+          >
+            Library
+          </CortexButton>
+          <CortexButton
             variant="outline"
             icon="📋"
-            tooltip="List available scenarios via terminal"
+            onClick={() => {
+              console.log("scenario list");
+            }}
           >
             List Scenarios
-          </CortexCommandButton>
+          </CortexButton>
           <CortexButton
             onClick={() => setShowModeSelector(!showModeSelector)}
             variant="outline"

@@ -3,7 +3,7 @@
 import React, { useState, useMemo, Suspense, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { TRR, Project } from '../../types/trr';
-import { CortexButton } from '../CortexButton';
+import CortexButton from '../CortexButton';
 import { PortfolioSidebar } from './PortfolioSidebar';
 import { ProjectHeader } from './ProjectHeader';
 

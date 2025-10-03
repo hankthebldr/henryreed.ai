@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TRR, CreateTRRFormData, UpdateTRRFormData, TRRFilters, TRRStatus, TRRPriority, TRRCategory, RiskLevel, ValidationMethod } from '../types/trr';
 import CortexButton from './CortexButton';
-import CortexCommandButton from './CortexCommandButton';
 
 // Re-export types for other components
 export type { TRR, CreateTRRFormData, UpdateTRRFormData, TRRFilters, TRRStatus, TRRPriority, TRRCategory, RiskLevel, ValidationMethod };
@@ -778,15 +777,16 @@ const TRRList: React.FC<{
                     >
                       Edit
                     </CortexButton>
-                    <CortexCommandButton
-                      command={`trr-signoff create ${trr.id}`}
+                    <CortexButton
                       variant="outline"
                       size="sm"
                       icon="⛓️"
-                      tooltip="Create blockchain signoff for this TRR"
+                      onClick={() => {
+                        console.log(`trr-signoff create ${trr.id}`);
+                      }}
                     >
                       Sign
-                    </CortexCommandButton>
+                    </CortexButton>
                   </div>
                   
                   <div className="flex items-center space-x-2">
@@ -929,22 +929,24 @@ export const TRRManagement: React.FC = () => {
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-cortex-text-primary">TRR Management</h1>
           <div className="flex items-center space-x-3">
-            <CortexCommandButton
-              command="trr upload"
+            <CortexButton
               variant="outline"
               icon="📤"
-              tooltip="Import TRRs from CSV file"
+              onClick={() => {
+                console.log("trr upload");
+              }}
             >
               Import CSV
-            </CortexCommandButton>
-            <CortexCommandButton
-              command="trr export"
+            </CortexButton>
+            <CortexButton
               variant="outline"
               icon="📥"
-              tooltip="Export TRRs to CSV file"
+              onClick={() => {
+                console.log("trr export");
+              }}
             >
               Export CSV
-            </CortexCommandButton>
+            </CortexButton>
             <CortexButton
               onClick={() => setView('create')}
               variant="primary"

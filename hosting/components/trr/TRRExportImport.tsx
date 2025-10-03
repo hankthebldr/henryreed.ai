@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import { TRR, Project } from '../../types/trr';
-import { CortexButton } from '../CortexButton';
+import CortexButton from '../CortexButton';
 
 interface ExportOptions {
   format: 'pdf' | 'excel' | 'json';

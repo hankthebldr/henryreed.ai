@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { TRR, TRRStatusEvent } from '../../types/trr';
-import { CortexButton } from '../CortexButton';
+import CortexButton from '../CortexButton';
 
 interface TRRLifecycleTabProps {
   trr: TRR;

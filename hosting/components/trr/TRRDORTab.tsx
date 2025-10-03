@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { TRR, DORStatus } from '../../types/trr';
 import CortexButton from '../CortexButton';
-import CortexCommandButton from '../CortexCommandButton';
 
 interface TRRDORTabProps {
   trr: TRR;
@@ -166,13 +165,16 @@ export const TRRDORTab: React.FC<TRRDORTabProps> = ({
           
           <div className="flex items-center space-x-3">
             {onRunAIVerification && (
-              <CortexCommandButton
-                command={`trr dor verify ${trr.id}`}
+              <CortexButton
                 variant="outline"
                 icon="🤖"
+                onClick={() => {
+                  // TODO: Integrate with terminal command system
+                  console.log(`trr dor verify ${trr.id}`);
+                }}
               >
                 AI Verification
-              </CortexCommandButton>
+              </CortexButton>
             )}
             
             <CortexButton

@@ -8,6 +8,7 @@ import { TerminalOutput } from './TerminalOutput';
 import { contextStorage, UserContext } from '../lib/context-storage';
 import { VFS, initVFS, serializeVFS, deserializeVFS } from '../lib/vfs';
 import { buildLinuxCommands } from '../lib/linux-commands';
+import { scenarioCommands } from '../lib/scenario-commands';
 
 interface Command {
   input: string;
@@ -979,6 +980,128 @@ level: high`}
             </div>
           </TerminalOutput>
         );
+      }
+    },
+    {
+      name: 'scenario',
+      description: 'Deploy and manage security assessment scenarios',
+      usage: 'scenario <subcommand> [options]',
+      aliases: ['scenarios', 'sec-scenario'],
+      handler: async (args) => {
+        if (args.length === 0) {
+          return (
+            <TerminalOutput type="info">
+              <div className="space-y-4">
+                <div className="font-bold text-xl text-blue-300">🎯 Scenario Management System</div>
+                <div className="text-gray-300">
+                  Deploy and manage security assessment scenarios across cloud environments.
+                </div>
+                <div className="space-y-3">
+                  <div className="text-green-400 font-bold">Available Subcommands:</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="border border-blue-500 p-3 rounded">
+                      <div className="text-blue-400 font-mono font-bold">list</div>
+                      <div className="text-sm text-gray-300">Browse available scenario templates</div>
+                    </div>
+                    <div className="border border-green-500 p-3 rounded">
+                      <div className="text-green-400 font-mono font-bold">generate</div>
+                      <div className="text-sm text-gray-300">Deploy a new scenario instance</div>
+                    </div>
+                    <div className="border border-yellow-500 p-3 rounded">
+                      <div className="text-yellow-400 font-mono font-bold">status</div>
+                      <div className="text-sm text-gray-300">Check deployment status</div>
+                    </div>
+                    <div className="border border-purple-500 p-3 rounded">
+                      <div className="text-purple-400 font-mono font-bold">validate</div>
+                      <div className="text-sm text-gray-300">Run validation tests</div>
+                    </div>
+                    <div className="border border-cyan-500 p-3 rounded">
+                      <div className="text-cyan-400 font-mono font-bold">export</div>
+                      <div className="text-sm text-gray-300">Export configurations and results</div>
+                    </div>
+                    <div className="border border-red-500 p-3 rounded">
+                      <div className="text-red-400 font-mono font-bold">destroy</div>
+                      <div className="text-sm text-gray-300">Clean up deployed scenarios</div>
+                    </div>
+                    <div className="border border-orange-500 p-3 rounded">
+                      <div className="text-orange-400 font-mono font-bold">mitre</div>
+                      <div className="text-sm text-gray-300">MITRE ATT&CK mappings</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 bg-gray-800 rounded border border-gray-600">
+                  <div className="text-cyan-400 font-bold mb-2">🚀 Quick Examples</div>
+                  <div className="text-sm space-y-1 font-mono">
+                    <div className="text-green-400">scenario list --scenario-type cloud-posture</div>
+                    <div className="text-blue-400">scenario generate --scenario-type ai-threat --provider gcp</div>
+                    <div className="text-yellow-400">scenario status</div>
+                  </div>
+                </div>
+              </div>
+            </TerminalOutput>
+          );
+        }
+
+        const subcommand = args[0].toLowerCase();
+        const subArgs = args.slice(1);
+
+        // Delegate to the appropriate scenario command handler
+        try {
+          switch (subcommand) {
+            case 'list':
+              return await scenarioCommands.list(subArgs);
+            
+            case 'generate':
+              return await scenarioCommands.generate(['generate', ...subArgs]);
+            
+            case 'status':
+              return await scenarioCommands.status(subArgs);
+            
+            case 'validate':
+              return await scenarioCommands.validate(subArgs);
+            
+            case 'export':
+              return await scenarioCommands.export(subArgs);
+            
+            case 'mitre':
+              return await scenarioCommands.mitre(subArgs);
+            
+            case 'destroy':
+              return await scenarioCommands.destroy(subArgs);
+            
+            default:
+              return (
+                <TerminalOutput type="error">
+                  <div className="flex items-center">
+                    <div className="mr-3 text-xl">❌</div>
+                    <div>
+                      <div className="font-bold">Unknown Subcommand</div>
+                      <div className="text-sm mt-1">
+                        '{subcommand}' is not a recognized scenario subcommand.
+                      </div>
+                      <div className="text-sm mt-1">
+                        Available subcommands: list, generate, status, validate, export, destroy, mitre
+                      </div>
+                    </div>
+                  </div>
+                </TerminalOutput>
+              );
+          }
+        } catch (error) {
+          return (
+            <TerminalOutput type="error">
+              <div className="flex items-center">
+                <div className="mr-3 text-xl">❌</div>
+                <div>
+                  <div className="font-bold">Scenario Command Error</div>
+                  <div className="text-sm mt-1">
+                    {error instanceof Error ? error.message : 'Unknown error occurred'}
+                  </div>
+                </div>
+              </div>
+            </TerminalOutput>
+          );
+        }
       }
     },
     {

@@ -101,9 +101,9 @@ export default function TRRDetailPage() {
             </div>
             <div className="flex items-center space-x-2">
               <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                trr.status === 'approved' ? 'bg-cortex-success/10 text-cortex-success' :
-                trr.status === 'in-review' ? 'bg-cortex-warning/10 text-cortex-warning' :
-                trr.status === 'draft' ? 'bg-cortex-info/10 text-cortex-info' :
+                trr.status === 'completed' || trr.status === 'validated' ? 'bg-cortex-success/10 text-cortex-success' :
+                trr.status === 'in-progress' ? 'bg-cortex-warning/10 text-cortex-warning' :
+                trr.status === 'draft' || trr.status === 'pending' ? 'bg-cortex-info/10 text-cortex-info' :
                 'bg-cortex-error/10 text-cortex-error'
               }`}>
                 {trr.status.replace('-', ' ').toUpperCase()}

@@ -8,7 +8,6 @@ import { EnhancedContentCreator as NewEnhancedContentCreator } from './EnhancedC
 import ContentCreatorManager from './ContentCreatorManager';
 import BreadcrumbNavigation from './BreadcrumbNavigation';
 import CortexButton from './CortexButton';
-import CortexCommandButton from './CortexCommandButton';
 
 interface GUITab {
   id: string;
@@ -132,15 +131,16 @@ const EnhancedPOVDashboard = () => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-cortex-green">🎯 POV Management Dashboard</h2>
           <div className="flex space-x-2">
-            <CortexCommandButton 
-              command="status --analytics"
-              variant="secondary"
+            <CortexButton 
+              variant="outline"
               size="sm"
-              icon="🔄"
-              tooltip="Refresh dashboard analytics data"
+              icon="📊"
+              onClick={() => {
+                console.log("status --analytics");
+              }}
             >
-              Refresh Data
-            </CortexCommandButton>
+              View Analytics
+            </CortexButton>
             <CortexButton 
               onClick={() => actions.setActiveGUITab('ai')}
               variant="outline"
@@ -265,36 +265,39 @@ className="text-xs text-cortex-green hover:text-cortex-green-light underline"
               >
                 Switch to Terminal Mode
               </CortexButton>
-              <CortexCommandButton
-                command="help"
-                variant="secondary"
+              <CortexButton
+                variant="outline"
                 size="sm"
                 icon="📋"
                 className="w-full justify-start"
-                tooltip="Display all available commands"
+                onClick={() => {
+                  console.log("help");
+                }}
               >
                 View All Commands
-              </CortexCommandButton>
-              <CortexCommandButton
-                command="getting-started"
-                variant="secondary"
+              </CortexButton>
+              <CortexButton
+                variant="outline"
                 size="sm"
                 icon="🚀"
                 className="w-full justify-start"
-                tooltip="Show the getting started guide"
+                onClick={() => {
+                  console.log("getting-started");
+                }}
               >
                 Getting Started Guide
-              </CortexCommandButton>
-              <CortexCommandButton
-                command="scenario list"
-                variant="secondary"
+              </CortexButton>
+              <CortexButton
+                variant="outline"
                 size="sm"
                 icon="🎯"
                 className="w-full justify-start"
-                tooltip="Browse available security scenarios"
+                onClick={() => {
+                  console.log("scenario list");
+                }}
               >
                 Browse Security Scenarios
-              </CortexCommandButton>
+              </CortexButton>
               <CortexButton
                 onClick={() => window.open('/alignment-guide', '_blank')}
                 variant="secondary"

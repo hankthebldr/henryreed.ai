@@ -2,8 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { TRR, TRRFilters } from '../../types/trr';
-import { CortexButton } from '../CortexButton';
-import { CortexCommandButton } from '../CortexCommandButton';
+import CortexButton from '../CortexButton';
 
 interface TRRListProps {
   trrs: TRR[];
@@ -418,14 +417,17 @@ export const TRRList: React.FC<TRRListProps> = ({
               </span>
             </div>
             <div className="flex items-center space-x-3">
-              <CortexCommandButton
-                command={`trr export --format csv --ids ${selectedTRRs.join(',')}`}
+              <CortexButton
                 variant="outline"
                 size="sm"
                 icon="📤"
+                onClick={() => {
+                  // TODO: Integrate with terminal command system
+                  console.log(`trr export --format csv --ids ${selectedTRRs.join(',')}`);
+                }}
               >
                 Export
-              </CortexCommandButton>
+              </CortexButton>
               <CortexButton
                 variant="outline"
                 size="sm"

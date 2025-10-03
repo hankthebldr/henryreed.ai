@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { TRR, Project } from '../../types/trr';
-import { CortexButton } from '../CortexButton';
+import CortexButton from '../CortexButton';
 
 interface SearchFilter {
   id: string;

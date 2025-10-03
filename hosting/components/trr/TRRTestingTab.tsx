@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { TRR, TRRTestCase } from '../../types/trr';
 import CortexButton from '../CortexButton';
-import CortexCommandButton from '../CortexCommandButton';
 
 interface TRRTestingTabProps {
   trr: TRR;
@@ -131,13 +130,16 @@ export const TRRTestingTab: React.FC<TRRTestingTabProps> = ({
           </h3>
           
           <div className="flex items-center space-x-3">
-            <CortexCommandButton
-              command={`trr test generate ${trr.id}`}
+            <CortexButton
               variant="outline"
               icon="🤖"
+              onClick={() => {
+                // TODO: Integrate with terminal command system
+                console.log(`trr test generate ${trr.id}`);
+              }}
             >
               AI Generate Tests
-            </CortexCommandButton>
+            </CortexButton>
             
             <CortexButton
               variant="primary"

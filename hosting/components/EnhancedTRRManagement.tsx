@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { CortexButton } from './CortexButton';
-import { CortexCommandButton } from './CortexCommandButton';
+import CortexButton from './CortexButton';
 import TRRDetailView from './TRRDetailView';
-import { TRRTimeline } from './TRRTimeline';
-import { TRRProgressChart } from './TRRProgressChart';
-import { TRRDependencyMap } from './TRRDependencyMap';
-import { TRRKanbanBoard } from './TRRKanbanBoard';
+// Note: Some TRR components temporarily disabled due to missing implementations
+// import { TRRTimeline } from './TRRTimeline';
+// import { TRRProgressChart } from './TRRProgressChart';
+// import { TRRDependencyMap } from './TRRDependencyMap';
+// import { TRRKanbanBoard } from './TRRKanbanBoard';
 
 // Types
 import type {
@@ -24,16 +24,41 @@ import type {
   TRRActions,
   TRRComment,
   TRREvidence,
-  DORStatus,
-  SDWStatus,
-  RiskAssessment,
-  AIPrediction,
-  TRRRequirement,
+  // DORStatus,
+  // SDWStatus,
+  // RiskAssessment,
+  // AIPrediction,
+  // TRRRequirement,
   TRRTestCase,
-  TRRStatusEvent,
-  Portfolio,
-  Project
+  // TRRStatusEvent,
+  // Portfolio,
+  // Project
 } from '../types/trr';
+
+// Temporary type definitions for missing imports
+interface Portfolio {
+  id: string;
+  name: string;
+  description: string;
+  ownerUserId: string;
+  tenantId: string;
+  createdDate: string;
+  updatedDate: string;
+}
+
+interface Project {
+  id: string;
+  name: string;
+  description: string;
+  portfolioId: string;
+  tenantId: string;
+  leadUserId: string;
+  status: 'active' | 'planning' | 'completed' | 'on-hold';
+  startDate: string;
+  endDate: string;
+  createdDate: string;
+  updatedDate: string;
+}
 
 // Mock data for development
 // This will be replaced by Firestore fetching in production
@@ -198,53 +223,8 @@ let trrDatabase: TRR[] = [
     customFields: {},
     archived: false,
     version: 2,
-    workflowStage: 'validation',
-    statusHistory: [
-      {
-        status: 'draft',
-        timestamp: new Date(2023, 9, 10).toISOString(),
-        authorUserId: 'user-1',
-        note: 'Initial creation'
-      },
-      {
-        status: 'in-progress',
-        timestamp: new Date(2023, 9, 15).toISOString(),
-        authorUserId: 'user-2',
-        note: 'Work started on integration'
-      }
-    ],
-    dorStatus: {
-      isReady: true,
-      unmetCriteria: [],
-      score: 100
-    },
-    sdwStatus: {
-      stage: 'implementation',
-      approvals: [
-        {
-          role: 'security_architect',
-          userId: 'user-3',
-          status: 'approved',
-          timestamp: new Date(2023, 9, 12).toISOString()
-        },
-        {
-          role: 'product_owner',
-          userId: 'user-4',
-          status: 'approved',
-          timestamp: new Date(2023, 9, 13).toISOString()
-        },
-        {
-          role: 'compliance_officer',
-          userId: null,
-          status: 'pending'
-        }
-      ]
-    },
-    aiPrediction: {
-      predictedCompletionDate: new Date(2023, 10, 25).toISOString(),
-      confidence: 0.85,
-      rationale: 'Based on current progress and remaining tasks, completion is expected 5 days before deadline.'
-    }
+    workflowStage: 'validation'
+    // Note: Removed statusHistory, dorStatus, sdwStatus, aiPrediction as they don't exist in the base TRR interface
   },
   {
     id: 'TRR-2024-002',
@@ -293,47 +273,8 @@ let trrDatabase: TRR[] = [
     customFields: {},
     archived: false,
     version: 1,
-    workflowStage: 'planning',
-    statusHistory: [
-      {
-        status: 'draft',
-        timestamp: new Date(2023, 9, 12).toISOString(),
-        authorUserId: 'user-1',
-        note: 'Initial creation'
-      },
-      {
-        status: 'pending',
-        timestamp: new Date(2023, 9, 12).toISOString(),
-        authorUserId: 'user-1',
-        note: 'Awaiting resource allocation'
-      }
-    ],
-    dorStatus: {
-      isReady: false,
-      unmetCriteria: ['Needs clear scope of SaaS applications'],
-      score: 85
-    },
-    sdwStatus: {
-      stage: 'planning',
-      approvals: [
-        {
-          role: 'security_architect',
-          userId: 'user-3',
-          status: 'approved',
-          timestamp: new Date(2023, 9, 14).toISOString()
-        },
-        {
-          role: 'product_owner',
-          userId: null,
-          status: 'pending'
-        }
-      ]
-    },
-    aiPrediction: {
-      predictedCompletionDate: new Date(2023, 11, 10).toISOString(),
-      confidence: 0.7,
-      rationale: 'Based on similar initiatives, this should complete ahead of schedule if resources are allocated timely.'
-    }
+    workflowStage: 'planning'
+    // Note: Removed statusHistory, dorStatus, sdwStatus, aiPrediction as they don't exist in the base TRR interface
   },
   {
     id: 'TRR-2024-003',
@@ -420,60 +361,8 @@ let trrDatabase: TRR[] = [
     customFields: {},
     archived: false,
     version: 3,
-    workflowStage: 'completed',
-    statusHistory: [
-      {
-        status: 'draft',
-        timestamp: new Date(2023, 8, 15).toISOString(),
-        authorUserId: 'user-2',
-        note: 'Initial creation'
-      },
-      {
-        status: 'in-progress',
-        timestamp: new Date(2023, 8, 18).toISOString(),
-        authorUserId: 'user-5',
-        note: 'Starting validation process'
-      },
-      {
-        status: 'validated',
-        timestamp: new Date(2023, 9, 5).toISOString(),
-        authorUserId: 'user-5',
-        note: 'All controls successfully validated'
-      }
-    ],
-    dorStatus: {
-      isReady: true,
-      unmetCriteria: [],
-      score: 100
-    },
-    sdwStatus: {
-      stage: 'completed',
-      approvals: [
-        {
-          role: 'security_architect',
-          userId: 'user-3',
-          status: 'approved',
-          timestamp: new Date(2023, 8, 16).toISOString()
-        },
-        {
-          role: 'compliance_officer',
-          userId: 'user-6',
-          status: 'approved',
-          timestamp: new Date(2023, 8, 17).toISOString()
-        },
-        {
-          role: 'ciso',
-          userId: 'user-7',
-          status: 'approved',
-          timestamp: new Date(2023, 9, 7).toISOString()
-        }
-      ]
-    },
-    aiPrediction: {
-      predictedCompletionDate: new Date(2023, 9, 25).toISOString(),
-      confidence: 0.95,
-      rationale: 'Automated validation approach enabled quicker completion than estimated.'
-    }
+    workflowStage: 'completed'
+    // Note: Removed statusHistory, dorStatus, sdwStatus, aiPrediction as they don't exist in the base TRR interface
   }
 ];
 

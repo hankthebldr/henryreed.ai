@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { CortexButton } from './CortexButton';
-import { CortexCommandButton } from './CortexCommandButton';
+import CortexButton from './CortexButton';
 
 interface OnboardingStep {
   id: string;

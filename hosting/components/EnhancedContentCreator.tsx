@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import CortexButton from './CortexButton';
-import CortexCommandButton from './CortexCommandButton';
 
 // Content types and interfaces
 export interface ContentTemplate {
@@ -1195,15 +1194,16 @@ export const EnhancedContentCreator: React.FC = () => {
               >
                 Create New Template
               </CortexButton>
-              <CortexCommandButton
-                command="template clone --base enterprise"
+              <CortexButton
                 variant="outline"
                 className="w-full justify-start"
                 icon="📋"
-                tooltip="Clone existing template via terminal"
+                onClick={() => {
+                  console.log("template clone --base enterprise");
+                }}
               >
                 Clone Template
-              </CortexCommandButton>
+              </CortexButton>
             </div>
           </div>
 
@@ -1226,15 +1226,16 @@ export const EnhancedContentCreator: React.FC = () => {
               >
                 Create New Content
               </CortexButton>
-              <CortexCommandButton
-                command="content import --source csv"
+              <CortexButton
                 variant="outline"
                 className="w-full justify-start"
                 icon="📤"
-                tooltip="Import content from CSV via terminal"
+                onClick={() => {
+                  console.log("content import --source csv");
+                }}
               >
                 Import Content
-              </CortexCommandButton>
+              </CortexButton>
             </div>
           </div>
         </div>

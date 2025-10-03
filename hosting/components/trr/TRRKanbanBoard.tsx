@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { TRR } from '../../types/trr';
-import { CortexButton } from '../CortexButton';
+import CortexButton from '../CortexButton';
 
 interface TRRKanbanBoardProps {
   trrs: TRR[];
