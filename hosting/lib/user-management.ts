@@ -728,6 +728,35 @@ export class UserManagementService {
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .slice(0, limit);
   }
+  
+  // Additional methods for UnifiedTerminal compatibility
+  async getCurrentUser(): Promise<UserProfile | null> {
+    // For demo purposes, return the first user
+    const users = this.getAllUsers();
+    return users.length > 0 ? users[0] : null;
+  }
+  
+  async getUsers(): Promise<UserProfile[]> {
+    return this.getAllUsers();
+  }
+  
+  async getUserMetrics(): Promise<{
+    totalUsers: number;
+    activeSessions: number;
+    roleDistribution: Record<string, number>;
+  }> {
+    const users = this.getAllUsers();
+    const roleDistribution = users.reduce((acc, user) => {
+      acc[user.role] = (acc[user.role] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    
+    return {
+      totalUsers: users.length,
+      activeSessions: Math.floor(users.length * 0.6), // Simulate 60% active
+      roleDistribution
+    };
+  }
 }
 
 // Export singleton instance

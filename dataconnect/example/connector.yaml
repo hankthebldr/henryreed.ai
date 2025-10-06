@@ -1,0 +1,23 @@
+connectorId: example
+generate:
+  javascriptSdk:
+    - outputDir: ../../src/dataconnect-generated
+      package: "@dataconnect/generated"
+      packageJsonDir: ../..
+      react: false
+      angular: false
+    - outputDir: ../../hosting/src/dataconnect-generated
+      package: "@dataconnect/generated"
+      packageJsonDir: ../../hosting
+      react: true
+      angular: false
+    - outputDir: ../../functions/src/dataconnect-generated
+      package: "@dataconnect/generated"
+      packageJsonDir: ../../functions
+      react: false
+      angular: false
+    - outputDir: ../../hosting/cloud-functions/bigquery-export/src/dataconnect-generated
+      package: "@dataconnect/generated"
+      packageJsonDir: ../../hosting/cloud-functions/bigquery-export
+      react: false
+      angular: false

@@ -8,15 +8,19 @@ import { RateLimiterMemory } from 'rate-limiter-flexible';
 
 // Import handlers
 import { aiTRRSuggestHandler } from './handlers/ai-trr-suggest';
-import { trrExportHandler } from './handlers/trr-export';
-import { trrSignoffHandler } from './handlers/trr-signoff';
-import { trrAnalyticsHandler } from './handlers/trr-analytics';
-import { trrNotificationHandler } from './handlers/trr-notifications';
-import { trrValidationHandler } from './handlers/trr-validation';
-import { scheduleHandler } from './handlers/scheduled-tasks';
+import { 
+  generateThreatActorScenario, 
+  executeScenario, 
+  controlScenarioExecution, 
+  generateDetectionQueries 
+} from './handlers/scenario-orchestration';
+import {
+  processScenarioExecution,
+  monitorExecutionStatusChanges,
+  cleanupOldExecutions
+} from './handlers/scenario-executor';
 
-// Import middleware
-import { validateAuth } from './middleware/auth';
+// Import utils
 import { logger } from './utils/logger';
 
 // Initialize Firebase Admin SDK
@@ -46,11 +50,11 @@ app.use(express.urlencoded({ extended: true }));
 // Rate limiting middleware
 app.use(async (req, res, next) => {
   try {
-    const userId = req.headers['x-user-id'] as string || req.ip;
+    const userId = (req.headers['x-user-id'] as string) || req.ip || 'anonymous';
     await rateLimiter.consume(userId);
     next();
-  } catch (rejRes) {
-    const secs = Math.round(rejRes.msBeforeNext / 1000) || 1;
+  } catch (rejRes: any) {
+    const secs = Math.round((rejRes?.msBeforeNext || 0) / 1000) || 1;
     res.set('Retry-After', String(secs));
     res.status(429).json({
       error: 'Too many requests',
@@ -112,15 +116,20 @@ export const aiTrrSuggest = functions
     }
   });
 
+// ============================================================================
+// Scenario Orchestration Functions
+// ============================================================================
+
 /**
- * TRR Export and Report Generation
- * Generates comprehensive reports in multiple formats (PDF, DOCX, CSV)
+ * AI-powered threat actor scenario generation
+ * Generates comprehensive attack scenarios based on threat actor profiles
  */
-export const trrExport = functions
+export const generateThreatActorScenarioFunction = functions
   .region('us-central1')
   .runWith({
     memory: '2GB',
-    timeoutSeconds: 300
+    timeoutSeconds: 540,
+    secrets: ['OPENAI_API_KEY']
   })
   .https
   .onCall(async (data, context) => {
@@ -129,23 +138,52 @@ export const trrExport = functions
         throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
       }
 
-      return await trrExportHandler(data, context);
+      return await generateThreatActorScenario(data, context);
     } catch (error) {
-      logger.error('TRR Export error:', error);
+      logger.error('Generate threat actor scenario error:', error);
       
       if (error instanceof functions.https.HttpsError) {
         throw error;
       }
       
-      throw new functions.https.HttpsError('internal', 'Export service temporarily unavailable');
+      throw new functions.https.HttpsError('internal', 'Scenario generation service temporarily unavailable');
     }
   });
 
 /**
- * Blockchain-based TRR Signoff
- * Creates immutable signoff records for TRR approvals
+ * Scenario execution management
+ * Starts execution of a scenario blueprint
  */
-export const trrSignoffCreate = functions
+export const executeScenarioFunction = functions
+  .region('us-central1')
+  .runWith({
+    memory: '1GB',
+    timeoutSeconds: 120
+  })
+  .https
+  .onCall(async (data, context) => {
+    try {
+      if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+      }
+
+      return await executeScenario(data, context);
+    } catch (error) {
+      logger.error('Execute scenario error:', error);
+      
+      if (error instanceof functions.https.HttpsError) {
+        throw error;
+      }
+      
+      throw new functions.https.HttpsError('internal', 'Scenario execution service temporarily unavailable');
+    }
+  });
+
+/**
+ * Scenario execution control
+ * Controls running scenario executions (pause, resume, cancel, restart)
+ */
+export const controlScenarioExecutionFunction = functions
   .region('us-central1')
   .runWith({
     memory: '512MB',
@@ -158,31 +196,28 @@ export const trrSignoffCreate = functions
         throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
       }
 
-      return await trrSignoffHandler(data, context);
+      return await controlScenarioExecution(data, context);
     } catch (error) {
-      logger.error('TRR Signoff error:', error);
+      logger.error('Control scenario execution error:', error);
       
       if (error instanceof functions.https.HttpsError) {
         throw error;
       }
       
-      throw new functions.https.HttpsError('internal', 'Signoff service temporarily unavailable');
+      throw new functions.https.HttpsError('internal', 'Scenario control service temporarily unavailable');
     }
   });
 
-// ============================================================================
-// Data Processing Functions
-// ============================================================================
-
 /**
- * TRR Analytics Processing
- * Processes TRR data for analytics dashboards and insights
+ * AI-powered detection query generation
+ * Generates optimized detection queries for threat vectors
  */
-export const trrAnalytics = functions
+export const generateDetectionQueriesFunction = functions
   .region('us-central1')
   .runWith({
     memory: '1GB',
-    timeoutSeconds: 300
+    timeoutSeconds: 300,
+    secrets: ['OPENAI_API_KEY']
   })
   .https
   .onCall(async (data, context) => {
@@ -191,169 +226,70 @@ export const trrAnalytics = functions
         throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
       }
 
-      return await trrAnalyticsHandler(data, context);
+      return await generateDetectionQueries(data, context);
     } catch (error) {
-      logger.error('TRR Analytics error:', error);
+      logger.error('Generate detection queries error:', error);
       
       if (error instanceof functions.https.HttpsError) {
         throw error;
       }
       
-      throw new functions.https.HttpsError('internal', 'Analytics service temporarily unavailable');
-    }
-  });
-
-/**
- * TRR Validation Engine
- * Validates TRR data against business rules and technical requirements
- */
-export const trrValidation = functions
-  .region('us-central1')
-  .runWith({
-    memory: '512MB',
-    timeoutSeconds: 120
-  })
-  .https
-  .onCall(async (data, context) => {
-    try {
-      if (!context.auth) {
-        throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
-      }
-
-      return await trrValidationHandler(data, context);
-    } catch (error) {
-      logger.error('TRR Validation error:', error);
-      
-      if (error instanceof functions.https.HttpsError) {
-        throw error;
-      }
-      
-      throw new functions.https.HttpsError('internal', 'Validation service temporarily unavailable');
+      throw new functions.https.HttpsError('internal', 'Detection query generation service temporarily unavailable');
     }
   });
 
 // ============================================================================
-// Firestore Triggers
+// Background Scenario Execution Functions
 // ============================================================================
 
 /**
- * TRR Status Change Trigger
- * Handles notifications and workflow automation when TRR status changes
+ * Background scenario execution processor
+ * Triggered by Pub/Sub messages to execute scenarios in the background
  */
-export const trrStatusChanged = functions
-  .region('us-central1')
-  .firestore
-  .document('trrs/{trrId}')
-  .onUpdate(async (change, context) => {
-    try {
-      const beforeData = change.before.data();
-      const afterData = change.after.data();
-      
-      // Check if status changed
-      if (beforeData.status !== afterData.status) {
-        await trrNotificationHandler({
-          trrId: context.params.trrId,
-          previousStatus: beforeData.status,
-          newStatus: afterData.status,
-          trrData: afterData
-        });
-      }
-    } catch (error) {
-      logger.error('TRR status change trigger error:', error);
-    }
-  });
+export { processScenarioExecution };
 
 /**
- * New TRR Creation Trigger
- * Sets up initial notifications and workflow automation for new TRRs
+ * Monitors scenario execution status changes
+ * Triggered by Firestore updates to handle execution state transitions
  */
-export const trrCreated = functions
-  .region('us-central1')
-  .firestore
-  .document('trrs/{trrId}')
-  .onCreate(async (snap, context) => {
-    try {
-      const trrData = snap.data();
-      
-      await trrNotificationHandler({
-        trrId: context.params.trrId,
-        action: 'created',
-        trrData
-      });
-    } catch (error) {
-      logger.error('TRR creation trigger error:', error);
-    }
-  });
+export { monitorExecutionStatusChanges };
+
+/**
+ * Scheduled cleanup of old executions and logs
+ * Runs daily to clean up expired data
+ */
+export { cleanupOldExecutions };
+
+// TRR Export handler - TODO: Implement
+// export const trrExport = functions...
+
+// TRR Signoff handler - TODO: Implement
+// export const trrSignoffCreate = functions...
 
 // ============================================================================
-// Scheduled Functions
+// Data Processing Functions - TODO: Implement handlers
 // ============================================================================
 
-/**
- * Daily TRR Analytics Processing
- * Processes daily analytics and generates reports
- */
-export const dailyAnalyticsProcessing = functions
-  .region('us-central1')
-  .runWith({
-    memory: '2GB',
-    timeoutSeconds: 540
-  })
-  .pubsub
-  .schedule('0 6 * * *') // Every day at 6 AM UTC
-  .timeZone('UTC')
-  .onRun(async (context) => {
-    try {
-      await scheduleHandler.processDailyAnalytics();
-      logger.info('Daily analytics processing completed');
-    } catch (error) {
-      logger.error('Daily analytics processing error:', error);
-    }
-  });
+// Analytics and validation handlers commented out until implemented
+// export const trrAnalytics = functions...
+// export const trrValidation = functions...
 
-/**
- * Weekly TRR Status Report
- * Generates and sends weekly status reports
- */
-export const weeklyStatusReport = functions
-  .region('us-central1')
-  .runWith({
-    memory: '1GB',
-    timeoutSeconds: 300
-  })
-  .pubsub
-  .schedule('0 8 * * 1') // Every Monday at 8 AM UTC
-  .timeZone('UTC')
-  .onRun(async (context) => {
-    try {
-      await scheduleHandler.generateWeeklyReport();
-      logger.info('Weekly status report completed');
-    } catch (error) {
-      logger.error('Weekly status report error:', error);
-    }
-  });
+// ============================================================================
+// Firestore Triggers - TODO: Implement notification handlers
+// ============================================================================
 
-/**
- * TRR Reminder Notifications
- * Sends reminder notifications for overdue TRRs
- */
-export const trrReminders = functions
-  .region('us-central1')
-  .runWith({
-    memory: '512MB',
-    timeoutSeconds: 180
-  })
-  .pubsub
-  .schedule('0 9,17 * * 1-5') // Every weekday at 9 AM and 5 PM UTC
-  .timeZone('UTC')
-  .onRun(async (context) => {
-    try {
-      await scheduleHandler.sendTRRReminders();
-      logger.info('TRR reminders sent');
-    } catch (error) {
-      logger.error('TRR reminders error:', error);
-    }
-  });
+// Triggers commented out until notification handlers are implemented
+// export const trrStatusChanged = functions...
+// export const trrCreated = functions...
+
+// ============================================================================
+// Scheduled Functions - TODO: Implement schedule handlers
+// ============================================================================
+
+// Scheduled functions commented out until handlers are implemented
+// export const dailyAnalyticsProcessing = functions...
+// export const weeklyStatusReport = functions...
+// export const trrReminders = functions...
 
 // ============================================================================
 // HTTP Endpoints (Express Routes)

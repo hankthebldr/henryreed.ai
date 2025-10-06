@@ -85,7 +85,7 @@ Return JSON format:
   "rationale": "Brief explanation of improvements"
 }`,
 
-  category: `You are an expert technical requirements analyst. Based on the TRR information, suggest the most appropriate category and priority level. Consider technical complexity, business impact, and urgency.
+  category: `You are an expert technical requirements analyst. Based on the TRR information, suggest the most appropriate category. Consider technical complexity, business impact, and type of work.
 
 TRR: {input}
 
@@ -95,11 +95,27 @@ Return JSON format:
 {
   "suggestions": {
     "category": "suggested_category",
-    "priority": "low|medium|high|critical",
-    "businessImpact": "low|medium|high|critical"
+    "alternativeCategories": ["alt1", "alt2"]
   },
   "confidence": 0.90,
   "rationale": "Brief explanation of categorization"
+}`,
+
+  priority: `You are an expert technical requirements analyst. Based on the TRR information, suggest the most appropriate priority level. Consider business impact, urgency, technical complexity, and dependencies.
+
+TRR: {input}
+
+Priority levels: low (nice to have, can be delayed), medium (important but not urgent), high (important and time-sensitive), critical (blocking or high-risk)
+
+Return JSON format:
+{
+  "suggestions": {
+    "priority": "low|medium|high|critical",
+    "businessImpact": "low|medium|high|critical",
+    "urgency": "low|medium|high|critical"
+  },
+  "confidence": 0.85,
+  "rationale": "Brief explanation of priority assessment"
 }`,
 
   acceptance_criteria: `You are an expert technical requirements analyst. Based on the TRR information, generate 3-7 specific, measurable, and testable acceptance criteria. Each criterion should be clear, actionable, and verifiable.

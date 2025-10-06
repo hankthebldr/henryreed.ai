@@ -1,0 +1,798 @@
+'use client';
+
+import { getFunctions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions';
+import { getFirestore, collection, doc, onSnapshot, query, where, orderBy, limit, writeBatch, serverTimestamp } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { initializeApp } from 'firebase/app';
+import userActivityService from './user-activity-service';
+
+// ============================================================================
+// FIREBASE INITIALIZATION
+// ============================================================================
+
+let app: any;
+let db: any;
+let functions: any;
+let auth: any;
+
+const initializeFirebase = () => {
+  if (!app) {
+    const firebaseConfig = {
+      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+      appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    };
+
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    functions = getFunctions(app);
+    auth = getAuth(app);
+
+    // Connect to emulators in development
+    if (process.env.NODE_ENV === 'development' && !globalThis.__EMULATOR_CONNECTED__) {
+      connectFunctionsEmulator(functions, 'localhost', 5001);
+      globalThis.__EMULATOR_CONNECTED__ = true;
+    }
+  }
+
+  return { app, db, functions, auth };
+};
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+export interface EnvironmentSpec {
+  cloudProvider?: 'aws' | 'gcp' | 'azure' | 'multi-cloud';
+  infrastructure: {
+    vms?: number;
+    containers?: number;
+    networks?: number;
+    storage?: string;
+  };
+  applications: string[];
+  dataTypes: string[];
+  users: Array<{
+    name: string;
+    permissions: string[];
+  }>;
+}
+
+export interface ScenarioBlueprint {
+  id: string;
+  name: string;
+  description: string;
+  version: string;
+  author: string;
+  created: Date;
+  lastModified: Date;
+  category: 'red-team' | 'blue-team' | 'purple-team' | 'compliance' | 'training' | 'research';
+  industry: string[];
+  threatActors: string[];
+  campaignNames: string[];
+  platforms: string[];
+  prerequisites: string[];
+  estimatedDuration: number; // minutes
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  stages: ScenarioStage[];
+  globalVariables: Record<string, any>;
+  environmentRequirements: EnvironmentSpec;
+  mitreMapping: string[];
+  cveReferences: string[];
+  threatIntelligence: ThreatIntel[];
+  executionModel: 'linear' | 'parallel' | 'conditional' | 'adaptive';
+  adaptiveRules: AdaptiveRule[];
+  successMetrics: SuccessMetric[];
+  validationRules: ValidationRule[];
+  cleanupProcedures: CleanupProcedure[];
+  organizationId: string;
+  createdBy: string;
+  aiGenerated: boolean;
+  aiConfidence: number;
+}
+
+export interface ScenarioExecution {
+  id: string;
+  blueprintId: string;
+  organizationId: string;
+  userId: string;
+  status: 'pending' | 'initializing' | 'running' | 'paused' | 'completed' | 'failed' | 'cancelled';
+  startTime: Date;
+  endTime?: Date;
+  currentStage?: string;
+  variables: Record<string, any>;
+  stageResults: StageResult[];
+  artifacts: ScenarioArtifact[];
+  metrics: SuccessMetric[];
+  logs: ExecutionLog[];
+  alerts: ExecutionAlert[];
+  adaptations: AdaptationRecord[];
+  cleanupStatus: 'pending' | 'in-progress' | 'completed' | 'failed';
+  options: {
+    variables?: Record<string, any>;
+    dryRun?: boolean;
+    pauseOnDetection?: boolean;
+    adaptiveBehavior?: boolean;
+  };
+  lastUpdated: Date;
+}
+
+export interface ScenarioStage {
+  id: string;
+  name: string;
+  description: string;
+  threatVectors: ThreatVector[];
+  detectionPoints: DetectionPoint[];
+  prerequisites: string[];
+  successCriteria: string[];
+  duration: {
+    min: number;
+    max: number;
+    estimated: number;
+  };
+  failureHandling: FailureStrategy;
+  nextStages: string[];
+  artifacts: ScenarioArtifact[];
+}
+
+export interface ThreatVector {
+  id: string;
+  name: string;
+  category: string;
+  mitreTechniques: string[];
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  complexity: number;
+  detectability: number;
+  prerequisites: string[];
+  indicators: IoC[];
+}
+
+export interface DetectionPoint {
+  id: string;
+  name: string;
+  description: string;
+  dataSource: string;
+  query: string;
+  queryLanguage: 'kql' | 'spl' | 'sql' | 'lucene' | 'sigma';
+  expectedFindings: number;
+  confidence: number;
+  severity: 'info' | 'low' | 'medium' | 'high' | 'critical';
+  tags: string[];
+}
+
+export interface IoC {
+  type: 'ip' | 'domain' | 'hash' | 'url' | 'email' | 'file' | 'process' | 'registry' | 'network-signature';
+  value: string;
+  confidence: number;
+  context: string;
+  tags: string[];
+}
+
+export interface AdaptiveRule {
+  id: string;
+  condition: string;
+  action: 'skip-stage' | 'repeat-stage' | 'branch-to' | 'modify-parameters' | 'escalate-privileges' | 'pause-execution';
+  parameters: Record<string, any>;
+  priority: number;
+}
+
+export interface SuccessMetric {
+  name: string;
+  type: 'detection-count' | 'time-to-detect' | 'false-positive-rate' | 'coverage' | 'custom';
+  target: number;
+  actual?: number;
+  weight: number;
+}
+
+export interface ValidationRule {
+  id: string;
+  name: string;
+  check: string;
+  severity: 'info' | 'warning' | 'error' | 'critical';
+  autoFix?: boolean;
+}
+
+export interface CleanupProcedure {
+  id: string;
+  name: string;
+  stage: 'pre-execution' | 'post-stage' | 'post-scenario' | 'on-failure';
+  commands: string[];
+  verification: string[];
+}
+
+export interface StageResult {
+  stageId: string;
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
+  startTime: Date;
+  endTime?: Date;
+  output: any;
+  errors: string[];
+  detections: Detection[];
+  artifacts: ScenarioArtifact[];
+}
+
+export interface Detection {
+  detectionPointId: string;
+  timestamp: Date;
+  findings: number;
+  details: any;
+  confidence: number;
+  falsePositive: boolean;
+}
+
+export interface ScenarioArtifact {
+  id: string;
+  type: 'file' | 'process' | 'network-traffic' | 'log-entry' | 'registry-key' | 'service' | 'scheduled-task';
+  name: string;
+  path?: string;
+  content?: string;
+  metadata: Record<string, any>;
+  persistence: 'temporary' | 'session' | 'permanent';
+  cleanup: boolean;
+}
+
+export interface FailureStrategy {
+  onTimeout: 'retry' | 'skip' | 'abort' | 'escalate';
+  onError: 'retry' | 'skip' | 'abort' | 'manual-intervention';
+  retryLimit: number;
+  fallbackStage?: string;
+}
+
+export interface ExecutionLog {
+  timestamp: Date;
+  level: 'debug' | 'info' | 'warning' | 'error' | 'critical';
+  source: string;
+  message: string;
+  metadata: Record<string, any>;
+}
+
+export interface ExecutionAlert {
+  id: string;
+  timestamp: Date;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  title: string;
+  description: string;
+  source: string;
+  actionRequired: boolean;
+  resolved: boolean;
+}
+
+export interface AdaptationRecord {
+  timestamp: Date;
+  ruleId: string;
+  condition: string;
+  action: string;
+  parameters: Record<string, any>;
+  result: 'success' | 'failure';
+}
+
+export interface ThreatIntel {
+  source: string;
+  type: 'ioc' | 'ttp' | 'campaign' | 'actor' | 'malware';
+  data: any;
+  confidence: number;
+  lastUpdated: Date;
+}
+
+// ============================================================================
+// SCENARIO ENGINE CLIENT CLASS
+// ============================================================================
+
+export class ScenarioEngineClient {
+  private functions: any;
+  private db: any;
+  private auth: any;
+  private subscriptions: Map<string, () => void> = new Map();
+
+  constructor() {
+    const firebase = initializeFirebase();
+    this.functions = firebase.functions;
+    this.db = firebase.db;
+    this.auth = firebase.auth;
+  }
+
+  // ============================================================================
+  // SCENARIO GENERATION
+  // ============================================================================
+
+  async generateThreatActorScenario(
+    actorName: string,
+    targetEnvironment: EnvironmentSpec,
+    options: {
+      complexity?: 'low' | 'medium' | 'high';
+      duration?: number;
+      includeDefensiveActions?: boolean;
+    } = {}
+  ): Promise<{
+    blueprintId: string;
+    scenarioBlueprint: ScenarioBlueprint;
+    confidence: number;
+    rationale: string;
+    tokens: { prompt: number; completion: number; total: number };
+  }> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    // Track activity
+    userActivityService.trackActivity('ai-scenario-generation', 'scenario-engine-client', {
+      threatActor: actorName,
+      complexity: options.complexity || 'medium',
+      timestamp: new Date().toISOString()
+    });
+
+    try {
+      const generateThreatActorScenario = httpsCallable(this.functions, 'generateThreatActorScenario');
+      
+      const result = await generateThreatActorScenario({
+        actorName,
+        targetEnvironment,
+        options: {
+          complexity: options.complexity || 'medium',
+          duration: options.duration || 120,
+          includeDefensiveActions: options.includeDefensiveActions || true,
+        },
+        context: {
+          organizationId: user.uid, // Simplified - in production, get from user profile
+          userId: user.uid,
+        },
+      });
+
+      // Add timeline event
+      userActivityService.addTimelineEvent({
+        type: 'ai-scenario-generated',
+        title: 'AI Scenario Generated',
+        description: `Generated scenario for threat actor: ${actorName}`,
+        metadata: { 
+          threatActor: actorName,
+          blueprintId: result.data.blueprintId,
+          confidence: result.data.confidence,
+          aiGenerated: true
+        },
+        priority: 'medium',
+        category: 'technical'
+      });
+
+      return result.data;
+
+    } catch (error: any) {
+      console.error('Failed to generate threat actor scenario:', error);
+      
+      // Track failure
+      userActivityService.trackActivity('ai-scenario-generation-failed', 'scenario-engine-client', {
+        threatActor: actorName,
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+
+      throw new Error(`Scenario generation failed: ${error.message}`);
+    }
+  }
+
+  async generateDetectionQueries(
+    threatVectors: Array<{
+      id: string;
+      mitreTechniques: string[];
+      category: string;
+    }>,
+    queryLanguage: 'kql' | 'spl' | 'sql' | 'lucene' | 'sigma',
+    dataSource: string
+  ): Promise<{
+    detectionQueries: Array<{
+      id: string;
+      name: string;
+      query: string;
+      description: string;
+      mitreTechniques: string[];
+      expectedFindings: number;
+      confidence: number;
+      severity: string;
+      tags: string[];
+    }>;
+    confidence: number;
+    rationale: string;
+    tokens: { prompt: number; completion: number; total: number };
+  }> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    try {
+      const generateDetectionQueries = httpsCallable(this.functions, 'generateDetectionQueries');
+      
+      const result = await generateDetectionQueries({
+        threatVectors,
+        queryLanguage,
+        dataSource,
+        context: {
+          organizationId: user.uid,
+          userId: user.uid,
+        },
+      });
+
+      return result.data;
+
+    } catch (error: any) {
+      console.error('Failed to generate detection queries:', error);
+      throw new Error(`Detection query generation failed: ${error.message}`);
+    }
+  }
+
+  // ============================================================================
+  // SCENARIO EXECUTION
+  // ============================================================================
+
+  async executeScenario(
+    blueprintId: string,
+    options: {
+      variables?: Record<string, any>;
+      dryRun?: boolean;
+      pauseOnDetection?: boolean;
+      adaptiveBehavior?: boolean;
+    } = {}
+  ): Promise<{
+    executionId: string;
+    status: string;
+    blueprint: {
+      id: string;
+      name: string;
+      description: string;
+      estimatedDuration: number;
+    };
+  }> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    try {
+      const executeScenario = httpsCallable(this.functions, 'executeScenario');
+      
+      const result = await executeScenario({
+        blueprintId,
+        options,
+        context: {
+          organizationId: user.uid,
+          userId: user.uid,
+        },
+      });
+
+      // Track execution start
+      userActivityService.trackActivity('scenario-execution-started', 'scenario-engine-client', {
+        executionId: result.data.executionId,
+        blueprintId,
+        dryRun: options.dryRun || false,
+        timestamp: new Date().toISOString()
+      });
+
+      return result.data;
+
+    } catch (error: any) {
+      console.error('Failed to execute scenario:', error);
+      throw new Error(`Scenario execution failed: ${error.message}`);
+    }
+  }
+
+  async pauseExecution(executionId: string): Promise<void> {
+    await this.controlScenarioExecution(executionId, 'pause');
+  }
+
+  async resumeExecution(executionId: string): Promise<void> {
+    await this.controlScenarioExecution(executionId, 'resume');
+  }
+
+  async cancelExecution(executionId: string): Promise<void> {
+    await this.controlScenarioExecution(executionId, 'cancel');
+  }
+
+  async restartExecution(executionId: string): Promise<void> {
+    await this.controlScenarioExecution(executionId, 'restart');
+  }
+
+  private async controlScenarioExecution(
+    executionId: string,
+    action: 'pause' | 'resume' | 'cancel' | 'restart'
+  ): Promise<{
+    executionId: string;
+    action: string;
+    previousStatus: string;
+    newStatus: string;
+    timestamp: string;
+  }> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    try {
+      const controlScenarioExecution = httpsCallable(this.functions, 'controlScenarioExecution');
+      
+      const result = await controlScenarioExecution({
+        executionId,
+        action,
+        context: {
+          organizationId: user.uid,
+          userId: user.uid,
+        },
+      });
+
+      // Track control action
+      userActivityService.trackActivity(`scenario-execution-${action}`, 'scenario-engine-client', {
+        executionId,
+        action,
+        previousStatus: result.data.previousStatus,
+        newStatus: result.data.newStatus,
+        timestamp: new Date().toISOString()
+      });
+
+      return result.data;
+
+    } catch (error: any) {
+      console.error(`Failed to ${action} scenario execution:`, error);
+      throw new Error(`Scenario ${action} failed: ${error.message}`);
+    }
+  }
+
+  // ============================================================================
+  // DATA ACCESS
+  // ============================================================================
+
+  async getBlueprint(blueprintId: string): Promise<ScenarioBlueprint | null> {
+    try {
+      const blueprintRef = doc(this.db, 'scenarioBlueprints', blueprintId);
+      const blueprintDoc = await blueprintRef.get();
+      
+      if (!blueprintDoc.exists()) {
+        return null;
+      }
+
+      const data = blueprintDoc.data();
+      return this.convertFirestoreTimestamps(data) as ScenarioBlueprint;
+
+    } catch (error: any) {
+      console.error('Failed to get blueprint:', error);
+      throw new Error(`Failed to get blueprint: ${error.message}`);
+    }
+  }
+
+  async getExecution(executionId: string): Promise<ScenarioExecution | null> {
+    try {
+      const executionRef = doc(this.db, 'scenarioExecutions', executionId);
+      const executionDoc = await executionRef.get();
+      
+      if (!executionDoc.exists()) {
+        return null;
+      }
+
+      const data = executionDoc.data();
+      return this.convertFirestoreTimestamps(data) as ScenarioExecution;
+
+    } catch (error: any) {
+      console.error('Failed to get execution:', error);
+      throw new Error(`Failed to get execution: ${error.message}`);
+    }
+  }
+
+  async listBlueprints(): Promise<ScenarioBlueprint[]> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      return [];
+    }
+
+    try {
+      const blueprintsQuery = query(
+        collection(this.db, 'scenarioBlueprints'),
+        where('organizationId', '==', user.uid),
+        orderBy('lastModified', 'desc'),
+        limit(50)
+      );
+
+      const blueprintsSnapshot = await blueprintsQuery.get();
+      
+      return blueprintsSnapshot.docs.map(doc => 
+        this.convertFirestoreTimestamps({ id: doc.id, ...doc.data() }) as ScenarioBlueprint
+      );
+
+    } catch (error: any) {
+      console.error('Failed to list blueprints:', error);
+      return [];
+    }
+  }
+
+  async listExecutions(): Promise<ScenarioExecution[]> {
+    const user = this.auth.currentUser;
+    if (!user) {
+      return [];
+    }
+
+    try {
+      const executionsQuery = query(
+        collection(this.db, 'scenarioExecutions'),
+        where('organizationId', '==', user.uid),
+        orderBy('startTime', 'desc'),
+        limit(100)
+      );
+
+      const executionsSnapshot = await executionsQuery.get();
+      
+      return executionsSnapshot.docs.map(doc => 
+        this.convertFirestoreTimestamps({ id: doc.id, ...doc.data() }) as ScenarioExecution
+      );
+
+    } catch (error: any) {
+      console.error('Failed to list executions:', error);
+      return [];
+    }
+  }
+
+  // ============================================================================
+  // REAL-TIME SUBSCRIPTIONS
+  // ============================================================================
+
+  subscribeToExecution(
+    executionId: string,
+    callback: (execution: ScenarioExecution | null) => void
+  ): () => void {
+    const executionRef = doc(this.db, 'scenarioExecutions', executionId);
+    
+    const unsubscribe = onSnapshot(
+      executionRef,
+      (doc) => {
+        if (doc.exists()) {
+          const data = this.convertFirestoreTimestamps({ id: doc.id, ...doc.data() });
+          callback(data as ScenarioExecution);
+        } else {
+          callback(null);
+        }
+      },
+      (error) => {
+        console.error('Execution subscription error:', error);
+        callback(null);
+      }
+    );
+
+    // Store subscription for cleanup
+    this.subscriptions.set(`execution-${executionId}`, unsubscribe);
+
+    return unsubscribe;
+  }
+
+  subscribeToExecutions(
+    callback: (executions: ScenarioExecution[]) => void
+  ): () => void {
+    const user = this.auth.currentUser;
+    if (!user) {
+      callback([]);
+      return () => {};
+    }
+
+    const executionsQuery = query(
+      collection(this.db, 'scenarioExecutions'),
+      where('organizationId', '==', user.uid),
+      orderBy('startTime', 'desc'),
+      limit(50)
+    );
+
+    const unsubscribe = onSnapshot(
+      executionsQuery,
+      (snapshot) => {
+        const executions = snapshot.docs.map(doc => 
+          this.convertFirestoreTimestamps({ id: doc.id, ...doc.data() }) as ScenarioExecution
+        );
+        callback(executions);
+      },
+      (error) => {
+        console.error('Executions subscription error:', error);
+        callback([]);
+      }
+    );
+
+    this.subscriptions.set('executions-list', unsubscribe);
+    return unsubscribe;
+  }
+
+  subscribeToBlueprints(
+    callback: (blueprints: ScenarioBlueprint[]) => void
+  ): () => void {
+    const user = this.auth.currentUser;
+    if (!user) {
+      callback([]);
+      return () => {};
+    }
+
+    const blueprintsQuery = query(
+      collection(this.db, 'scenarioBlueprints'),
+      where('organizationId', '==', user.uid),
+      orderBy('lastModified', 'desc'),
+      limit(50)
+    );
+
+    const unsubscribe = onSnapshot(
+      blueprintsQuery,
+      (snapshot) => {
+        const blueprints = snapshot.docs.map(doc => 
+          this.convertFirestoreTimestamps({ id: doc.id, ...doc.data() }) as ScenarioBlueprint
+        );
+        callback(blueprints);
+      },
+      (error) => {
+        console.error('Blueprints subscription error:', error);
+        callback([]);
+      }
+    );
+
+    this.subscriptions.set('blueprints-list', unsubscribe);
+    return unsubscribe;
+  }
+
+  // ============================================================================
+  // UTILITY METHODS
+  // ============================================================================
+
+  private convertFirestoreTimestamps(data: any): any {
+    if (!data || typeof data !== 'object') {
+      return data;
+    }
+
+    const converted = { ...data };
+
+    // Convert known timestamp fields
+    const timestampFields = [
+      'created', 'lastModified', 'startTime', 'endTime', 'lastUpdated',
+      'createdAt', 'updatedAt', 'timestamp'
+    ];
+
+    for (const field of timestampFields) {
+      if (converted[field] && typeof converted[field].toDate === 'function') {
+        converted[field] = converted[field].toDate();
+      }
+    }
+
+    // Recursively convert nested objects
+    for (const key in converted) {
+      if (converted[key] && typeof converted[key] === 'object') {
+        if (Array.isArray(converted[key])) {
+          converted[key] = converted[key].map((item: any) => this.convertFirestoreTimestamps(item));
+        } else if (typeof converted[key].toDate !== 'function') {
+          converted[key] = this.convertFirestoreTimestamps(converted[key]);
+        }
+      }
+    }
+
+    return converted;
+  }
+
+  // Clean up subscriptions
+  cleanup(): void {
+    for (const [key, unsubscribe] of this.subscriptions) {
+      unsubscribe();
+    }
+    this.subscriptions.clear();
+  }
+
+  // Static method to get current user context
+  static getCurrentUserContext(): { organizationId: string; userId: string } | null {
+    const firebase = initializeFirebase();
+    const user = firebase.auth.currentUser;
+    
+    if (!user) {
+      return null;
+    }
+
+    return {
+      organizationId: user.uid, // Simplified - in production, get from user profile
+      userId: user.uid,
+    };
+  }
+}
+
+// ============================================================================
+// GLOBAL INSTANCE
+// ============================================================================
+
+export const scenarioEngineClient = new ScenarioEngineClient();

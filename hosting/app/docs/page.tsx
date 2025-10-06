@@ -27,18 +27,57 @@ export default function DocsPage() {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               <div className="bg-gray-800/50 p-4 rounded border border-green-500/30">
-                <h3 className="text-lg font-bold text-green-400 mb-2">🎯 Purpose</h3>
+                <h3 className="text-lg font-bold text-green-400 mb-2">🏆 Purpose</h3>
                 <p className="text-sm text-gray-300">
                   Interactive showcase of AI services, technical capabilities, and professional experience
-                  through a familiar command-line interface.
+                  through a familiar command-line interface. Designed for Cortex XSIAM specialists competing against legacy SIEM platforms.
                 </p>
+                <div className="text-xs text-red-300 mt-2">
+                  • Beyond Splunk's complex SPL queries
+                </div>
               </div>
               <div className="bg-gray-800/50 p-4 rounded border border-blue-500/30">
                 <h3 className="text-lg font-bold text-blue-400 mb-2">🚀 Features</h3>
                 <p className="text-sm text-gray-300">
                   Command history, tab completion, authentication, responsive design, 
-                  and comprehensive service exploration.
+                  and comprehensive service exploration with competitive intelligence.
                 </p>
+                <div className="text-xs text-red-300 mt-2">
+                  • Faster than CrowdStrike's web interface
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-6 p-4 bg-red-900/20 rounded border border-red-500/30">
+              <h3 className="text-red-400 font-bold mb-3">🔥 Why Cortex XSIAM Over Competitors:</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <h4 className="text-yellow-400 font-bold text-sm">vs Splunk Enterprise</h4>
+                  <ul className="text-xs text-gray-300 space-y-1">
+                    <li>• No daily volume licensing surprises</li>
+                    <li>• Cloud-native scaling vs on-prem clusters</li>
+                    <li>• AI-driven analytics vs manual correlations</li>
+                    <li>• Minutes to deploy vs months of PS</li>
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-blue-400 font-bold text-sm">vs CrowdStrike Falcon</h4>
+                  <ul className="text-xs text-gray-300 space-y-1">
+                    <li>• Full SIEM + EDR unified platform</li>
+                    <li>• Custom detection rules vs IOA limits</li>
+                    <li>• Multi-cloud data vs endpoint-only</li>
+                    <li>• SOAR integrated vs separate tools</li>
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-green-400 font-bold text-sm">vs Microsoft Sentinel</h4>
+                  <ul className="text-xs text-gray-300 space-y-1">
+                    <li>• Predictable pricing vs KQL query costs</li>
+                    <li>• Purpose-built SecOps vs generic Azure</li>
+                    <li>• No vendor lock-in vs Azure dependency</li>
+                    <li>• Faster implementation vs complex setup</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -54,12 +93,12 @@ export default function DocsPage() {
           
           <div className="space-y-8">
             <div className="bg-gray-900/40 border border-gray-600/30 p-6 rounded-lg">
-              <h2 className="text-xl font-bold text-blue-400 mb-4">Basic Commands</h2>
+              <h2 className="text-xl font-bold text-blue-400 mb-4">Basic Commands <span className="text-xs text-red-300">(Simpler than Splunk CLI)</span></h2>
               <div className="space-y-4">
                 <div className="bg-gray-800/50 p-4 rounded">
-                  <div className="text-green-400 font-mono font-bold">help [command]</div>
+                  <div className="text-green-400 font-mono font-bold">help [command] <span className="text-red-300 text-xs">(vs Splunk btool)</span></div>
                   <div className="text-sm text-gray-300 mt-1">
-                    Show available commands or detailed help for a specific command
+                    Show available commands or detailed help for a specific command. More intuitive than Splunk's complex help system.
                   </div>
                   <div className="text-xs text-gray-500 mt-1">Aliases: ?, man</div>
                 </div>
@@ -128,16 +167,17 @@ export default function DocsPage() {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-gray-900/40 border border-green-500/30 p-6 rounded-lg">
-              <h2 className="text-xl font-bold text-green-400 mb-4">🎯 Uniform Output Formatting</h2>
+              <h2 className="text-xl font-bold text-green-400 mb-4">🏆 Uniform Output Formatting <span className="text-xs text-red-300">(vs Splunk's inconsistent UI)</span></h2>
               <p className="text-gray-300 mb-4">
-                All terminal output is consistently formatted using standardized text boxes with:
+                All terminal output is consistently formatted using standardized text boxes - 
+                unlike Splunk's mixed web interfaces or CrowdStrike's varying response formats:
               </p>
               <ul className="text-sm text-gray-300 space-y-2">
-                <li>• <span className="text-green-400">Success messages</span> - green borders and backgrounds</li>
-                <li>• <span className="text-red-400">Error messages</span> - red borders and backgrounds</li>
-                <li>• <span className="text-yellow-400">Warning messages</span> - yellow borders and backgrounds</li>
-                <li>• <span className="text-blue-400">Info messages</span> - blue borders and backgrounds</li>
-                <li>• <span className="text-gray-400">Default content</span> - gray borders and backgrounds</li>
+                <li>• <span className="text-green-400">Success messages</span> - green borders and backgrounds <span className="text-red-300 text-xs">(clearer than Splunk job status)</span></li>
+                <li>• <span className="text-red-400">Error messages</span> - red borders and backgrounds <span className="text-red-300 text-xs">(better than CrowdStrike alerts)</span></li>
+                <li>• <span className="text-yellow-400">Warning messages</span> - yellow borders and backgrounds <span className="text-red-300 text-xs">(more visible than QRadar)</span></li>
+                <li>• <span className="text-blue-400">Info messages</span> - blue borders and backgrounds <span className="text-red-300 text-xs">(structured vs Sentinel logs)</span></li>
+                <li>• <span className="text-gray-400">Default content</span> - gray borders and backgrounds <span className="text-red-300 text-xs">(cleaner than legacy SIEM)</span></li>
               </ul>
             </div>
             
@@ -240,6 +280,265 @@ export default function DocsPage() {
                     <div>• <span className="text-blue-400">login</span> = <span className="text-gray-400">auth signin</span></div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 'cortex',
+      title: 'Cortex Documentation',
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-3xl font-bold text-green-400 mb-4">Cortex Documentation</h1>
+          
+          <div className="bg-gray-900/40 border border-gray-600/30 p-6 rounded-lg">
+            <div className="mb-4">
+              <p className="text-gray-300 mb-4">
+                Access the official Palo Alto Networks Cortex documentation directly below. 
+                This comprehensive resource covers XSIAM, Cortex Data Lake, and all security operations capabilities.
+              </p>
+              <div className="flex items-center space-x-4 mb-4">
+                <a 
+                  href="https://docs.paloaltonetworks.com/cortex" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors text-sm"
+                >
+                  🔗 Open in New Tab
+                </a>
+                <a 
+                  href="https://docs.paloaltonetworks.com/cortex/cortex-xsiam" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors text-sm"
+                >
+                  📚 XSIAM Docs
+                </a>
+                <a 
+                  href="https://docs.paloaltonetworks.com/cortex/cortex-data-lake" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded transition-colors text-sm"
+                >
+                  🗄️ Data Lake
+                </a>
+              </div>
+            </div>
+            
+            {/* Embedded Cortex Documentation */}
+            <div className="relative">
+              <div className="bg-gray-800/50 p-2 rounded-t border border-gray-600">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-xs text-gray-400 ml-4">docs.paloaltonetworks.com/cortex</span>
+                </div>
+              </div>
+              <div className="border border-t-0 border-gray-600 rounded-b overflow-hidden">
+                <iframe
+                  src="https://docs.paloaltonetworks.com/cortex"
+                  className="w-full h-[800px] bg-white"
+                  title="Cortex Documentation"
+                  style={{
+                    border: 'none',
+                    display: 'block'
+                  }}
+                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+            
+            <div className="mt-4 p-4 bg-blue-900/20 rounded border border-blue-500/30">
+              <h3 className="text-blue-400 font-bold mb-2">🔍 Quick Navigation Tips:</h3>
+              <div className="text-sm text-gray-300 space-y-1">
+                <div>• Use the search functionality within the iframe to find specific topics</div>
+                <div>• Click "Open in New Tab" above for full-screen experience</div>
+                <div>• Bookmark specific sections for quick reference during POVs</div>
+                <div>• Use browser zoom (Ctrl/Cmd +/-) to adjust text size as needed</div>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-4 bg-green-900/20 rounded border border-green-500/30">
+              <h3 className="text-green-400 font-bold mb-2">📖 Key Documentation Areas:</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                <div className="space-y-2">
+                  <div className="text-sm text-gray-300">
+                    <span className="text-yellow-400 font-bold">XSIAM Platform:</span>
+                    <ul className="ml-4 mt-1 space-y-1 text-xs">
+                      <li>• Data Ingestion & Parsing <span className="text-red-300 text-xs">(vs Splunk indexing)</span></li>
+                      <li>• Investigation & Response <span className="text-red-300 text-xs">(vs CrowdStrike Falcon)</span></li>
+                      <li>• Analytics & Reporting <span className="text-red-300 text-xs">(vs QRadar SIEM)</span></li>
+                      <li>• Custom Integrations <span className="text-red-300 text-xs">(vs Phantom/SOAR)</span></li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-sm text-gray-300">
+                    <span className="text-cyan-400 font-bold">Cortex Data Lake:</span>
+                    <ul className="ml-4 mt-1 space-y-1 text-xs">
+                      <li>• API Reference <span className="text-red-300 text-xs">(vs Splunk REST API)</span></li>
+                      <li>• Query Language <span className="text-red-300 text-xs">(vs SPL/KQL)</span></li>
+                      <li>• Data Schema <span className="text-red-300 text-xs">(vs ELK Stack)</span></li>
+                      <li>• Storage & Retention <span className="text-red-300 text-xs">(vs Splunk licensing)</span></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-4 p-3 bg-red-900/20 rounded border border-red-500/30">
+                <h4 className="text-red-400 font-bold mb-2">🏆 Competitive Advantages:</h4>
+                <div className="text-xs text-gray-300 space-y-1">
+                  <div>• <span className="text-green-400">Native Cloud Scale</span> - No Splunk indexer limitations</div>
+                  <div>• <span className="text-blue-400">Unified Platform</span> - No CrowdStrike + SIEM integration gaps</div>
+                  <div>• <span className="text-yellow-400">Predictable Pricing</span> - No Splunk daily volume surprises</div>
+                  <div>• <span className="text-purple-400">AI-Native Design</span> - Beyond rule-based detection engines</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 'detection',
+      title: 'Detection Engine',
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-3xl font-bold text-green-400 mb-4">Detection Engine</h1>
+          
+          <div className="bg-gray-900/40 border border-gray-600/30 p-6 rounded-lg">
+            <div className="mb-4">
+              <p className="text-gray-300 mb-4">
+                Access Henry Reed's collection of detection scripts, security automation tools, and Cortex integrations 
+                directly from the official GitHub repositories below.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div className="bg-gray-800/50 p-4 rounded border border-blue-500/30">
+                  <h3 className="text-blue-400 font-bold mb-2">🔧 Detection Scripts</h3>
+                  <p className="text-sm text-gray-300 mb-3">
+                    Production-ready detection scripts for XSIAM, SOAR workflows, and custom security automation.
+                  </p>
+                  <a 
+                    href="https://github.com/hankthebldr" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded transition-colors text-sm flex items-center space-x-2"
+                  >
+                    <span>📁</span>
+                    <span>Browse Repository</span>
+                  </a>
+                </div>
+                
+                <div className="bg-gray-800/50 p-4 rounded border border-green-500/30">
+                  <h3 className="text-green-400 font-bold mb-2">⚙️ Automation Tools</h3>
+                  <p className="text-sm text-gray-300 mb-3">
+                    Cortex XSIAM automation playbooks, custom parsers, and integration utilities.
+                  </p>
+                  <a 
+                    href="https://github.com/hankthebldr?tab=repositories" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded transition-colors text-sm flex items-center space-x-2"
+                  >
+                    <span>📋</span>
+                    <span>View All Repos</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+            
+            {/* Embedded GitHub Profile */}
+            <div className="relative">
+              <div className="bg-gray-800/50 p-2 rounded-t border border-gray-600">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-xs text-gray-400 ml-4">github.com/hankthebldr</span>
+                </div>
+              </div>
+              <div className="border border-t-0 border-gray-600 rounded-b overflow-hidden">
+                <iframe
+                  src="https://github.com/hankthebldr"
+                  className="w-full h-[800px] bg-white"
+                  title="Henry Reed GitHub Profile"
+                  style={{
+                    border: 'none',
+                    display: 'block'
+                  }}
+                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+            
+            <div className="mt-4 p-4 bg-purple-900/20 rounded border border-purple-500/30">
+              <h3 className="text-purple-400 font-bold mb-2">🚀 Featured Detection Categories:</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                <div className="space-y-2">
+                  <div className="text-sm text-gray-300">
+                    <span className="text-yellow-400 font-bold">Threat Detection:</span>
+                    <ul className="ml-4 mt-1 space-y-1 text-xs">
+                      <li>• Advanced Persistent Threats <span className="text-red-300 text-xs">(vs CrowdStrike IOA)</span></li>
+                      <li>• Lateral Movement Detection <span className="text-red-300 text-xs">(vs Carbon Black)</span></li>
+                      <li>• Anomaly-based Hunting <span className="text-red-300 text-xs">(vs Splunk UBA)</span></li>
+                      <li>• IOC Enrichment Scripts <span className="text-red-300 text-xs">(vs ThreatConnect)</span></li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-sm text-gray-300">
+                    <span className="text-cyan-400 font-bold">SOAR Automation:</span>
+                    <ul className="ml-4 mt-1 space-y-1 text-xs">
+                      <li>• Incident Response Playbooks <span className="text-red-300 text-xs">(vs Phantom)</span></li>
+                      <li>• Automated Triage Scripts <span className="text-red-300 text-xs">(vs Demisto legacy)</span></li>
+                      <li>• Integration Connectors <span className="text-red-300 text-xs">(vs Resilient)</span></li>
+                      <li>• Custom XSIAM Actions <span className="text-red-300 text-xs">(vs ServiceNow)</span></li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-sm text-gray-300">
+                    <span className="text-green-400 font-bold">Data Processing:</span>
+                    <ul className="ml-4 mt-1 space-y-1 text-xs">
+                      <li>• Custom Log Parsers <span className="text-red-300 text-xs">(vs Logstash)</span></li>
+                      <li>• Data Normalization <span className="text-red-300 text-xs">(vs Splunk CIM)</span></li>
+                      <li>• Field Mapping Scripts <span className="text-red-300 text-xs">(vs ArcSight)</span></li>
+                      <li>• Pipeline Automation <span className="text-red-300 text-xs">(vs Elastic Beats)</span></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-4 p-3 bg-orange-900/20 rounded border border-orange-500/30">
+                <h4 className="text-orange-400 font-bold mb-2">⚡ Performance Comparisons:</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                  <div className="text-xs text-gray-300 space-y-1">
+                    <div>• <span className="text-green-400">Query Speed</span>: 10x faster than Splunk SPL</div>
+                    <div>• <span className="text-blue-400">Detection Latency</span>: Sub-second vs CrowdStrike minutes</div>
+                    <div>• <span className="text-yellow-400">Data Ingestion</span>: No Splunk daily volume limits</div>
+                  </div>
+                  <div className="text-xs text-gray-300 space-y-1">
+                    <div>• <span className="text-purple-400">Integration Time</span>: Hours vs QRadar weeks</div>
+                    <div>• <span className="text-cyan-400">Storage Costs</span>: 50% less than Elasticsearch</div>
+                    <div>• <span className="text-pink-400">Maintenance</span>: Zero vs Splunk cluster management</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-4 bg-orange-900/20 rounded border border-orange-500/30">
+              <h3 className="text-orange-400 font-bold mb-2">💡 Usage Instructions:</h3>
+              <div className="text-sm text-gray-300 space-y-2">
+                <div><span className="text-green-400 font-mono">git clone</span> - Clone repositories to your local environment</div>
+                <div><span className="text-blue-400 font-mono">README.md</span> - Each repository includes detailed setup and usage instructions</div>
+                <div><span className="text-purple-400 font-mono">Issues</span> - Report bugs or request features using GitHub Issues</div>
+                <div><span className="text-yellow-400 font-mono">Contributions</span> - Pull requests welcome for improvements and new detection methods</div>
               </div>
             </div>
           </div>

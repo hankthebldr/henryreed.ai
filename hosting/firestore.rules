@@ -1,246 +1,134 @@
-// Firestore Security Rules for TRR Management System
-// Multi-tenant architecture with portfolios, projects, and TRRs
-
 rules_version = '2';
+
+// Firestore Security Rules for Cortex DC Portal
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper functions
-    function isSignedIn() {
+    // Helper functions for authentication and authorization
+    function isAuthenticated() {
       return request.auth != null;
     }
     
-    function getUserId() {
-      return request.auth.uid;
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
     }
     
-    function getUserEmail() {
-      return request.auth.token.email;
+    function isAuthorizedUser() {
+      return isAuthenticated() && 
+             (request.auth.token.email.matches('.*@henryreed.ai') ||
+              request.auth.token.email.matches('.*@paloaltonetworks.com') ||
+              hasRole('admin') || hasRole('manager'));
     }
     
-    function hasRole(resource, role) {
-      return isSignedIn() && 
-             getUserId() in resource.data.members &&
-             resource.data.members[getUserId()].role == role;
+    function hasRole(role) {
+      return isAuthenticated() && 
+             ('roles' in request.auth.token) &&
+             (role in request.auth.token.roles) &&
+             request.auth.token.roles[role] == true;
     }
     
-    function hasAnyRole(resource, roles) {
-      return isSignedIn() && 
-             getUserId() in resource.data.members &&
-             resource.data.members[getUserId()].role in roles;
+    function isValidEmail() {
+      return request.auth.token.email.matches('.*@henryreed.ai') ||
+             request.auth.token.email.matches('.*@paloaltonetworks.com');
     }
     
-    function canRead(resource) {
-      return isSignedIn() && (
-        getUserId() in resource.data.members ||
-        getUserId() == resource.data.createdBy ||
-        getUserId() == resource.data.assignedTo ||
-        getUserEmail() in resource.data.viewers
-      );
-    }
-    
-    function canWrite(resource) {
-      return isSignedIn() && (
-        hasAnyRole(resource, ['admin', 'editor', 'manager']) ||
-        getUserId() == resource.data.createdBy ||
-        getUserId() == resource.data.assignedTo
-      );
-    }
-    
-    function canAdmin(resource) {
-      return isSignedIn() && (
-        hasRole(resource, 'admin') ||
-        getUserId() == resource.data.createdBy
-      );
-    }
-    
-    function isOwnerOrCollaborator(resource) {
-      return isSignedIn() && (
-        getUserId() == resource.data.createdBy ||
-        getUserId() == resource.data.assignedTo ||
-        getUserEmail() in resource.data.collaborators
-      );
-    }
-    
-    function validateUpdateFields(allowedFields) {
-      return request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(allowedFields);
-    }
-    
-    // User profiles
+    // Users collection - profile data
     match /users/{userId} {
-      allow read, write: if isSignedIn() && getUserId() == userId;
+      allow read: if isAuthenticated() && (isOwner(userId) || hasRole('admin'));
+      allow create: if isAuthenticated() && isOwner(userId) && isValidEmail();
+      allow update: if isAuthenticated() && isOwner(userId);
+      allow delete: if hasRole('admin');
     }
     
-    // Organizations/Tenants
-    match /organizations/{orgId} {
-      allow read: if canRead(resource);
-      allow create: if isSignedIn() && 
-                       getUserId() == request.resource.data.createdBy;
-      allow update: if canWrite(resource) &&
-                       validateUpdateFields(['name', 'description', 'settings', 'members', 'updatedAt']);
-      allow delete: if canAdmin(resource);
+    // TRR (Technical Requirements Review) documents
+    match /trr/{trrId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthorizedUser();
+      allow delete: if hasRole('admin') || hasRole('manager');
       
-      // Organization members
-      match /members/{memberId} {
-        allow read: if canRead(get(/databases/$(database)/documents/organizations/$(orgId)));
-        allow write: if canAdmin(get(/databases/$(database)/documents/organizations/$(orgId)));
+      // TRR sub-collections (comments, attachments, etc.)
+      match /{subCollection}/{docId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthorizedUser();
       }
     }
     
-    // Portfolios (top-level groupings)
-    match /portfolios/{portfolioId} {
-      allow read: if canRead(resource);
-      allow create: if isSignedIn() && 
-                       getUserId() == request.resource.data.createdBy;
-      allow update: if canWrite(resource) &&
-                       validateUpdateFields(['name', 'description', 'status', 'members', 'tags', 'updatedAt']);
-      allow delete: if canAdmin(resource);
-    }
-    
-    // Projects (within portfolios)
-    match /projects/{projectId} {
-      allow read: if canRead(resource);
-      allow create: if isSignedIn() && 
-                       getUserId() == request.resource.data.createdBy;
-      allow update: if canWrite(resource) &&
-                       validateUpdateFields([
-                         'name', 'description', 'status', 'priority', 'members', 
-                         'tags', 'metadata', 'timeline', 'budget', 'updatedAt'
-                       ]);
-      allow delete: if canAdmin(resource);
-    }
-    
-    // Technical Requirements Reviews (TRRs)
-    match /trrs/{trrId} {
-      allow read: if canRead(resource);
-      allow create: if isSignedIn() && 
-                       getUserId() == request.resource.data.createdBy;
-      allow update: if canWrite(resource) &&
-                       validateUpdateFields([
-                         'title', 'description', 'status', 'priority', 'category',
-                         'assignedTo', 'reviewers', 'acceptanceCriteria', 
-                         'testCases', 'risksAndMitigation', 'businessImpact',
-                         'technicalApproach', 'resourceRequirements',
-                         'timeline', 'dependencies', 'tags', 'attachments',
-                         'comments', 'statusHistory', 'aiPredictions',
-                         'validationResults', 'signoffData', 'updatedAt'
-                       ]);
-      allow delete: if canAdmin(resource);
+    // POV (Proof of Value) documents
+    match /pov/{povId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthorizedUser();
+      allow delete: if hasRole('admin') || hasRole('manager');
       
-      // TRR Requirements (nested under TRRs)
-      match /requirements/{reqId} {
-        allow read: if canRead(get(/databases/$(database)/documents/trrs/$(trrId)));
-        allow write: if canWrite(get(/databases/$(database)/documents/trrs/$(trrId))) &&
-                        isOwnerOrCollaborator(get(/databases/$(database)/documents/trrs/$(trrId)));
-      }
-      
-      // TRR Test Cases (nested under TRRs)
-      match /testCases/{testId} {
-        allow read: if canRead(get(/databases/$(database)/documents/trrs/$(trrId)));
-        allow write: if canWrite(get(/databases/$(database)/documents/trrs/$(trrId))) &&
-                        isOwnerOrCollaborator(get(/databases/$(database)/documents/trrs/$(trrId)));
-      }
-      
-      // TRR Comments (nested under TRRs)
-      match /comments/{commentId} {
-        allow read: if canRead(get(/databases/$(database)/documents/trrs/$(trrId)));
-        allow create: if canRead(get(/databases/$(database)/documents/trrs/$(trrId))) &&
-                         isSignedIn() &&
-                         getUserId() == request.resource.data.authorId;
-        allow update: if isSignedIn() && getUserId() == resource.data.authorId &&
-                         validateUpdateFields(['content', 'updatedAt']);
-        allow delete: if isSignedIn() && (
-                           getUserId() == resource.data.authorId ||
-                           canAdmin(get(/databases/$(database)/documents/trrs/$(trrId)))
-                         );
-      }
-      
-      // TRR Attachments (nested under TRRs)
-      match /attachments/{attachmentId} {
-        allow read: if canRead(get(/databases/$(database)/documents/trrs/$(trrId)));
-        allow create: if canWrite(get(/databases/$(database)/documents/trrs/$(trrId))) &&
-                         isSignedIn() &&
-                         getUserId() == request.resource.data.uploadedBy;
-        allow delete: if isSignedIn() && (
-                           getUserId() == resource.data.uploadedBy ||
-                           canAdmin(get(/databases/$(database)/documents/trrs/$(trrId)))
-                         );
+      match /{subCollection}/{docId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthorizedUser();
       }
     }
     
-    // Blockchain Signoffs (immutable records)
-    match /signoffs/{signoffId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && 
-                       getUserId() == request.resource.data.signedBy;
-      // No updates or deletes allowed - blockchain records are immutable
+    // Scenarios collection
+    match /scenarios/{scenarioId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthorizedUser();
+      allow delete: if hasRole('admin');
     }
     
-    // Activity Logs (audit trail)
-    match /activityLogs/{logId} {
-      allow read: if isSignedIn(); // Users can read their own activities
-      allow create: if isSignedIn(); // System creates logs
-      // No updates or deletes allowed - audit logs are immutable
-      
-      // Filter logs by user
-      allow list: if isSignedIn() && 
-                     request.query.where([0][0] == 'userId' &&
-                     request.query.where([0][2] == getUserId());
-    }
-    
-    // AI Predictions and Suggestions
-    match /aiPredictions/{predictionId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn(); // Created by Cloud Functions
-      allow update: if isSignedIn() && 
-                       validateUpdateFields(['confidence', 'feedback', 'accuracy', 'updatedAt']);
-      // No deletes - keep prediction history
-    }
-    
-    // System Configuration (admin only)
-    match /config/{configId} {
-      allow read: if isSignedIn();
-      allow write: if isSignedIn() && 
-                      getUserEmail() in ['admin@henryreed.ai', 'henry@henryreed.ai'];
-    }
-    
-    // Templates and Resources
+    // Templates collection
     match /templates/{templateId} {
-      allow read: if isSignedIn();
-      allow write: if isSignedIn() && (
-                        getUserId() == resource.data.createdBy ||
-                        getUserEmail() in ['admin@henryreed.ai', 'henry@henryreed.ai']
-                      );
+      allow read: if isAuthenticated();
+      allow create, update, delete: if hasRole('admin') || hasRole('manager');
+    }
+    
+    // Activity logs (read-only for users, write for system)
+    match /activity/{activityId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated(); // System writes only
+      allow update, delete: if hasRole('admin');
+    }
+    
+    // Analytics and metrics (admin/manager access)
+    match /analytics/{docId} {
+      allow read: if hasRole('admin') || hasRole('manager');
+      allow write: if hasRole('admin');
+    }
+    
+    // Configuration and settings
+    match /config/{configId} {
+      allow read: if isAuthenticated();
+      allow write: if hasRole('admin');
     }
     
     // Notifications
-    match /notifications/{notificationId} {
-      allow read: if isSignedIn() && getUserId() == resource.data.userId;
-      allow create: if isSignedIn(); // System creates notifications
-      allow update: if isSignedIn() && getUserId() == resource.data.userId &&
-                       validateUpdateFields(['read', 'readAt']);
-      allow delete: if isSignedIn() && getUserId() == resource.data.userId;
+    match /notifications/{userId}/{notificationId} {
+      allow read, write: if isOwner(userId);
+      allow create: if isAuthenticated(); // System can create notifications for any user
     }
     
-    // Analytics Data (aggregated, no personal info)
-    match /analytics/{analyticsId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn(); // System creates analytics
-      // No updates or deletes - historical data preservation
+    // User sessions and preferences
+    match /sessions/{userId} {
+      allow read, write: if isOwner(userId);
     }
     
-    // File Metadata (for Storage integration)
-    match /fileMetadata/{fileId} {
-      allow read: if isSignedIn() && (
-                       getUserId() == resource.data.uploadedBy ||
-                       getUserEmail() in resource.data.sharedWith
-                     );
-      allow create: if isSignedIn() && 
-                       getUserId() == request.resource.data.uploadedBy;
-      allow update: if isSignedIn() && getUserId() == resource.data.uploadedBy &&
-                       validateUpdateFields(['name', 'description', 'sharedWith', 'updatedAt']);
-      allow delete: if isSignedIn() && getUserId() == resource.data.uploadedBy;
+    // Audit logs (admin only)
+    match /audit/{auditId} {
+      allow read: if hasRole('admin');
+      allow create: if isAuthenticated(); // System writes audit logs
+      allow update, delete: if false; // Audit logs are immutable
+    }
+    
+    // Company/organization data
+    match /organizations/{orgId} {
+      allow read: if isAuthenticated();
+      allow write: if hasRole('admin');
+    }
+    
+    // Feature flags and remote config
+    match /features/{featureId} {
+      allow read: if isAuthenticated();
+      allow write: if hasRole('admin');
+    }
+    
+    // Default deny rule for any unlisted collections
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

@@ -1,0 +1,46 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+      - img [ref=e8] [cursor=pointer]
+    - generic [ref=e13] [cursor=pointer]:
+      - button "Open issues overlay" [ref=e14] [cursor=pointer]:
+        - generic [ref=e15] [cursor=pointer]:
+          - generic [ref=e16] [cursor=pointer]: "0"
+          - generic [ref=e17] [cursor=pointer]: "1"
+        - generic [ref=e18] [cursor=pointer]: Issue
+      - button "Collapse issues badge" [ref=e19] [cursor=pointer]:
+        - img [ref=e20] [cursor=pointer]
+  - banner [ref=e22]:
+    - generic [ref=e23]:
+      - link "🛡️ Cortex DC" [ref=e25]:
+        - /url: /gui
+        - generic [ref=e26]: 🛡️ Cortex DC
+      - generic [ref=e27]:
+        - navigation [ref=e28]:
+          - link "🎨" [ref=e29]:
+            - /url: /gui
+            - generic [ref=e30]: 🎨
+          - link "📖" [ref=e31]:
+            - /url: /docs
+            - generic [ref=e32]: 📖
+          - link "📋" [ref=e33]:
+            - /url: /trr
+            - generic [ref=e34]: 📋
+          - link "✏️" [ref=e35]:
+            - /url: /content
+            - generic [ref=e36]: ✏️
+          - link "🔄" [ref=e37]:
+            - /url: /alignment-guide
+            - generic [ref=e38]: 🔄
+        - generic [ref=e39]:
+          - generic [ref=e40]:
+            - generic [ref=e41]: 👤
+            - generic [ref=e42]: GUI
+          - button "🚺" [ref=e43] [cursor=pointer]:
+            - generic [ref=e44] [cursor=pointer]: 🚺
+  - generic [ref=e48]: Loading Cortex DC Portal...
+  - alert [ref=e49]
+```

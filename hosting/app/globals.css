@@ -195,3 +195,96 @@ input:focus, textarea:focus, select:focus {
   height: 20px;
   animation: cortex-spin 1s linear infinite;
 }
+
+/* Enhanced Button Ripple Effect */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.button-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Enhanced Loading States */
+@keyframes button-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.button-loading {
+  animation: button-pulse 1.5s ease-in-out infinite;
+}
+
+/* Modern Shadow Variations */
+.shadow-cortex-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 204, 102, 0.1);
+}
+
+.shadow-cortex-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 204, 102, 0.1), 0 2px 4px -1px rgba(0, 204, 102, 0.06);
+}
+
+.shadow-cortex-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 204, 102, 0.1), 0 4px 6px -2px rgba(0, 204, 102, 0.05);
+}
+
+.shadow-cortex-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 204, 102, 0.1), 0 10px 10px -5px rgba(0, 204, 102, 0.04);
+}
+
+/* Button Hover Effects */
+.button-hover-lift {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.button-hover-lift:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 204, 102, 0.15);
+}
+
+.button-hover-lift:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Success/Error Message Animations */
+@keyframes slideInDown {
+  from {
+    transform: translate3d(-50%, -100%, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutUp {
+  from {
+    transform: translate3d(-50%, 0, 0);
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(-50%, -100%, 0);
+    opacity: 0;
+  }
+}
+
+.message-slide-in {
+  animation: slideInDown 0.3s ease-out;
+}
+
+.message-slide-out {
+  animation: slideOutUp 0.3s ease-in;
+}

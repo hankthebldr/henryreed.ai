@@ -17,8 +17,8 @@ export const logger = createLogger({
             timestamp: info.timestamp,
             severity: info.level.toUpperCase(),
             message: info.message,
-            ...info.meta,
-            ...(info.stack && { stack: info.stack })
+            ...(info.meta || {}),
+            ...(info.stack ? { stack: info.stack } : {})
           });
         })]
     )

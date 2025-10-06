@@ -1,0 +1,104 @@
+rules_version = '2';
+
+// Firebase Storage Security Rules for Cortex DC Portal
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Authentication required for all operations
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Check if user is authorized (has specific email domains or roles)
+    function isAuthorizedUser() {
+      return request.auth != null && 
+             (request.auth.token.email.matches('.*@henryreed.ai') ||
+              request.auth.token.email.matches('.*@paloaltonetworks.com') ||
+              request.auth.token.admin == true);
+    }
+    
+    // User-specific uploads (POV documents, attachments, etc.)
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // TRR attachments and documents
+    match /trr/{trrId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthorizedUser();
+    }
+    
+    // Public resources (company logos, branding assets)
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAuthorizedUser();
+    }
+    
+    // Template documents and scenario files
+    match /templates/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthorizedUser();
+    }
+    
+    // Scenario-related uploads
+    match /scenarios/{scenarioId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthorizedUser();
+    }
+    
+    // POV-related uploads
+    match /pov/{povId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthorizedUser();
+    }
+    
+    // Export files (temporary storage for generated reports)
+    match /exports/{userId}/{allPaths=**} {
+      // User can read/write their own exports, admins can access all
+      allow read, write: if isAuthenticated() && 
+                        (request.auth.uid == userId || 
+                         request.auth.token.admin == true);
+      // Auto-delete exports after 24 hours (handled by Cloud Function)
+    }
+    
+    // Backup files (admin only)
+    match /backups/{allPaths=**} {
+      allow read, write: if isAuthorizedUser() && 
+                          request.auth.token.admin == true;
+    }
+    
+    // File size limits
+    function isValidFileSize() {
+      // 10MB limit for most files
+      return request.resource.size <= 10 * 1024 * 1024;
+    }
+    
+    function isValidImageSize() {
+      // 5MB limit for images
+      return request.resource.size <= 5 * 1024 * 1024;
+    }
+    
+    // Content type validation
+    function isValidImageType() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    function isValidDocumentType() {
+      return request.resource.contentType in [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain',
+        'text/csv',
+        'application/json'
+      ];
+    }
+    
+    // Apply file validation to uploads
+    match /{allPaths=**} {
+      allow write: if isAuthenticated() && 
+                     (isValidFileSize() || 
+                      (isValidImageType() && isValidImageSize())) &&
+                     (isValidImageType() || isValidDocumentType());
+    }
+  }
+}

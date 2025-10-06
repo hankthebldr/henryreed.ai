@@ -1,0 +1,213 @@
+{
+  "conditions": [
+    {
+      "name": "henryreed_users",
+      "expression": "request.auth.token.email.matches('.*@henryreed.ai')",
+      "tagColor": "GREEN"
+    },
+    {
+      "name": "pan_users", 
+      "expression": "request.auth.token.email.matches('.*@paloaltonetworks.com')",
+      "tagColor": "BLUE"
+    },
+    {
+      "name": "beta_users",
+      "expression": "request.auth.token.beta_user == true",
+      "tagColor": "ORANGE"
+    },
+    {
+      "name": "admin_users",
+      "expression": "request.auth.token.admin == true",
+      "tagColor": "RED"
+    }
+  ],
+  "parameters": {
+    "enable_ai_insights": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "conditionalValues": {
+        "henryreed_users": {
+          "value": "true"
+        },
+        "pan_users": {
+          "value": "true"
+        },
+        "beta_users": {
+          "value": "true"
+        }
+      },
+      "description": "Enable AI-powered insights and recommendations"
+    },
+    "enable_genkit_functions": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "conditionalValues": {
+        "henryreed_users": {
+          "value": "true"
+        },
+        "admin_users": {
+          "value": "true"
+        }
+      },
+      "description": "Enable Genkit AI functions for advanced analysis"
+    },
+    "enable_advanced_analytics": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "conditionalValues": {
+        "henryreed_users": {
+          "value": "true"
+        },
+        "pan_users": {
+          "value": "true"
+        }
+      },
+      "description": "Enable advanced analytics dashboard features"
+    },
+    "enable_competitive_analysis": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "conditionalValues": {
+        "henryreed_users": {
+          "value": "true"
+        },
+        "pan_users": {
+          "value": "true"
+        }
+      },
+      "description": "Enable competitive analysis tools and insights"
+    },
+    "enable_data_connect": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "conditionalValues": {
+        "admin_users": {
+          "value": "true"
+        }
+      },
+      "description": "Enable Data Connect PostgreSQL integration"
+    },
+    "max_pov_count": {
+      "defaultValue": {
+        "value": "10"
+      },
+      "conditionalValues": {
+        "henryreed_users": {
+          "value": "100"
+        },
+        "pan_users": {
+          "value": "50"
+        }
+      },
+      "description": "Maximum number of POVs a user can create"
+    },
+    "max_trr_count": {
+      "defaultValue": {
+        "value": "20"
+      },
+      "conditionalValues": {
+        "henryreed_users": {
+          "value": "200"
+        },
+        "pan_users": {
+          "value": "100"
+        }
+      },
+      "description": "Maximum number of TRRs a user can create"
+    },
+    "api_rate_limit": {
+      "defaultValue": {
+        "value": "100"
+      },
+      "conditionalValues": {
+        "henryreed_users": {
+          "value": "1000"
+        },
+        "pan_users": {
+          "value": "500"
+        }
+      },
+      "description": "API rate limit per hour per user"
+    },
+    "enable_debug_mode": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "conditionalValues": {
+        "admin_users": {
+          "value": "true"
+        }
+      },
+      "description": "Enable debug mode with detailed logging"
+    },
+    "maintenance_mode": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "description": "Enable maintenance mode to show maintenance page"
+    },
+    "announcement_message": {
+      "defaultValue": {
+        "value": ""
+      },
+      "description": "Global announcement message to show in the app"
+    },
+    "ai_model_preference": {
+      "defaultValue": {
+        "value": "gemini-1.5-pro"
+      },
+      "conditionalValues": {
+        "beta_users": {
+          "value": "gemini-2.0-flash"
+        },
+        "admin_users": {
+          "value": "gemini-2.0-flash"
+        }
+      },
+      "description": "Preferred AI model for Genkit functions"
+    }
+  },
+  "parameterGroups": {
+    "feature_flags": {
+      "description": "Feature toggles for application functionality",
+      "parameters": [
+        "enable_ai_insights",
+        "enable_genkit_functions", 
+        "enable_advanced_analytics",
+        "enable_competitive_analysis",
+        "enable_data_connect"
+      ]
+    },
+    "user_limits": {
+      "description": "User-specific limits and quotas",
+      "parameters": [
+        "max_pov_count",
+        "max_trr_count",
+        "api_rate_limit"
+      ]
+    },
+    "system_config": {
+      "description": "System-wide configuration settings",
+      "parameters": [
+        "enable_debug_mode",
+        "maintenance_mode",
+        "announcement_message",
+        "ai_model_preference"
+      ]
+    }
+  },
+  "version": {
+    "versionNumber": "1",
+    "updateTime": "2024-10-03T19:00:00Z",
+    "updateUser": {
+      "email": "henry@henryreed.ai"
+    },
+    "updateOrigin": "ADMIN_SDK_NODE",
+    "updateType": "INCREMENTAL_UPDATE"
+  }
+}

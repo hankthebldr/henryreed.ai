@@ -18,6 +18,12 @@ export default function AppHeader() {
   const isTRR = pathname?.startsWith("/trr");
   const isContent = pathname?.startsWith("/content");
   const isHome = pathname === "/";
+  
+  // Check if user has terminal access (basic command permissions)
+  const hasTerminalAccess = typeof window !== 'undefined' && 
+    ['admin', 'manager', 'senior_dc', 'dc'].includes(
+      sessionStorage.getItem('dc_user_role') || 'analyst'
+    );
 
   // Keep global mode and breadcrumbs in sync with the current route
   useEffect(() => {
@@ -102,6 +108,19 @@ className="text-base md:text-lg font-bold text-cortex-green hover:text-cortex-gr
             >
               <span className="text-base">🎨</span>
             </Link>
+            {hasTerminalAccess && (
+              <Link
+                href="/terminal"
+                className={`p-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                  isTerminal 
+                    ? "bg-black text-green-400 shadow-lg border border-green-400" 
+                    : "text-cortex-text-secondary hover:text-green-400 hover:bg-cortex-bg-hover"
+                }`}
+                title="Terminal (RBAC Protected)"
+              >
+                <span className="text-base">⌨️</span>
+              </Link>
+            )}
             <Link
               href="/docs"
               className={`p-2 rounded-lg font-medium text-sm transition-all duration-200 ${
@@ -161,6 +180,20 @@ className="text-base md:text-lg font-bold text-cortex-green hover:text-cortex-gr
               <span className="text-base">🎨</span>
               <span>GUI</span>
             </Link>
+            {hasTerminalAccess && (
+              <Link
+                href="/terminal"
+                className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 flex items-center space-x-2 ${
+                  isTerminal 
+                    ? "bg-black text-green-400 shadow-lg transform scale-105 border border-green-400" 
+                    : "text-cortex-text-secondary hover:text-green-400 hover:bg-gray-900"
+                }`}
+                title="RBAC-Protected Terminal Interface"
+              >
+                <span className="text-base">⌨️</span>
+                <span>Terminal</span>
+              </Link>
+            )}
             <Link
               href="/docs"
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 flex items-center space-x-2 ${

@@ -1,0 +1,178 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+    - img [ref=e8] [cursor=pointer]
+  - alert [ref=e11]
+  - banner [ref=e12]:
+    - generic [ref=e13]:
+      - link "🛡️ Cortex DC" [ref=e15] [cursor=pointer]:
+        - /url: /gui
+        - generic [ref=e16] [cursor=pointer]: 🛡️ Cortex DC
+      - generic [ref=e17]:
+        - navigation [ref=e18]:
+          - link "🎨" [ref=e19] [cursor=pointer]:
+            - /url: /gui
+            - generic [ref=e20] [cursor=pointer]: 🎨
+          - link "📖" [ref=e21] [cursor=pointer]:
+            - /url: /docs
+            - generic [ref=e22] [cursor=pointer]: 📖
+          - link "📋" [ref=e23] [cursor=pointer]:
+            - /url: /trr
+            - generic [ref=e24] [cursor=pointer]: 📋
+          - link "✏️" [ref=e25] [cursor=pointer]:
+            - /url: /content
+            - generic [ref=e26] [cursor=pointer]: ✏️
+          - link "🔄" [ref=e27] [cursor=pointer]:
+            - /url: /alignment-guide
+            - generic [ref=e28] [cursor=pointer]: 🔄
+        - generic [ref=e29]:
+          - generic [ref=e30]:
+            - generic [ref=e31]: 👤
+            - generic [ref=e32]: GUI
+          - button "🚺" [ref=e33] [cursor=pointer]:
+            - generic [ref=e34] [cursor=pointer]: 🚺
+  - generic [ref=e35]:
+    - generic [ref=e36]:
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - heading "🏢 Cortex Domain Consultant Platform" [level=1] [ref=e39]
+          - generic [ref=e40]:
+            - generic [ref=e41]:
+              - text: Welcome,
+              - generic [ref=e42]: System Administrator
+              - generic [ref=e43]: • admin
+            - generic [ref=e44]: 📈 MANAGEMENT MODE
+            - generic [ref=e45]: "Data View: Aggregated"
+        - generic [ref=e46]:
+          - generic [ref=e47]: 10/3/2025, 4:18:45 PM
+          - generic [ref=e48]: ⚙️ Admin View
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - text: "Current User:"
+          - generic [ref=e52]: admin@cortex.com
+          - text: "| Role:"
+          - generic [ref=e53]: admin
+          - text: "| Session:"
+          - generic [ref=e54]: user_1759526325392_bhpxx66ip
+        - generic [ref=e55]:
+          - text: "Access Level:"
+          - generic [ref=e56]: Management (All Data)
+    - generic [ref=e58]:
+      - button "📊 Dashboard" [ref=e59] [cursor=pointer]:
+        - generic [ref=e60] [cursor=pointer]: 📊
+        - generic [ref=e61] [cursor=pointer]: Dashboard
+      - button "🎯 POV Management" [ref=e62] [cursor=pointer]:
+        - generic [ref=e63] [cursor=pointer]: 🎯
+        - generic [ref=e64] [cursor=pointer]: POV Management
+      - button "📋 TRR Management" [ref=e65] [cursor=pointer]:
+        - generic [ref=e66] [cursor=pointer]: 📋
+        - generic [ref=e67] [cursor=pointer]: TRR Management
+      - button "🏥 XSIAM Health" [ref=e68] [cursor=pointer]:
+        - generic [ref=e69] [cursor=pointer]: 🏥
+        - generic [ref=e70] [cursor=pointer]: XSIAM Health
+      - button "🤖 AI Assistant" [ref=e71] [cursor=pointer]:
+        - generic [ref=e72] [cursor=pointer]: 🤖
+        - generic [ref=e73] [cursor=pointer]: AI Assistant
+      - button "📈 Data Explorer" [ref=e74] [cursor=pointer]:
+        - generic [ref=e75] [cursor=pointer]: 📈
+        - generic [ref=e76] [cursor=pointer]: Data Explorer
+      - button "🔧 Detection Engine" [ref=e77] [cursor=pointer]:
+        - generic [ref=e78] [cursor=pointer]: 🔧
+        - generic [ref=e79] [cursor=pointer]: Detection Engine
+      - button "⚙️ Management" [ref=e80] [cursor=pointer]:
+        - generic [ref=e81] [cursor=pointer]: ⚙️
+        - generic [ref=e82] [cursor=pointer]: Management
+    - generic [ref=e84]:
+      - generic [ref=e85]: 📊 Dashboard
+      - generic [ref=e86]: •
+      - generic [ref=e87]: Overview of POVs, metrics, and activity
+    - generic [ref=e89]:
+      - generic [ref=e90]:
+        - heading "🎯 POV Management Dashboard" [level=2] [ref=e91]
+        - generic [ref=e92]:
+          - generic [ref=e93]:
+            - heading "Active POVs" [level=3] [ref=e94]
+            - generic [ref=e95]: "12"
+            - generic [ref=e96]: 3 in progress, 9 completed
+            - generic [ref=e97]: vs Splunk's complex setup
+          - generic [ref=e98]:
+            - heading "Detection Scripts" [level=3] [ref=e99]
+            - generic [ref=e100]: "47"
+            - generic [ref=e101]: Production-ready detections
+            - generic [ref=e102]: vs CrowdStrike IOA limits
+          - generic [ref=e103]:
+            - heading "TRR-SDW Pairs" [level=3] [ref=e104]
+            - generic [ref=e105]: "23"
+            - generic [ref=e106]: Linked design workbooks
+            - generic [ref=e107]: vs manual documentation
+          - generic [ref=e108]:
+            - heading "Cost Savings" [level=3] [ref=e109]
+            - generic [ref=e110]: 54%
+            - generic [ref=e111]: Avg vs competitors
+            - generic [ref=e112]: Splunk/CrowdStrike/Sentinel
+      - generic [ref=e113]:
+        - generic [ref=e114]:
+          - heading "📊 Recent Activity" [level=3] [ref=e115]
+          - generic [ref=e116]:
+            - generic [ref=e117]:
+              - generic [ref=e118]:
+                - generic [ref=e119]: POV Completed
+                - generic [ref=e120]: Enterprise Banking Corp (vs Splunk)
+              - generic [ref=e122]: 2 hours ago
+            - generic [ref=e123]:
+              - generic [ref=e124]:
+                - generic [ref=e125]: Detection Deployed
+                - generic [ref=e126]: Lateral Movement vs CrowdStrike
+              - generic [ref=e128]: 4 hours ago
+            - generic [ref=e129]:
+              - generic [ref=e130]:
+                - generic [ref=e131]: SOAR Playbook
+                - generic [ref=e132]: Automated Triage vs Phantom
+              - generic [ref=e134]: 6 hours ago
+            - generic [ref=e135]:
+              - generic [ref=e136]:
+                - generic [ref=e137]: TRR-SDW Linked
+                - generic [ref=e138]: Multi-Cloud Security Design
+              - generic [ref=e140]: 8 hours ago
+            - generic [ref=e141]:
+              - generic [ref=e142]:
+                - generic [ref=e143]: Analytics Query
+                - generic [ref=e144]: 10x Faster than Splunk SPL
+              - generic [ref=e146]: 1 day ago
+            - generic [ref=e147]:
+              - generic [ref=e148]:
+                - generic [ref=e149]: Cost Analysis
+                - generic [ref=e150]: 60% Savings vs Sentinel
+              - generic [ref=e152]: 1 day ago
+        - generic [ref=e153]:
+          - heading "⚡ Quick Actions" [level=3] [ref=e154]
+          - generic [ref=e155]:
+            - button "🎯 New POV" [ref=e156] [cursor=pointer]:
+              - generic [ref=e157] [cursor=pointer]: 🎯
+              - generic [ref=e158] [cursor=pointer]: New POV
+            - button "📄 Upload CSV" [ref=e159] [cursor=pointer]:
+              - generic [ref=e160] [cursor=pointer]: 📄
+              - generic [ref=e161] [cursor=pointer]: Upload CSV
+            - button "📝 Generate Report" [ref=e162] [cursor=pointer]:
+              - generic [ref=e163] [cursor=pointer]: 📝
+              - generic [ref=e164] [cursor=pointer]: Generate Report
+            - button "🤖 AI Analysis" [ref=e165] [cursor=pointer]:
+              - generic [ref=e166] [cursor=pointer]: 🤖
+              - generic [ref=e167] [cursor=pointer]: AI Analysis
+            - button "🔧 Detection Engine" [ref=e168] [cursor=pointer]:
+              - generic [ref=e169] [cursor=pointer]: 🔧
+              - generic [ref=e170] [cursor=pointer]: Detection Engine
+            - button "🧭 Badass Blueprint" [ref=e171] [cursor=pointer]:
+              - generic [ref=e172] [cursor=pointer]: 🧭
+              - generic [ref=e173] [cursor=pointer]: Badass Blueprint
+          - generic [ref=e174]:
+            - heading "Advanced Actions" [level=4] [ref=e175]
+            - generic [ref=e176]:
+              - button "🔄 Sync with XSIAM tenant" [ref=e177] [cursor=pointer]
+              - button "📋 Export current dashboard" [ref=e178] [cursor=pointer]
+              - button "📊 View system metrics" [ref=e179] [cursor=pointer]
+              - button "📝 Create Solution Design Workbook (SDW)" [ref=e180] [cursor=pointer]
+              - button "⌨️ Open Terminal Interface" [ref=e181] [cursor=pointer]
+```

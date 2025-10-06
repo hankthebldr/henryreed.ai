@@ -1,6 +1,7 @@
 'use client';
 
-import CortexDCTerminal from '../../components/CortexDCTerminal';
+import UnifiedTerminal from '../../components/UnifiedTerminal';
+// ActivityProvider will be added when the context is implemented
 import { useAuthGuard } from '../../hooks/useAuthGuard';
 
 export default function TerminalPage() {
@@ -18,7 +19,7 @@ export default function TerminalPage() {
   }
 
   if (isAuthenticated) {
-    return <CortexDCTerminal />;
+    return <UnifiedTerminal />;
   }
 
   return null;

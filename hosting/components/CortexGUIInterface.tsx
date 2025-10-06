@@ -10,6 +10,7 @@ import { BigQueryExplorer } from './BigQueryExplorer';
 import { POVProjectManagement } from './POVProjectManagement';
 import { ProductionTRRManagement } from './ProductionTRRManagement';
 import { ManagementDashboard } from './ManagementDashboard';
+import ScenarioEngine from './ScenarioEngine';
 
 interface GUITab {
   id: string;
@@ -72,23 +73,41 @@ const POVDashboard = () => {
     }
   };
 
+  // Functional dashboard actions with proper routing
   const quickActions: QuickAction[] = [
     {
       name: 'New POV',
       icon: '🎯',
       description: 'Initialize a new Proof of Value project',
-      onClick: () => alert('New POV creation initiated'),
+      onClick: () => {
+        // Switch to project management tab and trigger new POV creation
+        if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+          // If in iframe, post message to parent
+          window.parent.postMessage({ action: 'navigate', tab: 'projects' }, '*');
+        } else {
+          // Direct navigation within the app
+          const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'projects', action: 'create-pov' } });
+          window.dispatchEvent(event);
+        }
+      },
       className: 'bg-green-900 bg-opacity-20 border-green-500 border-opacity-30 hover:bg-green-900 hover:bg-opacity-40 text-green-400'
     },
     {
       name: 'Upload CSV',
-      icon: '📊',
+      icon: '📄',
       description: 'Import TRR data from CSV file',
       onClick: () => {
         const input = document.createElement('input');
         input.type = 'file';
-        input.accept = '.csv';
-        input.onchange = () => alert('CSV upload functionality would be implemented here');
+        input.accept = '.csv,.xlsx';
+        input.onchange = (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (file) {
+            // Navigate to TRR tab with import mode
+            const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'trr', action: 'import-csv', file: file.name } });
+            window.dispatchEvent(event);
+          }
+        };
         input.click();
       },
       className: 'bg-blue-900 bg-opacity-20 border-blue-500 border-opacity-30 hover:bg-blue-900 hover:bg-opacity-40 text-blue-400'
@@ -97,15 +116,34 @@ const POVDashboard = () => {
       name: 'Generate Report',
       icon: '📝',
       description: 'Create executive or technical report',
-      onClick: () => alert('Report generation started'),
+      onClick: () => {
+        // Navigate to data explorer with report generation mode
+        const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'generate-report' } });
+        window.dispatchEvent(event);
+      },
       className: 'bg-purple-900 bg-opacity-20 border-purple-500 border-opacity-30 hover:bg-purple-900 hover:bg-opacity-40 text-purple-400'
     },
     {
       name: 'AI Analysis',
       icon: '🤖',
       description: 'Run Gemini AI analysis on current data',
-      onClick: () => alert('AI analysis initiated'),
+      onClick: () => {
+        // Navigate to AI assistant tab
+        const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'ai', action: 'start-analysis' } });
+        window.dispatchEvent(event);
+      },
       className: 'bg-cyan-900 bg-opacity-20 border-cyan-500 border-opacity-30 hover:bg-cyan-900 hover:bg-opacity-40 text-cyan-400'
+    },
+    {
+      name: 'Detection Engine',
+      icon: '🔧',
+      description: 'Access detection scripts and automation tools',
+      onClick: () => {
+        // Open detection engine (formerly template creator) with competitive focus
+        const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'creator', action: 'detection-engine' } });
+        window.dispatchEvent(event);
+      },
+      className: 'bg-orange-900 bg-opacity-20 border-orange-500 border-opacity-30 hover:bg-orange-900 hover:bg-opacity-40 text-orange-400'
     },
     {
       name: 'Badass Blueprint',
@@ -117,10 +155,12 @@ const POVDashboard = () => {
   ];
 
   const activityData = [
-    { action: 'POV Completed', target: 'Enterprise Banking Corp', time: '2 hours ago', status: 'success' },
-    { action: 'Template Deployed', target: 'Ransomware Chain v2.1', time: '4 hours ago', status: 'info' },
-    { action: 'Detection Generated', target: 'T1078 Account Access', time: '6 hours ago', status: 'warning' },
-    { action: 'TRR Validated', target: 'Multi-Cloud Security', time: '1 day ago', status: 'success' }
+    { action: 'POV Completed', target: 'Enterprise Banking Corp (vs Splunk)', time: '2 hours ago', status: 'success' },
+    { action: 'Detection Deployed', target: 'Lateral Movement vs CrowdStrike', time: '4 hours ago', status: 'info' },
+    { action: 'SOAR Playbook', target: 'Automated Triage vs Phantom', time: '6 hours ago', status: 'warning' },
+    { action: 'TRR-SDW Linked', target: 'Multi-Cloud Security Design', time: '8 hours ago', status: 'success' },
+    { action: 'Analytics Query', target: '10x Faster than Splunk SPL', time: '1 day ago', status: 'info' },
+    { action: 'Cost Analysis', target: '60% Savings vs Sentinel', time: '1 day ago', status: 'success' }
   ];
 
   return (
@@ -128,21 +168,30 @@ const POVDashboard = () => {
       {/* Stats Overview */}
       <div className="bg-gradient-to-r from-green-900 from-opacity-20 to-blue-900 to-opacity-20 p-6 rounded-lg border border-green-500 border-opacity-30">
         <h2 className="text-2xl font-bold text-green-400 mb-4">🎯 POV Management Dashboard</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-gray-800 bg-opacity-50 p-4 rounded border border-green-500 border-opacity-20">
             <h3 className="text-lg font-bold text-green-300 mb-2">Active POVs</h3>
             <div className="text-3xl font-mono text-green-400">12</div>
             <div className="text-sm text-gray-400 mt-2">3 in progress, 9 completed</div>
+            <div className="text-xs text-red-300 mt-1">vs Splunk's complex setup</div>
           </div>
           <div className="bg-gray-800 bg-opacity-50 p-4 rounded border border-blue-500 border-opacity-20">
-            <h3 className="text-lg font-bold text-blue-300 mb-2">Templates Used</h3>
-            <div className="text-3xl font-mono text-blue-400">27</div>
-            <div className="text-sm text-gray-400 mt-2">Across 8 scenarios</div>
+            <h3 className="text-lg font-bold text-blue-300 mb-2">Detection Scripts</h3>
+            <div className="text-3xl font-mono text-blue-400">47</div>
+            <div className="text-sm text-gray-400 mt-2">Production-ready detections</div>
+            <div className="text-xs text-red-300 mt-1">vs CrowdStrike IOA limits</div>
           </div>
           <div className="bg-gray-800 bg-opacity-50 p-4 rounded border border-purple-500 border-opacity-20">
-            <h3 className="text-lg font-bold text-purple-300 mb-2">Customer Engagements</h3>
-            <div className="text-3xl font-mono text-purple-400">8</div>
-            <div className="text-sm text-gray-400 mt-2">5 enterprise, 3 mid-market</div>
+            <h3 className="text-lg font-bold text-purple-300 mb-2">TRR-SDW Pairs</h3>
+            <div className="text-3xl font-mono text-purple-400">23</div>
+            <div className="text-sm text-gray-400 mt-2">Linked design workbooks</div>
+            <div className="text-xs text-red-300 mt-1">vs manual documentation</div>
+          </div>
+          <div className="bg-gray-800 bg-opacity-50 p-4 rounded border border-orange-500 border-opacity-20">
+            <h3 className="text-lg font-bold text-orange-300 mb-2">Cost Savings</h3>
+            <div className="text-3xl font-mono text-orange-400">54%</div>
+            <div className="text-sm text-gray-400 mt-2">Avg vs competitors</div>
+            <div className="text-xs text-red-300 mt-1">Splunk/CrowdStrike/Sentinel</div>
           </div>
         </div>
       </div>
@@ -193,14 +242,49 @@ const POVDashboard = () => {
           <div className="mt-4 pt-4 border-t border-gray-600">
             <h4 className="text-sm font-bold text-gray-300 mb-2">Advanced Actions</h4>
             <div className="space-y-2">
-              <button className="w-full text-left p-2 rounded hover:bg-gray-800 hover:bg-opacity-50 transition-colors text-sm text-gray-400 hover:text-white">
+              <button 
+                onClick={() => {
+                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'xsiam', action: 'sync-tenant' } });
+                  window.dispatchEvent(event);
+                }}
+                className="w-full text-left p-2 rounded hover:bg-gray-800 hover:bg-opacity-50 transition-colors text-sm text-gray-400 hover:text-white"
+              >
                 🔄 Sync with XSIAM tenant
               </button>
-              <button className="w-full text-left p-2 rounded hover:bg-gray-800 hover:bg-opacity-50 transition-colors text-sm text-gray-400 hover:text-white">
+              <button 
+                onClick={() => {
+                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'export-dashboard' } });
+                  window.dispatchEvent(event);
+                }}
+                className="w-full text-left p-2 rounded hover:bg-gray-800 hover:bg-opacity-50 transition-colors text-sm text-gray-400 hover:text-white"
+              >
                 📋 Export current dashboard
               </button>
-              <button className="w-full text-left p-2 rounded hover:bg-gray-800 hover:bg-opacity-50 transition-colors text-sm text-gray-400 hover:text-white">
-                ⚙️ Configure notifications
+              <button 
+                onClick={() => {
+                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'analytics', action: 'system-metrics' } });
+                  window.dispatchEvent(event);
+                }}
+                className="w-full text-left p-2 rounded hover:bg-gray-800 hover:bg-opacity-50 transition-colors text-sm text-gray-400 hover:text-white"
+              >
+                📊 View system metrics
+              </button>
+              <button 
+                onClick={() => {
+                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'trr', action: 'create-sdw' } });
+                  window.dispatchEvent(event);
+                }}
+                className="w-full text-left p-2 rounded hover:bg-gray-800 hover:bg-opacity-50 transition-colors text-sm text-yellow-400 hover:text-yellow-300 border-t border-gray-600 mt-2 pt-2"
+              >
+                📝 Create Solution Design Workbook (SDW)
+              </button>
+              <button 
+                onClick={() => {
+                  window.open('/terminal', '_blank');
+                }}
+                className="w-full text-left p-2 rounded hover:bg-gray-800 hover:bg-opacity-50 transition-colors text-sm text-green-400 hover:text-green-300"
+              >
+                ⌨️ Open Terminal Interface
               </button>
             </div>
           </div>
@@ -257,10 +341,17 @@ const guiTabs: GUITab[] = [
   },
   {
     id: 'creator',
-    name: 'Content Creator',
-    icon: '🛠️',
+    name: 'Detection Engine',
+    icon: '🔧',
     component: EnhancedManualCreationGUI,
-    description: 'Create POVs, templates, and scenarios visually'
+    description: 'Detection scripts, automation tools, and security scenarios (vs Splunk/CrowdStrike)'
+  },
+  {
+    id: 'scenarios',
+    name: 'Scenario Engine',
+    icon: '🚀',
+    component: ScenarioEngine,
+    description: 'Comprehensive AI-driven scenario orchestration with real-time execution monitoring and adaptive learning'
   },
   {
     id: 'admin',
@@ -274,14 +365,38 @@ const guiTabs: GUITab[] = [
 export default function CortexGUIInterface() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [currentUser, setCurrentUser] = useState(null);
+  const [isManagementMode, setIsManagementMode] = useState(false);
+  const [userPermissions, setUserPermissions] = useState({});
+  const [currentDateTime, setCurrentDateTime] = useState('');
   
   const { trackFeatureUsage, trackPageView } = useActivityTracking();
   
   useEffect(() => {
-    // Initialize user context
+    // Initialize user context and permissions
     const users = userManagementService.getAllUsers();
     if (users.length > 0) {
-      setCurrentUser(users[0]); // Use first demo user
+      const user = users[0]; // Use first demo user
+      setCurrentUser(user);
+      
+      // Determine management mode based on role
+      const isManager = ['admin', 'manager'].includes(user?.role || '');
+      setIsManagementMode(isManager);
+      
+      // Set role-based permissions
+      const permissions = {
+        canViewUserData: true,
+        canViewAggregatedData: ['admin', 'manager'].includes(user?.role || ''),
+        canManageUsers: user?.role === 'admin',
+        canAccessAllProjects: ['admin', 'manager'].includes(user?.role || ''),
+        canModifySystemSettings: user?.role === 'admin',
+        canViewAnalytics: ['admin', 'manager', 'senior_dc'].includes(user?.role || ''),
+        canAccessAdmin: user?.role === 'admin',
+        canDeployScenarios: ['admin', 'manager', 'senior_dc', 'dc'].includes(user?.role || ''),
+        canCreateTRR: ['admin', 'manager', 'senior_dc', 'dc'].includes(user?.role || ''),
+        canAccessScenarioEngine: ['admin', 'manager', 'senior_dc', 'dc'].includes(user?.role || ''),
+        canViewReports: true
+      };
+      setUserPermissions(permissions);
     }
     
     // Track GUI initialization
@@ -289,18 +404,52 @@ export default function CortexGUIInterface() {
     trackPageView('/gui');
   }, [trackFeatureUsage, trackPageView]);
   
-  const handleTabChange = (tabId: string) => {
+  // Update current date/time
+  useEffect(() => {
+    const updateDateTime = () => {
+      setCurrentDateTime(new Date().toLocaleString());
+    };
+    updateDateTime();
+    const interval = setInterval(updateDateTime, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, []);
+  
+  const handleTabChange = (tabId: string, action?: string, metadata?: any) => {
     const previousTab = activeTab;
     setActiveTab(tabId);
     
-    // Track tab navigation
+    // Track tab navigation with action context
     trackFeatureUsage('navigation', 'tab_change', {
       component: `${previousTab}_to_${tabId}`,
       success: true
     });
     
     trackPageView(`/gui/${tabId}`);
+    
+    // Handle specific actions when navigating to tabs
+    if (action) {
+      setTimeout(() => {
+        const event = new CustomEvent(`tab-${tabId}-action`, {
+          detail: { action, metadata }
+        });
+        window.dispatchEvent(event);
+      }, 100); // Allow tab to render first
+    }
   };
+  
+  // Listen for custom navigation events from dashboard buttons
+  useEffect(() => {
+    const handleNavigationEvent = (event: CustomEvent) => {
+      const { tabId, action, ...metadata } = event.detail;
+      handleTabChange(tabId, action, metadata);
+    };
+    
+    window.addEventListener('navigate-to-tab', handleNavigationEvent as EventListener);
+    
+    return () => {
+      window.removeEventListener('navigate-to-tab', handleNavigationEvent as EventListener);
+    };
+  }, []);
   
   // Filter tabs based on user role
   const getVisibleTabs = () => {
@@ -312,6 +461,8 @@ export default function CortexGUIInterface() {
           return currentUser.role === 'admin';
         case 'data':
           return ['admin', 'manager', 'senior_dc'].includes(currentUser.role);
+        case 'scenarios':
+          return ['admin', 'manager', 'senior_dc', 'dc'].includes(currentUser.role);
         default:
           return true;
       }
@@ -329,23 +480,57 @@ export default function CortexGUIInterface() {
           <div className="flex items-center space-x-4">
             <h1 className="text-xl font-bold text-cyan-400">🏢 Cortex Domain Consultant Platform</h1>
             {currentUser && (
-              <div className="text-sm text-gray-300">
-                Welcome, <span className="text-cyan-400">{currentUser.firstName} {currentUser.lastName}</span>
-                <span className="text-gray-500 ml-2">• {currentUser.role}</span>
+              <div className="flex items-center space-x-4">
+                <div className="text-sm text-gray-300">
+                  Welcome, <span className="text-cyan-400">{currentUser.firstName} {currentUser.lastName}</span>
+                  <span className="text-gray-500 ml-2">• {currentUser.role}</span>
+                </div>
+                {isManagementMode && (
+                  <div className="text-xs text-orange-400 bg-orange-900/20 px-2 py-1 rounded border border-orange-500/30">
+                    📈 MANAGEMENT MODE
+                  </div>
+                )}
+                <div className="text-xs text-gray-400">
+                  Data View: {isManagementMode ? 'Aggregated' : 'Personal'}
+                </div>
               </div>
             )}
           </div>
           <div className="flex items-center space-x-3">
-            <div className="text-xs text-gray-400">
-              {new Date().toLocaleString()}
+            <div className="text-xs text-gray-400" data-testid="timestamp">
+              {currentDateTime || new Date().toLocaleString()}
             </div>
-            {activeTab === 'admin' && currentUser?.role !== 'admin' && (
+            {activeTab === 'admin' && !(userPermissions as any).canAccessAdmin && (
               <div className="text-xs text-yellow-400 bg-yellow-900/20 px-2 py-1 rounded">
                 🔒 Limited Access
               </div>
             )}
+            {isManagementMode && (
+              <div className="text-xs text-green-400 bg-green-900/20 px-2 py-1 rounded border border-green-500/30">
+                ⚙️ Admin View
+              </div>
+            )}
           </div>
         </div>
+        
+        {/* Data Segregation Notice */}
+        {currentUser && (
+          <div className="mt-2 text-xs text-gray-400 border-t border-gray-700 pt-2">
+            <div className="flex justify-between items-center">
+              <span>
+                Current User: <span className="text-cyan-400">{currentUser.email}</span> | 
+                Role: <span className="text-yellow-400">{currentUser.role}</span> | 
+                Session: <span className="text-green-400">{currentUser.id}</span>
+              </span>
+              <span>
+                Access Level: {isManagementMode ? 
+                  <span className="text-orange-400">Management (All Data)</span> : 
+                  <span className="text-blue-400">User (Personal Data Only)</span>
+                }
+              </span>
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Tab Navigation */}

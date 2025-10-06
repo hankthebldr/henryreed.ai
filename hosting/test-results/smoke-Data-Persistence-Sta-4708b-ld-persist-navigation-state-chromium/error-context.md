@@ -1,0 +1,46 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+      - img [ref=e8] [cursor=pointer]
+    - generic [ref=e11] [cursor=pointer]:
+      - button "Open issues overlay" [ref=e12] [cursor=pointer]:
+        - generic [ref=e13] [cursor=pointer]:
+          - generic [ref=e14] [cursor=pointer]: "0"
+          - generic [ref=e15] [cursor=pointer]: "1"
+        - generic [ref=e16] [cursor=pointer]: Issue
+      - button "Collapse issues badge" [ref=e17] [cursor=pointer]:
+        - img [ref=e18] [cursor=pointer]
+  - banner [ref=e20]:
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - link "🛡️ Cortex DC Portal" [ref=e23] [cursor=pointer]:
+          - /url: /gui
+          - generic [ref=e24] [cursor=pointer]: 🛡️ Cortex DC Portal
+        - generic [ref=e25]: Palo Alto Networks
+      - generic [ref=e26]:
+        - navigation [ref=e27]:
+          - link "🎨 GUI" [ref=e28] [cursor=pointer]:
+            - /url: /gui
+            - generic [ref=e29] [cursor=pointer]: 🎨
+            - generic [ref=e30] [cursor=pointer]: GUI
+          - link "📖 Docs" [ref=e31] [cursor=pointer]:
+            - /url: /docs
+            - generic [ref=e32] [cursor=pointer]: 📖
+            - generic [ref=e33] [cursor=pointer]: Docs
+          - link "🔄 Align" [ref=e34] [cursor=pointer]:
+            - /url: /alignment-guide
+            - generic [ref=e35] [cursor=pointer]: 🔄
+            - generic [ref=e36] [cursor=pointer]: Align
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - generic [ref=e39]: 👤
+            - generic [ref=e40]: cortex
+            - generic [ref=e41]: GUI
+          - button "Logout" [ref=e42] [cursor=pointer]:
+            - generic [ref=e43] [cursor=pointer]: Logout
+  - generic [ref=e47]: Loading Cortex DC Portal...
+  - alert [ref=e48]
+```
