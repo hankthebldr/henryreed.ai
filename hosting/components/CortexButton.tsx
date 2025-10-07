@@ -202,7 +202,7 @@ const CortexButton: React.FC<CortexButtonProps> = ({
     }
   };
 
-  const handleClick = async (event: React.MouseEvent) => {
+  const handleClick = async (event?: React.MouseEvent) => {
     if (disabled || loading || isProcessing) return;
 
     // Track activity
@@ -217,7 +217,9 @@ const CortexButton: React.FC<CortexButtonProps> = ({
     }
 
     // Create ripple effect
-    createRipple(event);
+    if (event) {
+      createRipple(event);
+    }
 
     // Trigger haptic feedback
     triggerHaptic();

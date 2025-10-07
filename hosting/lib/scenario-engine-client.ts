@@ -1,7 +1,7 @@
 'use client';
 
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions';
-import { getFirestore, collection, doc, onSnapshot, query, where, orderBy, limit, writeBatch, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, doc, getDoc, getDocs, onSnapshot, query, where, orderBy, limit, writeBatch, serverTimestamp } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
 import userActivityService from './user-activity-service';
@@ -343,21 +343,30 @@ export class ScenarioEngineClient {
       });
 
       // Add timeline event
+      // Narrow result data for timeline metadata
+      const generated = result.data as { blueprintId: string; confidence: number };
+
       userActivityService.addTimelineEvent({
-        type: 'ai-scenario-generated',
+        type: 'scenario-generated',
         title: 'AI Scenario Generated',
         description: `Generated scenario for threat actor: ${actorName}`,
         metadata: { 
           threatActor: actorName,
-          blueprintId: result.data.blueprintId,
-          confidence: result.data.confidence,
+          blueprintId: generated.blueprintId,
+          confidence: generated.confidence,
           aiGenerated: true
         },
         priority: 'medium',
         category: 'technical'
       });
 
-      return result.data;
+      return result.data as {
+        blueprintId: string;
+        scenarioBlueprint: ScenarioBlueprint;
+        confidence: number;
+        rationale: string;
+        tokens: { prompt: number; completion: number; total: number };
+      };
 
     } catch (error: any) {
       console.error('Failed to generate threat actor scenario:', error);
@@ -415,7 +424,22 @@ export class ScenarioEngineClient {
         },
       });
 
-      return result.data;
+      return result.data as {
+        detectionQueries: Array<{
+          id: string;
+          name: string;
+          query: string;
+          description: string;
+          mitreTechniques: string[];
+          expectedFindings: number;
+          confidence: number;
+          severity: string;
+          tags: string[];
+        }>;
+        confidence: number;
+        rationale: string;
+        tokens: { prompt: number; completion: number; total: number };
+      };
 
     } catch (error: any) {
       console.error('Failed to generate detection queries:', error);
@@ -463,14 +487,24 @@ export class ScenarioEngineClient {
       });
 
       // Track execution start
+      const executionData = result.data as { executionId: string };
       userActivityService.trackActivity('scenario-execution-started', 'scenario-engine-client', {
-        executionId: result.data.executionId,
+        executionId: executionData.executionId,
         blueprintId,
         dryRun: options.dryRun || false,
         timestamp: new Date().toISOString()
       });
 
-      return result.data;
+      return result.data as {
+        executionId: string;
+        status: string;
+        blueprint: {
+          id: string;
+          name: string;
+          description: string;
+          estimatedDuration: number;
+        };
+      };
 
     } catch (error: any) {
       console.error('Failed to execute scenario:', error);
@@ -521,16 +555,25 @@ export class ScenarioEngineClient {
         },
       });
 
+      // Narrow result for control action
+      const controlData = result.data as { previousStatus: string; newStatus: string };
+
       // Track control action
       userActivityService.trackActivity(`scenario-execution-${action}`, 'scenario-engine-client', {
         executionId,
         action,
-        previousStatus: result.data.previousStatus,
-        newStatus: result.data.newStatus,
+        previousStatus: controlData.previousStatus,
+        newStatus: controlData.newStatus,
         timestamp: new Date().toISOString()
       });
 
-      return result.data;
+      return result.data as {
+        executionId: string;
+        action: string;
+        previousStatus: string;
+        newStatus: string;
+        timestamp: string;
+      };
 
     } catch (error: any) {
       console.error(`Failed to ${action} scenario execution:`, error);
@@ -545,7 +588,7 @@ export class ScenarioEngineClient {
   async getBlueprint(blueprintId: string): Promise<ScenarioBlueprint | null> {
     try {
       const blueprintRef = doc(this.db, 'scenarioBlueprints', blueprintId);
-      const blueprintDoc = await blueprintRef.get();
+const blueprintDoc = await getDoc(blueprintRef);
       
       if (!blueprintDoc.exists()) {
         return null;
@@ -563,7 +606,7 @@ export class ScenarioEngineClient {
   async getExecution(executionId: string): Promise<ScenarioExecution | null> {
     try {
       const executionRef = doc(this.db, 'scenarioExecutions', executionId);
-      const executionDoc = await executionRef.get();
+const executionDoc = await getDoc(executionRef);
       
       if (!executionDoc.exists()) {
         return null;
@@ -592,7 +635,7 @@ export class ScenarioEngineClient {
         limit(50)
       );
 
-      const blueprintsSnapshot = await blueprintsQuery.get();
+const blueprintsSnapshot = await getDocs(blueprintsQuery);
       
       return blueprintsSnapshot.docs.map(doc => 
         this.convertFirestoreTimestamps({ id: doc.id, ...doc.data() }) as ScenarioBlueprint
@@ -618,7 +661,7 @@ export class ScenarioEngineClient {
         limit(100)
       );
 
-      const executionsSnapshot = await executionsQuery.get();
+const executionsSnapshot = await getDocs(executionsQuery);
       
       return executionsSnapshot.docs.map(doc => 
         this.convertFirestoreTimestamps({ id: doc.id, ...doc.data() }) as ScenarioExecution

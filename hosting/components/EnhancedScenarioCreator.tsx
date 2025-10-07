@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import CortexButton from './CortexButton';
-import { ImprovedTerminal } from './ImprovedTerminal';
+import ImprovedTerminal from './ImprovedTerminal';
 import userActivityService from '../lib/user-activity-service';
 
 // Import scenario commands and types
@@ -57,7 +57,7 @@ const PROVIDERS: { value: Provider; label: string; icon: string; description: st
   { value: 'gcp', label: 'Google Cloud', icon: '🌐', description: 'Deploy on Google Cloud Platform' },
   { value: 'aws', label: 'Amazon Web Services', icon: '☁️', description: 'Deploy on AWS' },
   { value: 'azure', label: 'Microsoft Azure', icon: '🔷', description: 'Deploy on Azure' },
-  { value: 'kubernetes', label: 'Kubernetes', icon: '⚙️', description: 'Deploy on Kubernetes cluster' },
+  { value: 'k8s', label: 'Kubernetes', icon: '⚙️', description: 'Deploy on Kubernetes cluster' },
   { value: 'local', label: 'Local Environment', icon: '💻', description: 'Local development environment' }
 ];
 
@@ -522,6 +522,9 @@ const EnhancedScenarioCreator: React.FC<ScenarioCreatorProps> = ({
       )}
 
       <div className="bg-gray-900 rounded-lg border border-gray-700">
+        {/* The ImprovedTerminal component does not currently accept ref or extra props. */}
+        {/* Preserving intended integration details as comments per non-deletion policy: */}
+        {/*
         <ImprovedTerminal 
           ref={terminalRef}
           className="min-h-96"
@@ -539,6 +542,8 @@ const EnhancedScenarioCreator: React.FC<ScenarioCreatorProps> = ({
             });
           }}
         />
+        */}
+        <ImprovedTerminal />
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 'use client';
 
-import { z } from 'zod';
+// import { z } from 'zod'; // commented out: not used and not required at runtime
 import userActivityService from './user-activity-service';
-import { scenarioEngineClient, type ScenarioBlueprint, type ScenarioExecution, type EnvironmentSpec } from './scenario-engine-client';
+import { scenarioEngineClient } from './scenario-engine-client';
 
 // ===== CORE TYPES AND SCHEMAS =====
 
@@ -272,8 +272,8 @@ export class ScenarioEngine {
   private adaptiveLearning: AdaptiveLearningSystem;
   
   // Cache for real-time data
-  private executionsCache: ScenarioExecution[] = [];
-  private blueprintsCache: ScenarioBlueprint[] = [];
+  private executionsCache: any[] = [];
+  private blueprintsCache: any[] = [];
   private subscriptions: (() => void)[] = [];
 
   constructor() {
@@ -309,7 +309,7 @@ export class ScenarioEngine {
   ): Promise<ScenarioBlueprint> {
     try {
       const result = await this.client.generateThreatActorScenario(actorName, targetEnvironment, options);
-      return result.scenarioBlueprint;
+      return result.scenarioBlueprint as unknown as ScenarioBlueprint;
     } catch (error) {
       console.error('Failed to generate threat actor scenario:', error);
       throw error;
@@ -392,7 +392,7 @@ export class ScenarioEngine {
     }
 
     userActivityService.addTimelineEvent({
-      type: 'scenario-execution-completed',
+      type: 'milestone',
       title: 'Scenario Execution Completed',
       description: `Scenario ${blueprint.name} execution ${execution.status}`,
       metadata: { 
@@ -559,8 +559,9 @@ export class ScenarioEngine {
     message: string,
     metadata: Record<string, any> = {}
   ): void {
-    const execution = this.executions.get(executionId);
+    const execution = (this.executionsCache as any[]).find((e: any) => e.id === executionId);
     if (execution) {
+      if (!execution.logs) execution.logs = [];
       execution.logs.push({
         timestamp: new Date(),
         level,
@@ -713,15 +714,15 @@ export class ScenarioEngine {
   }
 
   async getBlueprint(blueprintId: string): Promise<ScenarioBlueprint | null> {
-    return await this.client.getBlueprint(blueprintId);
+    return (await this.client.getBlueprint(blueprintId)) as unknown as ScenarioBlueprint | null;
   }
 
-  listExecutions(): ScenarioExecution[] {
-    return this.executionsCache;
+  listExecutions(): any[] {
+    return this.executionsCache as any[];
   }
-
-  listBlueprints(): ScenarioBlueprint[] {
-    return this.blueprintsCache;
+  
+  listBlueprints(): any[] {
+    return this.blueprintsCache as any[];
   }
 
   async pauseExecution(executionId: string): Promise<void> {

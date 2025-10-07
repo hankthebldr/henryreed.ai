@@ -298,8 +298,8 @@ className="text-xs text-cortex-green hover:text-cortex-green-light underline"
               >
                 Browse Security Scenarios
               </CortexButton>
-              <CortexButton
-                onClick={() => window.open('/alignment-guide', '_blank')}
+<CortexButton
+                onClick={() => { window.open('/alignment-guide', '_blank'); }}
                 variant="secondary"
                 size="sm"
                 icon="🔄"

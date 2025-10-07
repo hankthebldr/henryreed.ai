@@ -359,7 +359,7 @@ export default function XSIAMIntegrationPanel() {
                           variant="success"
                           size="md"
                           icon="🔍"
-                          onClick={() => xsiamApiService.testConnection()}
+onClick={async () => { await xsiamApiService.testConnection(); }}
                           tooltip="Test current connection"
                           className="flex-1"
                         >
@@ -804,7 +804,7 @@ export default function XSIAMIntegrationPanel() {
                 variant="success"
                 size="xs"
                 icon="🔍"
-                onClick={() => xsiamApiService.testConnection()}
+onClick={async () => { await xsiamApiService.testConnection(); }}
                 tooltip="Test XSIAM connection"
               >
                 Test Connection
