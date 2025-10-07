@@ -5,6 +5,8 @@ import { EnhancedContentCreator } from './EnhancedContentCreator';
 import { ManualCreationGUI } from './ManualCreationGUI';
 import { ContentItem } from './ContentLibrary';
 import CortexButton from './CortexButton';
+import TerminalWindow from './TerminalWindow';
+import userActivityService from '../lib/user-activity-service';
 
 // Extended POV Detection Scenario types covering all security domains
 const POV_DETECTION_SCENARIOS = {
@@ -384,43 +386,197 @@ const ScenarioDetailView: React.FC<{
         </div>
       </div>
       
-      {/* Command Integration */}
+      {/* Terminal Integration with Interactive Windows */}
       <div className="cortex-card p-6">
-        <h3 className="text-xl font-bold text-cortex-text-primary mb-4">⚡ Terminal Integration</h3>
+        <h3 className="text-xl font-bold text-cortex-text-primary mb-6">⚡ Terminal Integration & CLI Guidance</h3>
         
-        <div className="space-y-3">
-          <div className="bg-cortex-bg-tertiary rounded-lg p-4">
-            <h4 className="font-semibold text-cortex-text-secondary mb-2">Deploy Scenario via Terminal</h4>
-            <div className="font-mono text-sm text-cortex-green bg-black p-3 rounded">
-              scenario generate --scenario-type {scenarioKey} --provider gcp --auto-validate
+        <div className="space-y-6">
+          {/* Scenario Deployment Commands */}
+          <div>
+            <h4 className="font-semibold text-cortex-text-secondary mb-3">🚀 Scenario Deployment</h4>
+            <TerminalWindow
+              title={`Deploy ${scenario.name} Scenario`}
+              commands={[
+                `# Deploy ${scenario.name} scenario with validation`,
+                `scenario generate --scenario-type ${scenarioKey} --provider gcp --auto-validate`,
+                ``,
+                `# Monitor deployment status`,
+                `scenario status --follow`,
+                ``,
+                `# View deployment logs`,
+                `scenario logs --deployment-id latest --tail`
+              ]}
+              height="h-48"
+              initialOutput={
+                <div className="text-cyan-400">
+                  <div className="text-lg font-bold mb-1">🔬 Scenario Deployment Terminal</div>
+                  <div className="text-sm text-gray-400 mb-3">Ready to deploy {scenario.name} scenario</div>
+                  <div className="text-xs text-gray-500">
+                    • Provider: GCP with auto-validation
+                    • MITRE Mapping: {scenario.mitreMapping.join(', ')}
+                    • Detection Types: {scenario.detectionTypes.length} configured
+                  </div>
+                </div>
+              }
+              onCommand={(command) => {
+                userActivityService.trackActivity('scenario-terminal-command', 'unified-creator', {
+                  scenarioKey,
+                  command: command.split(' ')[0],
+                  fullCommand: command
+                });
+              }}
+            />
+            
+            <div className="mt-3 bg-cortex-bg-tertiary rounded-lg p-4">
+              <div className="font-medium text-cortex-text-secondary mb-2">CLI Guidance - Copy and execute these commands:</div>
+              <div className="space-y-2 text-sm font-mono">
+                <div className="text-cortex-green bg-black p-2 rounded">
+                  scenario generate --scenario-type {scenarioKey} --provider gcp --auto-validate
+                </div>
+                <div className="text-cortex-green bg-black p-2 rounded">
+                  scenario status --follow
+                </div>
+              </div>
             </div>
           </div>
           
-          <div className="bg-cortex-bg-tertiary rounded-lg p-4">
-            <h4 className="font-semibold text-cortex-text-secondary mb-2">POV Integration</h4>
-            <div className="font-mono text-sm text-cortex-green bg-black p-3 rounded">
-              pov init "Customer Name" --template technical-deep-dive --scenarios {scenarioKey}
+          {/* POV Integration Commands */}
+          <div>
+            <h4 className="font-semibold text-cortex-text-secondary mb-3">🎯 POV Integration</h4>
+            <TerminalWindow
+              title={`POV Integration - ${scenario.name}`}
+              commands={[
+                `# Initialize POV with ${scenario.name} scenario`,
+                `pov init "Customer Name" --template technical-deep-dive --scenarios ${scenarioKey}`,
+                ``,
+                `# Add detection rules for this scenario`,
+                `pov add-detection --scenario ${scenarioKey} --auto-map-mitre`,
+                ``,
+                `# Generate POV report with scenario results`,
+                `pov report --scenario ${scenarioKey} --format executive --include-metrics`
+              ]}
+              height="h-40"
+              initialOutput={
+                <div className="text-cyan-400">
+                  <div className="text-lg font-bold mb-1">🎯 POV Integration Terminal</div>
+                  <div className="text-sm text-gray-400 mb-2">Integrate {scenario.name} into customer POV</div>
+                  <div className="text-xs text-gray-500">
+                    Business Impact: {scenario.businessImpact.split(' - ')[0]}
+                  </div>
+                </div>
+              }
+              onCommand={(command) => {
+                userActivityService.trackActivity('pov-terminal-command', 'unified-creator', {
+                  scenarioKey,
+                  command: command.split(' ')[0],
+                  fullCommand: command
+                });
+              }}
+            />
+            
+            <div className="mt-3 bg-cortex-bg-tertiary rounded-lg p-4">
+              <div className="font-medium text-cortex-text-secondary mb-2">CLI Guidance - POV integration commands:</div>
+              <div className="space-y-2 text-sm font-mono">
+                <div className="text-cortex-green bg-black p-2 rounded">
+                  pov init "Customer Name" --template technical-deep-dive --scenarios {scenarioKey}
+                </div>
+                <div className="text-cortex-green bg-black p-2 rounded">
+                  pov add-detection --scenario {scenarioKey} --auto-map-mitre
+                </div>
+              </div>
             </div>
           </div>
           
-          <div className="flex space-x-3">
+          {/* Detection and Validation Commands */}
+          <div>
+            <h4 className="font-semibold text-cortex-text-secondary mb-3">🔍 Detection & Validation</h4>
+            <TerminalWindow
+              title={`Detection Validation - ${scenario.name}`}
+              commands={[
+                `# Test detection rules for ${scenario.name}`,
+                `detect test --scenario ${scenarioKey} --all-rules`,
+                ``,
+                `# Validate MITRE coverage`,
+                `mitre validate --techniques ${scenario.mitreMapping.join(',')}`,
+                ``,
+                `# Generate detection report`,
+                `detect report --scenario ${scenarioKey} --format technical`
+              ]}
+              height="h-36"
+              initialOutput={
+                <div className="text-cyan-400">
+                  <div className="text-lg font-bold mb-1">🔍 Detection Validation Terminal</div>
+                  <div className="text-sm text-gray-400 mb-2">Validate detection capabilities for {scenario.name}</div>
+                  <div className="text-xs text-gray-500">
+                    Detection Types: {scenario.detectionTypes.join(', ')}
+                  </div>
+                </div>
+              }
+              onCommand={(command) => {
+                userActivityService.trackActivity('detection-terminal-command', 'unified-creator', {
+                  scenarioKey,
+                  command: command.split(' ')[0],
+                  fullCommand: command
+                });
+              }}
+            />
+            
+            <div className="mt-3 bg-cortex-bg-tertiary rounded-lg p-4">
+              <div className="font-medium text-cortex-text-secondary mb-2">CLI Guidance - Detection validation:</div>
+              <div className="space-y-2 text-sm font-mono">
+                <div className="text-cortex-green bg-black p-2 rounded">
+                  detect test --scenario {scenarioKey} --all-rules
+                </div>
+                <div className="text-cortex-green bg-black p-2 rounded">
+                  mitre validate --techniques {scenario.mitreMapping.join(',')}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Quick Action Buttons */}
+          <div className="flex flex-wrap gap-3">
             <CortexButton
-              variant="outline"
+              variant="primary"
               icon="🚀"
               onClick={() => {
-                console.log(`scenario generate --scenario-type ${scenarioKey} --provider gcp`);
+                userActivityService.trackActivity('scenario-deploy-click', 'unified-creator', { scenarioKey });
+                // Execute scenario generate command
+                console.log(`scenario generate --scenario-type ${scenarioKey} --provider gcp --auto-validate`);
               }}
             >
-              Deploy Now
+              Deploy Scenario
+            </CortexButton>
+            <CortexButton
+              variant="outline"
+              icon="🎯"
+              onClick={() => {
+                userActivityService.trackActivity('pov-integration-click', 'unified-creator', { scenarioKey });
+                // Execute POV integration
+                console.log(`pov init "Customer Name" --template technical-deep-dive --scenarios ${scenarioKey}`);
+              }}
+            >
+              Integrate with POV
             </CortexButton>
             <CortexButton
               variant="outline"
               icon="📋"
               onClick={() => {
+                userActivityService.trackActivity('scenario-templates-click', 'unified-creator', { scenarioKey });
                 console.log(`scenario list --scenario-type ${scenarioKey}`);
               }}
             >
               View Templates
+            </CortexButton>
+            <CortexButton
+              variant="outline"
+              icon="🔍"
+              onClick={() => {
+                userActivityService.trackActivity('detection-test-click', 'unified-creator', { scenarioKey });
+                console.log(`detect test --scenario ${scenarioKey} --all-rules`);
+              }}
+            >
+              Test Detections
             </CortexButton>
           </div>
         </div>

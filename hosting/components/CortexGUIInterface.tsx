@@ -10,7 +10,7 @@ import { BigQueryExplorer } from './BigQueryExplorer';
 import { POVProjectManagement } from './POVProjectManagement';
 import { ProductionTRRManagement } from './ProductionTRRManagement';
 import { ManagementDashboard } from './ManagementDashboard';
-import ScenarioEngine from './ScenarioEngine';
+import UnifiedContentCreator from './UnifiedContentCreator';
 
 interface GUITab {
   id: string;
@@ -348,10 +348,10 @@ const guiTabs: GUITab[] = [
   },
   {
     id: 'scenarios',
-    name: 'Scenario Engine',
+    name: 'Scenario Library',
     icon: '🚀',
-    component: ScenarioEngine,
-    description: 'Comprehensive AI-driven scenario orchestration with real-time execution monitoring and adaptive learning'
+    component: () => <UnifiedContentCreator mode="unified" onModeChange={() => {}} />,
+    description: 'Comprehensive security scenario library with terminal guidance and POV integration for all threat vectors'
   },
   {
     id: 'admin',

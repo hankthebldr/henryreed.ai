@@ -14,7 +14,7 @@ type User @table {
 }
 
 # POV (Proof of Value) management
-type POV @table {
+type Pov @table {
   id: UUID! @default(expr: "uuidV4()")
   name: String! @col(dataType: "varchar(200)")
   customer: String! @col(dataType: "varchar(100)")
@@ -35,7 +35,7 @@ type POV @table {
 }
 
 # TRR (Technical Requirements Review) management
-type TRR @table {
+type Trr @table {
   id: UUID! @default(expr: "uuidV4()")
   title: String! @col(dataType: "varchar(200)")
   description: String! @col(dataType: "text")

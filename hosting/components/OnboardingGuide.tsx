@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import CortexButton from './CortexButton';
 import CortexCommandButton from './CortexCommandButton';
+import TerminalWindow from './TerminalWindow';
 
 interface OnboardingStep {
   id: string;
@@ -796,17 +797,33 @@ export const OnboardingGuide: React.FC<OnboardingGuideProps> = ({ onComplete }) 
                         )}
 
                         {step.command && (
-                          <div className="bg-cortex-bg-secondary p-3 rounded mb-2">
-                            <div className="font-medium text-cortex-text-primary text-sm mb-1">Terminal Command:</div>
-                            <code className="text-cortex-green text-sm">{step.command}</code>
-                            <CortexCommandButton
-                              command={step.command}
-                              variant="outline"
-                              size="sm"
-                              className="ml-2"
-                            >
-                              Execute
-                            </CortexCommandButton>
+                          <div className="space-y-3 mb-3">
+                            <TerminalWindow
+                              title={`Step ${index + 1} - ${step.title}`}
+                              height="h-32"
+                              readOnly
+                              showPrompt={false}
+                              initialOutput={
+                                <div className="text-cyan-400">
+                                  <div className="text-sm font-bold mb-1">📋 Command Example</div>
+                                  <div className="font-mono text-green-400 text-sm mb-2">{step.command}</div>
+                                  <div className="text-xs text-gray-400">Use the CLI guidance below to execute this command</div>
+                                </div>
+                              }
+                            />
+                            <div className="bg-cortex-bg-secondary p-3 rounded">
+                              <div className="font-medium text-cortex-text-primary text-sm mb-1">CLI Guidance - Copy and execute:</div>
+                              <div className="flex items-center justify-between">
+                                <code className="text-cortex-green text-sm">{step.command}</code>
+                                <CortexCommandButton
+                                  command={step.command}
+                                  variant="outline"
+                                  size="sm"
+                                >
+                                  Execute
+                                </CortexCommandButton>
+                              </div>
+                            </div>
                           </div>
                         )}
 

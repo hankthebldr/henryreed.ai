@@ -344,13 +344,13 @@ export class ScenarioEngineClient {
 
       // Add timeline event
       userActivityService.addTimelineEvent({
-        type: 'ai-scenario-generated',
+        type: 'scenario-generated',
         title: 'AI Scenario Generated',
         description: `Generated scenario for threat actor: ${actorName}`,
         metadata: { 
           threatActor: actorName,
-          blueprintId: result.data.blueprintId,
-          confidence: result.data.confidence,
+          blueprintId: (result.data as any)?.blueprintId || 'unknown',
+          confidence: (result.data as any)?.confidence || 0.8,
           aiGenerated: true
         },
         priority: 'medium',

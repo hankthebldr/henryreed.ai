@@ -102,7 +102,14 @@ const CortexButton: React.FC<CortexButtonProps> = ({
         
         if (isMatch && !disabled && !loading) {
           event.preventDefault();
-          handleClick();
+          // Create a synthetic mouse event for the keyboard shortcut
+          const syntheticEvent = {
+            preventDefault: () => {},
+            currentTarget: buttonRef.current,
+            clientX: 0,
+            clientY: 0
+          } as React.MouseEvent<HTMLButtonElement>;
+          handleClick(syntheticEvent);
         }
       };
 

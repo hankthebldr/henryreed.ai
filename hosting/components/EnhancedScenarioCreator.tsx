@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import CortexButton from './CortexButton';
-import { ImprovedTerminal } from './ImprovedTerminal';
+import ImprovedTerminal from './ImprovedTerminal';
+import TerminalWindow from './TerminalWindow';
 import userActivityService from '../lib/user-activity-service';
 
 // Import scenario commands and types
@@ -57,7 +58,7 @@ const PROVIDERS: { value: Provider; label: string; icon: string; description: st
   { value: 'gcp', label: 'Google Cloud', icon: '🌐', description: 'Deploy on Google Cloud Platform' },
   { value: 'aws', label: 'Amazon Web Services', icon: '☁️', description: 'Deploy on AWS' },
   { value: 'azure', label: 'Microsoft Azure', icon: '🔷', description: 'Deploy on Azure' },
-  { value: 'kubernetes', label: 'Kubernetes', icon: '⚙️', description: 'Deploy on Kubernetes cluster' },
+  { value: 'k8s', label: 'Kubernetes', icon: '⚙️', description: 'Deploy on Kubernetes cluster' },
   { value: 'local', label: 'Local Environment', icon: '💻', description: 'Local development environment' }
 ];
 
@@ -512,33 +513,39 @@ const EnhancedScenarioCreator: React.FC<ScenarioCreatorProps> = ({
         </div>
       </div>
 
+      {/* Terminal Window Preview */}
       {showTerminal && terminalCommands.length > 0 && (
-        <div className="bg-gray-900 rounded-lg border border-gray-700 p-4 mb-4">
-          <div className="text-sm font-medium text-gray-300 mb-2">Generated Commands:</div>
-          <pre className="text-sm text-green-400 font-mono bg-black p-3 rounded overflow-x-auto">
-            {terminalCommands.join('\n')}
-          </pre>
+        <div className="space-y-4">
+          <TerminalWindow
+            title={`Scenario Terminal - ${formData.scenarioType}`}
+            commands={terminalCommands}
+            height="h-48"
+            initialOutput={
+              <div className="text-cyan-400 mb-2">
+                <div className="text-lg font-bold mb-1">🔬 XSIAM Scenario Terminal</div>
+                <div className="text-sm text-gray-400">Ready to execute scenario commands...</div>
+              </div>
+            }
+            onCommand={(command) => {
+              userActivityService.trackActivity('terminal-window-command', 'scenario-creator', {
+                command: command.split(' ')[0],
+                fullCommand: command,
+                scenarioType: formData.scenarioType
+              });
+            }}
+          />
+          
+          <div className="bg-gray-900 rounded-lg border border-gray-700 p-4">
+            <div className="text-sm font-medium text-gray-300 mb-2">CLI Guidance - Copy and paste these commands:</div>
+            <pre className="text-sm text-green-400 font-mono bg-black p-3 rounded overflow-x-auto">
+              {terminalCommands.join('\n')}
+            </pre>
+          </div>
         </div>
       )}
 
-      <div className="bg-gray-900 rounded-lg border border-gray-700">
-        <ImprovedTerminal 
-          ref={terminalRef}
-          className="min-h-96"
-          initialCommands={[
-            'echo "🔬 Scenario Creator Terminal - Ready for commands"',
-            'echo "Type \'help scenario\' for scenario-specific commands"',
-            ''
-          ]}
-          onCommand={(command) => {
-            // Track terminal usage
-            userActivityService.trackActivity('terminal-command', 'scenario-creator', {
-              command: command.split(' ')[0],
-              fullCommand: command,
-              context: 'scenario-creation'
-            });
-          }}
-        />
+      <div className="bg-gray-900 rounded-lg border border-gray-700 min-h-96">
+        <ImprovedTerminal />
       </div>
     </div>
   );
@@ -611,9 +618,7 @@ const EnhancedScenarioCreator: React.FC<ScenarioCreatorProps> = ({
                   icon="🧪"
                   onClick={() => {
                     setActiveTab('terminal');
-                    if (terminalRef.current) {
-                      terminalRef.current.executeCommand(`scenario validate ${deploymentStatus.deploymentId}`);
-                    }
+                    // Terminal command would be: scenario validate {deploymentStatus.deploymentId}
                   }}
                 >
                   Validate
@@ -624,9 +629,7 @@ const EnhancedScenarioCreator: React.FC<ScenarioCreatorProps> = ({
                   icon="📊"
                   onClick={() => {
                     setActiveTab('terminal');
-                    if (terminalRef.current) {
-                      terminalRef.current.executeCommand(`scenario status ${deploymentStatus.deploymentId}`);
-                    }
+                    // Terminal command would be: scenario status {deploymentStatus.deploymentId}
                   }}
                 >
                   Check Status
@@ -637,9 +640,7 @@ const EnhancedScenarioCreator: React.FC<ScenarioCreatorProps> = ({
                   icon="🗑️"
                   onClick={() => {
                     setActiveTab('terminal');
-                    if (terminalRef.current) {
-                      terminalRef.current.executeCommand(`scenario destroy ${deploymentStatus.deploymentId}`);
-                    }
+                    // Terminal command would be: scenario destroy {deploymentStatus.deploymentId}
                   }}
                   confirmAction={true}
                   confirmMessage="Are you sure you want to destroy this scenario deployment?"

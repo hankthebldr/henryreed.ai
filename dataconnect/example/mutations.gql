@@ -1,33 +1,33 @@
-# Example mutations for a simple movie app
+# Example mutations for Cortex DC Portal
 
-# Create a movie based on user input
-mutation CreateMovie($title: String!, $genre: String!, $imageUrl: String!)
-@auth(level: USER_EMAIL_VERIFIED, insecureReason: "Any email verified users can create a new movie.") {
-  movie_insert(data: { title: $title, genre: $genre, imageUrl: $imageUrl })
+# Create a POV based on user input
+mutation CreatePOV($name: String!, $customer: String!, $useCase: String!)
+@auth(level: USER_EMAIL_VERIFIED, insecureReason: "Any email verified users can create a new POV.") {
+  pov_insert(data: { name: $name, customer: $customer, useCase: $useCase, createdById_expr: "auth.uid" })
 }
 
-# Upsert (update or insert) a user's username based on their auth.uid
-mutation UpsertUser($username: String!) @auth(level: USER) {
+# Upsert (update or insert) a user's profile based on their auth.uid
+mutation UpsertUser($email: String!, $displayName: String) @auth(level: USER) {
   # The "auth.uid" server value ensures that users can only register their own user.
-  user_upsert(data: { id_expr: "auth.uid", username: $username })
+  user_upsert(data: { id_expr: "auth.uid", email: $email, displayName: $displayName })
 }
 
-# Add a review for a movie
-mutation AddReview($movieId: UUID!, $rating: Int!, $reviewText: String!)
+# Add a comment for a POV or TRR
+mutation AddComment($entityType: String!, $entityId: String!, $content: String!)
 @auth(level: USER) {
-  review_upsert(
+  comment_insert(
     data: {
-      userId_expr: "auth.uid"
-      movieId: $movieId
-      rating: $rating
-      reviewText: $reviewText
-      # reviewDate defaults to today in the schema. No need to set it manually.
+      entityType: $entityType
+      entityId: $entityId
+      content: $content
+      authorId_expr: "auth.uid"
+      # createdAt defaults to now in the schema. No need to set it manually.
     }
   )
 }
 
-# Logged in user can delete their review for a movie
-mutation DeleteReview($movieId: UUID!) @auth(level: USER) {
-  # The "auth.uid" server value ensures that users can only delete their own reviews.
-  review_delete(key: { userId_expr: "auth.uid", movieId: $movieId })
+# Logged in user can delete their comment
+mutation DeleteComment($commentId: UUID!) @auth(level: USER, insecureReason: "Users can delete any comment - application should verify ownership") {
+  # The "auth.uid" server value ensures that users can only delete their own comments.
+  comment_delete(key: { id: $commentId })
 }

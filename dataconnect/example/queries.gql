@@ -1,13 +1,14 @@
-# Example queries for a simple movie app.
+# Example queries for Cortex DC Portal
 
 # @auth() directives control who can call each operation.
-# Anyone should be able to list all movies, so the auth level is set to PUBLIC
-query ListMovies @auth(level: PUBLIC, insecureReason: "Anyone can list all movies.") {
-  movies {
+# Anyone should be able to list all POVs, so the auth level is set to PUBLIC
+query ListPOVs @auth(level: PUBLIC, insecureReason: "Anyone can list all POVs.") {
+  povs {
     id
-    title
-    imageUrl
-    genre
+    name
+    customer
+    industry
+    status
   }
 }
 
@@ -15,64 +16,73 @@ query ListMovies @auth(level: PUBLIC, insecureReason: "Anyone can list all movie
 query ListUsers @auth(level: NO_ACCESS) {
   users {
     id
-    username
+    email
+    displayName
   }
 }
 
-# Logged in users can list all their reviews and movie titles associated with the review
+# Logged in users can list all their POVs
 # Since the query uses the uid of the current authenticated user, we set auth level to USER
-query ListUserReviews @auth(level: USER) {
+query ListUserPOVs @auth(level: USER) {
   user(key: { id_expr: "auth.uid" }) {
     id
-    username
-    # <field>_on_<foreign_key_field> makes it easy to grab info from another table
-    # Here, we use it to grab all the reviews written by the user.
-    reviews: reviews_on_user {
-      rating
-      reviewDate
-      reviewText
-      movie {
-        id
-        title
-      }
+    email
+    displayName
+    # List POVs created by this user
+    createdPOVs: povs_on_createdBy {
+      id
+      name
+      customer
+      status
+      priority
+      startDate
+      endDate
     }
   }
 }
 
-# Get movie by id
-query GetMovieById($id: UUID!) @auth(level: PUBLIC, insecureReason: "Anyone can get a movie by id.") {
-  movie(id: $id) {
+# Get POV by id
+query GetPOVById($id: UUID!) @auth(level: PUBLIC, insecureReason: "Anyone can get a POV by id.") {
+  pov(id: $id) {
     id
-    title
-    imageUrl
-    genre
-    metadata: movieMetadata_on_movie {
-      rating
-      releaseYear
-      description
+    name
+    customer
+    industry
+    useCase
+    status
+    priority
+    startDate
+    endDate
+    estimatedTimeline
+    budget
+    createdBy {
+      id
+      email
+      displayName
     }
-    reviews: reviews_on_movie {
-      reviewText
-      reviewDate
-      rating
-      user {
-        id
-        username
-      }
+    assignedTo {
+      id
+      email
+      displayName
     }
+    createdAt
+    updatedAt
+    tags
+    notes
   }
 }
 
-# Search for movies, actors, and reviews
-query SearchMovie($titleInput: String, $genre: String) @auth(level: PUBLIC, insecureReason: "Anyone can search for movies.") {
-  movies(
+# Search for POVs
+query SearchPOVs($nameInput: String, $customer: String) @auth(level: PUBLIC, insecureReason: "Anyone can search for POVs.") {
+  povs(
     where: {
-      _and: [{ genre: { eq: $genre } }, { title: { contains: $titleInput } }]
+      _and: [{ customer: { eq: $customer } }, { name: { contains: $nameInput } }]
     }
   ) {
     id
-    title
-    genre
-    imageUrl
+    name
+    customer
+    status
+    priority
   }
 }
