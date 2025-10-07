@@ -2,6 +2,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:no-turbo": "next dev",
     "build": "next build",
     "build:exp": "cross-env NEXT_ENABLE_WEBPACK_EXPERIMENTS=1 next build",
     "start": "next start",
@@ -26,7 +27,8 @@
   },
   "dependencies": {
     "@dataconnect/generated": "file:src/dataconnect-generated",
-    "firebase": "^12.1.0",
+    "firebase": "^12.3.0",
+    "gray-matter": "^4.0.3",
     "jspdf": "^2.5.1",
     "next": "latest",
     "react": "^18.2.0",

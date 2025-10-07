@@ -228,12 +228,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     <div>
                       <label className="text-sm font-medium text-cortex-text-secondary">Auth Provider</label>
                       <div className="mt-1 flex items-center space-x-2">
-                        <span className={`inline-flex px-2 py-1 rounded text-xs font-medium ${
-                          authProvider === 'okta' 
-                            ? 'bg-cortex-success/20 text-cortex-success'
-                            : 'bg-cortex-warning/20 text-cortex-warning'
-                        }`}>
-                          {authProvider === 'okta' ? 'OKTA SSO' : 'Local Development'}
+                        <span className="inline-flex px-2 py-1 rounded text-xs font-medium bg-cortex-warning/20 text-cortex-warning">
+                          Local Development
                         </span>
                         <div className="w-2 h-2 bg-cortex-success rounded-full"></div>
                         <span className="text-sm text-cortex-text-muted">Connected</span>

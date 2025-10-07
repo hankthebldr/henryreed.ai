@@ -1,7 +1,7 @@
 'use client';
 
-// Authentication service with support for multiple providers
-// Currently supports simple username/password auth with structure for future Okta integration
+// Authentication service with simple username/password authentication
+// Supports two user accounts: user1/paloalto1 and cortex/xsiam
 
 export interface AuthUser {
   id: string;
@@ -11,7 +11,7 @@ export interface AuthUser {
   viewMode: 'admin' | 'user';
   permissions: string[];
   lastLogin: string;
-  authProvider: 'local' | 'okta' | 'firebase';
+  authProvider: 'local';
 }
 
 export interface AuthCredentials {
@@ -32,38 +32,48 @@ class AuthService {
     SESSION_ID: 'dc_session_id'
   };
 
-  // Valid credentials for local auth (temporary)
-  private readonly VALID_CREDENTIALS = {
-    username: 'cortex',
-    password: 'xsiam'
-  };
-
-  // Mock user for local development
-  private readonly MOCK_USER: AuthUser = {
-    id: 'cortex-001',
-    username: 'cortex',
-    email: 'cortex@paloaltonetworks.com',
-    role: 'admin',
-    viewMode: 'admin',
-    permissions: ['scenario:execute', 'pov:create', 'system:admin', 'trr:manage'],
-    lastLogin: new Date().toISOString(),
-    authProvider: 'local'
+  // Valid credentials and corresponding user profiles
+  private readonly VALID_USERS = {
+    'user1': {
+      password: 'paloalto1',
+      profile: {
+        id: 'user1-001',
+        username: 'user1',
+        email: 'user1@paloaltonetworks.com',
+        role: 'user' as const,
+        viewMode: 'user' as const,
+        permissions: ['scenario:execute', 'pov:create', 'trr:create'],
+        authProvider: 'local' as const
+      }
+    },
+    'cortex': {
+      password: 'xsiam',
+      profile: {
+        id: 'cortex-001',
+        username: 'cortex',
+        email: 'cortex@paloaltonetworks.com',
+        role: 'admin' as const,
+        viewMode: 'admin' as const,
+        permissions: ['scenario:execute', 'pov:create', 'system:admin', 'trr:manage', 'user:manage'],
+        authProvider: 'local' as const
+      }
+    }
   };
 
   /**
    * Authenticate user with local credentials
-   * TODO: Replace with Okta authentication
+   * Supports: user1/paloalto1 and cortex/xsiam
    */
   async authenticate(credentials: AuthCredentials): Promise<AuthResult> {
     try {
       // Simulate authentication delay
       await new Promise(resolve => setTimeout(resolve, 800));
 
-      if (credentials.username === this.VALID_CREDENTIALS.username && 
-          credentials.password === this.VALID_CREDENTIALS.password) {
-        
+      const userConfig = this.VALID_USERS[credentials.username as keyof typeof this.VALID_USERS];
+      
+      if (userConfig && credentials.password === userConfig.password) {
         const user: AuthUser = {
-          ...this.MOCK_USER,
+          ...userConfig.profile,
           lastLogin: new Date().toISOString()
         };
 
@@ -77,7 +87,7 @@ class AuthService {
       } else {
         return {
           success: false,
-          error: 'Invalid credentials. Please check your username and password.'
+          error: 'Invalid credentials. Use user1/paloalto1 or cortex/xsiam.'
         };
       }
     } catch (error) {
@@ -89,16 +99,6 @@ class AuthService {
     }
   }
 
-  /**
-   * Authenticate with Okta (future implementation)
-   */
-  async authenticateWithOkta(): Promise<AuthResult> {
-    // TODO: Implement Okta authentication
-    return {
-      success: false,
-      error: 'Okta authentication not yet implemented'
-    };
-  }
 
   /**
    * Check if user is currently authenticated
@@ -155,21 +155,12 @@ class AuthService {
    */
   async logout(): Promise<void> {
     try {
-      // TODO: Call Okta logout if using Okta auth
       this.clearSession();
     } catch (error) {
       console.error('Logout error:', error);
-      // Still clear local session even if remote logout fails
+      // Still clear local session even if logout fails
       this.clearSession();
     }
-  }
-
-  /**
-   * Refresh authentication token (for future Okta integration)
-   */
-  async refreshToken(): Promise<boolean> {
-    // TODO: Implement token refresh for Okta
-    return false;
   }
 
   /**

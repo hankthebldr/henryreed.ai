@@ -16,33 +16,16 @@ export default function TerminalHost() {
   const { state, actions } = useAppState();
   const terminalRef = useRef<ImprovedTerminalRef>(null);
 
-  // Register terminal ref with AppState
+  // Register terminal ref with AppState - simplified approach
   useEffect(() => {
-    const hostRef = {
-      current: {
-        focus: () => {
-          if (terminalRef.current) {
-            terminalRef.current.focus();
-          }
-        },
-        executeCommand: async (command: string) => {
-          if (terminalRef.current) {
-            await terminalRef.current.executeCommand(command);
-          }
-        },
-        isVisible: () => state.terminal.isVisible,
-        show: () => actions.openTerminal(),
-        hide: () => actions.closeTerminal(),
-        clear: () => {
-          if (terminalRef.current) {
-            terminalRef.current.clear();
-          }
-        }
-      }
-    };
+    // Directly pass the terminal ref to AppState
+    actions.setTerminalRef(terminalRef);
     
-    actions.setTerminalRef(hostRef);
-  }, [actions, state.terminal.isVisible]);
+    // Cleanup function to clear ref when component unmounts
+    return () => {
+      actions.setTerminalRef({ current: null });
+    };
+  }, [actions]); // Remove terminalRef from dependencies to prevent infinite re-renders
 
   // Handle command execution from GUI
   useEffect(() => {

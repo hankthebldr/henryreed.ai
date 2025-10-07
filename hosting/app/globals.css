@@ -61,22 +61,46 @@ body {
 .group:hover .group-hover\:scale-110 { transform: scale(1.1); }
 .group:hover .group-hover\:opacity-100 { opacity: 1; }
 
-/* Cortex color system */
-.text-cortex-text-primary { color: #F0F6FC; }
-.text-cortex-text-secondary { color: #C9D1D9; }
-.text-cortex-text-muted { color: #8B949E; }
-.text-cortex-text-disabled { color: #6E7681; }
+/* Cortex & Palo Alto Networks color system */
+/* Official Palo Alto Networks brand colors */
+.text-pan-orange { color: #FA582D; }
+.bg-pan-orange { background-color: #FA582D; }
+.border-pan-orange { border-color: #FA582D; }
+.text-pan-dark { color: #141414; }
+.bg-pan-dark { background-color: #141414; }
+.border-pan-dark { border-color: #141414; }
+
+/* Cortex-specific enhanced palette */
+.text-cortex-text-primary { color: #FFFFFF; }
+.text-cortex-text-secondary { color: #E6E6E6; }
+.text-cortex-text-muted { color: #B3B3B3; }
+.text-cortex-text-disabled { color: #808080; }
 .text-cortex-green { color: #00CC66; }
-.bg-cortex-bg-primary { background-color: #000000; }
-.bg-cortex-bg-secondary { background-color: #0D1117; }
-.bg-cortex-bg-tertiary { background-color: #161B22; }
-.bg-cortex-bg-quaternary { background-color: #21262D; }
-.bg-cortex-bg-hover { background-color: #30363D; }
+.text-cortex-orange { color: #FA582D; }
+.text-cortex-info { color: #58A6FF; }
+.text-cortex-warning { color: #F1C40F; }
+.text-cortex-error { color: #FF5757; }
+
+/* Background colors with lighter options */
+.bg-cortex-bg-primary { background-color: #0A0A0A; }
+.bg-cortex-bg-secondary { background-color: #1A1A1A; }
+.bg-cortex-bg-tertiary { background-color: #2A2A2A; }
+.bg-cortex-bg-quaternary { background-color: #3A3A3A; }
+.bg-cortex-bg-hover { background-color: #404040; }
 .bg-cortex-green { background-color: #00CC66; }
 .bg-cortex-green-light { background-color: #33D580; }
+.bg-cortex-orange { background-color: #FA582D; }
+.bg-cortex-orange-light { background-color: #FB7A5A; }
+
+/* Border colors */
 .border-cortex-green { border-color: #00CC66; }
-.border-cortex-border-secondary { border-color: #30363D; }
-.border-cortex-green { border-color: #00CC66; }
+.border-cortex-orange { border-color: #FA582D; }
+.border-cortex-border-primary { border-color: #404040; }
+.border-cortex-border-secondary { border-color: #2A2A2A; }
+.border-cortex-border-tertiary { border-color: #1A1A1A; }
+.border-cortex-info { border-color: #58A6FF; }
+.border-cortex-warning { border-color: #F1C40F; }
+.border-cortex-error { border-color: #FF5757; }
 
 /* Brand integration classes */
 .pan-logo-container {

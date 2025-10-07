@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { 
   User, 
   signInWithEmailAndPassword, 
@@ -86,22 +86,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     try {
       if (isMockAuthMode) {
-        // Mock authentication - check for cortex/xsiam credentials
-        const devUsername = process.env.NEXT_PUBLIC_DEV_USERNAME || 'cortex';
-        const devPassword = process.env.NEXT_PUBLIC_DEV_PASSWORD || 'xsiam';
+        // Mock authentication - support both user1/paloalto1 and cortex/xsiam
+        const validCredentials = {
+          'user1': 'paloalto1',
+          'cortex': 'xsiam'
+        };
         
-        if (email === devUsername && password === devPassword) {
+        if (validCredentials[email as keyof typeof validCredentials] === password) {
           const mockUser: MockUser = {
-            uid: 'mock-user-id',
-            email: 'cortex@paloaltonetworks.com',
-            displayName: 'Cortex Domain Consultant',
+            uid: email === 'cortex' ? 'cortex-001' : 'user1-001',
+            email: email === 'cortex' ? 'cortex@paloaltonetworks.com' : 'user1@paloaltonetworks.com',
+            displayName: email === 'cortex' ? 'Cortex System Admin' : 'User One - Domain Consultant',
             photoURL: null
           };
           setUser(mockUser);
           localStorage.setItem('mockUser', JSON.stringify(mockUser));
-          console.info('Mock authentication successful');
+          console.info(`Mock authentication successful for ${email}`);
         } else {
-          throw new Error('Invalid credentials. Use cortex/xsiam for development.');
+          throw new Error('Invalid credentials. Use user1/paloalto1 or cortex/xsiam.');
         }
       } else {
         await signInWithEmailAndPassword(auth, email, password);
@@ -115,7 +117,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     try {
       if (isMockAuthMode) {
-        throw new Error('Sign up is not available in mock mode. Use cortex/xsiam to login.');
+        throw new Error('Sign up is not available in mock mode. Use user1/paloalto1 or cortex/xsiam to login.');
       } else {
         await createUserWithEmailAndPassword(auth, email, password);
       }
@@ -128,7 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     try {
       if (isMockAuthMode) {
-        throw new Error('Google sign-in is not available in mock mode. Use cortex/xsiam to login.');
+        throw new Error('Google sign-in is not available in mock mode. Use user1/paloalto1 or cortex/xsiam to login.');
       } else {
         const provider = new GoogleAuthProvider();
         await signInWithPopup(auth, provider);
@@ -153,7 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     loading,
     signIn,
@@ -161,7 +163,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signInWithGoogle,
     logout,
     isMockMode: isMockAuthMode
-  };
+  }), [user, loading, signIn, signUp, signInWithGoogle, logout]);
 
   return (
     <AuthContext.Provider value={value}>

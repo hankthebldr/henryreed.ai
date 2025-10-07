@@ -1511,7 +1511,7 @@ level: high`}
     clear: () => {
       setCommands([]);
     }
-  }), []);
+  }), [executeCommand]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

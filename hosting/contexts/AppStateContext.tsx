@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useMemo } from 'react';
 
 // User and authentication types
 export interface User {
@@ -460,7 +460,7 @@ const AppStateContext = createContext<{
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(appStateReducer, initialState);
   
-  const actions = {
+  const actions = useMemo(() => ({
     setMode: useCallback((mode: 'terminal' | 'gui') => {
       dispatch({ type: 'SET_MODE', payload: mode });
     }, []),
@@ -508,9 +508,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     
     focusTerminal: useCallback(() => {
       if (state.terminal.ref?.current) {
-        state.terminal.ref.current.focus?.();
+        state.terminal.ref.current.focus();
       }
-    }, [state.terminal.ref]),
+    }, []),
     
     setTerminalRef: useCallback((ref: React.RefObject<any>) => {
       dispatch({ type: 'SET_TERMINAL_REF', payload: ref });
@@ -575,12 +575,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
           setTimeout(() => {
             if (state.terminal.ref?.current?.focus) {
               state.terminal.ref.current.focus();
-            } else if (state.terminal.ref?.current) {
-              // Fallback: try to focus input element directly
-              const inputElement = document.querySelector('textarea[placeholder*="terminal"], input[placeholder*="terminal"]');
-              if (inputElement) {
-                (inputElement as HTMLElement).focus();
-              }
             }
           }, 100);
         }
@@ -600,7 +594,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         } });
         throw error;
       }
-    }, [state.terminal.ref]),
+    }, []),
     
     clearPendingExecution: useCallback(() => {
       dispatch({ type: 'CLEAR_PENDING_EXECUTION' });
@@ -647,10 +641,16 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
     }, [state.auth.user]),
-  };
+  }), [state.auth.viewMode, state.auth.user]); // Remove state.terminal.ref to prevent circular dependencies
+  
+  const contextValue = useMemo(() => ({
+    state,
+    dispatch,
+    actions
+  }), [state, actions]);
   
   return (
-    <AppStateContext.Provider value={{ state, dispatch, actions }}>
+    <AppStateContext.Provider value={contextValue}>
       {children}
     </AppStateContext.Provider>
   );

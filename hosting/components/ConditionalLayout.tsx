@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import AppHeader from './AppHeader';
 import BreadcrumbNavigation from './BreadcrumbNavigation';
@@ -10,16 +11,22 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
   const pathname = usePathname();
   const isLoginPage = pathname === '/';
 
+  // Memoize the navigation components to prevent unnecessary re-renders
+  const navigationComponents = useMemo(() => {
+    if (isLoginPage) return null;
+    
+    return (
+      <>
+        <AppHeader />
+        <BreadcrumbNavigation />
+        <TerminalHost />
+      </>
+    );
+  }, [isLoginPage]);
+
   return (
     <>
-      {/* Only show navigation components when not on login page */}
-      {!isLoginPage && (
-        <>
-          <AppHeader />
-          <BreadcrumbNavigation />
-          <TerminalHost />
-        </>
-      )}
+      {navigationComponents}
       <NotificationSystem />
       {children}
     </>

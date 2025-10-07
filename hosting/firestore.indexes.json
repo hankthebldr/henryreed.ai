@@ -1,51 +1,297 @@
 {
-  // Example (Standard Edition):
-  //
-  // "indexes": [
-  //   {
-  //     "collectionGroup": "widgets",
-  //     "queryScope": "COLLECTION",
-  //     "fields": [
-  //       { "fieldPath": "foo", "arrayConfig": "CONTAINS" },
-  //       { "fieldPath": "bar", "mode": "DESCENDING" }
-  //     ]
-  //   },
-  //
-  //  "fieldOverrides": [
-  //    {
-  //      "collectionGroup": "widgets",
-  //      "fieldPath": "baz",
-  //      "indexes": [
-  //        { "order": "ASCENDING", "queryScope": "COLLECTION" }
-  //      ]
-  //    },
-  //   ]
-  // ]
-  //
-  // Example (Enterprise Edition):
-  //
-  // "indexes": [
-  //   {
-  //     "collectionGroup": "reviews",
-  //     "queryScope": "COLLECTION_GROUP",
-  //     "apiScope": "MONGODB_COMPATIBLE_API",
-  //     "density": "DENSE",
-  //     "multikey": false,
-  //     "fields": [
-  //       { "fieldPath": "baz", "mode": "ASCENDING" }
-  //     ]
-  //   },
-  //   {
-  //     "collectionGroup": "items",
-  //     "queryScope": "COLLECTION_GROUP",
-  //     "apiScope": "MONGODB_COMPATIBLE_API",
-  //     "density": "SPARSE_ANY",
-  //     "multikey": true,
-  //     "fields": [
-  //       { "fieldPath": "baz", "mode": "ASCENDING" }
-  //     ]
-  //   },
-  // ]
-  "indexes": [],
-  "fieldOverrides": []
+  "indexes": [
+    // POV collection indexes for common queries
+    {
+      "collectionGroup": "povs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "customer", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "povs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "priority", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "povs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "assignedTo", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "priority", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "povs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "industry", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+
+    // TRR collection indexes
+    {
+      "collectionGroup": "trrs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "category", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "trrs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "priority", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "trrs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "assignedTo", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "trrs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdBy", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+
+    // Scenario collection indexes
+    {
+      "collectionGroup": "scenarios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "platform", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scenarios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "platform", "order": "ASCENDING" },
+        { "fieldPath": "severity", "order": "DESCENDING" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scenarios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "type", "order": "ASCENDING" }
+      ]
+    },
+
+    // Activity Log indexes for audit queries
+    {
+      "collectionGroup": "activity_logs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "entityType", "order": "ASCENDING" },
+        { "fieldPath": "entityId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "activity_logs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "action", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "activity_logs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+
+    // Comment collection indexes
+    {
+      "collectionGroup": "comments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "entityType", "order": "ASCENDING" },
+        { "fieldPath": "entityId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "comments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "author", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "comments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isResolved", "order": "ASCENDING" },
+        { "fieldPath": "entityType", "order": "ASCENDING" }
+      ]
+    },
+
+    // Template collection indexes
+    {
+      "collectionGroup": "templates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "category", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "templates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isPublic", "order": "ASCENDING" },
+        { "fieldPath": "type", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "templates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdBy", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    },
+
+    // Content Items collection indexes (from our content system)
+    {
+      "collectionGroup": "content_items",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "publishedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "content_items",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "category", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "content_items",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "author", "order": "ASCENDING" },
+        { "fieldPath": "publishedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "content_items",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "searchable", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    },
+
+    // Unit42 Articles collection indexes (for future Unit42 integration)
+    {
+      "collectionGroup": "unit42_articles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "severity", "order": "DESCENDING" },
+        { "fieldPath": "publishedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "unit42_articles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ingestionDate", "order": "DESCENDING" }
+      ]
+    },
+
+    // User collection indexes
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "role", "order": "ASCENDING" },
+        { "fieldPath": "isActive", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "organization", "order": "ASCENDING" },
+        { "fieldPath": "lastLoginAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+
+  "fieldOverrides": [
+    // Enable array-contains queries on tags fields
+    {
+      "collectionGroup": "content_items",
+      "fieldPath": "tags",
+      "indexes": [
+        { "arrayConfig": "CONTAINS", "queryScope": "COLLECTION" }
+      ]
+    },
+    {
+      "collectionGroup": "unit42_articles",
+      "fieldPath": "tags",
+      "indexes": [
+        { "arrayConfig": "CONTAINS", "queryScope": "COLLECTION" }
+      ]
+    },
+    {
+      "collectionGroup": "unit42_articles",
+      "fieldPath": "categories",
+      "indexes": [
+        { "arrayConfig": "CONTAINS", "queryScope": "COLLECTION" }
+      ]
+    },
+    {
+      "collectionGroup": "unit42_articles",
+      "fieldPath": "industry",
+      "indexes": [
+        { "arrayConfig": "CONTAINS", "queryScope": "COLLECTION" }
+      ]
+    },
+    
+    // Enable text search capabilities
+    {
+      "collectionGroup": "content_items",
+      "fieldPath": "searchText",
+      "indexes": [
+        { "order": "ASCENDING", "queryScope": "COLLECTION" }
+      ]
+    }
+  ]
 }
