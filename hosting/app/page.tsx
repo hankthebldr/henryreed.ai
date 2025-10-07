@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
+import { PaloAltoLogo, BrandedButton } from '../src/components/branding';
 
 export default function Page() {
   const [username, setUsername] = useState('');
@@ -59,8 +60,13 @@ export default function Page() {
       </div>
 
       <div className="relative z-10 w-full max-w-md">
-        {/* Header with Cortex Branding */}
+        {/* Header with Palo Alto Networks & Cortex Branding */}
         <div className="text-center mb-8 relative">
+          {/* Palo Alto Networks Official Logo */}
+          <div className="flex justify-center mb-4">
+            <PaloAltoLogo size="lg" className="drop-shadow-lg" />
+          </div>
+          
           {/* Subtle glow effect behind ASCII art */}
           <div className="absolute inset-0 bg-cortex-green/5 blur-xl rounded-full"></div>
           <div className="mb-4 relative">
@@ -76,9 +82,12 @@ export default function Page() {
             </pre>
           </div>
 <h1 className="text-3xl font-bold text-cortex-text-primary mb-2">Cortex DC Access</h1>
-          <p className="text-cortex-text-muted text-sm">
+          <p className="text-cortex-text-muted text-sm mb-2">
             Secure access to the Cortex DC Engagement Portal
           </p>
+          <div className="text-xs text-pan-orange font-medium">
+            Powered by Palo Alto Networks Security Platform
+          </div>
         </div>
 
         {/* Modern Login Card with Glassmorphism */}
@@ -130,24 +139,20 @@ export default function Page() {
             )}
 
             {/* Submit Button */}
-            <button
+            <BrandedButton
               type="submit"
+              variant="primary"
+              size="lg"
+              fullWidth
+              loading={loading}
+              loadingText="Authenticating..."
+              leftIcon={<span className="text-lg">🛡️</span>}
+              rightIcon={<span className="text-sm opacity-75">→</span>}
               disabled={loading}
-              className="w-full btn-modern btn-cortex-primary disabled:bg-cortex-bg-hover disabled:text-cortex-text-disabled disabled:cursor-not-allowed flex items-center justify-center transition-all duration-300 hover:shadow-glow-green group"
+              className="hover:shadow-glow-green group"
             >
-              {loading ? (
-                <>
-                  <div className="cortex-spinner mr-3"></div>
-                  Authenticating...
-                </>
-              ) : (
-                <>
-                  <span className="mr-2 transition-transform group-hover:scale-110">🛡️</span>
-                  <span className="font-semibold">Access Portal</span>
-                  <span className="ml-2 text-xs opacity-60 group-hover:opacity-100 transition-opacity">→</span>
-                </>
-              )}
-            </button>
+              <span className="font-semibold">Access Portal</span>
+            </BrandedButton>
           </form>
 
           {/* Footer Info */}
@@ -172,8 +177,12 @@ export default function Page() {
 
         {/* Bottom Info */}
         <div className="text-center mt-8 text-xs text-cortex-text-muted">
-          <p>Cortex DC Engagement Portal</p>
+          <p className="text-cortex-text-primary font-medium">Cortex DC Engagement Portal</p>
           <p className="mt-1">v2.2 • Professional POV Management Platform</p>
+          <div className="flex items-center justify-center mt-2 space-x-2">
+            <span>Secured by</span>
+            <PaloAltoLogo size="sm" className="opacity-60" />
+          </div>
         </div>
       </div>
     </div>

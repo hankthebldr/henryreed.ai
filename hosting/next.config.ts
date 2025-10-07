@@ -14,7 +14,16 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   experimental: {
-    ...(enableWebpackExp ? { webpackBuildWorker: true } : {})
+    ...(enableWebpackExp ? { webpackBuildWorker: true } : {}),
+  },
+  // Turbopack configuration for Next.js 15+
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
   },
   webpack: (config, { dev, isServer }) => {
     if (enableWebpackExp && !dev) {

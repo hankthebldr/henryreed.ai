@@ -4,12 +4,12 @@ import { AppStateProvider } from '../contexts/AppStateContext';
 import ConditionalLayout from '../components/ConditionalLayout';
 
 export const metadata = {
-  title: 'Cortex DC Portal - Domain Consultant Hub | Henry Reed AI',
-  description: 'Professional XSIAM POV Management & Security Demonstration Platform for Domain Consultants',
-  keywords: 'XSIAM, Cortex, POV, Security, Demonstration, Domain Consultant, Palo Alto Networks',
-  authors: [{ name: 'Henry Reed AI' }],
+  title: 'Cortex XSIAM Portal - Domain Consultant Hub | Palo Alto Networks Solution',
+  description: 'Professional Cortex XSIAM POV Management & Security Operations Platform powered by Palo Alto Networks technology for Domain Consultants',
+  keywords: 'Palo Alto Networks, Cortex XSIAM, XDR, XSOAR, Security Operations, SIEM, POV, Security Demonstration, Domain Consultant, Cloud Security',
+  authors: [{ name: 'Henry Reed AI', url: 'https://henryreed.ai' }],
   creator: 'Henry Reed AI',
-  publisher: 'Henry Reed AI',
+  publisher: 'Palo Alto Networks Solution Partner',
   formatDetection: {
     email: false,
     address: false,
@@ -20,17 +20,26 @@ export const metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'Cortex DC Portal - Professional POV Management',
-    description: 'Advanced security demonstration platform for XSIAM proof-of-value engagements',
+    title: 'Cortex XSIAM Portal - Professional Security Operations Platform',
+    description: 'Advanced Palo Alto Networks Cortex XSIAM demonstration platform for proof-of-value engagements and security operations',
     url: 'https://henryreed.ai',
-    siteName: 'Cortex DC Portal',
+    siteName: 'Cortex XSIAM Portal',
     locale: 'en_US',
     type: 'website',
+    images: [
+      {
+        url: '/assets/branding/icons/cortex-192x192.png',
+        width: 192,
+        height: 192,
+        alt: 'Cortex XSIAM Portal',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Cortex DC Portal - Professional POV Management',
-    description: 'Advanced security demonstration platform for XSIAM proof-of-value engagements',
+    title: 'Cortex XSIAM Portal - Professional Security Operations',
+    description: 'Advanced Palo Alto Networks Cortex XSIAM demonstration platform for proof-of-value engagements',
+    images: ['/assets/branding/icons/cortex-192x192.png'],
   },
   robots: {
     index: true,
@@ -45,12 +54,16 @@ export const metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/favicon.ico', sizes: '32x32' },
+      // New Palo Alto Networks/Cortex favicons
+      { url: '/favicon.ico', sizes: '32x32' }, // Cortex-branded favicon
+      { url: '/assets/branding/icons/cortex-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/assets/branding/icons/cortex-192x192.png', sizes: '192x192', type: 'image/png' },
+      // Legacy favicon (commented for reference)
+      // { url: '/favicon.svg', type: 'image/svg+xml' },
     ],
     shortcut: '/favicon.ico',
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180' },
+      { url: '/apple-touch-icon-180x180.png', sizes: '180x180' }, // Updated to match Palo Alto asset
     ],
   },
   manifest: '/manifest.json',
@@ -60,7 +73,8 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#00CC66',
+  themeColor: '#FA582D', // Palo Alto Networks primary orange
+  // Legacy theme color: '#00CC66',
 };
 
 export default function RootLayout({
@@ -71,13 +85,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        {/* Palo Alto Networks/Cortex Branding Favicons */}
         <link rel="icon" href="/favicon.ico" sizes="32x32" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/assets/branding/icons/cortex-32x32.png" sizes="32x32" type="image/png" />
+        <link rel="icon" href="/assets/branding/icons/cortex-192x192.png" sizes="192x192" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
         <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#FA582D" />
+        <meta name="msapplication-TileColor" content="#FA582D" />
+        <meta name="msapplication-config" content="/browserconfig.xml" />
+        
+        {/* Legacy favicons (commented for reference)
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#00CC66" />
         <meta name="msapplication-TileColor" content="#000000" />
-        <meta name="msapplication-config" content="/browserconfig.xml" />
+        */}
       </head>
       <body>
         <AuthProvider>

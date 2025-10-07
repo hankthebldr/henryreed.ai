@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAppState } from '../contexts/AppStateContext';
 import { SettingsPanel } from './SettingsPanel';
+import { PaloAltoLogo, CortexBadge } from '../src/components/branding';
 
 export default function AppHeader() {
   const pathname = usePathname();
@@ -12,6 +13,15 @@ export default function AppHeader() {
   const { state, actions } = useAppState();
   const { setMode, updateBreadcrumbs } = actions;
   const [showSettings, setShowSettings] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Media query for responsive logo sizing
+  useEffect(() => {
+    const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   const isGUI = pathname?.startsWith("/gui");
   const isTerminal = pathname?.startsWith("/terminal");
@@ -120,12 +130,23 @@ export default function AppHeader() {
         <div className="flex items-center space-x-2 md:space-x-4">
           <Link 
             href="/gui" 
-className="text-base md:text-lg font-bold text-cortex-green hover:text-cortex-green-light transition-colors"
+            className="flex items-center hover:opacity-80 transition-opacity"
           >
-            <span className="sm:hidden">🛡️ Cortex DC</span>
-            <span className="hidden sm:inline">🛡️ Cortex DC Portal</span>
+            <PaloAltoLogo 
+              size={isMobile ? "sm" : "md"} 
+              priority 
+              clickable
+              className="mr-2" 
+            />
           </Link>
-          <div className="text-xs md:text-sm text-cortex-text-muted hidden md:inline">Palo Alto Networks</div>
+          <div className="flex flex-col">
+            <div className="text-xs md:text-sm text-cortex-text-muted">
+              Cortex XSIAM Portal
+            </div>
+            {!isMobile && (
+              <CortexBadge variant="xsiam" size="sm" className="mt-1" />
+            )}
+          </div>
         </div>
 
         {/* Main Navigation */}

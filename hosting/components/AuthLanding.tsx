@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
+import { PaloAltoLogo, BrandedButton } from '../src/components/branding';
 
 export default function AuthLanding() {
   const [username, setUsername] = useState('');
@@ -51,6 +52,11 @@ export default function AuthLanding() {
       <div className="relative z-10 w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
+          {/* Palo Alto Networks Official Logo */}
+          <div className="flex justify-center mb-4">
+            <PaloAltoLogo size="lg" className="drop-shadow-lg" />
+          </div>
+          
           <div className="mb-4">
 <pre className="text-cortex-green text-sm font-mono leading-tight">
 {`
@@ -64,9 +70,12 @@ export default function AuthLanding() {
             </pre>
           </div>
 <h1 className="text-3xl font-bold text-cortex-text-primary mb-2">Cortex Terminal Access</h1>
-          <p className="text-cortex-text-muted text-sm">
+          <p className="text-cortex-text-muted text-sm mb-2">
             Secure access to the XSIAM & Cortex POV-CLI
           </p>
+          <div className="text-xs text-pan-orange font-medium">
+            Powered by Palo Alto Networks Security Platform
+          </div>
         </div>
 
         {/* Login Card */}
@@ -117,23 +126,18 @@ export default function AuthLanding() {
             )}
 
             {/* Submit Button */}
-            <button
+            <BrandedButton
               type="submit"
-              disabled={isLoading}
-              className="w-full btn-cortex-primary disabled:bg-cortex-bg-hover disabled:text-cortex-text-disabled disabled:cursor-not-allowed flex items-center justify-center"
+              variant="primary"
+              size="lg"
+              fullWidth
+              loading={loading}
+              loadingText="Authenticating..."
+              leftIcon={<span className="text-lg">🔐</span>}
+              disabled={loading}
             >
-              {isLoading ? (
-                <>
-                  <div className="cortex-spinner mr-3"></div>
-                  Authenticating...
-                </>
-              ) : (
-                <>
-                  <span className="mr-2">🔐</span>
-                  Access Terminal
-                </>
-              )}
-            </button>
+              <span className="font-semibold">Access Terminal</span>
+            </BrandedButton>
           </form>
 
           {/* Footer Info */}
@@ -158,8 +162,12 @@ export default function AuthLanding() {
 
         {/* Bottom Info */}
         <div className="text-center mt-8 text-xs text-cortex-text-muted">
-          <p>Developed by Henry Reed</p>
-          <p className="mt-1">v2.1 • XSIAM/Cortex Proof-of-Value Terminal</p>
+          <p className="text-cortex-text-primary font-medium">XSIAM/Cortex Proof-of-Value Terminal</p>
+          <p className="mt-1">v2.1 • Developed by Henry Reed</p>
+          <div className="flex items-center justify-center mt-2 space-x-2">
+            <span>Secured by</span>
+            <PaloAltoLogo size="sm" className="opacity-60" />
+          </div>
         </div>
       </div>
     </div>

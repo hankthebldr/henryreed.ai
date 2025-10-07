@@ -17,102 +17,66 @@ module.exports = {
         'cortex-blue': '#00c0e8',         // Cortex interactive blue
         'cortex-dark': '#141414',         // Cortex dark text
         
-        // Previous color configuration (commented for reference)
-        /* cortex: {
-          // Primary brand colors
-          orange: {
-            DEFAULT: '#FF6900',    // Primary Palo Alto Orange
-            light: '#FF8533',      // Lighter orange
-            dark: '#E55A00',       // Darker orange
-            50: '#FFF4E6',
-            100: '#FFE0B3',
-            500: '#FF6900',
-            600: '#E55A00',
-            700: '#CC4D00',
-            800: '#B33D00',
-            900: '#992B00',
-          }, */
-          
-          // Official Cortex branding with consistent colors
-          cortex: {
-            primary: '#FA582D',      // Matches Palo Alto primary
-            teal: '#8ad3de',        // Official theme accent
-            blue: '#00c0e8',        // Interactive elements
-            dark: '#141414',        // Text color
-          },
-          
-          /* Legacy colors (preserved for reference)
-          // Cortex greens (secondary brand color)
-          green: {
-            DEFAULT: '#00CC66',    // Cortex green
-            light: '#33D580',      // Lighter green
-            dark: '#00B359',       // Darker green
-            50: '#E6FFF2',
-            100: '#B3FFCC',
-            500: '#00CC66',
-            600: '#00B359',
-            700: '#00994C',
-            800: '#008040',
-            900: '#006633',
-          }, */
-          
-          /* Legacy theme configurations (preserved for reference)
-          // Dark theme backgrounds
-          bg: {
-            primary: '#000000',    // Pure black
-            secondary: '#0D1117',  // GitHub-like dark
-            tertiary: '#161B22',   // Elevated surfaces
-            quaternary: '#21262D', // Cards and panels
-            hover: '#30363D',      // Hover states
-          },
-          
-          // Text hierarchy
-          text: {
-            primary: '#F0F6FC',    // Primary white text
-            secondary: '#C9D1D9',  // Secondary text
-            muted: '#8B949E',      // Muted text
-            disabled: '#6E7681',   // Disabled text
-            accent: '#58A6FF',     // Links and accents
-          },
-          
-          // Border system
-          border: {
-            primary: '#FF6900',    // Orange primary borders
-            secondary: '#30363D',  // Default borders
-            muted: '#21262D',      // Subtle borders
-            accent: '#00CC66',     // Green accent borders
-          },
-          
-          // Status colors with dark theme variants
-          success: {
-            DEFAULT: '#00CC66',
-            light: '#33D580',
-            dark: '#00B359',
-            bg: '#0D2818',
-            border: '#00CC66',
-          },
-          warning: {
-            DEFAULT: '#FF6900',
-            light: '#FF8533',
-            dark: '#E55A00',
-            bg: '#2B1A00',
-            border: '#FF6900',
-          },
-          error: {
-            DEFAULT: '#F85149',
-            light: '#FF7B72',
-            dark: '#DA3633',
-            bg: '#2D0F0F',
-            border: '#F85149',
-          },
-          info: {
-            DEFAULT: '#58A6FF',
-            light: '#79B8FF',
-            dark: '#388BFD',
-            bg: '#0C1D2E',
-            border: '#58A6FF',
-          },
-          */ 
+        // Working Cortex color scheme - FULLY RESTORED
+        'cortex-orange': '#FF6900',
+        'cortex-orange-light': '#FF8533',
+        'cortex-orange-dark': '#E55A00',
+        'cortex-green': '#00CC66',
+        'cortex-green-light': '#33D580',
+        'cortex-green-dark': '#00B359',
+        
+        // Dark theme backgrounds
+        'cortex-bg-primary': '#000000',
+        'cortex-bg-secondary': '#0D1117',
+        'cortex-bg-tertiary': '#161B22',
+        'cortex-bg-quaternary': '#21262D',
+        'cortex-bg-hover': '#30363D',
+        
+        // Text hierarchy
+        'cortex-text-primary': '#F0F6FC',
+        'cortex-text-secondary': '#C9D1D9',
+        'cortex-text-muted': '#8B949E',
+        'cortex-text-disabled': '#6E7681',
+        'cortex-text-accent': '#58A6FF',
+        
+        // Border system
+        'cortex-border-primary': '#FF6900',
+        'cortex-border-secondary': '#30363D',
+        'cortex-border-muted': '#21262D',
+        'cortex-border-accent': '#00CC66',
+        
+        // Status colors
+        'cortex-success': '#00CC66',
+        'cortex-success-light': '#33D580',
+        'cortex-success-dark': '#00B359',
+        'cortex-success-bg': '#0D2818',
+        'cortex-success-border': '#00CC66',
+        
+        'cortex-warning': '#FF6900',
+        'cortex-warning-light': '#FF8533',
+        'cortex-warning-dark': '#E55A00',
+        'cortex-warning-bg': '#2B1A00',
+        'cortex-warning-border': '#FF6900',
+        
+        'cortex-error': '#F85149',
+        'cortex-error-light': '#FF7B72',
+        'cortex-error-dark': '#DA3633',
+        'cortex-error-bg': '#2D0F0F',
+        'cortex-error-border': '#F85149',
+        
+        'cortex-info': '#58A6FF',
+        'cortex-info-light': '#79B8FF',
+        'cortex-info-dark': '#388BFD',
+        'cortex-info-bg': '#0C1D2E',
+        'cortex-info-border': '#58A6FF',
+        
+        // Official Cortex branding with consistent colors
+        cortex: {
+          primary: '#FA582D',
+          teal: '#8ad3de',
+          blue: '#00c0e8',
+          dark: '#141414',
+        },
         },
         
         // Brand gradients for Palo Alto Networks
@@ -255,6 +219,5 @@ module.exports = {
         '3xl': '64px',
       }
     },
-  },
   plugins: [],
 }
