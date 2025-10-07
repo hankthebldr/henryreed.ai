@@ -1,301 +1,331 @@
-# POV-CLI Terminal - Docker & Kubernetes Deployment Guide
+# Cortex DC Portal - Firebase Deployment Guide
 
-This guide covers deploying the POV-CLI Terminal application using Docker and Kubernetes.
+This guide covers deploying the Cortex DC Portal application using Firebase services and Google Cloud Platform.
 
 ## Prerequisites
 
-- Docker and Docker Compose
-- Kubernetes cluster (local or cloud)
-- kubectl configured
-- (Optional) Helm for package management
-- (Optional) cert-manager for automatic SSL certificates
+- **Node.js** 18+ (LTS recommended)
+- **Firebase CLI**: `npm install -g firebase-tools`
+- **Google Cloud SDK** (for advanced configuration)
+- **Git** for version control
+- **Firebase Project** with enabled services
 
-## Project Structure
+## Firebase Services Architecture
 
 ```
-.
-├── Dockerfile                    # Multi-stage Docker build
-├── docker-compose.yml           # Local development with Docker Compose
-├── k8s/                        # Kubernetes manifests
-│   ├── namespace.yaml          # Namespace definition
-│   ├── configmap.yaml          # Nginx configuration
-│   ├── deployment.yaml         # Application deployment
-│   ├── service.yaml            # Service definitions
-│   ├── ingress.yaml            # Ingress controller configuration
-│   ├── hpa.yaml                # Horizontal Pod Autoscaler
-│   ├── pdb.yaml                # Pod Disruption Budget
-│   ├── tls-secret-template.yaml # SSL certificate template
-│   └── kustomization.yaml      # Kustomize configuration
-└── scripts/                    # Deployment helper scripts
-    ├── build.sh                # Build Docker image
-    ├── deploy-k8s.sh           # Deploy to Kubernetes
-    └── cleanup-k8s.sh          # Clean up Kubernetes resources
+henryreed.ai/
+├── hosting/                    # Next.js Static Application
+│   ├── out/                   # Build output (generated)
+│   ├── app/                   # Next.js App Router
+│   ├── components/            # React components
+│   ├── lib/                   # Utility libraries
+│   ├── next.config.ts         # Next.js configuration
+│   └── package.json           # Frontend dependencies
+├── functions/                 # Default Cloud Functions
+│   ├── src/                   # Function source code
+│   ├── package.json           # Function dependencies
+│   └── .env                   # Environment variables
+├── henryreedai/              # Genkit AI Functions
+│   ├── src/                   # AI function source
+│   └── package.json           # AI function dependencies
+├── dataconnect/              # PostgreSQL Data Connect
+│   ├── schema/               # Database schema
+│   └── dataconnect.yaml      # Data Connect configuration
+├── firebase.json             # Firebase project configuration
+├── .firebaserc               # Firebase project aliases
+└── deploy.sh                 # Automated deployment script
 ```
 
-## Docker Deployment
+## Local Development
 
-### Local Development with Docker Compose
+### Setup and Installation
 
-1. **Build and run the application**:
+1. **Clone and install dependencies**:
    ```bash
-   docker-compose up --build
+   git clone https://github.com/henryreed/henryreed.ai.git
+   cd henryreed.ai/hosting
+   npm install
    ```
 
-2. **Access the application**:
-   - Main app: http://localhost:8080
-   - With proxy (if enabled): http://localhost
-
-3. **Run with SSL proxy profile**:
+2. **Start development server**:
    ```bash
-   docker-compose --profile proxy up --build
+   npm run dev
+   # Application runs on http://localhost:3000
    ```
 
-### Manual Docker Build
-
-1. **Build the Docker image**:
+3. **Run with Firebase emulators**:
    ```bash
-   docker build -t pov-cli-terminal:latest .
+   npm run firebase:emulators
+   # Starts all Firebase services locally
    ```
 
-2. **Run the container**:
+### Local Build Testing
+
+1. **Build static export**:
    ```bash
-   docker run -d \
-     --name pov-cli-terminal \
-     -p 8080:80 \
-     --restart unless-stopped \
-     pov-cli-terminal:latest
+   cd hosting
+   npm run build
+   ```
+
+2. **Test with Firebase emulator**:
+   ```bash
+   npm run firebase:serve
+   # Serves built app on http://localhost:5000
    ```
 
 3. **Health check**:
    ```bash
-   curl http://localhost:8080/health
+   curl http://localhost:3000
+   curl http://localhost:5000  # For emulator
    ```
 
-## Kubernetes Deployment
+## Firebase Production Deployment
 
-### Quick Deployment
+### Automated Deployment (Recommended)
 
-1. **Deploy using kubectl**:
+1. **Use deployment script**:
    ```bash
-   kubectl apply -f k8s/
+   # From project root
+   ./deploy.sh
    ```
 
-2. **Or using Kustomize**:
+2. **Verify deployment**:
    ```bash
-   kubectl apply -k k8s/
+   firebase hosting:channel:list
+   # Check https://henryreedai.web.app
    ```
 
-### Step-by-Step Deployment
+### Manual Deployment
 
-1. **Create namespace**:
+1. **Login to Firebase**:
    ```bash
-   kubectl apply -f k8s/namespace.yaml
+   firebase login
    ```
 
-2. **Deploy configuration and application**:
+2. **Build application**:
    ```bash
-   kubectl apply -f k8s/configmap.yaml
-   kubectl apply -f k8s/deployment.yaml
-   kubectl apply -f k8s/service.yaml
+   cd hosting
+   npm run build
    ```
 
-3. **Configure ingress and scaling**:
+3. **Deploy to Firebase Hosting**:
    ```bash
-   kubectl apply -f k8s/ingress.yaml
-   kubectl apply -f k8s/hpa.yaml
-   kubectl apply -f k8s/pdb.yaml
+   cd ..
+   firebase deploy --only hosting
    ```
 
-4. **Verify deployment**:
+4. **Deploy functions (if changed)**:
    ```bash
-   kubectl get all -n pov-cli
-   kubectl get ingress -n pov-cli
+   firebase deploy --only functions
    ```
 
-### SSL Certificate Setup
-
-#### Option 1: Manual Certificate (Production)
-1. Obtain SSL certificates for your domains
-2. Create the secret:
+5. **Verify deployment**:
    ```bash
-   kubectl create secret tls pov-cli-tls-secret \
-     --cert=path/to/tls.crt \
-     --key=path/to/tls.key \
-     -n pov-cli
+   firebase hosting:sites:list
+   curl https://henryreedai.web.app
    ```
 
-#### Option 2: cert-manager (Recommended)
-1. Install cert-manager:
+### Preview Channel Deployment
+
+1. **Create preview channel**:
    ```bash
-   kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
+   cd hosting
+   npm run deploy:preview
    ```
 
-2. Create a ClusterIssuer:
-   ```yaml
-   apiVersion: cert-manager.io/v1
-   kind: ClusterIssuer
-   metadata:
-     name: letsencrypt-prod
-   spec:
-     acme:
-       server: https://acme-v02.api.letsencrypt.org/directory
-       email: your-email@example.com
-       privateKeySecretRef:
-         name: letsencrypt-prod
-       solvers:
-       - http01:
-           ingress:
-             class: nginx
+2. **Get preview URL**:
+   ```bash
+   firebase hosting:channel:list
+   # Returns temporary preview URL
    ```
 
-3. Update the ingress annotations:
-   ```yaml
-   annotations:
-     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+3. **Promote to production** (after testing):
+   ```bash
+   firebase hosting:channel:clone preview:latest live
    ```
 
-## Configuration
+## Configuration Management
 
 ### Environment Variables
 
 The application supports the following environment variables:
 
-- `NODE_ENV`: Set to "production" for production builds
-- `NEXT_TELEMETRY_DISABLED`: Set to "1" to disable Next.js telemetry
+**Frontend (Next.js):**
+```env
+# Firebase configuration (auto-configured)
+NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
 
-### Resource Requirements
-
-**Minimum resources per pod:**
-- CPU: 100m
-- Memory: 128Mi
-
-**Resource limits per pod:**
-- CPU: 200m
-- Memory: 256Mi
-
-### Scaling Configuration
-
-The Horizontal Pod Autoscaler (HPA) is configured to:
-- Scale between 2-10 replicas
-- Scale up when CPU usage > 70% or Memory usage > 80%
-- Scale down with a 5-minute stabilization window
-
-## Monitoring and Logging
-
-### Health Checks
-
-The application provides a health endpoint at `/health` that returns:
-- HTTP 200 with "healthy" response when the application is running
-- Used by Kubernetes liveness and readiness probes
-
-### Accessing Logs
-
-```bash
-# View application logs
-kubectl logs -f deployment/pov-cli-terminal -n pov-cli
-
-# View logs from all pods
-kubectl logs -f -l app=pov-cli-terminal -n pov-cli
+# Feature flags
+NEXT_PUBLIC_USE_FUNCTIONS=1
+NEXT_PUBLIC_AI_ENABLED=true
+NEXT_PUBLIC_AUTH_PROVIDER=local
 ```
 
-### Monitoring Metrics
+**Cloud Functions:**
+```env
+# OpenAI integration
+OPENAI_API_KEY=your-openai-key
 
-The deployment includes resource requests and limits suitable for monitoring with:
-- Prometheus + Grafana
-- Kubernetes native monitoring
-- Cloud provider monitoring (EKS/GKE/AKS)
+# Database connections
+FIRESTORE_PROJECT_ID=your-project-id
+DATACONNECT_DATABASE_URL=your-postgres-url
+```
 
-## Troubleshooting
+### Firebase Service Configuration
 
-### Common Issues
+**Hosting Performance:**
+- Global CDN with edge caching
+- Automatic HTTPS with managed certificates
+- HTTP/2 support
+- Static asset optimization
 
-1. **Image pull errors**:
-   ```bash
-   # Check if the image exists and is accessible
-   docker pull pov-cli-terminal:latest
-   
-   # Update the image reference in deployment.yaml
-   kubectl set image deployment/pov-cli-terminal pov-cli-terminal=your-registry/pov-cli-terminal:tag -n pov-cli
-   ```
+**Function Scaling:**
+- Automatic scaling based on request volume
+- Cold start optimization
+- Regional deployment options
+- Memory and timeout configuration
 
-2. **Pod not starting**:
-   ```bash
-   # Check pod status
-   kubectl describe pod -l app=pov-cli-terminal -n pov-cli
-   
-   # Check events
-   kubectl get events --sort-by=.metadata.creationTimestamp -n pov-cli
-   ```
+## Monitoring and Performance
 
-3. **Ingress not working**:
-   ```bash
-   # Check ingress status
-   kubectl describe ingress pov-cli-terminal-ingress -n pov-cli
-   
-   # Verify ingress controller is running
-   kubectl get pods -n ingress-nginx
-   ```
+### Application Health Monitoring
 
-4. **SSL certificate issues**:
-   ```bash
-   # Check certificate status (if using cert-manager)
-   kubectl describe certificate pov-cli-terminal-cert -n pov-cli
-   
-   # Check certificate secret
-   kubectl get secret pov-cli-tls-secret -n pov-cli
-   ```
+**Built-in Health Checks:**
+```bash
+# Test application health
+curl https://henryreedai.web.app
 
-### Performance Tuning
+# Check Firebase hosting status
+firebase hosting:sites:list
 
-1. **Adjust resource limits** based on actual usage
-2. **Configure HPA metrics** according to your traffic patterns
-3. **Enable horizontal cluster autoscaling** for cloud deployments
-4. **Use ReadinessGates** for more sophisticated deployment strategies
+# Monitor function performance
+firebase functions:log
+```
+
+### Performance Metrics
+
+**Core Web Vitals:**
+- **LCP (Largest Contentful Paint)**: <2.5s (optimized static assets)
+- **FID (First Input Delay)**: <100ms (client-side hydration)
+- **CLS (Cumulative Layout Shift)**: <0.1 (stable layouts)
+
+**Firebase Analytics:**
+```bash
+# View hosting analytics
+firebase hosting:channel:list
+
+# Check function invocation metrics
+firebase functions:list
+```
+
+### Log Management
+
+```bash
+# View function logs
+firebase functions:log
+
+# View specific function logs
+firebase functions:log --only functions:functionName
+
+# Real-time log streaming
+firebase functions:log --follow
+```
 
 ## Security Considerations
 
-1. **Container Security**:
-   - Runs as non-root user (UID 1001)
-   - Read-only root filesystem
-   - Minimal capabilities
-   - Security context enforced
+### Firebase Security Rules
 
-2. **Network Security**:
-   - NetworkPolicies (add if needed)
-   - Ingress TLS termination
-   - CORS configuration in nginx
-
-3. **Secrets Management**:
-   - Use Kubernetes secrets for sensitive data
-   - Consider external secret management (HashiCorp Vault, etc.)
-
-## Maintenance
-
-### Updates and Rollbacks
-
-1. **Update the application**:
-   ```bash
-   kubectl set image deployment/pov-cli-terminal pov-cli-terminal=pov-cli-terminal:v1.1.0 -n pov-cli
-   ```
-
-2. **Check rollout status**:
-   ```bash
-   kubectl rollout status deployment/pov-cli-terminal -n pov-cli
-   ```
-
-3. **Rollback if needed**:
-   ```bash
-   kubectl rollout undo deployment/pov-cli-terminal -n pov-cli
-   ```
-
-### Cleanup
-
-To remove all resources:
-```bash
-kubectl delete namespace pov-cli
+```javascript
+// Firestore rules example
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null 
+        && request.auth.token.email.matches('.*@henryreed.ai');
+    }
+  }
+}
 ```
 
-Or selectively:
+### Environment Security
+
 ```bash
-kubectl delete -f k8s/
+# Set production environment variables
+firebase functions:config:set \
+  openai.api_key="your-key" \
+  app.environment="production"
 ```
+
+### Access Control
+- Domain-based authentication restrictions
+- Role-based feature gating  
+- Audit logging for all critical operations
+
+## Troubleshooting
+
+### Common Deployment Issues
+
+**Build Failures:**
+```bash
+# Clear Next.js cache
+rm -rf hosting/.next hosting/out
+cd hosting && npm run build
+
+# Check for TypeScript errors
+npx tsc --noEmit
+```
+
+**Firebase Deployment Errors:**
+```bash
+# Re-authenticate
+firebase logout
+firebase login
+
+# Check project configuration
+firebase projects:list
+firebase use your-project-id
+```
+
+**Function Deployment Issues:**
+```bash
+# Check function logs
+firebase functions:log
+
+# Redeploy specific function
+firebase deploy --only functions:functionName
+```
+
+### Performance Optimization
+
+**Build Optimization:**
+- Use Turbopack for faster development builds
+- Enable static export for optimal CDN caching
+- Implement code splitting for large components
+
+**Runtime Optimization:**
+- Configure appropriate cache headers
+- Optimize image loading and sizing
+- Implement proper error boundaries
+
+## Best Practices
+
+### Development Workflow
+1. **Use preview channels** for testing changes
+2. **Monitor function costs** and performance
+3. **Implement proper error handling** throughout
+4. **Use TypeScript** for better code quality
+5. **Follow Firebase security best practices**
+
+### Production Readiness Checklist
+- ✅ Environment variables configured
+- ✅ Security rules implemented
+- ✅ Monitoring and alerting setup
+- ✅ Backup and recovery procedures
+- ✅ Performance optimization applied
+
+---
+
+**🚀 Production URL**: [henryreedai.web.app](https://henryreedai.web.app)  
+**📚 Documentation**: See [README.md](README.md) for additional details

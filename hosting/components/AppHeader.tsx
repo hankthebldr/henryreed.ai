@@ -1,15 +1,17 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAppState } from '../contexts/AppStateContext';
+import { SettingsPanel } from './SettingsPanel';
 
 export default function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { state, actions } = useAppState();
   const { setMode, updateBreadcrumbs } = actions;
+  const [showSettings, setShowSettings] = useState(false);
 
   const isGUI = pathname?.startsWith("/gui");
   const isTerminal = pathname?.startsWith("/terminal");
@@ -67,13 +69,46 @@ export default function AppHeader() {
       sessionStorage.removeItem("dc_authenticated");
       sessionStorage.removeItem("dc_user");
     }
+    // Clear AppState user
+    actions.setUser(null);
+    actions.notify('info', 'You have been logged out');
     router.push("/");
   };
 
-  const currentUser =
+  const handleViewModeChange = (mode: 'admin' | 'user') => {
+    actions.setViewMode(mode);
+    if (typeof window !== "undefined") {
+      const savedUser = sessionStorage.getItem('dc_user');
+      if (savedUser) {
+        try {
+          const user = JSON.parse(savedUser);
+          user.viewMode = mode;
+          sessionStorage.setItem('dc_user', JSON.stringify(user));
+          actions.setUser(user);
+        } catch (error) {
+          console.error('Failed to update user view mode:', error);
+        }
+      }
+    }
+  };
+
+  // Get current user from AppState or fall back to session storage
+  const currentUser = state.auth.user?.username || (
     typeof window !== "undefined"
-      ? sessionStorage.getItem("dc_user") || "consultant"
-      : "consultant";
+      ? (() => {
+          const savedUser = sessionStorage.getItem("dc_user");
+          if (savedUser) {
+            try {
+              const user = JSON.parse(savedUser);
+              return user.username || "consultant";
+            } catch {
+              return "consultant";
+            }
+          }
+          return "consultant";
+        })()
+      : "consultant"
+  );
 
   // Don't show header on login page
   if (isHome) return null;
@@ -220,28 +255,67 @@ className="text-base md:text-lg font-bold text-cortex-green hover:text-cortex-gr
 
           {/* User Info & Actions */}
           <div className="flex items-center space-x-2 md:space-x-4 text-sm border-l border-cortex-border-secondary pl-2 md:pl-6">
+            {/* Terminal Toggle Button */}
+            <button
+              onClick={() => actions.openTerminal()}
+              className="p-2 rounded-lg text-cortex-text-secondary hover:text-green-400 hover:bg-cortex-bg-hover transition-colors"
+              title="Open Terminal"
+            >
+              <span className="text-lg">⌨️</span>
+            </button>
+            
+            {/* Settings Gear */}
+            {state.auth.user && (
+              <button
+                onClick={() => setShowSettings(true)}
+                className="p-2 rounded-lg text-cortex-text-secondary hover:text-cortex-green hover:bg-cortex-bg-hover transition-colors"
+                title="Settings"
+              >
+                <span className="text-lg">⚙️</span>
+              </button>
+            )}
+            
             <div className="flex items-center space-x-1 md:space-x-2">
-<span className="text-cortex-green">👤</span>
+              <span className="text-cortex-green">👤</span>
               <span className="text-cortex-text-primary font-medium hidden sm:inline">{currentUser}</span>
-              {/* Show current mode indicator */}
+              {/* Show current view mode indicator */}
+              {state.auth.user && (
+                <span className={`px-1 md:px-2 py-1 rounded text-xs font-mono border ${
+                  state.auth.viewMode === 'admin' 
+                    ? 'bg-cortex-error/20 text-cortex-error border-cortex-error/30'
+                    : 'bg-cortex-info/20 text-cortex-info border-cortex-info/30'
+                }`}>
+                  {state.auth.viewMode.toUpperCase()}
+                </span>
+              )}
+              {/* Show current interface mode indicator */}
               {isGUI && (
-<span className={`px-1 md:px-2 py-1 rounded text-xs font-mono border bg-cortex-green/20 text-cortex-green border-cortex-green/30`}>
+                <span className={`px-1 md:px-2 py-1 rounded text-xs font-mono border bg-cortex-green/20 text-cortex-green border-cortex-green/30`}>
                   GUI
                 </span>
               )}
             </div>
+            
             <button
               onClick={handleLogout}
               className="text-cortex-error hover:text-cortex-error-light px-2 md:px-3 py-1 rounded border border-cortex-error/30 hover:border-cortex-error/50 transition-colors text-xs font-medium"
               title="Logout"
             >
               <span className="hidden sm:inline">Logout</span>
-              <span className="sm:hidden">🚺</span>
+              <span className="sm:hidden">🚪</span>
             </button>
           </div>
         </div>
       </div>
       
+      {/* Settings Panel */}
+      <SettingsPanel
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        user={state.auth.user}
+        onViewModeChange={handleViewModeChange}
+        onLogout={handleLogout}
+      />
     </header>
   );
 }

@@ -2,6 +2,7 @@ import './globals.css';
 import AppHeader from '../components/AppHeader';
 import BreadcrumbNavigation from '../components/BreadcrumbNavigation';
 import NotificationSystem from '../components/NotificationSystem';
+import TerminalHost from '../components/terminal/TerminalHost';
 import { AuthProvider } from '../contexts/AuthContext';
 import { AppStateProvider } from '../contexts/AppStateContext';
 
@@ -22,6 +23,7 @@ export default function RootLayout({
             <AppHeader />
             <BreadcrumbNavigation />
             <NotificationSystem />
+            <TerminalHost />
             {children}
           </AppStateProvider>
         </AuthProvider>

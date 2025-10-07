@@ -1105,6 +1105,183 @@ level: high`}
       }
     },
     {
+      name: 'monitor',
+      description: 'Start real-time monitoring and analytics',
+      usage: 'monitor <start|stop|status> [options]',
+      aliases: ['mon', 'watch'],
+      handler: (args) => {
+        const action = args[0]?.toLowerCase();
+        
+        if (!action) {
+          return (
+            <TerminalOutput type="info">
+              <div className="space-y-4">
+                <div className="font-bold text-xl text-purple-300">📈 Monitoring & Analytics Dashboard</div>
+                <div className="text-gray-300">
+                  Real-time monitoring for security scenarios and system performance.
+                </div>
+                <div className="space-y-3">
+                  <div className="text-purple-400 font-bold">Available Actions:</div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="border border-green-500 p-3 rounded">
+                      <div className="text-green-400 font-mono font-bold">start</div>
+                      <div className="text-sm text-gray-300">Begin monitoring services</div>
+                    </div>
+                    <div className="border border-red-500 p-3 rounded">
+                      <div className="text-red-400 font-mono font-bold">stop</div>
+                      <div className="text-sm text-gray-300">Stop active monitoring</div>
+                    </div>
+                    <div className="border border-blue-500 p-3 rounded">
+                      <div className="text-blue-400 font-mono font-bold">status</div>
+                      <div className="text-sm text-gray-300">Show monitoring status</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 bg-gray-800 rounded border border-gray-600">
+                  <div className="text-cyan-400 font-bold mb-2">🚀 Quick Examples</div>
+                  <div className="text-sm space-y-1 font-mono">
+                    <div className="text-green-400">monitor start --scenario cloud-posture --alerts</div>
+                    <div className="text-blue-400">monitor status --detailed</div>
+                    <div className="text-red-400">monitor stop</div>
+                  </div>
+                </div>
+              </div>
+            </TerminalOutput>
+          );
+        }
+        
+        switch (action) {
+          case 'start':
+            const scenarioArg = args.find((arg, index) => args[index - 1] === '--scenario');
+            const hasAlerts = args.includes('--alerts');
+            const realTime = args.includes('--real-time');
+            
+            return (
+              <TerminalOutput type="success">
+                <div className="space-y-4">
+                  <div className="font-bold text-lg text-green-300">🟢 Monitoring Started</div>
+                  
+                  <div className="bg-green-900/20 p-4 rounded border border-green-500/30">
+                    <div className="text-green-400 font-bold mb-3">Active Monitoring:</div>
+                    <div className="text-sm space-y-2">
+                      <div><span className="text-gray-400">Target:</span> <span className="text-cyan-400">{scenarioArg || 'All Scenarios'}</span></div>
+                      <div><span className="text-gray-400">Alerts:</span> <span className={hasAlerts ? 'text-green-400' : 'text-gray-400'}>{hasAlerts ? 'Enabled' : 'Disabled'}</span></div>
+                      <div><span className="text-gray-400">Mode:</span> <span className={realTime ? 'text-yellow-400' : 'text-blue-400'}>{realTime ? 'Real-time' : 'Standard'}</span></div>
+                      <div><span className="text-gray-400">Started:</span> <span className="text-white">{new Date().toLocaleTimeString()}</span></div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="bg-blue-900/20 p-3 rounded border border-blue-500/30 text-center">
+                      <div className="text-2xl font-bold text-blue-400">0</div>
+                      <div className="text-xs text-gray-400">Active Threats</div>
+                    </div>
+                    <div className="bg-green-900/20 p-3 rounded border border-green-500/30 text-center">
+                      <div className="text-2xl font-bold text-green-400">97.2%</div>
+                      <div className="text-xs text-gray-400">System Health</div>
+                    </div>
+                    <div className="bg-purple-900/20 p-3 rounded border border-purple-500/30 text-center">
+                      <div className="text-2xl font-bold text-purple-400">1.4K</div>
+                      <div className="text-xs text-gray-400">Events/min</div>
+                    </div>
+                    <div className="bg-yellow-900/20 p-3 rounded border border-yellow-500/30 text-center">
+                      <div className="text-2xl font-bold text-yellow-400">2</div>
+                      <div className="text-xs text-gray-400">Scenarios</div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-sm text-gray-300">
+                    Monitoring dashboard active. Use <span className="text-blue-400 font-mono">monitor status</span> for detailed metrics.
+                  </div>
+                </div>
+              </TerminalOutput>
+            );
+            
+          case 'stop':
+            return (
+              <TerminalOutput type="warning">
+                <div className="space-y-4">
+                  <div className="font-bold text-lg text-yellow-300">⏹️ Monitoring Stopped</div>
+                  
+                  <div className="bg-yellow-900/20 p-4 rounded border border-yellow-500/30">
+                    <div className="text-yellow-400 font-bold mb-3">Session Summary:</div>
+                    <div className="text-sm space-y-2">
+                      <div><span className="text-gray-400">Duration:</span> <span className="text-white">47 minutes</span></div>
+                      <div><span className="text-gray-400">Events Processed:</span> <span className="text-cyan-400">67,890</span></div>
+                      <div><span className="text-gray-400">Alerts Generated:</span> <span className="text-green-400">0</span></div>
+                      <div><span className="text-gray-400">Peak Events/min:</span> <span className="text-purple-400">2,340</span></div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-sm text-gray-300">
+                    All monitoring services have been stopped. Historical data retained for 30 days.
+                  </div>
+                </div>
+              </TerminalOutput>
+            );
+            
+          case 'status':
+            const detailed = args.includes('--detailed');
+            
+            return (
+              <TerminalOutput type="info">
+                <div className="space-y-4">
+                  <div className="font-bold text-lg text-blue-300">📊 Monitoring Status</div>
+                  
+                  <div className="bg-blue-900/20 p-4 rounded border border-blue-500/30">
+                    <div className="text-blue-400 font-bold mb-3">System Status: <span className="text-green-400">ACTIVE</span></div>
+                    <div className="text-sm space-y-2">
+                      <div><span className="text-gray-400">Uptime:</span> <span className="text-green-400">23h 14m</span></div>
+                      <div><span className="text-gray-400">CPU Usage:</span> <span className="text-yellow-400">34%</span></div>
+                      <div><span className="text-gray-400">Memory Usage:</span> <span className="text-blue-400">2.1GB / 8GB</span></div>
+                      <div><span className="text-gray-400">Network I/O:</span> <span className="text-purple-400">142 MB/s</span></div>
+                    </div>
+                  </div>
+                  
+                  {detailed && (
+                    <div className="space-y-3">
+                      <div className="text-cyan-400 font-bold">📡 Active Monitors:</div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="bg-gray-800 p-3 rounded border border-gray-600">
+                          <div className="text-green-400 font-bold">Scenario Monitor</div>
+                          <div className="text-xs text-gray-400 mt-1">2 active scenarios • 1,400 events/min</div>
+                        </div>
+                        <div className="bg-gray-800 p-3 rounded border border-gray-600">
+                          <div className="text-blue-400 font-bold">System Health</div>
+                          <div className="text-xs text-gray-400 mt-1">All systems nominal • 97.2% uptime</div>
+                        </div>
+                        <div className="bg-gray-800 p-3 rounded border border-gray-600">
+                          <div className="text-purple-400 font-bold">Alert Manager</div>
+                          <div className="text-xs text-gray-400 mt-1">0 active alerts • 3 resolved today</div>
+                        </div>
+                        <div className="bg-gray-800 p-3 rounded border border-gray-600">
+                          <div className="text-yellow-400 font-bold">Performance Metrics</div>
+                          <div className="text-xs text-gray-400 mt-1">Low latency • 99.9% success rate</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="text-sm text-gray-300">
+                    Use <span className="text-cyan-400 font-mono">monitor status --detailed</span> for comprehensive metrics.
+                  </div>
+                </div>
+              </TerminalOutput>
+            );
+            
+          default:
+            return (
+              <TerminalOutput type="error">
+                <div className="space-y-2">
+                  <div className="font-bold">Unknown Monitor Action</div>
+                  <div className="text-sm">Available actions: start, stop, status</div>
+                </div>
+              </TerminalOutput>
+            );
+        }
+      }
+    },
+    {
       name: 'clear',
       description: 'Clear the terminal screen',
       usage: 'clear',

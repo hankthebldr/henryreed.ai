@@ -9,9 +9,11 @@ interface NotificationProps {
   message: string;
   timestamp: number;
   onRemove: (id: string) => void;
+  showTerminalLink?: boolean;
 }
 
-function Notification({ id, type, message, timestamp, onRemove }: NotificationProps) {
+function Notification({ id, type, message, timestamp, onRemove, showTerminalLink = false }: NotificationProps) {
+  const { actions } = useAppState();
   const [isVisible, setIsVisible] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
 
@@ -64,6 +66,9 @@ function Notification({ id, type, message, timestamp, onRemove }: NotificationPr
         ${getColorClasses()}
         ${isVisible && !isRemoving ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
       `}
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
     >
       <div className="p-4">
         <div className="flex items-start">
@@ -74,17 +79,33 @@ function Notification({ id, type, message, timestamp, onRemove }: NotificationPr
             <p className="text-sm font-medium">
               {message}
             </p>
-            <p className="mt-1 text-xs opacity-70">
-              {formatTime(timestamp)}
-            </p>
+            <div className="mt-1 flex items-center justify-between">
+              <p className="text-xs opacity-70">
+                {formatTime(timestamp)}
+              </p>
+              {showTerminalLink && type === 'success' && (
+                <button
+                  onClick={() => {
+                    actions.openTerminal();
+                    actions.focusTerminal();
+                  }}
+                  className="text-xs text-blue-400 hover:text-blue-300 underline focus:outline-none focus:ring-1 focus:ring-blue-400 rounded px-1"
+                  aria-label="View command output in terminal"
+                >
+                  View in Terminal
+                </button>
+              )}
+            </div>
           </div>
           <div className="ml-4 flex-shrink-0 flex">
             <button
-              className="rounded-md inline-flex hover:opacity-75 focus:outline-none text-xs opacity-50"
+              className="rounded-md inline-flex hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-gray-400 text-xs opacity-50 p-1"
               onClick={() => {
                 setIsRemoving(true);
                 setTimeout(() => onRemove(id), 300);
               }}
+              aria-label="Close notification"
+              title="Close"
             >
               ✕
             </button>
@@ -106,12 +127,13 @@ export default function NotificationSystem() {
   if (notifications.length === 0) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-50 flex flex-col space-y-4 pointer-events-none">
+    <div className="fixed top-4 right-4 z-50 flex flex-col space-y-4 pointer-events-none" role="region" aria-live="polite" aria-atomic="true">
       {notifications.map((notification) => (
         <Notification
           key={notification.id}
           {...notification}
           onRemove={removeNotification}
+          showTerminalLink={notification.type === 'success'}
         />
       ))}
     </div>

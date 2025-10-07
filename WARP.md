@@ -57,11 +57,18 @@ Start Firebase emulators for local development and testing
 - **Routing**: Client-side routing handled via Firebase rewrites to `/index.html`
 
 ### Terminal Component Architecture
-The application features a sophisticated terminal interface with three implementations:
+The application uses a **single-terminal approach** for unified command execution across all interfaces:
 
-1. **ImprovedTerminal.tsx** (Currently Active) - Proof of Value-focused terminal with comprehensive command set
-2. **EnhancedTerminal.tsx** - Security operations focused variant
-3. **Terminal.tsx** - Basic terminal implementation
+1. **ImprovedTerminal.tsx** (Single Canonical Terminal) - Comprehensive POV-focused terminal with full command set
+2. **TerminalHost.tsx** - Lightweight wrapper that manages the single terminal instance
+3. **Single Terminal Instance** - All GUI commands route through the same terminal for consistency
+
+**Single Terminal Benefits:**
+- Unified command history across GUI and terminal interfaces  
+- Consistent command execution and output formatting
+- Shared state management between interfaces
+- Simplified debugging and troubleshooting
+- Better user experience with context preservation
 
 ### Command System Architecture
 ```typescript
@@ -81,10 +88,42 @@ interface CommandConfig {
 - Tab completion and command history
 - Loading states for async operations
 
+### GUI Command Execution Hook
+**`hooks/useCommandExecutor.ts`** - Standardized hook for GUI-to-terminal command execution
+
+```typescript
+const { run: executeCommand, isRunning, error } = useCommandExecutor();
+
+// Execute command with full options
+executeCommand('scenario generate --type cloud-posture', {
+  openTerminal: true,  // Open terminal panel
+  focus: true,         // Focus terminal input
+  trackActivity: {     // Telemetry tracking
+    event: 'scenario-deploy-click',
+    source: 'unified-creator', 
+    payload: { scenarioKey, provider }
+  },
+  onStart: () => setLoading(true),
+  onSuccess: () => setLoading(false),
+  onError: (err) => handleError(err)
+});
+```
+
+**Key Features:**
+- Unified command execution across all GUI components
+- Automatic loading state management (`isRunning`)
+- Built-in telemetry integration with `userActivityService`
+- Error handling with user notifications
+- Terminal focus management and UX polish
+- Success notifications with "View in Terminal" links
+
 ### Command Module Organization
 - **`lib/commands.tsx`** - Core commands (help, ls, whoami, contact)
 - **`lib/commands-ext.tsx`** - Extended commands for specific features
 - **`lib/scenario-commands.tsx`** - Security scenario management
+- **`lib/pov-commands.tsx`** - POV (Proof of Value) project management
+- **`lib/detect-commands.tsx`** - Detection testing and validation
+- **`lib/monitor-commands.tsx`** - Real-time monitoring and analysis
 - **`lib/download-commands.tsx`** - Resource download functionality
 - **`lib/scenario-types.ts`** - TypeScript definitions for scenario system
 
@@ -94,6 +133,47 @@ Comprehensive security assessment framework with:
 - **Provider Support**: GCP, AWS, Azure, Kubernetes, local
 - **Deployment Lifecycle**: generate → deploy → validate → export → destroy
 - **Templates**: Pre-built scenarios for common security testing patterns
+
+### POV Integration System
+**Dynamic POV Integration** (`lib/scenario-pov-map.ts`) provides intelligent scenario-to-POV mapping:
+
+```typescript
+// Get context-aware POV commands for any scenario
+const povCommands = getPovIntegrationCommands({
+  scenarioKey: 'ransomware',
+  provider: 'aws',
+  hasActivePov: false,
+  customerName: 'Acme Corp'
+});
+
+// Results in dynamic buttons based on POV state:
+// - No active POV: "New POV from Scenario" 
+// - Active POV: "Add to Current POV"
+```
+
+**POV Command Examples:**
+- `pov init "Customer Name" --template technical-deep-dive --scenarios ransomware`
+- `pov add-scenario --scenario cloud-posture`
+- `pov status --current --detailed`
+- `pov report --format executive --export pdf`
+
+### New Command Categories
+
+**Detection Testing Commands:**
+- `detect test --scenario [scenario] --all-rules` - Comprehensive detection validation
+- `detect scan-images --registry all --severity high` - Container vulnerability scanning
+- `mitre validate --techniques T1078,T1110 --coverage-report` - MITRE ATT&CK validation
+
+**Monitoring Commands:**
+- `monitor start --scenario [scenario] --real-time --alerts` - Real-time monitoring
+- `monitor status --scenario [scenario]` - Check monitoring status
+- `metrics dashboard --scenario [scenario] --kpi-view` - Performance metrics
+
+**POV Management Commands:**
+- `pov init --interactive` - Interactive POV creation wizard
+- `pov create "Customer" --template [template]` - Create new POV project
+- `pov timeline --scenario [scenario]` - Project timeline management
+- `pov demo-setup --scenario [scenario] --safe-mode` - Demo environment setup
 
 ### External Integrations
 - **Google Cloud Functions** - Backend API for scenario deployment
@@ -136,6 +216,7 @@ Automated deployment script that:
      description: 'Description of command functionality',
      usage: 'mycommand [options]',
      aliases: ['mc', 'cmd'],
+     permissions: ['terminal.user_commands'], // Role-based access
      handler: async (args: string[]) => {
        // Implementation here
        return <div>Command output</div>;
@@ -145,7 +226,9 @@ Automated deployment script that:
 
 2. **Add to Command Configs Array:**
    - For basic commands: Add to `lib/commands.tsx`
-   - For specialized features: Add to appropriate module or create new one
+   - For POV commands: Add to `lib/pov-commands.tsx`
+   - For detection: Add to `lib/detect-commands.tsx`
+   - For monitoring: Add to `lib/monitor-commands.tsx`
    - For scenario-related: Add to `lib/scenario-commands.tsx`
 
 3. **Test Locally:**
@@ -153,6 +236,40 @@ Automated deployment script that:
    cd hosting
    npm run dev
    ```
+
+### Adding GUI Command Integration
+1. **Import the Hook:**
+   ```typescript
+   import { useCommandExecutor } from '../hooks/useCommandExecutor';
+   
+   const { run: executeCommand, isRunning } = useCommandExecutor();
+   ```
+
+2. **Create Button with Command Execution:**
+   ```typescript
+   <CortexButton
+     variant="primary"
+     icon="🚀"
+     loading={isRunning}
+     ariaLabel="Deploy cloud security scenario"
+     onClick={() => {
+       executeCommand('scenario generate --type cloud-posture', {
+         trackActivity: {
+           event: 'scenario-deploy-click',
+           source: 'my-component',
+           payload: { scenarioType: 'cloud-posture' }
+         }
+       });
+     }}
+   >
+     Deploy Scenario
+   </CortexButton>
+   ```
+
+3. **Telemetry Integration:**
+   - All commands executed via `useCommandExecutor` automatically track telemetry
+   - Use standardized event names: `[component]-[action]-click`
+   - Include relevant payload data for analytics
 
 ### Local Development with Firebase
 1. **Build the Application:**

@@ -2,10 +2,22 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAppState } from '../contexts/AppStateContext';
 
 const VALID_CREDENTIALS = {
   username: 'cortex',
   password: 'xsiam'
+};
+
+// Mock user data for successful login
+const MOCK_USER = {
+  id: 'cortex-001',
+  username: 'cortex',
+  email: 'cortex@paloaltonetworks.com',
+  role: 'admin' as const,
+  viewMode: 'admin' as const,
+  permissions: ['scenario:execute', 'pov:create', 'system:admin', 'trr:manage'],
+  lastLogin: new Date().toISOString()
 };
 
 export default function Page() {
@@ -16,14 +28,29 @@ export default function Page() {
   const [selectedInterface] = useState<'gui'>('gui');
   const [showInterfaceSelection, setShowInterfaceSelection] = useState(false);
   const router = useRouter();
+  const { state, actions } = useAppState();
 
   // If already authenticated, send users straight to GUI
   useEffect(() => {
     const authenticated = sessionStorage.getItem('dc_authenticated');
-    if (authenticated === 'true') {
+    const savedUser = sessionStorage.getItem('dc_user');
+    
+    if (authenticated === 'true' && savedUser && !state.auth.isAuthenticated) {
+      try {
+        const user = JSON.parse(savedUser);
+        actions.setUser(user);
+        actions.setViewMode(user.viewMode || 'user');
+      } catch (error) {
+        // Clear corrupted session data
+        sessionStorage.removeItem('dc_authenticated');
+        sessionStorage.removeItem('dc_user');
+      }
+    }
+    
+    if (authenticated === 'true' || state.auth.isAuthenticated) {
       router.push('/gui');
     }
-  }, [router]);
+  }, [router, state.auth.isAuthenticated, actions]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,19 +61,27 @@ export default function Page() {
     await new Promise(resolve => setTimeout(resolve, 800));
 
     if (username === VALID_CREDENTIALS.username && password === VALID_CREDENTIALS.password) {
-      // Store authentication state
+      // Store authentication state in session storage for persistence
       sessionStorage.setItem('dc_authenticated', 'true');
-      sessionStorage.setItem('dc_user', username);
+      sessionStorage.setItem('dc_user', JSON.stringify(MOCK_USER));
       
-      // Route directly to GUI for GUI-only experience
+      // Update AppState with user authentication
+      actions.setUser(MOCK_USER);
+      actions.setViewMode('admin');
+      
+      // Show success notification
+      actions.notify('success', `Welcome back, ${MOCK_USER.username}!`);
+      
+      // Route directly to GUI
       router.push('/gui');
-      setIsLoading(false);
     } else {
       setError('Invalid credentials. Please try again.');
-      setIsLoading(false);
+      // Show error notification
+      actions.notify('error', 'Authentication failed. Please check your credentials.');
       // Clear password field on error
       setPassword('');
     }
+    setIsLoading(false);
   };
 
   const handleInterfaceSelection = (interfaceType: 'gui') => {

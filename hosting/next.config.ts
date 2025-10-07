@@ -5,11 +5,21 @@ const enableWebpackExp = process.env.NEXT_ENABLE_WEBPACK_EXPERIMENTS === '1';
 const nextConfig: NextConfig = {
   output: 'export',
   trailingSlash: true,
-  skipTrailingSlashRedirect: true,
   distDir: 'out',
   images: {
     unoptimized: true
   },
+  experimental: {
+    turbopack: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
+  },
+};
   // Performance optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',

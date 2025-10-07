@@ -7,6 +7,9 @@ import { ContentItem } from './ContentLibrary';
 import CortexButton from './CortexButton';
 import TerminalWindow from './TerminalWindow';
 import userActivityService from '../lib/user-activity-service';
+import { useCommandExecutor } from '../hooks/useCommandExecutor';
+import { getPovIntegrationCommands, buildPovInitCommand } from '../lib/scenario-pov-map';
+import { useAppState } from '../contexts/AppStateContext';
 
 // Extended POV Detection Scenario types covering all security domains
 const POV_DETECTION_SCENARIOS = {
@@ -353,6 +356,14 @@ const ScenarioDetailView: React.FC<{
   onBack: () => void;
   onCreateContent: (scenarioKey: string, mode: 'enhanced' | 'manual') => void;
 }> = ({ scenarioKey, scenario, onBack, onCreateContent }) => {
+  const { run: executeCommand, isRunning } = useCommandExecutor();
+  const { state } = useAppState();
+  const [customerName, setCustomerName] = useState<string>('');
+  const [showCustomerPrompt, setShowCustomerPrompt] = useState(false);
+  
+  // Get active POV state from AppStateContext
+  const hasActivePov = !!state.data.currentPovId;
+  const activePovId = state.data.currentPovId;
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -757,7 +768,12 @@ const ScenarioDetailView: React.FC<{
                   <div className="text-xs text-cortex-text-muted mb-1">Real-time Monitoring:</div>
                   <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
                     <span className="truncate">monitor start --real-time</span>
-                    <button className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2" onClick={() => navigator.clipboard?.writeText(`monitor start --scenario ${scenarioKey} --real-time --alerts`)}>
+                    <button 
+                      className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2 focus:outline-none focus:ring-2 focus:ring-cortex-green/50 rounded" 
+                      onClick={() => navigator.clipboard?.writeText(`monitor start --scenario ${scenarioKey} --real-time --alerts`)}
+                      aria-label="Copy monitor start command to clipboard"
+                      title="Copy to clipboard"
+                    >
                       📋
                     </button>
                   </div>
@@ -790,47 +806,261 @@ const ScenarioDetailView: React.FC<{
           {/* Quick Action Buttons */}
           <div className="bg-cortex-bg-tertiary rounded-lg p-6">
             <h4 className="font-semibold text-cortex-text-secondary mb-4">🏃‍♂️ Quick Actions</h4>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            
+            {/* Core Scenario Actions */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
               <CortexButton
                 variant="primary"
                 icon="🚀"
+                loading={isRunning}
+                ariaLabel={`Deploy ${scenario.name} scenario on ${getScenarioProvider(scenarioKey).toUpperCase()}`}
                 onClick={() => {
-                  userActivityService.trackActivity('scenario-deploy-click', 'unified-creator', { scenarioKey });
-                  console.log(`scenario generate --scenario-type ${scenarioKey} --provider ${getScenarioProvider(scenarioKey)} --auto-validate`);
+                  executeCommand(
+                    `scenario generate --scenario-type ${scenarioKey} --provider ${getScenarioProvider(scenarioKey)} --auto-validate`,
+                    {
+                      trackActivity: {
+                        event: 'scenario-deploy-click',
+                        source: 'unified-creator',
+                        payload: { scenarioKey, provider: getScenarioProvider(scenarioKey) }
+                      }
+                    }
+                  );
                 }}
               >
                 Deploy Scenario
               </CortexButton>
-              <CortexButton
-                variant="outline"
-                icon="🎯"
-                onClick={() => {
-                  userActivityService.trackActivity('pov-integration-click', 'unified-creator', { scenarioKey });
-                  console.log(`pov init "Customer Name" --template technical-deep-dive --scenarios ${scenarioKey}`);
-                }}
-              >
-                Integrate with POV
-              </CortexButton>
+              
               <CortexButton
                 variant="outline"
                 icon="🔍"
+                loading={isRunning}
+                ariaLabel={`Test all detection rules for ${scenario.name} scenario`}
                 onClick={() => {
-                  userActivityService.trackActivity('detection-test-click', 'unified-creator', { scenarioKey });
-                  console.log(`detect test --scenario ${scenarioKey} --all-rules`);
+                  executeCommand(
+                    `detect test --scenario ${scenarioKey} --all-rules`,
+                    {
+                      trackActivity: {
+                        event: 'detection-test-click',
+                        source: 'unified-creator',
+                        payload: { scenarioKey }
+                      }
+                    }
+                  );
                 }}
               >
                 Test Detections
               </CortexButton>
+              
               <CortexButton
                 variant="outline"
                 icon="📈"
+                loading={isRunning}
+                ariaLabel={`Start real-time monitoring for ${scenario.name} scenario`}
                 onClick={() => {
-                  userActivityService.trackActivity('monitoring-start-click', 'unified-creator', { scenarioKey });
-                  console.log(`monitor start --scenario ${scenarioKey} --real-time --alerts`);
+                  executeCommand(
+                    `monitor start --scenario ${scenarioKey} --real-time --alerts`,
+                    {
+                      trackActivity: {
+                        event: 'monitoring-start-click',
+                        source: 'unified-creator',
+                        payload: { scenarioKey }
+                      }
+                    }
+                  );
                 }}
               >
                 Start Monitoring
               </CortexButton>
+              
+              <CortexButton
+                variant="outline"
+                icon="📊"
+                loading={isRunning}
+                ariaLabel={`View detailed status for ${scenario.name} scenario`}
+                onClick={() => {
+                  executeCommand(
+                    `scenario status --scenario-type ${scenarioKey} --detailed`,
+                    {
+                      trackActivity: {
+                        event: 'scenario-status-click',
+                        source: 'unified-creator',
+                        payload: { scenarioKey }
+                      }
+                    }
+                  );
+                }}
+              >
+                View Status
+              </CortexButton>
+            </div>
+            
+            {/* POV Integration Section */}
+            {/* 
+              Dynamic POV Integration System:
+              This section provides context-aware POV integration buttons that adapt based on:
+              1. Current POV state (hasActivePov from AppState)
+              2. Selected scenario type and optimal provider
+              3. Customer context (if available)
+              
+              The getPovIntegrationCommands() utility function from scenario-pov-map.ts
+              intelligently maps scenarios to appropriate POV templates and generates
+              the optimal command structure for the current context.
+              
+              Button States:
+              - No Active POV: "New POV from Scenario" (creates new POV project)
+              - Active POV: "Add to Current POV" (adds scenario to existing POV)
+              - Secondary: Always shows "POV Wizard" for interactive setup
+            */}
+            <div className="border-t border-cortex-border-secondary pt-6">
+              <h5 className="font-semibold text-cortex-text-secondary mb-3">🎯 POV Integration</h5>
+              {(() => {
+                // Generate context-aware POV commands based on current state
+                // This provides intelligent scenario-to-POV mapping with proper templates
+                const povCommands = getPovIntegrationCommands({
+                  scenarioKey,                                    // Current scenario being viewed
+                  provider: getScenarioProvider(scenarioKey) as any, // Optimal cloud provider for scenario
+                  hasActivePov,                                   // Whether user has active POV project
+                  activePovId,                                    // Current POV project ID (if any)
+                  customerName: customerName || undefined         // Customer name for POV creation
+                });
+                
+                return (
+                  <div className="space-y-3">
+                    {/* Primary POV Action */}
+                    <div className="flex items-center space-x-3">
+                      <CortexButton
+                        variant="primary"
+                        icon="🎯"
+                        loading={isRunning}
+                        className="flex-1"
+                        ariaLabel={`${povCommands.primary.description} for ${scenario.name}`}
+                        onClick={() => {
+                          // Smart customer name validation
+                          // If command requires customer name but none provided, show inline prompt
+                          if (povCommands.primary.command.includes('"Customer Name"') && !customerName) {
+                            setShowCustomerPrompt(true);
+                            return;
+                          }
+                          
+                          // Execute the context-aware POV command via unified command system
+                          // This ensures telemetry tracking and consistent UX across all interfaces
+                          executeCommand(povCommands.primary.command, {
+                            trackActivity: {
+                              event: 'pov-integration-click',      // Standardized telemetry event
+                              source: 'unified-creator',           // Source component for analytics
+                              payload: { 
+                                scenarioKey,                       // Which scenario is being integrated
+                                command: povCommands.primary.command, // Full command executed
+                                hasActivePov,                      // POV state for context
+                                customerName                       // Customer context (if available)
+                              }
+                            }
+                          });
+                        }}
+                      >
+                        {povCommands.primary.label}
+                      </CortexButton>
+                      
+                      {povCommands.secondary && (
+                        <CortexButton
+                          variant="outline"
+                          icon="🛠️"
+                          loading={isRunning}
+                          ariaLabel={`${povCommands.secondary.description} for ${scenario.name}`}
+                          onClick={() => {
+                            executeCommand(povCommands.secondary!.command, {
+                              trackActivity: {
+                                event: 'pov-wizard-click',
+                                source: 'unified-creator',
+                                payload: { scenarioKey }
+                              }
+                            });
+                          }}
+                        >
+                          {povCommands.secondary.label}
+                        </CortexButton>
+                      )}
+                    </div>
+                    
+                    {/* Description */}
+                    <p className="text-sm text-cortex-text-muted">
+                      {povCommands.primary.description}
+                    </p>
+                    
+                    {/* Customer Name Prompt */}
+                    {showCustomerPrompt && (
+                      <div className="bg-cortex-bg-secondary border border-cortex-border-secondary rounded-lg p-4">
+                        <div className="flex items-center space-x-3 mb-3">
+                          <span className="text-lg">👤</span>
+                          <div>
+                            <div className="font-medium text-cortex-text-primary">Customer Name Required</div>
+                            <div className="text-sm text-cortex-text-secondary">
+                              Enter the customer name for the POV project
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex space-x-3">
+                          <input
+                            type="text"
+                            value={customerName}
+                            onChange={(e) => setCustomerName(e.target.value)}
+                            placeholder="Enter customer name..."
+                            className="flex-1 px-3 py-2 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded text-cortex-text-primary focus:outline-none focus:ring-2 focus:ring-cortex-green/50"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && customerName.trim()) {
+                                setShowCustomerPrompt(false);
+                                const command = buildPovInitCommand({
+                                  scenarioKey,
+                                  provider: getScenarioProvider(scenarioKey) as any,
+                                  customerName: customerName.trim()
+                                });
+                                executeCommand(command, {
+                                  trackActivity: {
+                                    event: 'pov-create-with-customer',
+                                    source: 'unified-creator',
+                                    payload: { scenarioKey, customerName: customerName.trim() }
+                                  }
+                                });
+                              }
+                            }}
+                          />
+                          <CortexButton
+                            variant="primary"
+                            size="sm"
+                            onClick={() => {
+                              if (customerName.trim()) {
+                                setShowCustomerPrompt(false);
+                                const command = buildPovInitCommand({
+                                  scenarioKey,
+                                  provider: getScenarioProvider(scenarioKey) as any,
+                                  customerName: customerName.trim()
+                                });
+                                executeCommand(command, {
+                                  trackActivity: {
+                                    event: 'pov-create-with-customer',
+                                    source: 'unified-creator',
+                                    payload: { scenarioKey, customerName: customerName.trim() }
+                                  }
+                                });
+                              }
+                            }}
+                            disabled={!customerName.trim()}
+                          >
+                            Create POV
+                          </CortexButton>
+                          <CortexButton
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowCustomerPrompt(false)}
+                          >
+                            Cancel
+                          </CortexButton>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
             
             <div className="mt-4 pt-4 border-t border-cortex-border-secondary">
