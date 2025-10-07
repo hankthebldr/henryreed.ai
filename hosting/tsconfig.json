@@ -1,22 +1,43 @@
 {
   "compilerOptions": {
-    "target": "es2015",
+    "target": "ES2020",
     "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
+      "DOM",
+      "ES2020"
     ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": false,
-    "forceConsistentCasingInFileNames": true,
+    "jsx": "preserve",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+      "@/lib/*": [
+        "./lib/*"
+      ],
+      "@/contexts/*": [
+        "./contexts/*"
+      ],
+      "@/hooks/*": [
+        "./hooks/*"
+      ]
+    },
+    "strict": false, // TODO: Re-enable after recovery phase - too many strict errors to fix now
+    "noImplicitAny": false, // TODO: Re-enable after recovery phase - many legacy any types need fixing
+    "noImplicitReturns": false, // TODO: Re-enable after recovery phase
+    "noImplicitThis": false, // TODO: Re-enable after recovery phase
+    "strictNullChecks": false, // TODO: Re-enable after recovery phase - null/undefined handling needs work
     "noEmit": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
     "incremental": true,
     "plugins": [
       {

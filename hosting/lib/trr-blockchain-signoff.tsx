@@ -96,7 +96,7 @@ class BlockchainService {
 }
 
 // Mock TRR signoff data store
-let trrSignoffs: TRRSignoffRecord[] = [
+const trrSignoffs: TRRSignoffRecord[] = [
   {
     trrId: 'TRR-001',
     signoffType: 'technical',

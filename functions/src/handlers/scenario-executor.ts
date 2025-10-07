@@ -1,7 +1,7 @@
 // Background scenario execution engine
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { z } from 'zod';
+// import { z } from 'zod'; // commented out: unused import causing TS6133 per build
 import { logger } from '../utils/logger';
 
 // ============================================================================
@@ -349,7 +349,7 @@ class ScenarioExecutionEngine {
     } catch (error) {
       stageResult.status = 'failed';
       stageResult.endTime = new Date();
-      stageResult.errors.push(error.toString());
+      stageResult.errors.push(String(error));
       
       this.logExecution(executionId, 'error', `stage-${stage.id}`, `Stage failed: ${error}`);
       
@@ -591,10 +591,11 @@ class ScenarioExecutionEngine {
     }
   }
 
-  private async createAlert(executionId: string, alert: Omit<ExecutionAlert, 'id' | 'resolved'>): Promise<void> {
+  private async createAlert(executionId: string, alert: Omit<ExecutionAlert, 'id' | 'resolved' | 'timestamp'>): Promise<void> {
     const alertWithId: ExecutionAlert = {
       ...alert,
       id: `${executionId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: new Date(),
       resolved: false,
     };
     
@@ -651,7 +652,11 @@ class ScenarioExecutionEngine {
 // CLOUD FUNCTIONS
 // ============================================================================
 
-const engine = new ScenarioExecutionEngine();
+let engineInstance: ScenarioExecutionEngine | null = null;
+function getEngine(): ScenarioExecutionEngine {
+  if (!engineInstance) engineInstance = new ScenarioExecutionEngine();
+  return engineInstance;
+}
 
 // Pub/Sub triggered background execution
 export const processScenarioExecution = functions
@@ -672,7 +677,7 @@ export const processScenarioExecution = functions
         return;
       }
       
-      await engine.executeScenario(executionId);
+      await getEngine().executeScenario(executionId);
       
     } catch (error) {
       logger.error('Failed to process scenario execution', error);

@@ -1,0 +1,5 @@
+Need to install the following packages:
+ts-prune@0.10.3
+Ok to proceed? (y) 
+npm error canceled
+npm error A complete log of this run can be found in: /Users/henry/.npm/_logs/2025-10-07T06_25_40_055Z-debug-0.log

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { commands as baseCommands, CommandConfig } from './commands';
 import { downloadCommands } from './download-commands';
 import { cdrCommands } from './cdr-commands';
@@ -20,7 +20,6 @@ import { xsiamCommands } from './xsiam-commands';
 import { scenarioCommands } from './scenario-commands';
 import { fetchAnalytics } from './data-service';
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
 
 const EnhancedManualCreationGUI = dynamic(() => import('../components/EnhancedManualCreationGUI'), {
   ssr: false,

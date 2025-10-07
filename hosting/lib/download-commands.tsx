@@ -125,11 +125,11 @@ export const downloadCommands: CommandConfig[] = [
         );
       }
 
-      const module = args[0]?.toLowerCase();
+      const moduleType = args[0]?.toLowerCase();
       const flags = args.slice(1);
 
-      return downloadCommands.find(cmd => cmd.name === module)?.handler(flags) || (
-        <div className="text-red-400">Unknown module: {module}. Use 'download' to see available options.</div>
+      return downloadCommands.find(cmd => cmd.name === moduleType)?.handler(flags) || (
+        <div className="text-red-400">Unknown module: {moduleType}. Use 'download' to see available options.</div>
       );
     }
   },

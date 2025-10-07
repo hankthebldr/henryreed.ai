@@ -30,7 +30,7 @@ export interface TRRValidation {
 }
 
 // Mock TRR data store
-let trrValidations: TRRValidation[] = [
+const trrValidations: TRRValidation[] = [
   {
     id: 'TRR-001',
     requirement: 'SIEM Integration Validation',

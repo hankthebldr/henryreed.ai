@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.app = exports.api = exports.aiTrrSuggest = void 0;
+exports.app = exports.api = exports.cleanupOldExecutions = exports.monitorExecutionStatusChanges = exports.processScenarioExecution = exports.generateDetectionQueriesFunction = exports.controlScenarioExecutionFunction = exports.executeScenarioFunction = exports.generateThreatActorScenarioFunction = exports.aiTrrSuggest = void 0;
 // Cloud Functions for TRR Management System
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
@@ -46,6 +46,11 @@ const helmet_1 = __importDefault(require("helmet"));
 const rate_limiter_flexible_1 = require("rate-limiter-flexible");
 // Import handlers
 const ai_trr_suggest_1 = require("./handlers/ai-trr-suggest");
+const scenario_orchestration_1 = require("./handlers/scenario-orchestration");
+const scenario_executor_1 = require("./handlers/scenario-executor");
+Object.defineProperty(exports, "processScenarioExecution", { enumerable: true, get: function () { return scenario_executor_1.processScenarioExecution; } });
+Object.defineProperty(exports, "monitorExecutionStatusChanges", { enumerable: true, get: function () { return scenario_executor_1.monitorExecutionStatusChanges; } });
+Object.defineProperty(exports, "cleanupOldExecutions", { enumerable: true, get: function () { return scenario_executor_1.cleanupOldExecutions; } });
 // Import utils
 const logger_1 = require("./utils/logger");
 // Initialize Firebase Admin SDK
@@ -130,6 +135,115 @@ exports.aiTrrSuggest = functions
             throw error;
         }
         throw new functions.https.HttpsError('internal', 'AI service temporarily unavailable');
+    }
+});
+// ============================================================================
+// Scenario Orchestration Functions
+// ============================================================================
+/**
+ * AI-powered threat actor scenario generation
+ * Generates comprehensive attack scenarios based on threat actor profiles
+ */
+exports.generateThreatActorScenarioFunction = functions
+    .region('us-central1')
+    .runWith({
+    memory: '2GB',
+    timeoutSeconds: 540,
+    secrets: ['OPENAI_API_KEY']
+})
+    .https
+    .onCall(async (data, context) => {
+    try {
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+        }
+        return await (0, scenario_orchestration_1.generateThreatActorScenario)(data, context);
+    }
+    catch (error) {
+        logger_1.logger.error('Generate threat actor scenario error:', error);
+        if (error instanceof functions.https.HttpsError) {
+            throw error;
+        }
+        throw new functions.https.HttpsError('internal', 'Scenario generation service temporarily unavailable');
+    }
+});
+/**
+ * Scenario execution management
+ * Starts execution of a scenario blueprint
+ */
+exports.executeScenarioFunction = functions
+    .region('us-central1')
+    .runWith({
+    memory: '1GB',
+    timeoutSeconds: 120
+})
+    .https
+    .onCall(async (data, context) => {
+    try {
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+        }
+        return await (0, scenario_orchestration_1.executeScenario)(data, context);
+    }
+    catch (error) {
+        logger_1.logger.error('Execute scenario error:', error);
+        if (error instanceof functions.https.HttpsError) {
+            throw error;
+        }
+        throw new functions.https.HttpsError('internal', 'Scenario execution service temporarily unavailable');
+    }
+});
+/**
+ * Scenario execution control
+ * Controls running scenario executions (pause, resume, cancel, restart)
+ */
+exports.controlScenarioExecutionFunction = functions
+    .region('us-central1')
+    .runWith({
+    memory: '512MB',
+    timeoutSeconds: 60
+})
+    .https
+    .onCall(async (data, context) => {
+    try {
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+        }
+        return await (0, scenario_orchestration_1.controlScenarioExecution)(data, context);
+    }
+    catch (error) {
+        logger_1.logger.error('Control scenario execution error:', error);
+        if (error instanceof functions.https.HttpsError) {
+            throw error;
+        }
+        throw new functions.https.HttpsError('internal', 'Scenario control service temporarily unavailable');
+    }
+});
+/**
+ * AI-powered detection query generation
+ * Generates optimized detection queries for threat vectors
+ */
+exports.generateDetectionQueriesFunction = functions
+    .region('us-central1')
+    .runWith({
+    memory: '1GB',
+    timeoutSeconds: 300,
+    secrets: ['OPENAI_API_KEY']
+})
+    .https
+    .onCall(async (data, context) => {
+    try {
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+        }
+        return await (0, scenario_orchestration_1.generateDetectionQueries)(data, context);
+    }
+    catch (error) {
+        logger_1.logger.error('Generate detection queries error:', error);
+        if (error instanceof functions.https.HttpsError) {
+            throw error;
+        }
+        throw new functions.https.HttpsError('internal', 'Detection query generation service temporarily unavailable');
     }
 });
 // TRR Export handler - TODO: Implement

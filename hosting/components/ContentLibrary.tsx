@@ -359,7 +359,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
 
   // Filter and sort content
   const filteredContent = useMemo(() => {
-    let filtered = CONTENT_LIBRARY.filter(item => {
+    const filtered = CONTENT_LIBRARY.filter(item => {
       const matchesSearch = searchQuery === '' || 
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
