@@ -501,7 +501,7 @@ export const executeScenario = async (
 
     // Start background execution (this would trigger a separate Cloud Function or pub/sub)
     if (!request.options.dryRun) {
-      const pubsub = admin.firestore();
+      // const pubsub = admin.firestore(); // Unused as of fd0d5073; commented to satisfy TS
       // In a real implementation, you'd publish to a pub/sub topic for background processing
       // For now, we'll update the status to initializing
       await db.collection('scenarioExecutions').doc(executionId).update({

@@ -7,7 +7,7 @@ import helmet from 'helmet';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 
 // Import handlers
-import { aiTRRSuggestHandler } from './handlers/ai-trr-suggest';
+// import { aiTRRSuggestHandler } from './handlers/ai-trr-suggest'; // Temporarily disabled due to CPU config issues
 import { 
   generateThreatActorScenario, 
   executeScenario, 
@@ -88,33 +88,36 @@ app.get('/health', (req, res) => {
 /**
  * AI-powered TRR suggestion and enhancement
  * Provides intelligent suggestions for TRR fields, risk assessment, and validation
+ * 
+ * TEMPORARILY DISABLED: Function has CPU configuration conflicts with Gen 1 Cloud Functions
+ * This needs to be migrated to Gen 2 or CPU settings need to be removed
  */
-export const aiTrrSuggest = functions
-  .region('us-central1')
-  .runWith({
-    memory: '1GB',
-    timeoutSeconds: 540,
-    secrets: ['OPENAI_API_KEY']
-  })
-  .https
-  .onCall(async (data, context) => {
-    try {
-      // Validate authentication
-      if (!context.auth) {
-        throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
-      }
-
-      return await aiTRRSuggestHandler(data, context);
-    } catch (error) {
-      logger.error('AI TRR Suggest error:', error);
-      
-      if (error instanceof functions.https.HttpsError) {
-        throw error;
-      }
-      
-      throw new functions.https.HttpsError('internal', 'AI service temporarily unavailable');
-    }
-  });
+// export const aiTrrSuggest = functions
+//   .region('us-central1')
+//   .runWith({
+//     memory: '1GB',
+//     timeoutSeconds: 540,
+//     secrets: ['OPENAI_API_KEY']
+//   })
+//   .https
+//   .onCall(async (data, context) => {
+//     try {
+//       // Validate authentication
+//       if (!context.auth) {
+//         throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+//       }
+//
+//       return await aiTRRSuggestHandler(data, context);
+//     } catch (error) {
+//       logger.error('AI TRR Suggest error:', error);
+//       
+//       if (error instanceof functions.https.HttpsError) {
+//         throw error;
+//       }
+//       
+//       throw new functions.https.HttpsError('internal', 'AI service temporarily unavailable');
+//     }
+//   });
 
 // ============================================================================
 // Scenario Orchestration Functions

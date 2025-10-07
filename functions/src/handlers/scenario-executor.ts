@@ -1,7 +1,7 @@
 // Background scenario execution engine
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { z } from 'zod';
+// import { z } from 'zod'; // Unused as of commit fd0d5073; commented to satisfy TS
 import { logger } from '../utils/logger';
 
 // ============================================================================
@@ -346,10 +346,10 @@ class ScenarioExecutionEngine {
 
       this.logExecution(executionId, 'info', `stage-${stage.id}`, `Stage completed successfully`);
 
-    } catch (error) {
+    } catch (error: any) {
       stageResult.status = 'failed';
       stageResult.endTime = new Date();
-      stageResult.errors.push(error.toString());
+      stageResult.errors.push(String(error)); // Fixed: handle unknown error type safely
       
       this.logExecution(executionId, 'error', `stage-${stage.id}`, `Stage failed: ${error}`);
       
@@ -591,10 +591,11 @@ class ScenarioExecutionEngine {
     }
   }
 
-  private async createAlert(executionId: string, alert: Omit<ExecutionAlert, 'id' | 'resolved'>): Promise<void> {
+  private async createAlert(executionId: string, alert: Omit<ExecutionAlert, 'id' | 'resolved' | 'timestamp'>): Promise<void> {
     const alertWithId: ExecutionAlert = {
       ...alert,
       id: `${executionId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: new Date(), // Added to satisfy ExecutionAlert requirement
       resolved: false,
     };
     
@@ -651,7 +652,15 @@ class ScenarioExecutionEngine {
 // CLOUD FUNCTIONS
 // ============================================================================
 
-const engine = new ScenarioExecutionEngine();
+// Lazy initialization to avoid Firebase Admin SDK initialization issues during deployment analysis
+let engineSingleton: ScenarioExecutionEngine | null = null;
+
+function getScenarioExecutionEngine(): ScenarioExecutionEngine {
+  if (!engineSingleton) {
+    engineSingleton = new ScenarioExecutionEngine();
+  }
+  return engineSingleton;
+}
 
 // Pub/Sub triggered background execution
 export const processScenarioExecution = functions
@@ -672,6 +681,7 @@ export const processScenarioExecution = functions
         return;
       }
       
+      const engine = getScenarioExecutionEngine();
       await engine.executeScenario(executionId);
       
     } catch (error) {
