@@ -5,6 +5,17 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  darkMode: 'class',
+  safelist: [
+    // Dynamic POV status classes
+    'bg-cortex-success', 'bg-cortex-success/20', 'text-cortex-success', 'border-cortex-success/30',
+    'bg-cortex-warning', 'bg-cortex-warning/20', 'text-cortex-warning', 'border-cortex-warning/30',
+    'bg-cortex-blue', 'bg-cortex-blue/20', 'text-cortex-blue', 'border-cortex-blue/30',
+    'bg-cortex-error', 'bg-cortex-error/20', 'text-cortex-error', 'border-cortex-error/30',
+    'bg-cortex-info', 'bg-cortex-info/20', 'text-cortex-info', 'border-cortex-info/30',
+    // Additional purple variants for Chakra integration
+    'bg-purple-500', 'bg-purple-500/20', 'text-purple-400', 'border-purple-500/30',
+  ],
   theme: {
     extend: {
       colors: {
@@ -219,5 +230,10 @@ module.exports = {
         '3xl': '64px',
       }
     },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/container-queries'),
+    require('tailwindcss-animate'),
+  ],
 }

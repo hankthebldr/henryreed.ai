@@ -1,7 +1,6 @@
 import './globals.css';
 import './dc-portal-styles.css';
-import { AuthProvider } from '../contexts/AuthContext';
-import { AppStateProvider } from '../contexts/AppStateContext';
+import { Providers } from './providers';
 import ConditionalLayout from '../components/ConditionalLayout';
 
 export const metadata = {
@@ -92,13 +91,11 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#e97444" />
       </head>
       <body className="bg-cortex-bg-primary text-cortex-text-primary">
-        <AuthProvider>
-          <AppStateProvider>
-            <ConditionalLayout>
-              {children}
-            </ConditionalLayout>
-          </AppStateProvider>
-        </AuthProvider>
+        <Providers>
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
+        </Providers>
       </body>
     </html>
   );

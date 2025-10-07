@@ -108,19 +108,47 @@ input:focus {
   box-shadow: 0 0 0 2px rgba(233, 116, 68, 0.2);
 }
 
-/* Glass card effect */
+/* Enhanced Glass card effect matching mockup */
 .glass-card {
-  background: rgba(33, 38, 45, 0.9);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(233, 116, 68, 0.2);
-  border-radius: 0.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transition: all 500ms;
+  background: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
 }
 
 .glass-card:hover {
-  border-color: rgba(233, 116, 68, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+/* Cortex card variants */
+.cortex-card {
+  background-color: rgba(17, 24, 39, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  backdrop-filter: blur(12px);
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cortex-card-elevated {
+  background: radial-gradient(circle at top left, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 20%), #111827;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cortex-card-elevated:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+  border-color: rgba(249, 115, 22, 0.2);
 }
 
 /* Status messages */
@@ -359,33 +387,7 @@ input:focus {
   box-shadow: 0 0 0 2px rgba(0, 204, 102, 0.5);
 }
 
-/* PANW Cortex card styles */
-.cortex-card {
-  background-color: #161B22;
-  border: 1px solid #30363D;
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(4px);
-  transition: all 200ms;
-}
-
-.cortex-card:hover {
-  border-color: #00CC66;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-.cortex-card-elevated {
-  background-color: #21262D;
-  border: 1px solid #30363D;
-  border-radius: 0.5rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(4px);
-  transition: all 200ms;
-}
-
-.cortex-card-elevated:hover {
-  border-color: #00CC66;
-}
+/* NOTE: Modern cortex-card and cortex-card-elevated styles defined above */
 
 .cortex-card-primary {
   background-color: #21262D;
@@ -520,15 +522,7 @@ input:focus, textarea:focus, select:focus {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.glass-card {
-  background: rgba(33, 38, 45, 0.9);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 204, 102, 0.1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
+/* NOTE: glass-card styles defined above with mockup-matching design */
 
 .glass-terminal {
   background: rgba(0, 0, 0, 0.9);
