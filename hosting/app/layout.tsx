@@ -5,7 +5,7 @@ import { AppStateProvider } from '../contexts/AppStateContext';
 import ConditionalLayout from '../components/ConditionalLayout';
 
 export const metadata = {
-  title: 'Henry Reed AI - Professional Platform',
+  title: 'Cortex Domain Consultant Platform',
   description: 'Professional engagement platform for project management, customer demos, and technical solutions',
   keywords: 'Henry Reed AI, Professional Platform, Project Management, Customer Engagement, Technical Solutions, Portfolio Management',
   authors: [{ name: 'Henry Reed AI', url: 'https://henryreed.ai' }],
@@ -21,7 +21,7 @@ export const metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'Henry Reed AI - Professional Platform',
+    title: 'Cortex Domain Consultant Platform',
     description: 'Professional platform for project management, customer engagement, and technical solutions',
     url: 'https://henryreed.ai',
     siteName: 'Henry Reed AI',
@@ -38,7 +38,7 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Henry Reed AI - Professional Platform',
+    title: 'Cortex Domain Consultant Platform',
     description: 'Professional platform for project management, customer engagement, and technical solutions',
     images: ['/favicon.ico'],
   },
