@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useImperativeHandle } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import LoginForm from './LoginForm';
@@ -40,7 +40,13 @@ interface CommandConfig {
 }
 
 
-export default function ImprovedTerminal() {
+export interface ImprovedTerminalRef {
+  focus: () => void;
+  executeCommand: (command: string) => Promise<void>;
+  clear: () => void;
+}
+
+const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) => {
   const [commands, setCommands] = useState<Command[]>([]);
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<string[]>([]);
@@ -1492,6 +1498,21 @@ level: high`}
     setHistoryIndex(-1);
   };
 
+  // Expose methods via ref
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    },
+    executeCommand: async (command: string) => {
+      await executeCommand(command);
+    },
+    clear: () => {
+      setCommands([]);
+    }
+  }), []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     executeCommand(input);
@@ -1648,4 +1669,8 @@ level: high`}
       {showLogin && <LoginForm onClose={() => setShowLogin(false)} />}
     </div>
   );
-}
+});
+
+ImprovedTerminal.displayName = 'ImprovedTerminal';
+
+export default ImprovedTerminal;

@@ -2,113 +2,69 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppState } from '../contexts/AppStateContext';
-
-const VALID_CREDENTIALS = {
-  username: 'cortex',
-  password: 'xsiam'
-};
-
-// Mock user data for successful login
-const MOCK_USER = {
-  id: 'cortex-001',
-  username: 'cortex',
-  email: 'cortex@paloaltonetworks.com',
-  role: 'admin' as const,
-  viewMode: 'admin' as const,
-  permissions: ['scenario:execute', 'pov:create', 'system:admin', 'trr:manage'],
-  lastLogin: new Date().toISOString()
-};
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Page() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedInterface] = useState<'gui'>('gui');
-  const [showInterfaceSelection, setShowInterfaceSelection] = useState(false);
+  const { signIn, user, loading } = useAuth();
   const router = useRouter();
-  const { state, actions } = useAppState();
 
-  // If already authenticated, send users straight to GUI
+  // If already authenticated, redirect to GUI
   useEffect(() => {
-    const authenticated = sessionStorage.getItem('dc_authenticated');
-    const savedUser = sessionStorage.getItem('dc_user');
-    
-    if (authenticated === 'true' && savedUser && !state.auth.isAuthenticated) {
-      try {
-        const user = JSON.parse(savedUser);
-        actions.setUser(user);
-        actions.setViewMode(user.viewMode || 'user');
-      } catch (error) {
-        // Clear corrupted session data
-        sessionStorage.removeItem('dc_authenticated');
-        sessionStorage.removeItem('dc_user');
-      }
-    }
-    
-    if (authenticated === 'true' || state.auth.isAuthenticated) {
+    if (user && !loading) {
       router.push('/gui');
     }
-  }, [router, state.auth.isAuthenticated, actions]);
+  }, [user, loading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
 
-    // Simple delay to simulate authentication
-    await new Promise(resolve => setTimeout(resolve, 800));
-
-    if (username === VALID_CREDENTIALS.username && password === VALID_CREDENTIALS.password) {
-      // Store authentication state in session storage for persistence
-      sessionStorage.setItem('dc_authenticated', 'true');
-      sessionStorage.setItem('dc_user', JSON.stringify(MOCK_USER));
-      
-      // Update AppState with user authentication
-      actions.setUser(MOCK_USER);
-      actions.setViewMode('admin');
-      
-      // Show success notification
-      actions.notify('success', `Welcome back, ${MOCK_USER.username}!`);
-      
-      // Route directly to GUI
-      router.push('/gui');
-    } else {
-      setError('Invalid credentials. Please try again.');
-      // Show error notification
-      actions.notify('error', 'Authentication failed. Please check your credentials.');
-      // Clear password field on error
+    try {
+      await signIn(username, password);
+      // The useEffect hook will handle navigation after successful login
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error instanceof Error ? error.message : 'Authentication failed. Please try again.');
       setPassword('');
     }
-    setIsLoading(false);
-  };
-
-  const handleInterfaceSelection = (interfaceType: 'gui') => {
-    router.push(`/gui`);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !isLoading) {
+    if (e.key === 'Enter' && !loading) {
       handleSubmit(e as any);
     }
   };
 
   return (
-    <div className="min-h-screen bg-cortex-bg-primary flex items-center justify-center">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
+    <div className="min-h-screen bg-cortex-bg-primary flex items-center justify-center relative overflow-hidden">
+      {/* Modern Background Pattern with Cortex Branding */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 gradient-mesh"></div>
         <div className="absolute inset-0" style={{
           backgroundImage: `radial-gradient(circle at 1px 1px, rgba(0,204,102,0.3) 1px, transparent 0)`,
           backgroundSize: '20px 20px'
         }}></div>
       </div>
+      
+      {/* Subtle Cortex Logo Watermark */}
+      <div className="absolute top-8 right-8 opacity-10">
+        <svg width="64" height="64" viewBox="0 0 32 32" className="text-cortex-green">
+          <circle cx="16" cy="16" r="15" fill="none" stroke="currentColor" strokeWidth="1"/>
+          <path d="M 10 8 C 20 8, 24 12, 24 16 C 24 20, 20 24, 10 24 C 8 24, 6 22, 6 20 L 8 20 C 8 21, 9 22, 10 22 C 18 22, 22 18, 22 16 C 22 14, 18 10, 10 10 C 9 10, 8 11, 8 12 L 6 12 C 6 10, 8 8, 10 8 Z" fill="currentColor"/>
+          <circle cx="24" cy="8" r="2" fill="#00CC66" opacity="0.6"/>
+        </svg>
+      </div>
 
       <div className="relative z-10 w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="mb-4">
-<pre className="text-cortex-green text-sm font-mono leading-tight">
+        {/* Header with Cortex Branding */}
+        <div className="text-center mb-8 relative">
+          {/* Subtle glow effect behind ASCII art */}
+          <div className="absolute inset-0 bg-cortex-green/5 blur-xl rounded-full"></div>
+          <div className="mb-4 relative">
+<pre className="text-cortex-green text-sm font-mono leading-tight drop-shadow-lg">
 {`
  ██████╗ ██████╗ ██████╗ ████████╗███████╗██╗  ██╗    ██████╗  ██████╗
 ██╔════╝██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝╚██╗██╔╝    ██╔══██╗██╔════╝
@@ -125,47 +81,8 @@ export default function Page() {
           </p>
         </div>
 
-        {/* Login Card / Interface Selection */}
-        <div className="cortex-card-elevated p-8">
-          {showInterfaceSelection ? (
-            <div className="space-y-6">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-cortex-green mb-2">Choose Your Experience</h2>
-                <p className="text-cortex-text-secondary text-sm">
-                  Select your preferred interface for the Cortex DC Portal
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-1 gap-4">
-                {/* GUI Only */}
-                <button
-                  onClick={() => handleInterfaceSelection('gui')}
-                  className="group p-6 border-2 border-cortex-border-secondary hover:border-cortex-green rounded-lg transition-all duration-200 hover:shadow-lg hover:cortex-glow-green text-left"
-                >
-                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">🎨</div>
-                  <h3 className="text-xl font-bold text-cortex-text-primary mb-2">Graphical Interface</h3>
-                  <p className="text-cortex-text-secondary text-sm mb-3">
-                    Modern web interface with forms, dashboards, and visual workflows. Optimized for the Domain Consultant experience.
-                  </p>
-                  <div className="text-xs text-cortex-green">
-                    ✓ Visual dashboards  ✓ Form-based inputs  ✓ Charts & reports
-                  </div>
-                </button>
-              </div>
-              
-              <div className="text-center pt-4 border-t border-cortex-border-secondary">
-                <p className="text-xs text-cortex-text-muted mb-2">
-                  You can switch between interfaces at any time using the navigation header
-                </p>
-                <button
-                  onClick={() => setShowInterfaceSelection(false)}
-                  className="text-cortex-text-accent hover:text-cortex-green text-sm underline"
-                >
-                  ← Back to Login
-                </button>
-              </div>
-            </div>
-          ) : (
+        {/* Modern Login Card with Glassmorphism */}
+        <div className="glass-card p-8 animate-scale-in backdrop-blur-xl border border-cortex-green/20 hover:border-cortex-green/40 transition-all duration-500">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username Field */}
             <div>
@@ -215,23 +132,23 @@ export default function Page() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full btn-cortex-primary disabled:bg-cortex-bg-hover disabled:text-cortex-text-disabled disabled:cursor-not-allowed flex items-center justify-center"
+              disabled={loading}
+              className="w-full btn-modern btn-cortex-primary disabled:bg-cortex-bg-hover disabled:text-cortex-text-disabled disabled:cursor-not-allowed flex items-center justify-center transition-all duration-300 hover:shadow-glow-green group"
             >
-              {isLoading ? (
+              {loading ? (
                 <>
                   <div className="cortex-spinner mr-3"></div>
                   Authenticating...
                 </>
               ) : (
                 <>
-                  <span className="mr-2">🛡️</span>
-                  Access Portal
+                  <span className="mr-2 transition-transform group-hover:scale-110">🛡️</span>
+                  <span className="font-semibold">Access Portal</span>
+                  <span className="ml-2 text-xs opacity-60 group-hover:opacity-100 transition-opacity">→</span>
                 </>
               )}
             </button>
           </form>
-          )}
 
           {/* Footer Info */}
           <div className="mt-6 pt-6 border-t border-cortex-border-secondary">

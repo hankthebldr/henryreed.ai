@@ -31,40 +31,7 @@ const generateMonitoringData = (scenario: string) => {
 
 import { CommandConfig } from './commands';
 
-export const monitorCommands: CommandConfig[] = [
-  {
-    name: 'monitor',
-    description: 'Security monitoring and alerting',
-    usage: 'monitor [start|stop|status|list] [options]',
-    aliases: ['mon'],
-    handler: async (args: string[]) => {
-      const subcommand = args[0] || 'help';
-      const subArgs = args.slice(1);
-      
-      switch (subcommand) {
-        case 'start':
-          return await handleMonitorStart(subArgs);
-        case 'stop':
-          return await handleMonitorStop(subArgs);
-        case 'status':
-          return await handleMonitorStatus(subArgs);
-        case 'list':
-          return await handleMonitorList(subArgs);
-        default:
-          return (
-            <div className="text-blue-300">
-              <div className="font-bold mb-2">📊 Monitoring Commands</div>
-              <div className="space-y-1 text-sm">
-                <div>• <span className="font-mono">monitor start --scenario [type]</span> - Start monitoring</div>
-                <div>• <span className="font-mono">monitor stop SESSION_ID</span> - Stop monitoring</div>
-                <div>• <span className="font-mono">monitor status [SESSION_ID]</span> - Check status</div>
-                <div>• <span className="font-mono">monitor list</span> - List all sessions</div>
-              </div>
-            </div>
-      );
-    };
-];
-
+// Function declarations
 const handleMonitorStart = async (args: string[]) => {
     const scenario = args.includes('--scenario') ? args[args.indexOf('--scenario') + 1] : '';
     const realTime = args.includes('--real-time');
@@ -82,18 +49,19 @@ const handleMonitorStart = async (args: string[]) => {
     try {
       const sessionId = `MON-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
       
-      if (USE_FUNCTIONS) {
-        await cloudFunctionsAPI.startMonitoring({
-          sessionId,
-          scenario,
-          realTime,
-          alerts,
-          duration
-        });
-      } else {
+      // Note: startMonitoring method would need to be implemented in cloudFunctionsAPI
+      // if (USE_FUNCTIONS) {
+      //   await cloudFunctionsAPI.startMonitoring({
+      //     sessionId,
+      //     scenario,
+      //     realTime,
+      //     alerts,
+      //     duration
+      //   });
+      // } else {
         // Simulate monitoring startup
         await new Promise(resolve => setTimeout(resolve, 2000));
-      }
+      // }
 
       const monitoringData = generateMonitoringData(scenario);
       
@@ -188,7 +156,8 @@ const handleMonitorStart = async (args: string[]) => {
           <div>Error: {error instanceof Error ? error.message : 'Unknown error'}</div>
         </div>
       );
-  };
+    }
+};
 
   const handleMonitorStop = async (args: string[]) => {
     const sessionId = args[0];
@@ -211,11 +180,12 @@ const handleMonitorStart = async (args: string[]) => {
     }
 
     try {
-      if (USE_FUNCTIONS) {
-        await cloudFunctionsAPI.stopMonitoring(sessionId);
-      } else {
+      // Note: stopMonitoring method would need to be implemented in cloudFunctionsAPI
+      // if (USE_FUNCTIONS) {
+      //   await cloudFunctionsAPI.stopMonitoring(sessionId);
+      // } else {
         await new Promise(resolve => setTimeout(resolve, 1000));
-      }
+      // }
 
       // Update session status
       session.status = 'stopped';
@@ -271,8 +241,10 @@ const handleMonitorStart = async (args: string[]) => {
           <div>Error: {error instanceof Error ? error.message : 'Unknown error'}</div>
         </div>
       );
-    };
-  const handleMonitorStatus = async (args: string[]) => {
+    }
+};
+
+const handleMonitorStatus = async (args: string[]) => {
     const sessionId = args[0];
     
     if (!sessionId) {
@@ -418,9 +390,9 @@ const handleMonitorStart = async (args: string[]) => {
         </div>
       </div>
     );
-  };
+};
 
-  const handleMonitorList = async (args: string[]) => {
+const handleMonitorList = async (args: string[]) => {
     const allSessions = Array.from(monitoringSessions.values());
     const activeSessions = allSessions.filter(s => s.status === 'active');
     const stoppedSessions = allSessions.filter(s => s.status === 'stopped');
@@ -505,5 +477,40 @@ const handleMonitorStart = async (args: string[]) => {
         </div>
       </div>
     );
-  }
 };
+
+export const monitorCommands: CommandConfig[] = [
+  {
+    name: 'monitor',
+    description: 'Security monitoring and alerting',
+    usage: 'monitor [start|stop|status|list] [options]',
+    aliases: ['mon'],
+    handler: async (args: string[]) => {
+      const subcommand = args[0] || 'help';
+      const subArgs = args.slice(1);
+      
+      switch (subcommand) {
+        case 'start':
+          return await handleMonitorStart(subArgs);
+        case 'stop':
+          return await handleMonitorStop(subArgs);
+        case 'status':
+          return await handleMonitorStatus(subArgs);
+        case 'list':
+          return await handleMonitorList(subArgs);
+        default:
+          return (
+            <div className="text-blue-300">
+              <div className="font-bold mb-2">📊 Monitoring Commands</div>
+              <div className="space-y-1 text-sm">
+                <div>• <span className="font-mono">monitor start --scenario [type]</span> - Start monitoring</div>
+                <div>• <span className="font-mono">monitor stop SESSION_ID</span> - Stop monitoring</div>
+                <div>• <span className="font-mono">monitor status [SESSION_ID]</span> - Check status</div>
+                <div>• <span className="font-mono">monitor list</span> - List all sessions</div>
+              </div>
+            </div>
+          );
+      }
+    },
+  }
+];

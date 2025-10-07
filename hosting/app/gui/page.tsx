@@ -1,9 +1,9 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useAuthGuard } from '../../hooks/useAuthGuard';
-import { ActivityProvider } from '../../hooks/useActivityTracking';
-import { userManagementService } from '../../lib/user-management';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 
 const CortexGUIInterface = dynamic(() => import('../../components/CortexGUIInterface'), {
   ssr: false,
@@ -18,9 +18,18 @@ const CortexGUIInterface = dynamic(() => import('../../components/CortexGUIInter
 });
 
 export default function GUIPage() {
-  const isAuthenticated = useAuthGuard();
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
-  if (isAuthenticated === null) {
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/');
+    }
+  }, [user, loading, router]);
+
+  // Show loading while checking auth
+  if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
@@ -31,19 +40,12 @@ export default function GUIPage() {
     );
   }
 
-  if (isAuthenticated) {
-    // Get demo user for activity tracking
-    const demoUser = userManagementService.getAllUsers()[0];
-    const userId = demoUser?.id || 'demo_user';
-    const sessionId = `session_${Date.now()}`;
-    
-    return (
-      <ActivityProvider userId={userId} sessionId={sessionId}>
-        <CortexGUIInterface />
-      </ActivityProvider>
-    );
+  // Show GUI if authenticated
+  if (user) {
+    return <CortexGUIInterface />;
   }
 
+  // This should not render if useEffect redirects properly
   return null;
 }
 

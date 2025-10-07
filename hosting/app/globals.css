@@ -196,6 +196,79 @@ input:focus, textarea:focus, select:focus {
   animation: cortex-spin 1s linear infinite;
 }
 
+/* ============================================
+ * MODERN SOPHISTICATED UI PATTERNS
+ * ============================================ */
+
+/* Enhanced Glassmorphism Effects */
+.glass {
+  background: rgba(13, 17, 23, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card {
+  background: rgba(33, 38, 45, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 204, 102, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-terminal {
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(0, 204, 102, 0.2);
+  box-shadow: 
+    0 0 50px rgba(0, 204, 102, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(0, 204, 102, 0.1);
+}
+
+/* Modern Button System */
+.btn-modern {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.btn-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.2), 
+    transparent
+  );
+  transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-modern:hover::before {
+  left: 100%;
+}
+
+.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 25px rgba(0, 204, 102, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-modern:active {
+  transform: translateY(0);
+  transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Enhanced Button Ripple Effect */
 @keyframes ripple {
   0% {
@@ -206,6 +279,27 @@ input:focus, textarea:focus, select:focus {
     transform: scale(4);
     opacity: 0;
   }
+}
+
+/* Advanced Gradient Backgrounds */
+.gradient-mesh {
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(0, 204, 102, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 105, 0, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(88, 166, 255, 0.1) 0%, transparent 50%);
+}
+
+.gradient-border {
+  background: linear-gradient(45deg, #FF6900, #00CC66, #58A6FF);
+  padding: 2px;
+  border-radius: 8px;
+}
+
+.gradient-border-content {
+  background: #000;
+  border-radius: 6px;
+  width: 100%;
+  height: 100%;
 }
 
 .button-ripple {

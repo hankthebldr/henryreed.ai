@@ -20,15 +20,24 @@ export function useAuthGuard(): AuthGuardReturn {
   const router = useRouter();
 
   useEffect(() => {
-    const authenticated = typeof window !== 'undefined' ? sessionStorage.getItem('dc_authenticated') : null;
-    const userInfo = typeof window !== 'undefined' ? sessionStorage.getItem('dc_user') : null;
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
+    const authenticated = sessionStorage.getItem('dc_authenticated');
+    const userInfo = sessionStorage.getItem('dc_user');
     
     if (authenticated === 'true') {
       setIsAuthenticated(true);
       if (userInfo) {
         try {
-          setUser(JSON.parse(userInfo));
+          const parsedUser = JSON.parse(userInfo);
+          setUser({
+            id: parsedUser.id || 'demo',
+            name: parsedUser.username || parsedUser.name || 'Demo User',
+            email: parsedUser.email || 'demo@example.com'
+          });
         } catch (e) {
+          console.warn('Failed to parse user info:', e);
           setUser({ id: 'demo', name: 'Demo User', email: 'demo@example.com' });
         }
       } else {
@@ -37,7 +46,11 @@ export function useAuthGuard(): AuthGuardReturn {
     } else {
       setIsAuthenticated(false);
       setUser(null);
-      router.push('/');
+      // Add delay to prevent redirect loops
+      const timer = setTimeout(() => {
+        router.push('/');
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [router]);
 

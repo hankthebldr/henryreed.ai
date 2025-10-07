@@ -1,45 +1,39 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
-const VALID_CREDENTIALS = {
-  username: 'cortex',
-  password: 'xsiam'
-};
+import { useAuth } from '../contexts/AuthContext';
 
 export default function AuthLanding() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const { signIn, user, loading, isMockMode } = useAuth();
   const router = useRouter();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user && !loading) {
+      router.push('/terminal');
+    }
+  }, [user, loading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
 
-    // Simple delay to simulate authentication
-    await new Promise(resolve => setTimeout(resolve, 800));
-
-    if (username === VALID_CREDENTIALS.username && password === VALID_CREDENTIALS.password) {
-      // Store authentication state (unified keys)
-      sessionStorage.setItem('dc_authenticated', 'true');
-      sessionStorage.setItem('dc_user', username);
-      
-      // Route to terminal
-      router.push('/terminal');
-    } else {
-      setError('Invalid credentials. Please try again.');
-      setIsLoading(false);
-      // Clear password field on error
+    try {
+      await signIn(username, password);
+      // AuthContext will handle user state and redirect via useEffect
+    } catch (error) {
+      console.error('Authentication error:', error);
+      setError(error instanceof Error ? error.message : 'Authentication failed. Please try again.');
       setPassword('');
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !isLoading) {
+    if (e.key === 'Enter' && !loading) {
       handleSubmit(e as any);
     }
   };

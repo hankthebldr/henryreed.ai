@@ -111,8 +111,5 @@
     "ui": {
       "enabled": true
     }
-  },
-  "remoteconfig": {
-    "template": "hosting/remoteconfig.template.json"
   }
 }
