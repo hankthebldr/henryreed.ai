@@ -1,0 +1,374 @@
+{
+  "title": "Cortex DC Portal - UI Documentation",
+  "description": "Complete wireframes, component architecture, and user workflow documentation for the Cortex Domain Consultant Portal",
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-07",
+  "repository": "henryreed.ai",
+  "basePath": "/hosting/documentation/",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Overview & Getting Started",
+      "description": "Introduction and documentation conventions",
+      "documents": [
+        {
+          "id": "readme",
+          "title": "Documentation Home",
+          "description": "Main entry point with overview and table of contents",
+          "path": "README.md",
+          "status": "complete",
+          "priority": "high",
+          "tags": ["overview", "navigation", "getting-started"]
+        },
+        {
+          "id": "conventions",
+          "title": "Documentation Conventions",
+          "description": "Wireframe standards, naming conventions, and diagramming rules",
+          "path": "00-conventions.md",
+          "status": "complete", 
+          "priority": "high",
+          "tags": ["standards", "conventions", "wireframes", "mermaid"]
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "title": "System Architecture",
+      "description": "Navigation, components, and routing structure",
+      "documents": [
+        {
+          "id": "navigation-structure",
+          "title": "Navigation Structure & Hierarchical Flow",
+          "description": "Complete navigation hierarchy with click-through flows and deep links",
+          "path": "01-navigation-structure.md",
+          "status": "complete",
+          "priority": "high", 
+          "tags": ["navigation", "hierarchy", "flows", "deep-links"],
+          "hierarchy_levels": 6,
+          "mermaid_diagrams": 2
+        },
+        {
+          "id": "component-architecture",
+          "title": "Component Architecture",
+          "description": "Component hierarchy, relationships, and interaction patterns",
+          "path": "02-component-architecture.md",
+          "status": "planned",
+          "priority": "high",
+          "tags": ["components", "architecture", "hierarchy", "interactions"]
+        },
+        {
+          "id": "route-mapping",
+          "title": "Route Mapping & URL Hierarchy",
+          "description": "Complete Next.js route structure with URL patterns and parameters",
+          "path": "06-route-mapping.md", 
+          "status": "complete",
+          "priority": "high",
+          "tags": ["routes", "urls", "nextjs", "parameters", "api"],
+          "total_routes": "50+",
+          "url_combinations": "200+"
+        }
+      ]
+    },
+    {
+      "id": "page-layouts",
+      "title": "Page Layout Wireframes",
+      "description": "Detailed wireframes for all 9 primary portal tabs",
+      "documents": [
+        {
+          "id": "dashboard",
+          "title": "Dashboard Layout",
+          "description": "Main dashboard with metrics, activity feed, and quick actions", 
+          "path": "03-page-layouts/dashboard.md",
+          "status": "complete",
+          "priority": "high",
+          "tags": ["dashboard", "metrics", "activity", "quick-actions"],
+          "component": "POVDashboard",
+          "route": "/gui",
+          "hierarchy_levels": 5
+        },
+        {
+          "id": "pov-management", 
+          "title": "POV Management Layout",
+          "description": "POV creation, management, and analytics interface",
+          "path": "03-page-layouts/pov-management.md",
+          "status": "planned",
+          "priority": "high",
+          "tags": ["pov", "management", "creation", "analytics"],
+          "component": "POVProjectManagement",
+          "route": "/gui/pov"
+        },
+        {
+          "id": "trr-requirements",
+          "title": "TRR & Requirements Layout", 
+          "description": "TRR management, validation, and quality assurance",
+          "path": "03-page-layouts/trr-and-requirements.md",
+          "status": "planned",
+          "priority": "high",
+          "tags": ["trr", "requirements", "validation", "quality"],
+          "component": "ProductionTRRManagement",
+          "route": "/gui/trr"
+        },
+        {
+          "id": "platform-health",
+          "title": "Platform Health Layout",
+          "description": "XSIAM monitoring, health dashboard, and incident management",
+          "path": "03-page-layouts/platform-health.md",
+          "status": "planned", 
+          "priority": "medium",
+          "tags": ["xsiam", "health", "monitoring", "incidents"],
+          "component": "XSIAMHealthMonitor",
+          "route": "/gui/xsiam"
+        },
+        {
+          "id": "ai-assistant",
+          "title": "AI Assistant Layout",
+          "description": "Chat interface, insights dashboard, and session management",
+          "path": "03-page-layouts/ai-assistant.md",
+          "status": "planned",
+          "priority": "high",
+          "tags": ["ai", "chat", "insights", "gemini"],
+          "component": "EnhancedAIAssistant", 
+          "route": "/gui/ai"
+        },
+        {
+          "id": "customer-analytics",
+          "title": "Customer Analytics Layout",
+          "description": "Data exploration, export capabilities, and customer insights",
+          "path": "03-page-layouts/customer-analytics.md",
+          "status": "planned",
+          "priority": "medium", 
+          "tags": ["analytics", "data", "export", "bigquery"],
+          "component": "BigQueryExplorer",
+          "route": "/gui/data"
+        },
+        {
+          "id": "demo-builder",
+          "title": "Demo Builder Layout",
+          "description": "Content creation, scenario building, and demo management",
+          "path": "03-page-layouts/demo-builder.md",
+          "status": "planned",
+          "priority": "medium",
+          "tags": ["demo", "builder", "content", "scenarios"], 
+          "component": "EnhancedManualCreationGUI",
+          "route": "/gui/creator"
+        },
+        {
+          "id": "content-library",
+          "title": "Content Library Layout",
+          "description": "Scenario library, templates, and content asset management",
+          "path": "03-page-layouts/content-library.md",
+          "status": "planned",
+          "priority": "medium",
+          "tags": ["content", "library", "templates", "assets"],
+          "component": "UnifiedContentCreator",
+          "route": "/gui/scenarios"
+        },
+        {
+          "id": "dc-management",
+          "title": "DC Management Layout",
+          "description": "User management, team oversight, and admin controls",
+          "path": "03-page-layouts/dc-management.md", 
+          "status": "planned",
+          "priority": "low",
+          "tags": ["admin", "management", "users", "oversight"],
+          "component": "ManagementDashboard",
+          "route": "/gui/admin"
+        }
+      ]
+    },
+    {
+      "id": "user-workflows",
+      "title": "User Workflow Maps", 
+      "description": "End-to-end user journeys with detailed navigation flows",
+      "documents": [
+        {
+          "id": "workflow-overview",
+          "title": "Workflow Overview",
+          "description": "Summary of all workflow patterns and cross-references",
+          "path": "04-workflows/overview.md",
+          "status": "planned",
+          "priority": "medium",
+          "tags": ["workflows", "overview", "patterns"]
+        },
+        {
+          "id": "new-pov-creation",
+          "title": "New POV Creation Workflow",
+          "description": "Complete POV creation journey from template selection to deployment",
+          "path": "04-workflows/new-pov-creation.md",
+          "status": "complete", 
+          "priority": "high",
+          "tags": ["pov", "creation", "templates", "workflow"],
+          "hierarchy_levels": 7,
+          "decision_points": "15+",
+          "entry_points": ["dashboard", "pov-tab", "ai-recommendation"]
+        },
+        {
+          "id": "trr-gate-review",
+          "title": "TRR Gate Review Workflow",
+          "description": "TRR validation, quality gates, and approval process",
+          "path": "04-workflows/trr-gate-review.md",
+          "status": "planned",
+          "priority": "high", 
+          "tags": ["trr", "validation", "approval", "quality-gates"]
+        },
+        {
+          "id": "platform-incident-investigation",
+          "title": "Platform Incident Investigation",
+          "description": "Alert detection to root cause analysis and resolution",
+          "path": "04-workflows/platform-incident-investigation.md",
+          "status": "planned",
+          "priority": "medium",
+          "tags": ["incidents", "investigation", "xsiam", "resolution"]
+        },
+        {
+          "id": "ai-assistant-query-to-action", 
+          "title": "AI Assistant Query to Action",
+          "description": "Natural language queries to executed recommendations",
+          "path": "04-workflows/ai-assistant-query-to-action.md",
+          "status": "planned",
+          "priority": "high",
+          "tags": ["ai", "query", "actions", "recommendations"]
+        },
+        {
+          "id": "customer-analytics-deep-dive",
+          "title": "Customer Analytics Deep Dive",
+          "description": "Data exploration to actionable customer insights",
+          "path": "04-workflows/customer-analytics-deep-dive.md", 
+          "status": "planned",
+          "priority": "medium",
+          "tags": ["analytics", "exploration", "insights", "data"]
+        },
+        {
+          "id": "demo-builder-publish",
+          "title": "Demo Builder Publish Workflow",
+          "description": "Content creation to demo deployment and sharing",
+          "path": "04-workflows/demo-builder-publish.md",
+          "status": "planned",
+          "priority": "medium",
+          "tags": ["demo", "publish", "content", "deployment"]
+        },
+        {
+          "id": "content-asset-lifecycle",
+          "title": "Content Asset Lifecycle",
+          "description": "Asset creation, management, and archival process",
+          "path": "04-workflows/content-asset-lifecycle.md",
+          "status": "planned", 
+          "priority": "low",
+          "tags": ["content", "lifecycle", "assets", "management"]
+        },
+        {
+          "id": "dc-management-user-roles",
+          "title": "DC Management User Roles",
+          "description": "User provisioning, role assignment, and team management",
+          "path": "04-workflows/dc-management-user-roles.md",
+          "status": "planned",
+          "priority": "low",
+          "tags": ["admin", "users", "roles", "provisioning"]
+        }
+      ]
+    },
+    {
+      "id": "reference",
+      "title": "Reference Documentation",
+      "description": "Technical references and inventories", 
+      "documents": [
+        {
+          "id": "component-inventory",
+          "title": "Component Inventory", 
+          "description": "Complete catalog of React components with props and relationships",
+          "path": "05-component-inventory.md",
+          "status": "planned",
+          "priority": "medium",
+          "tags": ["components", "inventory", "props", "relationships"]
+        },
+        {
+          "id": "changelog",
+          "title": "Change Log",
+          "description": "Version history and documentation change tracking",
+          "path": "99-changelog.md",
+          "status": "planned",
+          "priority": "low",
+          "tags": ["changelog", "history", "versions"]
+        }
+      ]
+    }
+  ],
+  "stats": {
+    "total_documents": 19,
+    "completed_documents": 5,
+    "planned_documents": 14,
+    "completion_percentage": 26,
+    "total_navigation_levels": "50+",
+    "mermaid_diagrams": "10+",
+    "ascii_wireframes": "20+"
+  },
+  "external_references": [
+    {
+      "title": "Portal UI Map", 
+      "description": "Comprehensive workflow and AI enhancement documentation",
+      "path": "../docs/portal-ui-map.md",
+      "type": "master_reference"
+    },
+    {
+      "title": "Component Source Code",
+      "description": "React component implementations",
+      "path": "../components/",
+      "type": "implementation"
+    },
+    {
+      "title": "Firebase Configuration", 
+      "description": "Hosting and deployment settings",
+      "path": "../../firebase.json",
+      "type": "configuration"
+    },
+    {
+      "title": "Next.js App Structure",
+      "description": "Application routing and pages",
+      "path": "../app/",
+      "type": "framework"
+    }
+  ],
+  "tags": {
+    "priority": ["high", "medium", "low"],
+    "status": ["complete", "planned", "in-progress"],
+    "type": ["overview", "architecture", "layout", "workflow", "reference"],
+    "domain": ["pov", "trr", "ai", "analytics", "demo", "content", "admin", "xsiam"],
+    "technical": ["components", "routes", "navigation", "hierarchy", "mermaid", "wireframes"]
+  },
+  "navigation": {
+    "quick_start": [
+      "readme",
+      "conventions", 
+      "navigation-structure",
+      "dashboard"
+    ],
+    "architecture_deep_dive": [
+      "navigation-structure",
+      "component-architecture", 
+      "route-mapping"
+    ],
+    "workflow_examples": [
+      "new-pov-creation",
+      "trr-gate-review",
+      "ai-assistant-query-to-action"
+    ],
+    "layout_references": [
+      "dashboard",
+      "pov-management", 
+      "ai-assistant",
+      "trr-requirements"
+    ]
+  },
+  "viewing_options": {
+    "repository": "Browse markdown files directly in GitHub/IDE",
+    "local": "Use markdown preview in development environment",
+    "hosted": "Navigate to /docs route (if docs viewer integrated)",
+    "static": "Serve documentation as static files"
+  },
+  "maintenance": {
+    "update_frequency": "Updated alongside UI changes",
+    "owner": "Development team",
+    "review_process": "Documentation review in PRs",
+    "cross_reference_validation": "Links checked in CI"
+  }
+}

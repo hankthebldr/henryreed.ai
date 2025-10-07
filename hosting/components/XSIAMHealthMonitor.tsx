@@ -435,7 +435,6 @@ export const XSIAMHealthMonitor: React.FC = () => {
       </div>
     </div>
   );
-  );
 
   const AlertsTab = () => (
     <div className="space-y-6">

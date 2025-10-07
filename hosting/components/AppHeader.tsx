@@ -148,11 +148,11 @@ export default function AppHeader() {
                 <CortexIcon className="w-5 h-5 text-cortex-orange" />
                 <div>
                   <div className="text-base font-bold text-cortex-text-primary">
-                    Cortex DC Portal
+                    Cortex Domain Consultant Platform
                   </div>
                   {!isMobile && (
                     <div className="text-xs text-cortex-text-muted font-medium">
-                      Domain Consultant Platform
+                      Professional Services Portal
                     </div>
                   )}
                 </div>

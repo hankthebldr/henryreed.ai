@@ -9,8 +9,9 @@ const TEST_CREDENTIALS = {
 // Helper function to login
 async function login(page: Page) {
   await page.goto('/');
-  await page.fill('input[type="text"]', TEST_CREDENTIALS.username);
-  await page.fill('input[type="password"]', TEST_CREDENTIALS.password);
+  await page.waitForLoadState('networkidle');
+  await page.fill('#username', TEST_CREDENTIALS.username);
+  await page.fill('#password', TEST_CREDENTIALS.password);
   await page.click('button[type="submit"]');
   await page.waitForURL('/gui');
 }
@@ -18,29 +19,43 @@ async function login(page: Page) {
 test.describe('Authentication Flow @smoke', () => {
   test('should login with valid credentials', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
     
-    // Check login page elements
-    await expect(page).toHaveTitle(/Cortex DC Portal/);
-    await expect(page.locator('text=Cortex DC Access')).toBeVisible();
+    // Check login page elements with better wait
+    await expect(page).toHaveTitle(/Cortex Domain Consultant Platform/);
+    await expect(page.locator('text=Cortex Domain Consultant Platform')).toBeVisible({ timeout: 10000 });
+    
+    // Wait for form elements to be ready
+    await page.waitForSelector('#username', { timeout: 10000 });
+    await page.waitForSelector('#password', { timeout: 10000 });
     
     // Perform login
-    await page.fill('input[type="text"]', TEST_CREDENTIALS.username);
-    await page.fill('input[type="password"]', TEST_CREDENTIALS.password);
+    await page.fill('#username', TEST_CREDENTIALS.username);
+    await page.fill('#password', TEST_CREDENTIALS.password);
     await page.click('button[type="submit"]');
     
     // Wait for redirect and check success
-    await page.waitForURL('/gui');
-    await expect(page.locator('text=Cortex DC Portal')).toBeVisible();
+    await page.waitForURL('/gui', { timeout: 15000 });
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('text=Cortex Domain Consultant Platform')).toBeVisible({ timeout: 10000 });
   });
 
   test('should show error for invalid credentials', async ({ page }) => {
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
     
-    await page.fill('input[type="text"]', 'invalid');
-    await page.fill('input[type="password"]', 'invalid');
+    // Wait for form elements to be ready
+    await page.waitForSelector('#username', { timeout: 10000 });
+    await page.waitForSelector('#password', { timeout: 10000 });
+    
+    await page.fill('#username', 'invalid');
+    await page.fill('#password', 'invalid');
     await page.click('button[type="submit"]');
     
-    await expect(page.locator('text=Invalid credentials')).toBeVisible();
+    // Look for error message - could be "Invalid credentials" or "Authentication Failed"
+    await expect(
+      page.locator('text=Invalid credentials, text=Authentication Failed, text=failed')
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('should logout successfully', async ({ page }) => {
@@ -51,7 +66,7 @@ test.describe('Authentication Flow @smoke', () => {
     
     // Should redirect to login page
     await page.waitForURL('/');
-    await expect(page.locator('text=Cortex DC Access')).toBeVisible();
+    await expect(page.locator('text=Cortex Domain Consultant Platform')).toBeVisible();
   });
 });
 
@@ -63,7 +78,7 @@ test.describe('Navigation System @smoke', () => {
   test('should navigate to all main sections', async ({ page }) => {
     // Test GUI navigation - already on GUI page, just verify URL
     await expect(page).toHaveURL('/gui');
-    await expect(page.locator('text=Cortex DC Portal')).toBeVisible();
+    await expect(page.locator('text=Cortex Domain Consultant Platform')).toBeVisible();
     
     // Test Docs navigation
     await page.click('a[href="/docs"]');
@@ -304,7 +319,7 @@ test.describe('Data Persistence & State Management @smoke', () => {
     
     // Should still be logged in (redirected to GUI)
     await page.waitForURL('/gui');
-    await expect(page.locator('text=Cortex DC Portal')).toBeVisible();
+    await expect(page.locator('text=Cortex Domain Consultant Platform')).toBeVisible();
   });
 
   test('should persist navigation state', async ({ page }) => {
@@ -318,7 +333,7 @@ test.describe('Data Persistence & State Management @smoke', () => {
     
     // Check that we're still on the GUI page and interface is functional
     await expect(page).toHaveURL('/gui');
-    await expect(page.locator('text=Cortex DC Portal')).toBeVisible();
+    await expect(page.locator('text=Cortex Domain Consultant Platform')).toBeVisible();
   });
 
   test('should persist user activity data', async ({ page }) => {

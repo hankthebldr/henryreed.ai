@@ -77,8 +77,8 @@ function LoginPage() {
                 <span className="text-cortex-text-primary font-bold text-sm">DC</span>
               </div>
               <div>
-                <h1 className="text-cortex-text-primary font-bold text-lg">Cortex DC Portal</h1>
-                <p className="text-cortex-text-muted text-xs">Domain Consultant Management Platform</p>
+                <h1 className="text-cortex-text-primary font-bold text-lg">Cortex Domain Consultant Platform</h1>
+                <p className="text-cortex-text-muted text-xs">Professional Services Portal</p>
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-6 text-sm">
@@ -259,8 +259,8 @@ function LoginPage() {
               </div>
             </div>
             <div className="text-xs text-cortex-text-disabled">
-              <p className="font-medium text-cortex-text-muted">Cortex Domain Consultant Portal v2.5</p>
-              <p className="mt-1">© 2024 Henry Reed AI • Professional POV Management Platform</p>
+              <p className="font-medium text-cortex-text-muted">Cortex Domain Consultant Platform v2.6 2025</p>
+              <p className="mt-1">Developed by Henry Reed v2.6 2025</p>
             </div>
           </div>
         </div>
