@@ -96,80 +96,80 @@ export const ManagementDashboard: React.FC = () => {
       .slice(0, 5);
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-blue-900/20 p-6 rounded-lg border border-blue-500/30">
+          <div className="cortex-card-elevated p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-400 text-sm font-medium">Total Users</p>
-                <p className="text-3xl font-bold text-blue-300">{systemMetrics.totalUsers}</p>
+                <p className="text-cortex-blue text-sm font-medium">Total Users</p>
+                <p className="text-3xl font-bold text-cortex-text-primary">{systemMetrics.totalUsers}</p>
               </div>
               <div className="text-3xl">👥</div>
             </div>
-            <div className="mt-2 text-xs text-blue-400">
+            <div className="mt-2 text-xs text-cortex-text-muted">
               +{systemMetrics.newUsers} new this period
             </div>
           </div>
 
-          <div className="bg-green-900/20 p-6 rounded-lg border border-green-500/30">
+          <div className="cortex-card-elevated p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-400 text-sm font-medium">Active Users</p>
-                <p className="text-3xl font-bold text-green-300">{systemMetrics.activeUsers}</p>
+                <p className="text-cortex-success text-sm font-medium">Active Users</p>
+                <p className="text-3xl font-bold text-cortex-text-primary">{systemMetrics.activeUsers}</p>
               </div>
               <div className="text-3xl">✅</div>
             </div>
-            <div className="mt-2 text-xs text-green-400">
+            <div className="mt-2 text-xs text-cortex-text-muted">
               {Math.round((systemMetrics.activeUsers / systemMetrics.totalUsers) * 100)}% active rate
             </div>
           </div>
 
-          <div className="bg-yellow-900/20 p-6 rounded-lg border border-yellow-500/30">
+          <div className="cortex-card-elevated p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-yellow-400 text-sm font-medium">TRR Volume</p>
-                <p className="text-3xl font-bold text-yellow-300">{systemMetrics.trrVolume.created}</p>
+                <p className="text-cortex-warning text-sm font-medium">TRR Volume</p>
+                <p className="text-3xl font-bold text-cortex-text-primary">{systemMetrics.trrVolume.created}</p>
               </div>
               <div className="text-3xl">📋</div>
             </div>
-            <div className="mt-2 text-xs text-yellow-400">
+            <div className="mt-2 text-xs text-cortex-text-muted">
               {systemMetrics.trrVolume.completed} completed
             </div>
           </div>
 
-          <div className="bg-purple-900/20 p-6 rounded-lg border border-purple-500/30">
+          <div className="cortex-card-elevated p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-400 text-sm font-medium">System Health</p>
-                <p className="text-3xl font-bold text-purple-300">{systemMetrics.uptime}%</p>
+                <p className="text-cortex-purple text-sm font-medium">System Health</p>
+                <p className="text-3xl font-bold text-cortex-text-primary">{systemMetrics.uptime}%</p>
               </div>
               <div className="text-3xl">⚡</div>
             </div>
-            <div className="mt-2 text-xs text-purple-400">
+            <div className="mt-2 text-xs text-cortex-text-muted">
               {systemMetrics.averageLoadTime}ms avg load
             </div>
           </div>
         </div>
 
         {/* Feature Adoption */}
-        <div className="bg-gray-900/50 p-6 rounded-lg border border-gray-700">
-          <h3 className="text-xl font-bold text-white mb-4">🚀 Feature Adoption</h3>
+        <div className="glass-card p-6">
+          <h3 className="text-xl font-bold text-cortex-text-primary mb-4">🚀 Feature Adoption</h3>
           <div className="space-y-3">
             {Object.entries(systemMetrics.featureAdoption).map(([feature, data]) => (
-              <div key={feature} className="flex items-center justify-between p-3 bg-gray-800/30 rounded">
+              <div key={feature} className="cortex-card p-3 flex items-center justify-between">
                 <div>
-                  <div className="text-white font-medium capitalize">{feature.replace('_', ' ')}</div>
-                  <div className="text-sm text-gray-400">{data.totalUsers} users</div>
+                  <div className="text-cortex-text-primary font-medium capitalize">{feature.replace('_', ' ')}</div>
+                  <div className="text-sm text-cortex-text-muted">{data.totalUsers} users</div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="w-24 bg-gray-700 rounded-full h-2">
+                  <div className="w-24 bg-cortex-bg-secondary rounded-full h-2">
                     <div 
-                      className="bg-cyan-500 h-2 rounded-full"
+                      className="bg-cortex-cyan h-2 rounded-full"
                       style={{ width: `${data.adoptionRate}%` }}
                     ></div>
                   </div>
-                  <span className="text-cyan-400 font-mono text-sm">{data.adoptionRate}%</span>
+                  <span className="text-cortex-cyan font-mono text-sm">{data.adoptionRate}%</span>
                 </div>
               </div>
             ))}
@@ -177,23 +177,23 @@ export const ManagementDashboard: React.FC = () => {
         </div>
 
         {/* Top Users */}
-        <div className="bg-gray-900/50 p-6 rounded-lg border border-gray-700">
-          <h3 className="text-xl font-bold text-white mb-4">🏆 Most Active Users</h3>
+        <div className="glass-card p-6">
+          <h3 className="text-xl font-bold text-cortex-text-primary mb-4">🏆 Most Active Users</h3>
           <div className="space-y-3">
             {topUsers.map(({ user, metrics }, index) => (
-              <div key={user.id} className="flex items-center justify-between p-3 bg-gray-800/30 rounded hover:bg-gray-700/30 transition-colors">
+              <div key={user.id} className="cortex-card p-3 flex items-center justify-between cortex-interactive">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                  <div className="w-8 h-8 bg-gradient-to-r from-cortex-cyan to-cortex-blue rounded-full flex items-center justify-center text-white font-bold text-sm">
                     {index + 1}
                   </div>
                   <div>
-                    <div className="text-white font-medium">{user.firstName} {user.lastName}</div>
-                    <div className="text-sm text-gray-400">{user.title} • {user.department}</div>
+                    <div className="text-cortex-text-primary font-medium">{user.firstName} {user.lastName}</div>
+                    <div className="text-sm text-cortex-text-muted">{user.title} • {user.department}</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-cyan-400 font-mono">{metrics?.actionsPerformed || 0}</div>
-                  <div className="text-xs text-gray-400">actions today</div>
+                  <div className="text-cortex-cyan font-mono">{metrics?.actionsPerformed || 0}</div>
+                  <div className="text-xs text-cortex-text-muted">actions today</div>
                 </div>
               </div>
             ))}
@@ -246,14 +246,14 @@ export const ManagementDashboard: React.FC = () => {
     return (
       <div className="space-y-6">
         {/* Filters */}
-        <div className="bg-gray-900/50 p-4 rounded border border-gray-700">
+        <div className="glass-card p-4">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-400">Role:</span>
+              <span className="text-sm text-cortex-text-muted">Role:</span>
               <select
                 value={userFilter}
                 onChange={(e) => setUserFilter(e.target.value as UserRole | 'all')}
-                className="px-3 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange text-sm"
               >
                 <option value="all">All Roles</option>
                 <option value="admin">Admin</option>
@@ -266,11 +266,11 @@ export const ManagementDashboard: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-400">Status:</span>
+              <span className="text-sm text-cortex-text-muted">Status:</span>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange text-sm"
               >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
@@ -282,40 +282,40 @@ export const ManagementDashboard: React.FC = () => {
 
             <div className="flex-1"></div>
 
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-cortex-text-muted">
               Showing {filteredUsers.length} of {users.length} users
             </div>
           </div>
         </div>
 
         {/* Users Table */}
-        <div className="bg-gray-900/50 rounded border border-gray-700 overflow-hidden">
-          <div className="overflow-x-auto">
+        <div className="glass-card overflow-hidden">
+          <div className="overflow-x-auto terminal-scrollbar">
             <table className="w-full">
-              <thead className="bg-gray-800/50">
+              <thead className="bg-cortex-bg-secondary">
                 <tr>
-                  <th className="text-left p-4 text-gray-300 font-medium">User</th>
-                  <th className="text-left p-4 text-gray-300 font-medium">Role</th>
-                  <th className="text-left p-4 text-gray-300 font-medium">Department</th>
-                  <th className="text-left p-4 text-gray-300 font-medium">Status</th>
-                  <th className="text-left p-4 text-gray-300 font-medium">Activity</th>
-                  <th className="text-left p-4 text-gray-300 font-medium">Last Login</th>
-                  <th className="text-left p-4 text-gray-300 font-medium">Actions</th>
+                  <th className="text-left p-4 text-cortex-text-secondary font-medium">User</th>
+                  <th className="text-left p-4 text-cortex-text-secondary font-medium">Role</th>
+                  <th className="text-left p-4 text-cortex-text-secondary font-medium">Department</th>
+                  <th className="text-left p-4 text-cortex-text-secondary font-medium">Status</th>
+                  <th className="text-left p-4 text-cortex-text-secondary font-medium">Activity</th>
+                  <th className="text-left p-4 text-cortex-text-secondary font-medium">Last Login</th>
+                  <th className="text-left p-4 text-cortex-text-secondary font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredUsers.map(user => {
                   const metrics = userMetrics[user.id];
                   return (
-                    <tr key={user.id} className="border-t border-gray-700 hover:bg-gray-800/30">
+                    <tr key={user.id} className="border-t border-cortex-border-secondary hover:bg-cortex-bg-hover">
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xs">
+                          <div className="w-8 h-8 bg-gradient-to-r from-cortex-cyan to-cortex-blue rounded-full flex items-center justify-center text-white font-bold text-xs">
                             {user.firstName[0]}{user.lastName[0]}
                           </div>
                           <div>
-                            <div className="text-white font-medium">{user.firstName} {user.lastName}</div>
-                            <div className="text-sm text-gray-400">{user.email}</div>
+                            <div className="text-cortex-text-primary font-medium">{user.firstName} {user.lastName}</div>
+                            <div className="text-sm text-cortex-text-muted">{user.email}</div>
                           </div>
                         </div>
                       </td>
@@ -323,7 +323,7 @@ export const ManagementDashboard: React.FC = () => {
                         <select
                           value={user.role}
                           onChange={(e) => handleUpdateUserRole(user.id, e.target.value as UserRole)}
-                          className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+                          className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange text-sm"
                         >
                           <option value="admin">Admin</option>
                           <option value="manager">Manager</option>
@@ -334,31 +334,31 @@ export const ManagementDashboard: React.FC = () => {
                         </select>
                       </td>
                       <td className="p-4">
-                        <div className="text-white">{user.department}</div>
-                        <div className="text-sm text-gray-400">{user.title}</div>
+                        <div className="text-cortex-text-primary">{user.department}</div>
+                        <div className="text-sm text-cortex-text-muted">{user.title}</div>
                       </td>
                       <td className="p-4">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          user.status === 'active' ? 'bg-green-900/20 text-green-400 border border-green-500/30' :
-                          user.status === 'inactive' ? 'bg-gray-900/20 text-gray-400 border border-gray-500/30' :
-                          user.status === 'suspended' ? 'bg-red-900/20 text-red-400 border border-red-500/30' :
-                          'bg-yellow-900/20 text-yellow-400 border border-yellow-500/30'
-                        }`}>
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${{
+                          'active': 'bg-cortex-success/20 text-cortex-success border border-cortex-success/30',
+                          'inactive': 'bg-cortex-bg-secondary/50 text-cortex-text-muted border border-cortex-border-secondary/50',
+                          'suspended': 'bg-cortex-error/20 text-cortex-error border border-cortex-error/30',
+                          'pending': 'bg-cortex-warning/20 text-cortex-warning border border-cortex-warning/30'
+                        }[user.status]}`}>
                           {user.status}
                         </span>
                       </td>
                       <td className="p-4">
                         {metrics ? (
                           <div>
-                            <div className="text-white font-mono">{metrics.actionsPerformed}</div>
-                            <div className="text-xs text-gray-400">actions today</div>
+                            <div className="text-cortex-text-primary font-mono">{metrics.actionsPerformed}</div>
+                            <div className="text-xs text-cortex-text-muted">actions today</div>
                           </div>
                         ) : (
-                          <span className="text-gray-500">No data</span>
+                          <span className="text-cortex-text-muted">No data</span>
                         )}
                       </td>
                       <td className="p-4">
-                        <div className="text-white text-sm">
+                        <div className="text-cortex-text-primary text-sm">
                           {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}
                         </div>
                       </td>
@@ -366,16 +366,16 @@ export const ManagementDashboard: React.FC = () => {
                         <div className="flex gap-2">
                           <button
                             onClick={() => setSelectedUser(user)}
-                            className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition-colors"
+                            className="btn-modern button-hover-lift cortex-interactive px-2 py-1 bg-cortex-blue hover:bg-cortex-blue-dark text-white rounded text-xs transition-colors"
                           >
                             View
                           </button>
                           <button
                             onClick={() => handleToggleUserStatus(user.id)}
-                            className={`px-2 py-1 rounded text-xs transition-colors ${
+                            className={`btn-modern button-hover-lift cortex-interactive px-2 py-1 rounded text-xs transition-colors ${
                               user.status === 'active' 
-                                ? 'bg-red-600 hover:bg-red-700 text-white'
-                                : 'bg-green-600 hover:bg-green-700 text-white'
+                                ? 'bg-cortex-error hover:bg-cortex-error-dark text-white'
+                                : 'bg-cortex-success hover:bg-cortex-success-dark text-white'
                             }`}
                           >
                             {user.status === 'active' ? 'Deactivate' : 'Activate'}
@@ -400,79 +400,79 @@ export const ManagementDashboard: React.FC = () => {
       <div className="space-y-6">
         {/* Performance Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gray-900/50 p-6 rounded border border-gray-700">
-            <h3 className="text-lg font-bold text-white mb-4">⚡ Performance</h3>
+          <div className="cortex-card-elevated p-6">
+            <h3 className="text-lg font-bold text-cortex-text-primary mb-4">⚡ Performance</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-400">Average Load Time</span>
-                <span className="text-white font-mono">{systemMetrics.averageLoadTime}ms</span>
+                <span className="text-cortex-text-muted">Average Load Time</span>
+                <span className="text-cortex-text-primary font-mono">{systemMetrics.averageLoadTime}ms</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Error Rate</span>
-                <span className="text-white font-mono">{(systemMetrics.errorRate * 100).toFixed(2)}%</span>
+                <span className="text-cortex-text-muted">Error Rate</span>
+                <span className="text-cortex-text-primary font-mono">{(systemMetrics.errorRate * 100).toFixed(2)}%</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Uptime</span>
-                <span className="text-green-400 font-mono">{systemMetrics.uptime}%</span>
+                <span className="text-cortex-text-muted">Uptime</span>
+                <span className="text-cortex-success font-mono">{systemMetrics.uptime}%</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-900/50 p-6 rounded border border-gray-700">
-            <h3 className="text-lg font-bold text-white mb-4">📊 Usage Stats</h3>
+          <div className="cortex-card-elevated p-6">
+            <h3 className="text-lg font-bold text-cortex-text-primary mb-4">📊 Usage Stats</h3>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-400">TRRs Created</span>
-                <span className="text-white font-mono">{systemMetrics.trrVolume.created}</span>
+                <span className="text-cortex-text-muted">TRRs Created</span>
+                <span className="text-cortex-text-primary font-mono">{systemMetrics.trrVolume.created}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">SDWs Created</span>
-                <span className="text-white font-mono">{systemMetrics.sdwVolume.created}</span>
+                <span className="text-cortex-text-muted">SDWs Created</span>
+                <span className="text-cortex-text-primary font-mono">{systemMetrics.sdwVolume.created}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Retention Rate</span>
-                <span className="text-white font-mono">{Math.round((systemMetrics.retainedUsers / systemMetrics.totalUsers) * 100)}%</span>
+                <span className="text-cortex-text-muted">Retention Rate</span>
+                <span className="text-cortex-text-primary font-mono">{Math.round((systemMetrics.retainedUsers / systemMetrics.totalUsers) * 100)}%</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-900/50 p-6 rounded border border-gray-700">
-            <h3 className="text-lg font-bold text-white mb-4">🏥 System Health</h3>
+          <div className="cortex-card-elevated p-6">
+            <h3 className="text-lg font-bold text-cortex-text-primary mb-4">🏥 System Health</h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-gray-400">CPU Usage</span>
+                <span className="text-cortex-text-muted">CPU Usage</span>
                 <div className="flex items-center gap-2">
-                  <div className="w-16 bg-gray-700 rounded-full h-2">
+                  <div className="w-16 bg-cortex-bg-secondary rounded-full h-2">
                     <div 
-                      className="bg-blue-500 h-2 rounded-full"
+                      className="bg-cortex-blue h-2 rounded-full"
                       style={{ width: `${systemMetrics.systemHealth.cpu}%` }}
                     ></div>
                   </div>
-                  <span className="text-white font-mono text-sm">{systemMetrics.systemHealth.cpu}%</span>
+                  <span className="text-cortex-text-primary font-mono text-sm">{systemMetrics.systemHealth.cpu}%</span>
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-400">Memory</span>
+                <span className="text-cortex-text-muted">Memory</span>
                 <div className="flex items-center gap-2">
-                  <div className="w-16 bg-gray-700 rounded-full h-2">
+                  <div className="w-16 bg-cortex-bg-secondary rounded-full h-2">
                     <div 
-                      className="bg-yellow-500 h-2 rounded-full"
+                      className="bg-cortex-warning h-2 rounded-full"
                       style={{ width: `${systemMetrics.systemHealth.memory}%` }}
                     ></div>
                   </div>
-                  <span className="text-white font-mono text-sm">{systemMetrics.systemHealth.memory}%</span>
+                  <span className="text-cortex-text-primary font-mono text-sm">{systemMetrics.systemHealth.memory}%</span>
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-400">Storage</span>
+                <span className="text-cortex-text-muted">Storage</span>
                 <div className="flex items-center gap-2">
-                  <div className="w-16 bg-gray-700 rounded-full h-2">
+                  <div className="w-16 bg-cortex-bg-secondary rounded-full h-2">
                     <div 
-                      className="bg-green-500 h-2 rounded-full"
+                      className="bg-cortex-success h-2 rounded-full"
                       style={{ width: `${systemMetrics.systemHealth.storage}%` }}
                     ></div>
                   </div>
-                  <span className="text-white font-mono text-sm">{systemMetrics.systemHealth.storage}%</span>
+                  <span className="text-cortex-text-primary font-mono text-sm">{systemMetrics.systemHealth.storage}%</span>
                 </div>
               </div>
             </div>
@@ -480,9 +480,9 @@ export const ManagementDashboard: React.FC = () => {
         </div>
 
         {/* User Activity Heatmap */}
-        <div className="bg-gray-900/50 p-6 rounded border border-gray-700">
-          <h3 className="text-lg font-bold text-white mb-4">🔥 User Activity Heatmap</h3>
-          <div className="text-gray-400 text-sm">
+        <div className="glass-card p-6">
+          <h3 className="text-lg font-bold text-cortex-text-primary mb-4">🔥 User Activity Heatmap</h3>
+          <div className="text-cortex-text-muted text-sm">
             Activity tracking shows peak usage during business hours with TRR management being the most used feature.
           </div>
         </div>
@@ -519,18 +519,18 @@ export const ManagementDashboard: React.FC = () => {
     return (
       <div className="space-y-6">
         {/* Activity Filters */}
-        <div className="bg-gray-900/50 p-4 rounded border border-gray-700">
+        <div className="glass-card p-4">
           <div className="flex items-center gap-4">
-            <span className="text-gray-400 text-sm">Time Period:</span>
+            <span className="text-cortex-text-muted text-sm">Time Period:</span>
             <div className="flex gap-2">
               {(['all', 'today', 'week', 'month'] as const).map(period => (
                 <button
                   key={period}
                   onClick={() => setActivityFilter(period)}
-                  className={`px-3 py-1 rounded text-sm transition-colors capitalize ${
+                  className={`btn-modern button-hover-lift cortex-interactive px-3 py-1 rounded text-sm transition-colors capitalize ${
                     activityFilter === period
-                      ? 'bg-cyan-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      ? 'bg-cortex-cyan text-white'
+                      : 'bg-cortex-bg-secondary text-cortex-text-muted hover:bg-cortex-bg-hover'
                   }`}
                 >
                   {period}
@@ -538,48 +538,49 @@ export const ManagementDashboard: React.FC = () => {
               ))}
             </div>
             <div className="flex-1"></div>
-            <span className="text-gray-400 text-sm">{filteredActivities.length} activities</span>
+            <span className="text-cortex-text-muted text-sm">{filteredActivities.length} activities</span>
           </div>
         </div>
 
         {/* Activity Feed */}
-        <div className="bg-gray-900/50 rounded border border-gray-700">
-          <div className="p-4 border-b border-gray-700">
-            <h3 className="text-lg font-bold text-white">📝 Recent Activity</h3>
+        <div className="glass-card">
+          <div className="p-4 border-b border-cortex-border-secondary">
+            <h3 className="text-lg font-bold text-cortex-text-primary">📝 Recent Activity</h3>
           </div>
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-96 overflow-y-auto terminal-scrollbar">
             {filteredActivities.length === 0 ? (
-              <div className="p-8 text-center text-gray-400">
+              <div className="p-8 text-center text-cortex-text-muted">
                 No activities found for the selected time period.
               </div>
             ) : (
-              <div className="divide-y divide-gray-700">
+              <div className="divide-y divide-cortex-border-secondary">
                 {filteredActivities.map(activity => {
                   const user = users.find(u => u.id === activity.userId);
                   const timestamp = new Date(activity.timestamp);
                   
                   return (
-                    <div key={activity.id} className="p-4 hover:bg-gray-800/30 transition-colors">
+                    <div key={activity.id} className="p-4 hover:bg-cortex-bg-hover transition-colors">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3">
-                          <div className={`w-2 h-2 rounded-full mt-2 ${
-                            activity.metadata.success ? 'bg-green-500' : 'bg-red-500'
-                          }`}></div>
+                          <div className={`w-2 h-2 rounded-full mt-2 ${{
+                            true: 'bg-cortex-success',
+                            false: 'bg-cortex-error'
+                          }[activity.metadata.success.toString()]}`}></div>
                           <div>
-                            <div className="text-white text-sm">
+                            <div className="text-cortex-text-primary text-sm">
                               <span className="font-medium">
                                 {user ? `${user.firstName} ${user.lastName}` : 'Unknown User'}
                               </span>
-                              <span className="text-gray-400 ml-1">performed</span>
-                              <span className="text-cyan-400 ml-1 font-medium">
+                              <span className="text-cortex-text-muted ml-1">performed</span>
+                              <span className="text-cortex-cyan ml-1 font-medium">
                                 {activity.action.replace(/_/g, ' ')}
                               </span>
-                              <span className="text-gray-400 ml-1">in</span>
-                              <span className="text-blue-400 ml-1 capitalize">
+                              <span className="text-cortex-text-muted ml-1">in</span>
+                              <span className="text-cortex-blue ml-1 capitalize">
                                 {activity.feature.replace(/_/g, ' ')}
                               </span>
                             </div>
-                            <div className="text-xs text-gray-500 mt-1">
+                            <div className="text-xs text-cortex-text-muted mt-1">
                               {activity.metadata.page} • {activity.category}
                               {activity.performance.loadTime && (
                                 <span> • {activity.performance.loadTime}ms</span>
@@ -587,7 +588,7 @@ export const ManagementDashboard: React.FC = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="text-xs text-gray-500 whitespace-nowrap">
+                        <div className="text-xs text-cortex-text-muted whitespace-nowrap">
                           {timestamp.toLocaleTimeString()}
                         </div>
                       </div>
@@ -607,39 +608,39 @@ export const ManagementDashboard: React.FC = () => {
 
     return (
       <div className="space-y-6">
-        <div className="bg-gradient-to-r from-green-900/20 to-blue-900/20 p-6 rounded-lg border border-green-500/30">
-          <h2 className="text-xl font-bold text-green-400 mb-4">🏥 System Health Status</h2>
+        <div className="glass-card p-6">
+          <h2 className="text-xl font-bold text-cortex-text-primary mb-4">🏥 System Health Status</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="text-center">
+            <div className="cortex-card-elevated p-4 text-center">
               <div className="text-2xl mb-2">💻</div>
-              <div className="text-white font-medium">CPU Usage</div>
-              <div className="text-lg font-mono text-blue-400">{systemMetrics.systemHealth.cpu}%</div>
+              <div className="text-cortex-text-primary font-medium">CPU Usage</div>
+              <div className="text-lg font-mono text-cortex-blue">{systemMetrics.systemHealth.cpu}%</div>
             </div>
-            <div className="text-center">
+            <div className="cortex-card-elevated p-4 text-center">
               <div className="text-2xl mb-2">🧠</div>
-              <div className="text-white font-medium">Memory Usage</div>
-              <div className="text-lg font-mono text-yellow-400">{systemMetrics.systemHealth.memory}%</div>
+              <div className="text-cortex-text-primary font-medium">Memory Usage</div>
+              <div className="text-lg font-mono text-cortex-warning">{systemMetrics.systemHealth.memory}%</div>
             </div>
-            <div className="text-center">
+            <div className="cortex-card-elevated p-4 text-center">
               <div className="text-2xl mb-2">💾</div>
-              <div className="text-white font-medium">Storage Usage</div>
-              <div className="text-lg font-mono text-green-400">{systemMetrics.systemHealth.storage}%</div>
+              <div className="text-cortex-text-primary font-medium">Storage Usage</div>
+              <div className="text-lg font-mono text-cortex-success">{systemMetrics.systemHealth.storage}%</div>
             </div>
-            <div className="text-center">
+            <div className="cortex-card-elevated p-4 text-center">
               <div className="text-2xl mb-2">🗄️</div>
-              <div className="text-white font-medium">Database</div>
-              <div className={`text-lg font-mono ${
-                systemMetrics.systemHealth.database === 'healthy' ? 'text-green-400' :
-                systemMetrics.systemHealth.database === 'warning' ? 'text-yellow-400' :
-                'text-red-400'
-              }`}>
+              <div className="text-cortex-text-primary font-medium">Database</div>
+              <div className={`text-lg font-mono ${{
+                'healthy': 'text-cortex-success',
+                'warning': 'text-cortex-warning',
+                'critical': 'text-cortex-error'
+              }[systemMetrics.systemHealth.database]}`}>
                 {systemMetrics.systemHealth.database}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="text-center text-gray-400">
+        <div className="text-center text-cortex-text-muted">
           Additional system monitoring charts and logs would be displayed here in a production environment.
         </div>
       </div>
@@ -648,21 +649,38 @@ export const ManagementDashboard: React.FC = () => {
 
   const SettingsTab = () => (
     <div className="space-y-6">
-      <div className="bg-gray-900/50 p-6 rounded border border-gray-700">
-        <h3 className="text-lg font-bold text-white mb-4">🚀 Feature Flags</h3>
+      <div className="glass-card p-6">
+        <h3 className="text-lg font-bold text-cortex-text-primary mb-4">🚀 Feature Flags</h3>
         <div className="space-y-3">
-          {[
-            { name: 'Beta Features', key: 'beta_features', description: 'Enable access to beta features for all users' },
-            { name: 'Advanced Analytics', key: 'advanced_analytics', description: 'Enable advanced analytics dashboard' },
-            { name: 'AI Recommendations', key: 'ai_recommendations', description: 'Enable AI-powered recommendations' },
-            { name: 'PDF Export', key: 'export_to_pdf', description: 'Allow PDF export functionality' },
-            { name: 'Team Collaboration', key: 'team_collaboration', description: 'Enable team collaboration features' },
-            { name: 'Mobile App', key: 'mobile_app', description: 'Enable mobile application access' }
-          ].map(flag => (
-            <div key={flag.key} className="flex items-center justify-between p-3 bg-gray-800/30 rounded">
+          {[{
+            name: 'Beta Features',
+            key: 'beta_features',
+            description: 'Enable access to beta features for all users'
+          }, {
+            name: 'Advanced Analytics',
+            key: 'advanced_analytics',
+            description: 'Enable advanced analytics dashboard'
+          }, {
+            name: 'AI Recommendations',
+            key: 'ai_recommendations',
+            description: 'Enable AI-powered recommendations'
+          }, {
+            name: 'PDF Export',
+            key: 'export_to_pdf',
+            description: 'Allow PDF export functionality'
+          }, {
+            name: 'Team Collaboration',
+            key: 'team_collaboration',
+            description: 'Enable team collaboration features'
+          }, {
+            name: 'Mobile App',
+            key: 'mobile_app',
+            description: 'Enable mobile application access'
+          }].map(flag => (
+            <div key={flag.key} className="cortex-card p-3 flex items-center justify-between">
               <div>
-                <div className="text-white font-medium">{flag.name}</div>
-                <div className="text-sm text-gray-400">{flag.description}</div>
+                <div className="text-cortex-text-primary font-medium">{flag.name}</div>
+                <div className="text-sm text-cortex-text-muted">{flag.description}</div>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 {/* Use the systemFeatureFlags value for the checkbox initial state. */}
@@ -671,16 +689,16 @@ export const ManagementDashboard: React.FC = () => {
                   className="sr-only peer"
                   defaultChecked={!!systemFeatureFlags[flag.key]}
                 />
-                <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600"></div>
+                <div className="w-11 h-6 bg-cortex-bg-secondary peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cortex-cyan"></div>
               </label>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="bg-gray-900/50 p-6 rounded border border-gray-700">
-        <h3 className="text-lg font-bold text-white mb-4">🔧 System Configuration</h3>
-        <div className="text-gray-400">
+      <div className="glass-card p-6">
+        <h3 className="text-lg font-bold text-cortex-text-primary mb-4">🔧 System Configuration</h3>
+        <div className="text-cortex-text-muted">
           System configuration options would be available here for administrators.
         </div>
       </div>
@@ -688,27 +706,27 @@ export const ManagementDashboard: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="p-8 space-y-8">
+      <div className="glass-card p-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-cyan-400 mb-2">⚙️ Management Dashboard</h1>
-          <p className="text-gray-400">Comprehensive system oversight and user management</p>
+          <h1 className="text-3xl font-bold text-cortex-text-primary mb-2">⚙️ Management Dashboard</h1>
+          <p className="text-cortex-text-muted">Comprehensive system oversight and user management</p>
           {isLoading && (
             <div className="mt-2 text-yellow-400 text-sm">🔄 Refreshing data...</div>
           )}
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex space-x-1 mb-6 bg-gray-800/30 p-1 rounded-lg overflow-x-auto">
+        <div className="flex space-x-1 mb-6 bg-cortex-bg-secondary p-1 rounded-lg overflow-x-auto terminal-scrollbar">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 px-4 py-3 text-center transition-colors rounded-lg whitespace-nowrap min-w-fit ${
+              className={`flex-1 px-4 py-2 text-center transition-colors rounded-md cortex-interactive whitespace-nowrap min-w-fit ${
                 activeTab === tab.id
-                  ? 'bg-cyan-600 text-white'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                  ? 'bg-cortex-cyan text-white'
+                  : 'text-cortex-text-muted hover:text-white hover:bg-cortex-bg-hover'
               }`}
               title={tab.description}
             >
@@ -731,12 +749,12 @@ export const ManagementDashboard: React.FC = () => {
         {/* User Detail Modal */}
         {selectedUser && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-900 p-6 rounded-lg border border-gray-700 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="glass-card p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto terminal-scrollbar">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-white">👤 User Details</h3>
+                <h3 className="text-xl font-bold text-cortex-text-primary">👤 User Details</h3>
                 <button
                   onClick={() => setSelectedUser(null)}
-                  className="text-gray-400 hover:text-white"
+                  className="text-cortex-text-muted hover:text-white cortex-interactive"
                 >
                   ✕
                 </button>
@@ -744,20 +762,20 @@ export const ManagementDashboard: React.FC = () => {
               
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                  <div className="w-16 h-16 bg-gradient-to-r from-cortex-cyan to-cortex-blue rounded-full flex items-center justify-center text-white font-bold text-xl">
                     {selectedUser.firstName[0]}{selectedUser.lastName[0]}
                   </div>
                   <div>
-                    <div className="text-xl font-bold text-white">{selectedUser.firstName} {selectedUser.lastName}</div>
-                    <div className="text-gray-400">{selectedUser.title} • {selectedUser.department}</div>
-                    <div className="text-sm text-gray-500">{selectedUser.email}</div>
+                    <div className="text-xl font-bold text-cortex-text-primary">{selectedUser.firstName} {selectedUser.lastName}</div>
+                    <div className="text-cortex-text-muted">{selectedUser.title} • {selectedUser.department}</div>
+                    <div className="text-sm text-cortex-text-muted">{selectedUser.email}</div>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <h4 className="text-white font-medium mb-2">Account Info</h4>
-                    <div className="text-sm text-gray-300 space-y-1">
+                    <h4 className="text-cortex-text-primary font-medium mb-2">Account Info</h4>
+                    <div className="text-sm text-cortex-text-secondary space-y-1">
                       <div>Role: {selectedUser.role}</div>
                       <div>Status: {selectedUser.status}</div>
                       <div>Region: {selectedUser.region}</div>
@@ -767,9 +785,9 @@ export const ManagementDashboard: React.FC = () => {
                   </div>
                   
                   <div>
-                    <h4 className="text-white font-medium mb-2">Activity Metrics</h4>
+                    <h4 className="text-cortex-text-primary font-medium mb-2">Activity Metrics</h4>
                     {userMetrics[selectedUser.id] ? (
-                      <div className="text-sm text-gray-300 space-y-1">
+                      <div className="text-sm text-cortex-text-secondary space-y-1">
                         <div>Actions Today: {userMetrics[selectedUser.id].actionsPerformed}</div>
                         <div>Time Spent: {userMetrics[selectedUser.id].totalTimeSpent}min</div>
                         <div>TRRs Created: {userMetrics[selectedUser.id].trrsCreated}</div>
@@ -777,7 +795,7 @@ export const ManagementDashboard: React.FC = () => {
                         <div>Login Streak: {userMetrics[selectedUser.id].loginStreak} days</div>
                       </div>
                     ) : (
-                      <div className="text-sm text-gray-500">No activity data available</div>
+                      <div className="text-sm text-cortex-text-muted">No activity data available</div>
                     )}
                   </div>
                 </div>
@@ -785,7 +803,7 @@ export const ManagementDashboard: React.FC = () => {
                 <div className="flex justify-end gap-2">
                   <button
                     onClick={() => setSelectedUser(null)}
-                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
+                    className="btn-modern button-hover-lift cortex-interactive px-4 py-2 bg-cortex-bg-secondary hover:bg-cortex-bg-hover text-cortex-text-primary rounded transition-colors"
                   >
                     Close
                   </button>

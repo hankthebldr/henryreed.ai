@@ -1,5 +1,7 @@
 // Background scenario execution engine
-import * as functions from 'firebase-functions';
+import { onDocumentUpdated } from 'firebase-functions/v2/firestore';
+import { onMessagePublished } from 'firebase-functions/v2/pubsub';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
 import * as admin from 'firebase-admin';
 // import { z } from 'zod'; // commented out: unused import causing TS6133 per build
 import { logger } from '../utils/logger';
@@ -659,17 +661,16 @@ function getEngine(): ScenarioExecutionEngine {
 }
 
 // Pub/Sub triggered background execution
-export const processScenarioExecution = functions
-  .region('us-central1')
-  .runWith({
-    memory: '2GB',
-    timeoutSeconds: 540, // 9 minutes
-  })
-  .pubsub
-  .topic('scenario-execution')
-  .onPublish(async (message) => {
+export const processScenarioExecution = onMessagePublished(
+  {
+    topic: 'scenario-execution',
+    region: 'us-central1',
+    memory: '2GiB',
+    timeoutSeconds: 540 // 9 minutes
+  },
+  async (event) => {
     try {
-      const data = message.json;
+      const data = event.data.message.json;
       const executionId = data.executionId;
       
       if (!executionId) {
@@ -683,18 +684,20 @@ export const processScenarioExecution = functions
       logger.error('Failed to process scenario execution', error);
       throw error; // Re-throw to trigger retry logic
     }
-  });
+  }
+);
 
 // Firestore trigger to monitor execution status changes
-export const monitorExecutionStatusChanges = functions
-  .region('us-central1')
-  .firestore
-  .document('scenarioExecutions/{executionId}')
-  .onUpdate(async (change, context) => {
+export const monitorExecutionStatusChanges = onDocumentUpdated(
+  {
+    document: 'scenarioExecutions/{executionId}',
+    region: 'us-central1'
+  },
+  async (event) => {
     try {
-      const executionId = context.params.executionId;
-      const before = change.before.data();
-      const after = change.after.data();
+      const executionId = event.params!.executionId;
+      const before = event.data!.before.data();
+      const after = event.data!.after.data();
       
       if (before.status !== after.status) {
         logger.info('Execution status changed', {
@@ -737,23 +740,22 @@ export const monitorExecutionStatusChanges = functions
       }
       
     } catch (error) {
-      logger.error('Failed to process execution status change', error, {
-        executionId: context.params.executionId,
+logger.error('Failed to process execution status change', error, {
+        executionId: event.params.executionId,
       });
     }
   });
 
 // Scheduled function to cleanup old executions and logs
-export const cleanupOldExecutions = functions
-  .region('us-central1')
-  .runWith({
-    memory: '1GB',
-    timeoutSeconds: 300,
-  })
-  .pubsub
-  .schedule('0 2 * * *') // Daily at 2 AM
-  .timeZone('UTC')
-  .onRun(async (context) => {
+export const cleanupOldExecutions = onSchedule(
+  {
+    schedule: '0 2 * * *', // Daily at 2 AM
+    timeZone: 'UTC',
+    region: 'us-central1',
+    memory: '1GiB',
+    timeoutSeconds: 300
+  },
+  async (event) => {
     try {
       const db = admin.firestore();
       const cutoffDate = new Date();

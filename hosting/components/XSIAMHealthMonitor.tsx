@@ -235,32 +235,32 @@ export const XSIAMHealthMonitor: React.FC = () => {
   };
 
   const DashboardTab = () => (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Health Overview */}
-      <div className="bg-gradient-to-r from-green-900/20 to-blue-900/20 p-6 rounded-lg border border-green-500/30">
+      <div className="glass-card p-6">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-green-400">🏥 XSIAM System Health</h3>
+          <h3 className="text-xl font-bold text-cortex-text-primary">🏥 XSIAM System Health</h3>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className={`w-3 h-3 rounded-full ${
-                healthStatus?.overall === 'healthy' ? 'bg-green-500' :
-                healthStatus?.overall === 'warning' ? 'bg-yellow-500' :
-                'bg-red-500'
-              }`}></div>
-              <span className="text-sm text-gray-300">
-                Overall Status: <span className={`font-medium ${
-                  healthStatus?.overall === 'healthy' ? 'text-green-400' :
-                  healthStatus?.overall === 'warning' ? 'text-yellow-400' :
-                  'text-red-400'
-                }`}>{healthStatus?.overall || 'Unknown'}</span>
+              <div className={`w-3 h-3 rounded-full ${{
+                'healthy': 'bg-cortex-success',
+                'warning': 'bg-cortex-warning',
+                'critical': 'bg-cortex-error'
+              }[healthStatus?.overall || 'healthy']}`}></div>
+              <span className="text-sm text-cortex-text-muted">
+                Overall Status: <span className={`font-medium ${{
+                  'healthy': 'text-cortex-success',
+                  'warning': 'text-cortex-warning',
+                  'critical': 'text-cortex-error'
+                }[healthStatus?.overall || 'healthy']}`}>{healthStatus?.overall || 'Unknown'}</span>
               </span>
             </div>
             <button
               onClick={loadHealthStatus}
               disabled={isLoading}
-              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded text-sm transition-colors"
+              className="btn-modern button-hover-lift cortex-interactive px-3 py-1 bg-cortex-bg-secondary hover:bg-cortex-bg-hover rounded text-cortex-text-primary transition-colors text-sm"
             >
-              {isLoading ? '⏳ Refreshing...' : '🔄 Refresh'}
+              {isLoading ? 'Refreshing...' : 'Refresh'}
             </button>
           </div>
         </div>
@@ -268,94 +268,75 @@ export const XSIAMHealthMonitor: React.FC = () => {
         {healthStatus && (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className={`p-4 rounded border text-center ${
-                healthStatus.components.dataIngestion === 'healthy' ? 'bg-green-900/20 border-green-500/30' :
-                healthStatus.components.dataIngestion === 'warning' ? 'bg-yellow-900/20 border-yellow-500/30' :
-                'bg-red-900/20 border-red-500/30'
-              }`}>
-                <div className={`text-2xl font-mono ${
-                  healthStatus.components.dataIngestion === 'healthy' ? 'text-green-400' :
-                  healthStatus.components.dataIngestion === 'warning' ? 'text-yellow-400' :
-                  'text-red-400'
-                }`}>
+              <div className={`cortex-card-elevated p-4 text-center cortex-interactive`}>
+                <div className={`text-2xl font-mono ${{
+                  'healthy': 'text-cortex-success',
+                  'warning': 'text-cortex-warning',
+                  'critical': 'text-cortex-error'
+                }[healthStatus.components.dataIngestion]}`}>
                   {healthStatus.components.dataIngestion === 'healthy' ? '✅' :
                    healthStatus.components.dataIngestion === 'warning' ? '⚠️' : '❌'}
                 </div>
-                <div className="text-sm text-gray-400">Data Ingestion</div>
-                <div className={`text-xs mt-1 ${
-                  healthStatus.components.dataIngestion === 'healthy' ? 'text-green-300' :
-                  healthStatus.components.dataIngestion === 'warning' ? 'text-yellow-300' :
-                  'text-red-300'
-                }`}>
+                <div className="text-sm text-cortex-text-secondary">Data Ingestion</div>
+                <div className={`text-xs mt-1 ${{
+                  'healthy': 'text-cortex-success',
+                  'warning': 'text-cortex-warning',
+                  'critical': 'text-cortex-error'
+                }[healthStatus.components.dataIngestion]}`}>
                   {healthStatus.components.dataIngestion}
                 </div>
               </div>
 
-              <div className={`p-4 rounded border text-center ${
-                healthStatus.components.correlationEngine === 'healthy' ? 'bg-green-900/20 border-green-500/30' :
-                healthStatus.components.correlationEngine === 'warning' ? 'bg-yellow-900/20 border-yellow-500/30' :
-                'bg-red-900/20 border-red-500/30'
-              }`}>
-                <div className={`text-2xl font-mono ${
-                  healthStatus.components.correlationEngine === 'healthy' ? 'text-green-400' :
-                  healthStatus.components.correlationEngine === 'warning' ? 'text-yellow-400' :
-                  'text-red-400'
-                }`}>
-                  {healthStatus.components.correlationEngine === 'healthy' ? '✅' :
-                   healthStatus.components.correlationEngine === 'warning' ? '⚠️' : '❌'}
+              <div className={`cortex-card-elevated p-4 text-center cortex-interactive`}>
+                <div className={`text-2xl font-mono ${{
+                  'healthy': 'text-cortex-success',
+                  'warning': 'text-cortex-warning',
+                  'critical': 'text-cortex-error'
+                }[healthStatus.components.correlationEngine]}`}>
+                  {healthStatus.components.correlationEngine === 'healthy' ? '✅' : '⚠️'}
                 </div>
-                <div className="text-sm text-gray-400">Correlation Engine</div>
-                <div className={`text-xs mt-1 ${
-                  healthStatus.components.correlationEngine === 'healthy' ? 'text-green-300' :
-                  healthStatus.components.correlationEngine === 'warning' ? 'text-yellow-300' :
-                  'text-red-300'
-                }`}>
+                <div className="text-sm text-cortex-text-secondary">Correlation Engine</div>
+                <div className={`text-xs mt-1 ${{
+                  'healthy': 'text-cortex-success',
+                  'warning': 'text-cortex-warning',
+                  'critical': 'text-cortex-error'
+                }[healthStatus.components.correlationEngine]}`}>
                   {healthStatus.components.correlationEngine}
                 </div>
               </div>
 
-              <div className={`p-4 rounded border text-center ${
-                healthStatus.components.apiGateway === 'healthy' ? 'bg-green-900/20 border-green-500/30' :
-                healthStatus.components.apiGateway === 'warning' ? 'bg-yellow-900/20 border-yellow-500/30' :
-                'bg-red-900/20 border-red-500/30'
-              }`}>
-                <div className={`text-2xl font-mono ${
-                  healthStatus.components.apiGateway === 'healthy' ? 'text-green-400' :
-                  healthStatus.components.apiGateway === 'warning' ? 'text-yellow-400' :
-                  'text-red-400'
-                }`}>
-                  {healthStatus.components.apiGateway === 'healthy' ? '✅' :
-                   healthStatus.components.apiGateway === 'warning' ? '⚠️' : '❌'}
+              <div className={`cortex-card-elevated p-4 text-center cortex-interactive`}>
+                <div className={`text-2xl font-mono ${{
+                  'healthy': 'text-cortex-success',
+                  'warning': 'text-cortex-warning',
+                  'critical': 'text-cortex-error'
+                }[healthStatus.components.apiGateway]}`}>
+                  {healthStatus.components.apiGateway === 'healthy' ? '✅' : '⚠️'}
                 </div>
-                <div className="text-sm text-gray-400">API Gateway</div>
-                <div className={`text-xs mt-1 ${
-                  healthStatus.components.apiGateway === 'healthy' ? 'text-green-300' :
-                  healthStatus.components.apiGateway === 'warning' ? 'text-yellow-300' :
-                  'text-red-300'
-                }`}>
+                <div className="text-sm text-cortex-text-secondary">API Gateway</div>
+                <div className={`text-xs mt-1 ${{
+                  'healthy': 'text-cortex-success',
+                  'warning': 'text-cortex-warning',
+                  'critical': 'text-cortex-error'
+                }[healthStatus.components.apiGateway]}`}>
                   {healthStatus.components.apiGateway}
                 </div>
               </div>
 
-              <div className={`p-4 rounded border text-center ${
-                healthStatus.components.dataLake === 'healthy' ? 'bg-green-900/20 border-green-500/30' :
-                healthStatus.components.dataLake === 'warning' ? 'bg-yellow-900/20 border-yellow-500/30' :
-                'bg-red-900/20 border-red-500/30'
-              }`}>
-                <div className={`text-2xl font-mono ${
-                  healthStatus.components.dataLake === 'healthy' ? 'text-green-400' :
-                  healthStatus.components.dataLake === 'warning' ? 'text-yellow-400' :
-                  'text-red-400'
-                }`}>
-                  {healthStatus.components.dataLake === 'healthy' ? '✅' :
-                   healthStatus.components.dataLake === 'warning' ? '⚠️' : '❌'}
+              <div className={`cortex-card-elevated p-4 text-center cortex-interactive`}>
+                <div className={`text-2xl font-mono ${{
+                  'healthy': 'text-cortex-success',
+                  'warning': 'text-cortex-warning',
+                  'critical': 'text-cortex-error'
+                }[healthStatus.components.dataLake]}`}>
+                  {healthStatus.components.dataLake === 'healthy' ? '✅' : '⚠️'}
                 </div>
-                <div className="text-sm text-gray-400">Data Lake</div>
-                <div className={`text-xs mt-1 ${
-                  healthStatus.components.dataLake === 'healthy' ? 'text-green-300' :
-                  healthStatus.components.dataLake === 'warning' ? 'text-yellow-300' :
-                  'text-red-300'
-                }`}>
+                <div className="text-sm text-cortex-text-secondary">Data Lake</div>
+                <div className={`text-xs mt-1 ${{
+                  'healthy': 'text-cortex-success',
+                  'warning': 'text-cortex-warning',
+                  'critical': 'text-cortex-error'
+                }[healthStatus.components.dataLake]}`}>
                   {healthStatus.components.dataLake}
                 </div>
               </div>
@@ -364,19 +345,19 @@ export const XSIAMHealthMonitor: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-mono text-cyan-400">{healthStatus.metrics.eventsPerSecond.toLocaleString()}</div>
-                <div className="text-sm text-gray-400">Events/Sec</div>
+                <div className="text-sm text-cortex-text-muted">Events/Sec</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-mono text-purple-400">{healthStatus.metrics.alertsGenerated}</div>
-                <div className="text-sm text-gray-400">Alerts Today</div>
+                <div className="text-sm text-cortex-text-muted">Alerts Today</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-mono text-blue-400">{healthStatus.metrics.responseTime}ms</div>
-                <div className="text-sm text-gray-400">Avg Response</div>
+                <div className="text-sm text-cortex-text-muted">Avg Response</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-mono text-green-400">{healthStatus.metrics.uptime}%</div>
-                <div className="text-sm text-gray-400">Uptime</div>
+                <div className="text-sm text-cortex-text-muted">Uptime</div>
               </div>
             </div>
           </>
@@ -384,12 +365,12 @@ export const XSIAMHealthMonitor: React.FC = () => {
       </div>
 
       {/* Recent Alerts */}
-      <div className="bg-gray-900/50 p-6 rounded border border-gray-700">
+      <div className="glass-card p-6">
         <div className="flex justify-between items-center mb-4">
-          <h4 className="text-lg font-bold text-white">🚨 Recent Alerts</h4>
+          <h4 className="text-lg font-bold text-cortex-text-primary">🚨 Recent Alerts</h4>
           <button
             onClick={() => setActiveTab('alerts')}
-            className="text-blue-400 hover:text-blue-300 text-sm"
+            className="text-cortex-text-muted hover:text-cortex-text-primary text-sm cortex-interactive"
           >
             View All →
           </button>
@@ -397,33 +378,33 @@ export const XSIAMHealthMonitor: React.FC = () => {
         
         <div className="space-y-3">
           {alerts.slice(0, 3).map(alert => (
-            <div key={alert.id} className={`p-3 rounded border ${
-              alert.severity === 'critical' ? 'bg-red-900/20 border-red-500/30' :
-              alert.severity === 'warning' ? 'bg-yellow-900/20 border-yellow-500/30' :
-              'bg-blue-900/20 border-blue-500/30'
-            }`}>
+            <div key={alert.id} className={`cortex-card p-3 border-l-4 ${{
+              'critical': 'border-cortex-error',
+              'warning': 'border-cortex-warning',
+              'info': 'border-cortex-info'
+            }[alert.severity]}`}>
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-xs px-2 py-1 rounded font-medium ${
-                      alert.severity === 'critical' ? 'bg-red-800 text-red-200' :
-                      alert.severity === 'warning' ? 'bg-yellow-800 text-yellow-200' :
-                      'bg-blue-800 text-blue-200'
-                    }`}>
+                    <span className={`text-xs px-2 py-1 rounded font-medium ${{
+                      'critical': 'bg-cortex-error/20 text-cortex-error',
+                      'warning': 'bg-cortex-warning/20 text-cortex-warning',
+                      'info': 'bg-cortex-info/20 text-cortex-info'
+                    }[alert.severity]}`}>
                       {alert.severity.toUpperCase()}
                     </span>
-                    <span className="text-white font-medium">{alert.component}</span>
-                    {alert.resolvedAt && <span className="text-green-400 text-xs">✅ RESOLVED</span>}
+                    <span className="text-cortex-text-primary font-medium">{alert.component}</span>
+                    {alert.resolvedAt && <span className="text-cortex-success text-xs">✅ RESOLVED</span>}
                   </div>
-                  <div className="text-gray-300 text-sm">{alert.message}</div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-cortex-text-secondary text-sm">{alert.message}</div>
+                  <div className="text-xs text-cortex-text-muted mt-1">
                     {new Date(alert.timestamp).toLocaleString()}
                   </div>
                 </div>
                 {!alert.acknowledged && !alert.resolvedAt && (
                   <button
                     onClick={() => acknowledgeAlert(alert.id)}
-                    className="px-2 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded text-xs"
+                    className="btn-modern button-hover-lift cortex-interactive px-2 py-1 bg-cortex-bg-secondary hover:bg-cortex-bg-hover text-cortex-text-primary rounded text-xs"
                   >
                     Acknowledge
                   </button>
@@ -435,90 +416,91 @@ export const XSIAMHealthMonitor: React.FC = () => {
       </div>
 
       {/* AI Recommendations */}
-      <div className="bg-gradient-to-r from-violet-900/20 to-purple-900/20 p-6 rounded-lg border border-violet-500/30">
-        <h4 className="text-lg font-bold text-violet-400 mb-4">🤖 AI Health Recommendations</h4>
+      <div className="glass-card p-6">
+        <h4 className="text-lg font-bold text-cortex-text-primary mb-4">🤖 AI Health Recommendations</h4>
         <div className="space-y-3">
-          <div className="bg-gray-800/50 p-3 rounded border border-violet-500/20">
-            <div className="text-violet-300 font-medium mb-1">Memory Optimization</div>
-            <div className="text-sm text-gray-300">Consider implementing memory cleanup routines during low-activity periods to prevent correlation engine memory leaks.</div>
+          <div className="cortex-card p-3">
+            <div className="text-cortex-text-primary font-medium mb-1">Memory Optimization</div>
+            <div className="text-sm text-cortex-text-muted">Consider implementing memory cleanup routines during low-activity periods to prevent correlation engine memory leaks.</div>
           </div>
-          <div className="bg-gray-800/50 p-3 rounded border border-violet-500/20">
-            <div className="text-violet-300 font-medium mb-1">Scaling Recommendation</div>
-            <div className="text-sm text-gray-300">Current EPS trending upward. Plan for 20% capacity increase within 2 weeks to maintain performance.</div>
+          <div className="cortex-card p-3">
+            <div className="text-cortex-text-primary font-medium mb-1">Scaling Recommendation</div>
+            <div className="text-sm text-cortex-text-muted">Current EPS trending upward. Plan for 20% capacity increase within 2 weeks to maintain performance.</div>
           </div>
-          <div className="bg-gray-800/50 p-3 rounded border border-violet-500/20">
-            <div className="text-violet-300 font-medium mb-1">Alert Tuning</div>
-            <div className="text-sm text-gray-300">3 correlation rules generating 67% of false positives. Review rules CR-2847, CR-3921, and CR-4156.</div>
+          <div className="cortex-card p-3">
+            <div className="text-cortex-text-primary font-medium mb-1">Alert Tuning</div>
+            <div className="text-sm text-cortex-text-muted">3 correlation rules generating 67% of false positives. Review rules CR-2847, CR-3921, and CR-4156.</div>
           </div>
         </div>
       </div>
     </div>
   );
+  );
 
   const AlertsTab = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-xl font-bold text-white">🚨 System Alerts</h3>
+        <h3 className="text-xl font-bold text-cortex-text-primary">🚨 System Alerts</h3>
         <div className="flex gap-2">
           <button
             onClick={() => setAlerts(prev => prev.map(a => ({ ...a, acknowledged: true })))}
-            className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm transition-colors"
+            className="btn-modern button-hover-lift cortex-interactive px-3 py-2 bg-cortex-bg-secondary hover:bg-cortex-bg-hover text-cortex-text-primary rounded text-sm transition-colors"
           >
             Acknowledge All
           </button>
           <button
             onClick={loadAlerts}
-            className="px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded text-sm transition-colors"
+            className="btn-modern button-hover-lift cortex-interactive px-3 py-2 bg-cortex-bg-secondary hover:bg-cortex-bg-hover text-cortex-text-primary rounded text-sm transition-colors"
           >
-            🔄 Refresh
+            Refresh
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-red-900/20 p-4 rounded border border-red-500/30 text-center">
-          <div className="text-2xl font-mono text-red-400">{alerts.filter(a => a.severity === 'critical' && !a.resolvedAt).length}</div>
-          <div className="text-sm text-gray-400">Critical</div>
+        <div className="cortex-card-elevated p-4 text-center">
+          <div className="text-2xl font-mono text-cortex-error">{alerts.filter(a => a.severity === 'critical' && !a.resolvedAt).length}</div>
+          <div className="text-sm text-cortex-text-muted">Critical</div>
         </div>
-        <div className="bg-yellow-900/20 p-4 rounded border border-yellow-500/30 text-center">
-          <div className="text-2xl font-mono text-yellow-400">{alerts.filter(a => a.severity === 'warning' && !a.resolvedAt).length}</div>
-          <div className="text-sm text-gray-400">Warning</div>
+        <div className="cortex-card-elevated p-4 text-center">
+          <div className="text-2xl font-mono text-cortex-warning">{alerts.filter(a => a.severity === 'warning' && !a.resolvedAt).length}</div>
+          <div className="text-sm text-cortex-text-muted">Warning</div>
         </div>
-        <div className="bg-blue-900/20 p-4 rounded border border-blue-500/30 text-center">
-          <div className="text-2xl font-mono text-blue-400">{alerts.filter(a => a.severity === 'info' && !a.resolvedAt).length}</div>
-          <div className="text-sm text-gray-400">Info</div>
+        <div className="cortex-card-elevated p-4 text-center">
+          <div className="text-2xl font-mono text-cortex-info">{alerts.filter(a => a.severity === 'info' && !a.resolvedAt).length}</div>
+          <div className="text-sm text-cortex-text-muted">Info</div>
         </div>
       </div>
 
       <div className="space-y-4">
         {alerts.map(alert => (
-          <div key={alert.id} className={`p-4 rounded border ${
-            alert.severity === 'critical' ? 'bg-red-900/20 border-red-500/30' :
-            alert.severity === 'warning' ? 'bg-yellow-900/20 border-yellow-500/30' :
-            'bg-blue-900/20 border-blue-500/30'
-          }`}>
+          <div key={alert.id} className={`cortex-card p-4 border-l-4 ${{
+            'critical': 'border-cortex-error',
+            'warning': 'border-cortex-warning',
+            'info': 'border-cortex-info'
+          }[alert.severity]}`}>
             <div className="flex justify-between items-start mb-3">
               <div className="flex items-center gap-3">
-                <span className={`text-xs px-2 py-1 rounded font-medium ${
-                  alert.severity === 'critical' ? 'bg-red-800 text-red-200' :
-                  alert.severity === 'warning' ? 'bg-yellow-800 text-yellow-200' :
-                  'bg-blue-800 text-blue-200'
-                }`}>
+                <span className={`text-xs px-2 py-1 rounded font-medium ${{
+                  'critical': 'bg-cortex-error/20 text-cortex-error',
+                  'warning': 'bg-cortex-warning/20 text-cortex-warning',
+                  'info': 'bg-cortex-info/20 text-cortex-info'
+                }[alert.severity]}`}>
                   {alert.severity.toUpperCase()}
                 </span>
-                <span className="text-white font-medium">{alert.component}</span>
-                {alert.acknowledged && <span className="text-gray-400 text-xs">👁️ ACKNOWLEDGED</span>}
-                {alert.resolvedAt && <span className="text-green-400 text-xs">✅ RESOLVED</span>}
+                <span className="text-cortex-text-primary font-medium">{alert.component}</span>
+                {alert.acknowledged && <span className="text-cortex-text-muted text-xs">👁️ ACKNOWLEDGED</span>}
+                {alert.resolvedAt && <span className="text-cortex-success text-xs">✅ RESOLVED</span>}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-cortex-text-muted">
                 {new Date(alert.timestamp).toLocaleString()}
               </div>
             </div>
             
-            <div className="text-white mb-2">{alert.message}</div>
+            <div className="text-cortex-text-primary mb-2">{alert.message}</div>
             
             {alert.details && (
-              <div className="text-sm text-gray-300 bg-gray-800/50 p-3 rounded mb-3">
+              <div className="text-sm text-cortex-text-secondary bg-cortex-bg-secondary p-3 rounded mb-3">
                 {alert.details}
               </div>
             )}
@@ -527,18 +509,18 @@ export const XSIAMHealthMonitor: React.FC = () => {
               {!alert.acknowledged && !alert.resolvedAt && (
                 <button
                   onClick={() => acknowledgeAlert(alert.id)}
-                  className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm transition-colors"
+                  className="btn-modern button-hover-lift cortex-interactive px-3 py-1 bg-cortex-bg-secondary hover:bg-cortex-bg-hover text-cortex-text-primary rounded text-sm transition-colors"
                 >
                   Acknowledge
                 </button>
               )}
-              <button className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded text-sm transition-colors">
+              <button className="btn-modern button-hover-lift cortex-interactive px-3 py-1 bg-cortex-bg-secondary hover:bg-cortex-bg-hover text-cortex-text-primary rounded text-sm transition-colors">
                 View Details
               </button>
               {alert.severity !== 'info' && (
                 <button 
                   onClick={() => setActiveTab('troubleshoot')}
-                  className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm transition-colors"
+                  className="btn-modern button-hover-lift cortex-interactive px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm transition-colors"
                 >
                   Troubleshoot
                 </button>
@@ -552,47 +534,47 @@ export const XSIAMHealthMonitor: React.FC = () => {
 
   const PerformanceTab = () => (
     <div className="space-y-6">
-      <h3 className="text-xl font-bold text-white">📊 Performance Metrics</h3>
+      <h3 className="text-xl font-bold text-cortex-text-primary">📊 Performance Metrics</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {performanceMetrics.map((metric, index) => (
-          <div key={index} className="bg-gray-900/50 p-6 rounded border border-gray-700">
+          <div key={index} className="cortex-card-elevated p-6">
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h4 className="text-lg font-medium text-white">{metric.name}</h4>
-                <div className="flex items-center gap-2 text-sm text-gray-400">
+                <h4 className="text-lg font-medium text-cortex-text-primary">{metric.name}</h4>
+                <div className="flex items-center gap-2 text-sm text-cortex-text-muted">
                   <span>Current: </span>
-                  <span className={`font-mono ${
-                    metric.status === 'healthy' ? 'text-green-400' :
-                    metric.status === 'warning' ? 'text-yellow-400' :
-                    'text-red-400'
-                  }`}>
+                  <span className={`font-mono ${{
+                    'healthy': 'text-cortex-success',
+                    'warning': 'text-cortex-warning',
+                    'critical': 'text-cortex-error'
+                  }[metric.status]}`}>
                     {metric.value.toLocaleString()} {metric.unit}
                   </span>
-                  <span className={`text-xs ${
-                    metric.trend === 'up' ? 'text-red-400' :
-                    metric.trend === 'down' ? 'text-green-400' :
-                    'text-gray-400'
-                  }`}>
+                  <span className={`text-xs ${{
+                    'up': 'text-cortex-error',
+                    'down': 'text-cortex-success',
+                    'stable': 'text-cortex-text-muted'
+                  }[metric.trend]}`}>
                     {metric.trend === 'up' ? '↗️' : metric.trend === 'down' ? '↘️' : '➡️'}
                   </span>
                 </div>
               </div>
-              <div className={`px-3 py-1 rounded text-sm font-medium ${
-                metric.status === 'healthy' ? 'bg-green-900/20 text-green-400 border border-green-500/30' :
-                metric.status === 'warning' ? 'bg-yellow-900/20 text-yellow-400 border border-yellow-500/30' :
-                'bg-red-900/20 text-red-400 border border-red-500/30'
-              }`}>
+              <div className={`px-3 py-1 rounded text-sm font-medium ${{
+                'healthy': 'bg-cortex-success/20 text-cortex-success border border-cortex-success/30',
+                'warning': 'bg-cortex-warning/20 text-cortex-warning border border-cortex-warning/30',
+                'critical': 'bg-cortex-error/20 text-cortex-error border border-cortex-error/30'
+              }[metric.status]}`}>
                 {metric.status}
               </div>
             </div>
             
-            <div className="text-xs text-gray-500 mb-2">
+            <div className="text-xs text-cortex-text-muted mb-2">
               Threshold: {metric.threshold.toLocaleString()} {metric.unit}
             </div>
             
-            <div className="h-24 bg-gray-800/50 rounded border border-gray-600 flex items-center justify-center">
-              <div className="text-gray-500 text-sm">📈 Chart visualization would appear here</div>
+            <div className="h-24 bg-cortex-bg-secondary rounded border border-cortex-border-secondary flex items-center justify-center">
+              <div className="text-cortex-text-muted text-sm">📈 Chart visualization would appear here</div>
             </div>
           </div>
         ))}
@@ -603,10 +585,10 @@ export const XSIAMHealthMonitor: React.FC = () => {
   const TroubleshootTab = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-xl font-bold text-white">🔧 Troubleshooting Guide</h3>
+        <h3 className="text-xl font-bold text-cortex-text-primary">🔧 Troubleshooting Guide</h3>
         <button
           onClick={() => actions.notify('info', 'Automated health check initiated')}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+          className="btn-modern button-hover-lift cortex-interactive px-4 py-2 bg-cortex-bg-secondary hover:bg-cortex-bg-hover text-cortex-text-primary rounded transition-colors"
         >
           🤖 Run Automated Diagnostics
         </button>
@@ -614,8 +596,8 @@ export const XSIAMHealthMonitor: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {['diagnostic', 'remediation', 'escalation'].map(category => (
-          <div key={category} className="bg-gray-900/50 p-6 rounded border border-gray-700">
-            <h4 className="text-lg font-bold text-white mb-4 capitalize">
+          <div key={category} className="glass-card p-6">
+            <h4 className="text-lg font-bold text-cortex-text-primary mb-4 capitalize">
               {category === 'diagnostic' ? '🔍 Diagnostic' :
                category === 'remediation' ? '🛠️ Remediation' :
                '🆘 Escalation'} Steps
@@ -623,32 +605,32 @@ export const XSIAMHealthMonitor: React.FC = () => {
             
             <div className="space-y-3">
               {troubleshootingSteps.filter(step => step.category === category).map(step => (
-                <div key={step.id} className="bg-gray-800/30 p-3 rounded border border-gray-600">
+                <div key={step.id} className="cortex-card p-3">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex-1">
-                      <div className="text-white font-medium">{step.title}</div>
-                      <div className="text-sm text-gray-400">{step.description}</div>
+                      <div className="text-cortex-text-primary font-medium">{step.title}</div>
+                      <div className="text-sm text-cortex-text-muted">{step.description}</div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {step.automated && <span className="text-green-400 text-xs">🤖</span>}
-                      <span className={`text-xs px-2 py-1 rounded ${
-                        step.severity === 'high' ? 'bg-red-900/20 text-red-300' :
-                        step.severity === 'medium' ? 'bg-yellow-900/20 text-yellow-300' :
-                        'bg-green-900/20 text-green-300'
-                      }`}>
+                      {step.automated && <span className="text-cortex-success text-xs">🤖</span>}
+                      <span className={`text-xs px-2 py-1 rounded ${{
+                        'high': 'bg-cortex-error/20 text-cortex-error',
+                        'medium': 'bg-cortex-warning/20 text-cortex-warning',
+                        'low': 'bg-cortex-success/20 text-cortex-success'
+                      }[step.severity]}`}>
                         {step.severity}
                       </span>
                     </div>
                   </div>
                   
-                  <div className="flex justify-between items-center text-xs text-gray-500">
+                  <div className="flex justify-between items-center text-xs text-cortex-text-muted">
                     <span>Est. time: {step.estimatedTime} min</span>
                     <button
                       onClick={() => executeTroubleshootingStep(step)}
                       disabled={isLoading}
-                      className="px-2 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded transition-colors"
+                      className="btn-modern button-hover-lift cortex-interactive px-2 py-1 bg-cortex-bg-secondary hover:bg-cortex-bg-hover text-cortex-text-primary rounded transition-colors text-xs"
                     >
-                      {step.automated ? '🤖 Execute' : '📋 Guide'}
+                      {step.automated ? 'Execute' : 'Guide'}
                     </button>
                   </div>
                 </div>
@@ -662,18 +644,18 @@ export const XSIAMHealthMonitor: React.FC = () => {
 
   const SettingsTab = () => (
     <div className="space-y-6">
-      <h3 className="text-xl font-bold text-white">⚙️ Health Monitor Settings</h3>
+      <h3 className="text-xl font-bold text-cortex-text-primary">⚙️ Health Monitor Settings</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gray-900/50 p-6 rounded border border-gray-700">
-          <h4 className="text-lg font-bold text-white mb-4">🎯 Customer Environment</h4>
+        <div className="glass-card p-6">
+          <h4 className="text-lg font-bold text-cortex-text-primary mb-4">🎯 Customer Environment</h4>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Select Customer</label>
+              <label className="block text-sm font-medium text-cortex-text-secondary mb-2">Select Customer</label>
               <select
                 value={selectedCustomer}
                 onChange={(e) => setSelectedCustomer(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange w-full"
               >
                 <option value="">All Customers</option>
                 {customers.map(customer => (
@@ -684,20 +666,20 @@ export const XSIAMHealthMonitor: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-gray-900/50 p-6 rounded border border-gray-700">
-          <h4 className="text-lg font-bold text-white mb-4">🔔 Alert Configuration</h4>
+        <div className="glass-card p-6">
+          <h4 className="text-lg font-bold text-cortex-text-primary mb-4">🔔 Alert Configuration</h4>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-gray-300">Email Notifications</span>
-              <input type="checkbox" defaultChecked className="rounded" />
+              <span className="text-cortex-text-secondary">Email Notifications</span>
+              <input type="checkbox" defaultChecked className="rounded cortex-interactive" />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-300">SMS Alerts (Critical)</span>
-              <input type="checkbox" defaultChecked className="rounded" />
+              <span className="text-cortex-text-secondary">SMS Alerts (Critical)</span>
+              <input type="checkbox" defaultChecked className="rounded cortex-interactive" />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-300">Auto-Acknowledge Info</span>
-              <input type="checkbox" className="rounded" />
+              <span className="text-cortex-text-secondary">Auto-Acknowledge Info</span>
+              <input type="checkbox" className="rounded cortex-interactive" />
             </div>
           </div>
         </div>
@@ -706,29 +688,64 @@ export const XSIAMHealthMonitor: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-green-400 mb-2">XSIAM Health Monitor</h1>
-          <p className="text-gray-400">Real-time system health monitoring with intelligent alerting and automated troubleshooting</p>
+    <div className="p-8 space-y-8">
+      <div className="glass-card p-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-cortex-text-primary mb-2">XSIAM Health Monitor</h1>
+            <p className="text-cortex-text-muted">Real-time system health monitoring with intelligent alerting and automated troubleshooting</p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <select
+              value={selectedCustomer}
+              onChange={(e) => setSelectedCustomer(e.target.value)}
+              className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+            >
+              <option value="">All Customers</option>
+              {customers.map(customer => (
+                <option key={customer.id} value={customer.id}>{customer.name}</option>
+              ))}
+            </select>
+            <button
+              onClick={loadHealthStatus}
+              disabled={isLoading}
+              className="btn-modern button-hover-lift cortex-interactive px-4 py-2 bg-cortex-bg-secondary hover:bg-cortex-bg-hover rounded text-cortex-text-primary transition-colors"
+            >
+              {isLoading ? 'Refreshing...' : 'Refresh'}
+            </button>
+          </div>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex space-x-1 mb-6 bg-gray-800/30 p-1 rounded-lg">
-          {[
-            { id: 'dashboard', label: '🏥 Dashboard', desc: 'System health overview' },
-            { id: 'alerts', label: '🚨 Alerts', desc: 'Alert management' },
-            { id: 'performance', label: '📊 Performance', desc: 'Metrics and trends' },
-            { id: 'troubleshoot', label: '🔧 Troubleshoot', desc: 'Diagnostic tools' },
-            { id: 'settings', label: '⚙️ Settings', desc: 'Configuration' }
-          ].map(tab => (
+        <div className="flex space-x-1 mb-6 bg-cortex-bg-secondary p-1 rounded-lg">
+          {[{
+            id: 'dashboard',
+            label: 'Dashboard',
+            desc: 'System health overview'
+          }, {
+            id: 'alerts',
+            label: 'Alerts',
+            desc: 'Alert management'
+          }, {
+            id: 'performance',
+            label: 'Performance',
+            desc: 'Metrics and trends'
+          }, {
+            id: 'troubleshoot',
+            label: 'Troubleshoot',
+            desc: 'Diagnostic tools'
+          }, {
+            id: 'settings',
+            label: 'Settings',
+            desc: 'Configuration'
+          }].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={`flex-1 px-4 py-3 text-center transition-colors rounded-lg ${
+              className={`flex-1 px-4 py-2 text-center transition-colors rounded-md cortex-interactive ${
                 activeTab === tab.id
-                  ? 'bg-green-600 text-white'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                  ? 'bg-cortex-orange text-white'
+                  : 'text-cortex-text-muted hover:text-white hover:bg-cortex-bg-hover'
               }`}
             >
               <div className="font-medium">{tab.label}</div>

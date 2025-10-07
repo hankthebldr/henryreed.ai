@@ -97,10 +97,10 @@ const POVDashboard = React.memo(() => {
         // Switch to project management tab and trigger new POV creation
         if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
           // If in iframe, post message to parent
-          window.parent.postMessage({ action: 'navigate', tab: 'projects' }, '*');
+          window.parent.postMessage({ action: 'navigate', tab: 'pov' }, '*');
         } else {
           // Direct navigation within the app
-          const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'projects', action: 'create-pov' } });
+          const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'pov', action: 'create-pov' } });
           window.dispatchEvent(event);
         }
       },
@@ -160,6 +160,20 @@ const POVDashboard = React.memo(() => {
       className: 'bg-orange-900 bg-opacity-20 border-orange-500 border-opacity-30 hover:bg-orange-900 hover:bg-opacity-40 text-orange-400'
     },
     {
+      name: 'Documentation',
+      icon: '📖',
+      description: 'Access comprehensive UI guide and workflow documentation',
+      onClick: () => {
+        // Open documentation in new tab to preserve current workflow
+        const docUrl = '/docs/portal-ui-map.md';
+        window.open(docUrl, '_blank', 'noopener,noreferrer');
+        // Also track the documentation access
+        const event = new CustomEvent('track-action', { detail: { action: 'documentation_accessed', source: 'dashboard_quick_action' } });
+        window.dispatchEvent(event);
+      },
+      className: 'bg-indigo-900 bg-opacity-20 border-indigo-500 border-opacity-30 hover:bg-indigo-900 hover:bg-opacity-40 text-indigo-400'
+    },
+    {
       name: 'Badass Blueprint',
       icon: '🧭',
       description: 'Create transformation blueprint and download PDF',
@@ -179,11 +193,9 @@ const POVDashboard = React.memo(() => {
   ], []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cortex-bg-primary via-cortex-bg-secondary to-cortex-bg-primary p-6 space-y-8">
+    <div className="p-8 space-y-8">
       {/* Modern Hero Section */}
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-cortex-orange/10 via-cortex-green/5 to-cortex-info/10 rounded-3xl" />
-        <div className="relative bg-cortex-bg-tertiary/40 backdrop-blur-xl border border-cortex-border-secondary/30 rounded-3xl p-8 shadow-2xl shadow-cortex-orange/10">
+      <div className="glass-card p-8">
           <div className="flex flex-col lg:flex-row items-start justify-between mb-8">
             <div>
               <h1 className="text-4xl font-bold text-cortex-text-primary mb-2 flex items-center">
@@ -210,7 +222,7 @@ const POVDashboard = React.memo(() => {
 
           {/* Modern Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-cortex-success/20 to-cortex-success/5 p-6 hover:from-cortex-success/30 hover:to-cortex-success/10 transition-all duration-300 transform hover:scale-105 border border-cortex-success/20">
+            <div className="cortex-card-elevated p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="text-2xl">📈</div>
                 <div className="text-xs bg-cortex-success/20 text-cortex-success px-2 py-1 rounded-full">+15%</div>
@@ -220,7 +232,7 @@ const POVDashboard = React.memo(() => {
               <div className="text-xs text-cortex-text-muted">3 in progress • 9 completed</div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-cortex-info/20 to-cortex-info/5 p-6 hover:from-cortex-info/30 hover:to-cortex-info/10 transition-all duration-300 transform hover:scale-105 border border-cortex-info/20">
+            <div className="cortex-card-elevated p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="text-2xl">🛡️</div>
                 <div className="text-xs bg-cortex-info/20 text-cortex-info px-2 py-1 rounded-full">New</div>
@@ -230,7 +242,7 @@ const POVDashboard = React.memo(() => {
               <div className="text-xs text-cortex-text-muted">Production-ready detections</div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-cortex-warning/20 to-cortex-warning/5 p-6 hover:from-cortex-warning/30 hover:to-cortex-warning/10 transition-all duration-300 transform hover:scale-105 border border-cortex-warning/20">
+            <div className="cortex-card-elevated p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="text-2xl">📋</div>
                 <div className="text-xs bg-cortex-warning/20 text-cortex-warning px-2 py-1 rounded-full">23</div>
@@ -240,7 +252,7 @@ const POVDashboard = React.memo(() => {
               <div className="text-xs text-cortex-text-muted">Linked design workbooks</div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-cortex-orange/20 to-cortex-orange/5 p-6 hover:from-cortex-orange/30 hover:to-cortex-orange/10 transition-all duration-300 transform hover:scale-105 border border-cortex-orange/20">
+            <div className="cortex-card-elevated p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="text-2xl">💰</div>
                 <div className="text-xs bg-cortex-orange/20 text-cortex-orange px-2 py-1 rounded-full">ROI</div>
@@ -251,14 +263,11 @@ const POVDashboard = React.memo(() => {
             </div>
           </div>
         </div>
-      </div>
       
       {/* Modern Activity and Actions Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Activity Card */}
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-cortex-info/5 to-cortex-success/5 rounded-2xl" />
-          <div className="relative bg-cortex-bg-tertiary/40 backdrop-blur-xl border border-cortex-border-secondary/30 rounded-2xl p-6 shadow-lg">
+        <div className="glass-card p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-semibold text-cortex-text-primary flex items-center">
                 <span className="text-cortex-info mr-2">📊</span>
@@ -269,19 +278,20 @@ const POVDashboard = React.memo(() => {
               </div>
             </div>
             
-            <div className="space-y-3 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-cortex-border-secondary scrollbar-track-transparent">
+            <div className="space-y-3 max-h-96 overflow-y-auto terminal-scrollbar pr-2">
               {activityData.map((item, idx) => (
-                <div key={idx} className="group relative overflow-hidden rounded-xl bg-cortex-bg-secondary/30 hover:bg-cortex-bg-secondary/50 p-4 transition-all duration-200 border border-cortex-border-muted/20 hover:border-cortex-border-secondary/40">
+                <div key={idx} className="cortex-card p-4">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="font-medium text-cortex-text-primary text-sm mb-1">{item.action}</div>
                       <div className="text-cortex-text-muted text-xs leading-relaxed">{item.target}</div>
                     </div>
                     <div className="flex items-center space-x-2 ml-4">
-                      <div className={`w-2 h-2 rounded-full ${
-                        item.status === 'success' ? 'bg-cortex-success' : 
-                        item.status === 'warning' ? 'bg-cortex-warning' : 'bg-cortex-info'
-                      } animate-pulse`}></div>
+                      <div className={`w-2 h-2 rounded-full ${{
+                        'success': 'bg-cortex-success',
+                        'warning': 'bg-cortex-warning',
+                        'info': 'bg-cortex-info'
+                      }[item.status]} animate-pulse`}></div>
                       <div className="text-xs text-cortex-text-muted font-mono">
                         {item.time}
                       </div>
@@ -297,19 +307,16 @@ const POVDashboard = React.memo(() => {
               </button>
             </div>
           </div>
-        </div>
         
         {/* Quick Actions Card */}
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-cortex-orange/5 to-cortex-warning/5 rounded-2xl" />
-          <div className="relative bg-cortex-bg-tertiary/40 backdrop-blur-xl border border-cortex-border-secondary/30 rounded-2xl p-6 shadow-lg">
+        <div className="glass-card p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-semibold text-cortex-text-primary flex items-center">
                 <span className="text-cortex-orange mr-2">⚡</span>
                 Quick Actions
               </h3>
               <div className="text-xs bg-cortex-orange/10 text-cortex-orange px-3 py-1 rounded-full border border-cortex-orange/20">
-                6 Available
+                7 Available
               </div>
             </div>
             
@@ -318,7 +325,7 @@ const POVDashboard = React.memo(() => {
                 <button
                   key={idx}
                   onClick={action.onClick}
-                  className="group relative overflow-hidden rounded-xl p-4 text-center transition-all duration-300 transform hover:scale-105 border border-cortex-border-muted/30 hover:border-cortex-orange/40 bg-cortex-bg-secondary/20 hover:bg-cortex-orange/10"
+                  className="btn-modern button-hover-lift cortex-card p-4 text-center"
                   title={action.description}
                 >
                   <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">{action.icon}</div>
@@ -338,7 +345,7 @@ const POVDashboard = React.memo(() => {
                     const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'xsiam', action: 'sync-platform' } });
                     window.dispatchEvent(event);
                   }}
-                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 border border-transparent hover:border-cortex-border-secondary/20"
+                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 cortex-interactive"
                 >
                   <span>🔄</span>
                   <span>Sync demo environment</span>
@@ -348,7 +355,7 @@ const POVDashboard = React.memo(() => {
                     const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'export-dashboard' } });
                     window.dispatchEvent(event);
                   }}
-                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 border border-transparent hover:border-cortex-border-secondary/20"
+                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 cortex-interactive"
                 >
                   <span>📋</span>
                   <span>Export current dashboard</span>
@@ -358,7 +365,7 @@ const POVDashboard = React.memo(() => {
                     const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'engagement-metrics' } });
                     window.dispatchEvent(event);
                   }}
-                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 border border-transparent hover:border-cortex-border-secondary/20"
+                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 cortex-interactive"
                 >
                   <span>📊</span>
                   <span>View engagement metrics</span>
@@ -368,7 +375,7 @@ const POVDashboard = React.memo(() => {
                     const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'trr', action: 'create-sdw' } });
                     window.dispatchEvent(event);
                   }}
-                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-warning/10 transition-colors text-sm text-cortex-warning hover:text-cortex-warning border border-cortex-warning/20 hover:border-cortex-warning/40 mt-3"
+                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-warning/10 transition-colors text-sm text-cortex-warning hover:text-cortex-warning border border-cortex-warning/20 hover:border-cortex-warning/40 mt-3 cortex-interactive"
                 >
                   <div className="flex items-center space-x-3">
                     <span>📝</span>
@@ -379,7 +386,7 @@ const POVDashboard = React.memo(() => {
                   onClick={() => {
                     window.open('/terminal', '_blank');
                   }}
-                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-success/10 transition-colors text-sm text-cortex-success hover:text-cortex-success border border-cortex-success/20 hover:border-cortex-success/40"
+                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-success/10 transition-colors text-sm text-cortex-success hover:text-cortex-success border border-cortex-success/20 hover:border-cortex-success/40 cortex-interactive"
                 >
                   <div className="flex items-center space-x-3">
                     <span>⌨️</span>
@@ -391,7 +398,6 @@ const POVDashboard = React.memo(() => {
           </div>
         </div>
       </div>
-    </div>
   );
 });
 POVDashboard.displayName = 'POVDashboard';
@@ -577,7 +583,7 @@ export default function CortexGUIInterface() {
   return (
     <div className="bg-gradient-to-br from-cortex-bg-primary to-cortex-bg-secondary text-cortex-text-primary min-h-screen">
       {/* Modern Header */}
-      <div className="bg-cortex-bg-tertiary/60 backdrop-blur-xl border-b border-cortex-border-secondary/30 px-6 py-4">
+      <div className="bg-cortex-bg-tertiary/60 backdrop-blur-xl border-b border-cortex-border-secondary/30 px-6 py-3 sticky top-0 z-20">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-6">
             <h1 className="text-2xl font-bold text-cortex-text-primary flex items-center">
@@ -639,17 +645,17 @@ export default function CortexGUIInterface() {
       </div>
       
       {/* Modern Tab Navigation */}
-      <div className="bg-cortex-bg-secondary/40 backdrop-blur-sm border-b border-cortex-border-secondary/20 p-6">
+      <div className="bg-cortex-bg-secondary/40 backdrop-blur-sm border-b border-cortex-border-secondary/20 p-3 sticky top-[70px] z-20">
         <div className="flex space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-cortex-border-secondary scrollbar-track-transparent">
           {visibleTabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
               data-feature="navigation"
-              className={`group relative px-6 py-3 text-sm font-medium rounded-xl transition-all duration-200 whitespace-nowrap flex items-center space-x-3 min-w-fit ${
+              className={`group relative px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap flex items-center space-x-2 min-w-fit cortex-interactive ${
                 activeTab === tab.id 
-                  ? 'text-cortex-text-primary bg-cortex-orange/20 border-2 border-cortex-orange/40 shadow-lg shadow-cortex-orange/10' 
-                  : 'text-cortex-text-muted bg-cortex-bg-tertiary/30 border-2 border-cortex-border-muted/20 hover:text-cortex-text-primary hover:bg-cortex-bg-tertiary/50 hover:border-cortex-border-secondary/30'
+                  ? 'text-cortex-text-primary bg-cortex-orange/20 border-cortex-orange/40 shadow-cortex-lg' 
+                  : 'text-cortex-text-muted bg-cortex-bg-tertiary/30 border-cortex-border-muted/20 hover:text-cortex-text-primary hover:bg-cortex-bg-tertiary/50 hover:border-cortex-border-secondary/30'
               }`}
             >
               <span className={`text-lg transition-transform group-hover:scale-110 ${
@@ -689,7 +695,7 @@ export default function CortexGUIInterface() {
       </div>
 
       {/* Content with Modern Wrapper */}
-      <div className="min-h-screen">
+      <div className="p-8">
         <Suspense fallback={<ComponentLoader />}>
           <ActiveComponent />
         </Suspense>

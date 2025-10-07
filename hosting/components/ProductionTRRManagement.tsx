@@ -659,37 +659,37 @@ export const ProductionTRRManagement: React.FC = () => {
 
   const CreateTab = () => (
     <div className="space-y-6">
-      <div className="bg-gray-900/50 p-6 rounded border border-gray-700">
-        <h3 className="text-xl font-bold text-white mb-6">📝 Create New TRR</h3>
+      <div className="glass-card p-6">
+        <h3 className="text-xl font-bold text-cortex-text-primary mb-6">📝 Create New TRR</h3>
         
         <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleCreateTRR(); }}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Basic Information */}
             <div className="space-y-4">
-              <h4 className="text-lg font-medium text-white">Basic Information</h4>
+              <h4 className="text-lg font-medium text-cortex-text-primary">Basic Information</h4>
               
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-cortex-text-secondary mb-2">
                   TRR Title *
                 </label>
                 <input
                   type="text"
                   value={formData.title || ''}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
                   placeholder="Enter TRR title"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-cortex-text-secondary mb-2">
                   Category *
                 </label>
                 <select
                   value={formData.category || ''}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
                   required
                 >
                   <option value="">Select category...</option>
@@ -704,13 +704,13 @@ export const ProductionTRRManagement: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-cortex-text-secondary mb-2">
                   Customer *
                 </label>
                 <select
                   value={formData.customerId || ''}
                   onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
                   required
                 >
                   <option value="">Select customer...</option>
@@ -721,13 +721,13 @@ export const ProductionTRRManagement: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-cortex-text-secondary mb-2">
                   Related POV (Optional)
                 </label>
                 <select
                   value={formData.povId || ''}
                   onChange={(e) => setFormData({ ...formData, povId: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
                 >
                   <option value="">Select POV...</option>
                   {povs.map(pov => (
@@ -737,13 +737,13 @@ export const ProductionTRRManagement: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-cortex-text-secondary mb-2">
                   Priority
                 </label>
                 <select
                   value={formData.priority || 'medium'}
                   onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -755,41 +755,41 @@ export const ProductionTRRManagement: React.FC = () => {
 
             {/* Assignment and Timeline */}
             <div className="space-y-4">
-              <h4 className="text-lg font-medium text-white">Assignment & Timeline</h4>
+              <h4 className="text-lg font-medium text-cortex-text-primary">Assignment & Timeline</h4>
               
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-cortex-text-secondary mb-2">
                   Assigned To
                 </label>
                 <input
                   type="text"
                   value={formData.assignedTo || ''}
                   onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
                   placeholder="Domain Consultant"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-cortex-text-secondary mb-2">
                   Target Validation Date
                 </label>
                 <input
                   type="date"
                   value={formData.targetDate || ''}
                   onChange={(e) => setFormData({ ...formData, targetDate: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-cortex-text-secondary mb-2">
                   Risk Level
                 </label>
                 <select
                   value={formData.riskLevel || 'low'}
                   onChange={(e) => setFormData({ ...formData, riskLevel: e.target.value as any })}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -798,27 +798,27 @@ export const ProductionTRRManagement: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-cortex-text-secondary mb-2">
                   Customer Stakeholder
                 </label>
                 <input
                   type="text"
                   value={formData.customerStakeholder || ''}
                   onChange={(e) => setFormData({ ...formData, customerStakeholder: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
                   placeholder="Customer contact person"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-cortex-text-secondary mb-2">
                   Validation Method
                 </label>
                 <input
                   type="text"
                   value={formData.validationMethod || ''}
                   onChange={(e) => setFormData({ ...formData, validationMethod: e.target.value })}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
                   placeholder="Technical review and testing"
                 />
               </div>
@@ -827,30 +827,30 @@ export const ProductionTRRManagement: React.FC = () => {
 
           {/* Description and Requirements */}
           <div className="space-y-4">
-            <h4 className="text-lg font-medium text-white">Details</h4>
+            <h4 className="text-lg font-medium text-cortex-text-primary">Details</h4>
             
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-cortex-text-secondary mb-2">
                 Description
               </label>
               <textarea
                 value={formData.description || ''}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400"
+                className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
                 placeholder="Detailed description of the technical requirement"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-cortex-text-secondary mb-2">
                 Business Impact
               </label>
               <textarea
                 value={formData.businessImpact || ''}
                 onChange={(e) => setFormData({ ...formData, businessImpact: e.target.value })}
                 rows={2}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-400"
+                className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
                 placeholder="How this TRR impacts the customer's business objectives"
               />
             </div>
@@ -861,14 +861,14 @@ export const ProductionTRRManagement: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowCreateForm(false)}
-              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
+              className="btn-modern button-hover-lift cortex-interactive px-4 py-2 bg-cortex-bg-secondary hover:bg-cortex-bg-hover text-cortex-text-primary rounded transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading || !formData.title || !formData.customerId}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded transition-colors"
+              className="btn-modern button-hover-lift cortex-interactive px-4 py-2 bg-cortex-blue hover:bg-cortex-blue-dark text-white rounded transition-colors"
             >
               {isLoading ? 'Creating...' : 'Create TRR'}
             </button>

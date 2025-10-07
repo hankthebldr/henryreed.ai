@@ -1,31 +1,30 @@
-import * as functions from 'firebase-functions';
 import { processScenarioExecution, monitorExecutionStatusChanges, cleanupOldExecutions } from './handlers/scenario-executor';
 declare const app: import("express-serve-static-core").Express;
 /**
  * AI-powered TRR suggestion and enhancement
  * Provides intelligent suggestions for TRR fields, risk assessment, and validation
  */
-export declare const aiTrrSuggest: functions.HttpsFunction & functions.Runnable<any>;
+export declare const aiTrrSuggest: import("firebase-functions/v2/https").CallableFunction<any, Promise<any>, unknown>;
 /**
  * AI-powered threat actor scenario generation
  * Generates comprehensive attack scenarios based on threat actor profiles
  */
-export declare const generateThreatActorScenarioFunction: functions.HttpsFunction & functions.Runnable<any>;
+export declare const generateThreatActorScenarioFunction: import("firebase-functions/v2/https").CallableFunction<any, Promise<any>, unknown>;
 /**
  * Scenario execution management
  * Starts execution of a scenario blueprint
  */
-export declare const executeScenarioFunction: functions.HttpsFunction & functions.Runnable<any>;
+export declare const executeScenarioFunction: import("firebase-functions/v2/https").CallableFunction<any, Promise<any>, unknown>;
 /**
  * Scenario execution control
  * Controls running scenario executions (pause, resume, cancel, restart)
  */
-export declare const controlScenarioExecutionFunction: functions.HttpsFunction & functions.Runnable<any>;
+export declare const controlScenarioExecutionFunction: import("firebase-functions/v2/https").CallableFunction<any, Promise<any>, unknown>;
 /**
  * AI-powered detection query generation
  * Generates optimized detection queries for threat vectors
  */
-export declare const generateDetectionQueriesFunction: functions.HttpsFunction & functions.Runnable<any>;
+export declare const generateDetectionQueriesFunction: import("firebase-functions/v2/https").CallableFunction<any, Promise<any>, unknown>;
 /**
  * Background scenario execution processor
  * Triggered by Pub/Sub messages to execute scenarios in the background
@@ -41,5 +40,7 @@ export { monitorExecutionStatusChanges };
  * Runs daily to clean up expired data
  */
 export { cleanupOldExecutions };
-export declare const api: functions.HttpsFunction;
+export declare const api: import("firebase-functions/v2/https").HttpsFunction;
+export { menuSuggestion } from './ai/henry-genkit-sample';
+export { aiPovAnalysis, aiTrrRecommendations, aiDetectionGeneration, aiScenarioOptimization, aiChatAssistant, aiCompetitiveAnalysis, aiRiskAssessment } from './ai/henry-ai-functions';
 export { app };

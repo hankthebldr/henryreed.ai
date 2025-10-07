@@ -1,4 +1,3 @@
-import * as functions from 'firebase-functions';
 declare class ScenarioExecutionEngine {
     private db;
     constructor();
@@ -20,7 +19,9 @@ declare class ScenarioExecutionEngine {
     private executeConditional;
     private executeAdaptive;
 }
-export declare const processScenarioExecution: functions.CloudFunction<functions.pubsub.Message>;
-export declare const monitorExecutionStatusChanges: functions.CloudFunction<functions.Change<functions.firestore.QueryDocumentSnapshot>>;
-export declare const cleanupOldExecutions: functions.CloudFunction<unknown>;
+export declare const processScenarioExecution: import("firebase-functions/core").CloudFunction<import("firebase-functions/core").CloudEvent<import("firebase-functions/v2/pubsub").MessagePublishedData<any>>>;
+export declare const monitorExecutionStatusChanges: import("firebase-functions/core").CloudFunction<import("firebase-functions/v2/firestore").FirestoreEvent<import("firebase-functions/v2/firestore").Change<import("firebase-functions/v2/firestore").QueryDocumentSnapshot> | undefined, {
+    executionId: string;
+}>>;
+export declare const cleanupOldExecutions: import("firebase-functions/v2/scheduler").ScheduleFunction;
 export { ScenarioExecutionEngine };

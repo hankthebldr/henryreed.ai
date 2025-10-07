@@ -489,18 +489,18 @@ const BlockRenderer: React.FC<{
   };
 
   return (
-    <div className={`group relative py-2 ${focused ? 'bg-gray-800/30' : 'hover:bg-gray-800/20'} rounded-lg px-3 transition-all`}>
+    <div className={`cortex-card p-4 cortex-interactive ${focused ? 'bg-cortex-bg-hover' : 'hover:bg-cortex-bg-secondary'}`}>
       <div className="flex items-start space-x-3">
-        <div className="flex-shrink-0 mt-2">
+        <div className="flex-shrink-0 mt-1">
           <span className="text-lg opacity-50 group-hover:opacity-100 transition-opacity">
             {getBlockIcon(block.type)}
           </span>
         </div>
         <div className="flex-1 min-w-0">
           {block.label && (
-            <div className="text-sm font-medium text-gray-400 mb-1 flex items-center space-x-1">
+            <div className="text-sm font-medium text-cortex-text-secondary mb-1 flex items-center space-x-1">
               <span>{block.label}</span>
-              {block.required && <span className="text-red-400">*</span>}
+              {block.required && <span className="text-cortex-error">*</span>}
             </div>
           )}
           {renderContent()}
@@ -585,7 +585,7 @@ export const EnhancedManualCreationGUI: React.FC = () => {
     return (
       <div className="space-y-6">
         {/* Header */}
-        <div className={`bg-gradient-to-r from-${schema.color}-900/20 to-${schema.color}-700/20 rounded-lg p-6 border border-${schema.color}-500/30`}>
+        <div className={`glass-card p-6 border-t-4 border-${schema.color}-500`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="text-4xl">{schema.icon}</div>
@@ -606,7 +606,7 @@ export const EnhancedManualCreationGUI: React.FC = () => {
         </div>
 
         {/* Form Blocks */}
-        <div className="bg-gray-900 rounded-lg border border-gray-700">
+        <div className="cortex-card p-6 space-y-4">
           <div className="p-6 space-y-1">
             {schema.blocks.map(block => (
               <BlockRenderer
@@ -619,22 +619,22 @@ export const EnhancedManualCreationGUI: React.FC = () => {
           </div>
 
           {/* Actions */}
-          <div className="border-t border-gray-700 p-6 flex justify-between items-center">
-            <div className="text-sm text-gray-400">
+          <div className="border-t border-cortex-border-secondary p-6 flex justify-between items-center">
+            <div className="text-sm text-cortex-text-muted">
               {schema.blocks.filter(b => b.required).length} required fields
             </div>
             <div className="flex space-x-3">
               <button
                 onClick={() => setActiveMode('none')}
                 disabled={isSubmitting}
-                className="px-6 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-800 rounded text-white transition-colors"
+                className="btn-modern button-hover-lift cortex-interactive px-6 py-2 bg-cortex-bg-secondary hover:bg-cortex-bg-hover rounded text-cortex-text-primary transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className={`px-6 py-2 bg-${schema.color}-600 hover:bg-${schema.color}-700 disabled:bg-gray-600 rounded text-white transition-colors flex items-center space-x-2`}
+                className={`btn-modern button-hover-lift cortex-interactive px-6 py-2 bg-${schema.color}-600 hover:bg-${schema.color}-700 rounded text-white transition-colors flex items-center space-x-2`}
               >
                 {isSubmitting && (
                   <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -653,21 +653,21 @@ export const EnhancedManualCreationGUI: React.FC = () => {
 
   // Main Dashboard
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-8">
       {/* Header */}
-      <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-lg p-8 border border-gray-700">
+      <div className="glass-card p-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
             <div className="text-4xl">🛠️</div>
             <div>
-              <h1 className="text-3xl font-bold text-white">Enhanced Creation Studio</h1>
-              <p className="text-gray-400 mt-2">Notion-inspired interface for creating POVs, templates, and scenarios</p>
+              <h1 className="text-3xl font-bold text-cortex-text-primary">Enhanced Creation Studio</h1>
+              <p className="text-cortex-text-muted mt-2">Notion-inspired interface for creating POVs, templates, and scenarios</p>
             </div>
           </div>
           
           <button
             onClick={() => setShowDocs(!showDocs)}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors flex items-center space-x-2"
+            className="btn-modern button-hover-lift cortex-interactive px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors flex items-center space-x-2"
           >
             <span>📚</span>
             <span>{showDocs ? 'Hide' : 'Show'} Documentation</span>
@@ -678,11 +678,11 @@ export const EnhancedManualCreationGUI: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div
             onClick={() => handleModeChange('pov')}
-            className="group cursor-pointer p-8 bg-blue-900/10 border-2 border-blue-500/20 hover:border-blue-500/50 rounded-xl transition-all duration-300 hover:bg-blue-900/20"
+            className="cortex-card-elevated p-8 cortex-interactive button-hover-lift"
           >
-            <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🎯</div>
+            <div className="text-5xl mb-4">🎯</div>
             <h3 className="text-xl font-bold text-blue-400 mb-3">Proof of Value</h3>
-            <p className="text-gray-300 text-sm leading-relaxed">
+            <p className="text-cortex-text-muted text-sm leading-relaxed">
               Create comprehensive POV projects with advanced planning, team management, and success tracking capabilities.
             </p>
             <div className="mt-4 flex items-center text-blue-400 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
@@ -695,11 +695,11 @@ export const EnhancedManualCreationGUI: React.FC = () => {
 
           <div
             onClick={() => handleModeChange('template')}
-            className="group cursor-pointer p-8 bg-green-900/10 border-2 border-green-500/20 hover:border-green-500/50 rounded-xl transition-all duration-300 hover:bg-green-900/20"
+            className="cortex-card-elevated p-8 cortex-interactive button-hover-lift"
           >
-            <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">📋</div>
+            <div className="text-5xl mb-4">📋</div>
             <h3 className="text-xl font-bold text-green-400 mb-3">Scenario Template</h3>
-            <p className="text-gray-300 text-sm leading-relaxed">
+            <p className="text-cortex-text-muted text-sm leading-relaxed">
               Design reusable templates for validation scenarios with structured requirements and testing protocols.
             </p>
             <div className="mt-4 flex items-center text-green-400 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
@@ -712,11 +712,11 @@ export const EnhancedManualCreationGUI: React.FC = () => {
 
           <div
             onClick={() => handleModeChange('scenario')}
-            className="group cursor-pointer p-8 bg-purple-900/10 border-2 border-purple-500/20 hover:border-purple-500/50 rounded-xl transition-all duration-300 hover:bg-purple-900/20"
+            className="cortex-card-elevated p-8 cortex-interactive button-hover-lift"
           >
-            <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🔬</div>
+            <div className="text-5xl mb-4">🔬</div>
             <h3 className="text-xl font-bold text-purple-400 mb-3">Detection Scenario</h3>
-            <p className="text-gray-300 text-sm leading-relaxed">
+            <p className="text-cortex-text-muted text-sm leading-relaxed">
               Build Cloud Detection and Response scenarios with MITRE mapping, attack vectors, and detection rules.
             </p>
             <div className="mt-4 flex items-center text-purple-400 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
@@ -729,23 +729,23 @@ export const EnhancedManualCreationGUI: React.FC = () => {
         </div>
 
         {/* Stats */}
-        <div className="mt-8 pt-8 border-t border-gray-700">
+        <div className="mt-8 pt-8 border-t border-cortex-border-muted/20">
           <div className="grid grid-cols-4 gap-6 text-center">
             <div>
               <div className="text-3xl font-bold text-blue-400">24</div>
-              <div className="text-sm text-gray-400">Active POVs</div>
+              <div className="text-sm text-cortex-text-muted">Active POVs</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-green-400">12</div>
-              <div className="text-sm text-gray-400">Templates</div>
+              <div className="text-sm text-cortex-text-muted">Templates</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-purple-400">48</div>
-              <div className="text-sm text-gray-400">Scenarios</div>
+              <div className="text-sm text-cortex-text-muted">Scenarios</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-cyan-400">96%</div>
-              <div className="text-sm text-gray-400">Success Rate</div>
+              <div className="text-sm text-cortex-text-muted">Success Rate</div>
             </div>
           </div>
         </div>
@@ -756,18 +756,18 @@ export const EnhancedManualCreationGUI: React.FC = () => {
         <CortexCloudFrame
           title="Cortex Cloud Detection and Response Documentation"
           height="600px"
-          className="border-2 border-blue-500 shadow-2xl"
+          className="border-2 border-blue-500 shadow-2xl glass-card"
         />
       )}
 
       {/* Features */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gray-900 rounded-lg p-6 border border-gray-700">
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="glass-card p-6">
+          <h3 className="text-lg font-bold text-cortex-text-primary mb-4 flex items-center space-x-2">
             <span>🎨</span>
             <span>Notion-Inspired Features</span>
           </h3>
-          <ul className="space-y-2 text-sm text-gray-300">
+          <ul className="space-y-2 text-sm text-cortex-text-muted">
             <li className="flex items-start space-x-2">
               <span className="text-blue-400 mt-0.5">•</span>
               <span>Block-based editing with intuitive interactions</span>
@@ -787,12 +787,12 @@ export const EnhancedManualCreationGUI: React.FC = () => {
           </ul>
         </div>
 
-        <div className="bg-gray-900 rounded-lg p-6 border border-gray-700">
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+        <div className="glass-card p-6">
+          <h3 className="text-lg font-bold text-cortex-text-primary mb-4 flex items-center space-x-2">
             <span>⚡</span>
             <span>Enhanced UX</span>
           </h3>
-          <ul className="space-y-2 text-sm text-gray-300">
+          <ul className="space-y-2 text-sm text-cortex-text-muted">
             <li className="flex items-start space-x-2">
               <span className="text-blue-400 mt-0.5">•</span>
               <span>Hover effects and smooth animations</span>

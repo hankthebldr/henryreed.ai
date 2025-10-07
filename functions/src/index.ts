@@ -1,5 +1,5 @@
 // Cloud Functions for TRR Management System
-import * as functions from 'firebase-functions/v1';
+import { onCall, onRequest, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import express from 'express';
 import cors from 'cors';
@@ -253,32 +253,32 @@ app.post('/scenario-export', async (req: any, res) => {
  * AI-powered TRR suggestion and enhancement
  * Provides intelligent suggestions for TRR fields, risk assessment, and validation
  */
-export const aiTrrSuggest = functions
-  .region('us-central1')
-  .runWith({
-    memory: '1GB',
+export const aiTrrSuggest = onCall(
+  {
+    region: 'us-central1',
+    memory: '1GiB',
     timeoutSeconds: 540,
     secrets: ['OPENAI_API_KEY']
-  })
-  .https
-  .onCall(async (data, context) => {
+  },
+  async (request) => {
     try {
       // Validate authentication
-      if (!context.auth) {
-        throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+      if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'Authentication required');
       }
 
-      return await aiTRRSuggestHandler(data, context);
+      return await aiTRRSuggestHandler(request.data, request);
     } catch (error) {
       logger.error('AI TRR Suggest error:', error);
       
-      if (error instanceof functions.https.HttpsError) {
+      if (error instanceof HttpsError) {
         throw error;
       }
       
-      throw new functions.https.HttpsError('internal', 'AI service temporarily unavailable');
+      throw new HttpsError('internal', 'AI service temporarily unavailable');
     }
-  });
+  }
+);
 
 // ============================================================================
 // Scenario Orchestration Functions
@@ -288,119 +288,119 @@ export const aiTrrSuggest = functions
  * AI-powered threat actor scenario generation
  * Generates comprehensive attack scenarios based on threat actor profiles
  */
-export const generateThreatActorScenarioFunction = functions
-  .region('us-central1')
-  .runWith({
-    memory: '2GB',
+export const generateThreatActorScenarioFunction = onCall(
+  {
+    region: 'us-central1',
+    memory: '2GiB',
     timeoutSeconds: 540,
     secrets: ['OPENAI_API_KEY']
-  })
-  .https
-  .onCall(async (data, context) => {
+  },
+  async (request) => {
     try {
-      if (!context.auth) {
-        throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+      if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'Authentication required');
       }
 
-      return await generateThreatActorScenario(data, context);
+      return await generateThreatActorScenario(request.data, request);
     } catch (error) {
       logger.error('Generate threat actor scenario error:', error);
       
-      if (error instanceof functions.https.HttpsError) {
+      if (error instanceof HttpsError) {
         throw error;
       }
       
-      throw new functions.https.HttpsError('internal', 'Scenario generation service temporarily unavailable');
+      throw new HttpsError('internal', 'Scenario generation service temporarily unavailable');
     }
-  });
+  }
+);
 
 /**
  * Scenario execution management
  * Starts execution of a scenario blueprint
  */
-export const executeScenarioFunction = functions
-  .region('us-central1')
-  .runWith({
-    memory: '1GB',
+export const executeScenarioFunction = onCall(
+  {
+    region: 'us-central1',
+    memory: '1GiB',
     timeoutSeconds: 120
-  })
-  .https
-  .onCall(async (data, context) => {
+  },
+  async (request) => {
     try {
-      if (!context.auth) {
-        throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+      if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'Authentication required');
       }
 
-      return await executeScenario(data, context);
+      return await executeScenario(request.data, request);
     } catch (error) {
       logger.error('Execute scenario error:', error);
       
-      if (error instanceof functions.https.HttpsError) {
+      if (error instanceof HttpsError) {
         throw error;
       }
       
-      throw new functions.https.HttpsError('internal', 'Scenario execution service temporarily unavailable');
+      throw new HttpsError('internal', 'Scenario execution service temporarily unavailable');
     }
-  });
+  }
+);
 
 /**
  * Scenario execution control
  * Controls running scenario executions (pause, resume, cancel, restart)
  */
-export const controlScenarioExecutionFunction = functions
-  .region('us-central1')
-  .runWith({
-    memory: '512MB',
+export const controlScenarioExecutionFunction = onCall(
+  {
+    region: 'us-central1',
+    memory: '512MiB',
     timeoutSeconds: 60
-  })
-  .https
-  .onCall(async (data, context) => {
+  },
+  async (request) => {
     try {
-      if (!context.auth) {
-        throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+      if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'Authentication required');
       }
 
-      return await controlScenarioExecution(data, context);
+      return await controlScenarioExecution(request.data, request);
     } catch (error) {
       logger.error('Control scenario execution error:', error);
       
-      if (error instanceof functions.https.HttpsError) {
+      if (error instanceof HttpsError) {
         throw error;
       }
       
-      throw new functions.https.HttpsError('internal', 'Scenario control service temporarily unavailable');
+      throw new HttpsError('internal', 'Scenario control service temporarily unavailable');
     }
-  });
+  }
+);
 
 /**
  * AI-powered detection query generation
  * Generates optimized detection queries for threat vectors
  */
-export const generateDetectionQueriesFunction = functions
-  .region('us-central1')
-  .runWith({
-    memory: '1GB',
+export const generateDetectionQueriesFunction = onCall(
+  {
+    region: 'us-central1',
+    memory: '1GiB',
     timeoutSeconds: 300,
     secrets: ['OPENAI_API_KEY']
-  })
-  .https
-  .onCall(async (data, context) => {
+  },
+  async (request) => {
     try {
-      if (!context.auth) {
-        throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+      if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'Authentication required');
       }
 
-      return await generateDetectionQueries(data, context);
+      return await generateDetectionQueries(request.data, request);
     } catch (error) {
       logger.error('Generate detection queries error:', error);
       
-      if (error instanceof functions.https.HttpsError) {
+      if (error instanceof HttpsError) {
         throw error;
       }
       
-      throw new functions.https.HttpsError('internal', 'Detection query generation service temporarily unavailable');
+      throw new HttpsError('internal', 'Detection query generation service temporarily unavailable');
     }
-  });
+  }
+);
 
 // ============================================================================
 // Background Scenario Execution Functions
@@ -460,14 +460,26 @@ export { cleanupOldExecutions };
 // ============================================================================
 
 // Mount express app as HTTP function
-export const api = functions
-  .region('us-central1')
-  .runWith({
-    memory: '1GB',
+export const api = onRequest(
+  {
+    region: 'us-central1',
+    memory: '1GiB',
     timeoutSeconds: 60
-  })
-  .https
-  .onRequest(app);
+  },
+  app
+);
+
+// Integrate Genkit AI callable functions (migrated from henryreedai)
+export { menuSuggestion } from './ai/henry-genkit-sample';
+export { 
+  aiPovAnalysis,
+  aiTrrRecommendations,
+  aiDetectionGeneration,
+  aiScenarioOptimization,
+  aiChatAssistant,
+  aiCompetitiveAnalysis,
+  aiRiskAssessment
+} from './ai/henry-ai-functions';
 
 // Export the express app for testing
 export { app };

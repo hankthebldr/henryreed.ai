@@ -202,16 +202,16 @@ ORDER BY success_rate DESC, times_used DESC`,
 
   const ExplorerTab = () => (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 p-6 rounded-lg border border-blue-500/30">
-        <h3 className="text-xl font-bold text-blue-400 mb-4">🔍 Data Export Configuration</h3>
+      <div className="glass-card p-6">
+        <h3 className="text-xl font-bold text-cortex-text-primary mb-4">🔍 Data Export Configuration</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Export Scope</label>
+            <label className="block text-sm font-medium text-cortex-text-secondary mb-2">Export Scope</label>
             <select
               value={exportConfig.scope}
               onChange={(e) => setExportConfig(prev => ({ ...prev, scope: e.target.value as DataExportConfig['scope'] }))}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+              className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange w-full"
             >
               <option value="all">All Data</option>
               <option value="customer">Customer-Specific</option>
@@ -221,11 +221,11 @@ ORDER BY success_rate DESC, times_used DESC`,
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Export Format</label>
+            <label className="block text-sm font-medium text-cortex-text-secondary mb-2">Export Format</label>
             <select
               value={exportConfig.format}
               onChange={(e) => setExportConfig(prev => ({ ...prev, format: e.target.value as DataExportConfig['format'] }))}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+              className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange w-full"
             >
               <option value="json">JSON</option>
               <option value="csv">CSV</option>
@@ -237,11 +237,11 @@ ORDER BY success_rate DESC, times_used DESC`,
         
         {exportConfig.scope === 'customer' && (
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-300 mb-2">Select Customer</label>
+            <label className="block text-sm font-medium text-cortex-text-secondary mb-2">Select Customer</label>
             <select
               value={exportConfig.filters.customerId || ''}
               onChange={(e) => setExportConfig(prev => ({ ...prev, filters: { ...prev.filters, customerId: e.target.value } }))}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+              className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange w-full"
             >
               <option value="">Select a customer...</option>
               {dcContextStore.getAllCustomerEngagements().map(customer => (
@@ -254,21 +254,21 @@ ORDER BY success_rate DESC, times_used DESC`,
         {exportConfig.scope === 'timeframe' && (
           <div className="mt-4 grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Start Date</label>
+              <label className="block text-sm font-medium text-cortex-text-secondary mb-2">Start Date</label>
               <input
                 type="date"
                 value={exportConfig.filters.startDate?.split('T')[0] || ''}
                 onChange={(e) => setExportConfig(prev => ({ ...prev, filters: { ...prev.filters, startDate: new Date(e.target.value).toISOString() } }))}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange w-full"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">End Date</label>
+              <label className="block text-sm font-medium text-cortex-text-secondary mb-2">End Date</label>
               <input
                 type="date"
                 value={exportConfig.filters.endDate?.split('T')[0] || ''}
                 onChange={(e) => setExportConfig(prev => ({ ...prev, filters: { ...prev.filters, endDate: new Date(e.target.value).toISOString() } }))}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange w-full"
               />
             </div>
           </div>
@@ -276,10 +276,10 @@ ORDER BY success_rate DESC, times_used DESC`,
         
         {exportConfig.scope === 'type' && (
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-300 mb-2">Data Types</label>
+            <label className="block text-sm font-medium text-cortex-text-secondary mb-2">Data Types</label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {['customers', 'povs', 'trrs', 'scenarios', 'workflows', 'analytics'].map(type => (
-                <label key={type} className="flex items-center text-sm text-gray-300">
+                <label key={type} className="flex items-center text-sm text-cortex-text-secondary">
                   <input
                     type="checkbox"
                     checked={exportConfig.filters.dataTypes?.includes(type) || false}
@@ -291,7 +291,7 @@ ORDER BY success_rate DESC, times_used DESC`,
                         setExportConfig(prev => ({ ...prev, filters: { ...prev.filters, dataTypes: types.filter(t => t !== type) } }));
                       }
                     }}
-                    className="mr-2"
+                    className="mr-2 cortex-interactive"
                   />
                   {type}
                 </label>
@@ -301,12 +301,12 @@ ORDER BY success_rate DESC, times_used DESC`,
         )}
         
         <div className="mt-4">
-          <label className="flex items-center text-sm text-gray-300">
+          <label className="flex items-center text-sm text-cortex-text-secondary">
             <input
               type="checkbox"
               checked={exportConfig.includeMetadata}
               onChange={(e) => setExportConfig(prev => ({ ...prev, includeMetadata: e.target.checked }))}
-              className="mr-2"
+              className="mr-2 cortex-interactive"
             />
             Include metadata and system fields
           </label>
@@ -316,14 +316,14 @@ ORDER BY success_rate DESC, times_used DESC`,
           <button
             onClick={executeExport}
             disabled={isLoading}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white rounded transition-colors font-medium"
+            className="btn-modern button-hover-lift cortex-interactive px-6 py-3 bg-cortex-blue hover:bg-cortex-blue-dark rounded text-white transition-colors font-medium"
           >
-            {isLoading ? '⏳ Starting Export...' : '🚀 Start Export'}
+            {isLoading ? 'Starting Export...' : 'Start Export'}
           </button>
           
           <button
             onClick={() => setExportConfig({ scope: 'all', filters: {}, format: 'json', includeMetadata: true })}
-            className="px-4 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
+            className="btn-modern button-hover-lift cortex-interactive px-4 py-3 bg-cortex-bg-secondary hover:bg-cortex-bg-hover rounded text-cortex-text-primary transition-colors"
           >
             Reset
           </button>
@@ -335,38 +335,38 @@ ORDER BY success_rate DESC, times_used DESC`,
   const ExportsTab = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-xl font-bold text-white">📦 Export History</h3>
+        <h3 className="text-xl font-bold text-cortex-text-primary">📦 Export History</h3>
         <button
           onClick={loadExportHistory}
-          className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
+          className="btn-modern button-hover-lift cortex-interactive px-4 py-2 bg-cortex-bg-secondary hover:bg-cortex-bg-hover rounded text-cortex-text-primary transition-colors"
         >
-          🔄 Refresh
+          Refresh
         </button>
       </div>
       
       <div className="space-y-4">
         {exportJobs.map(job => (
-          <div key={job.id} className="bg-gray-800/50 p-4 rounded border border-gray-600">
+          <div key={job.id} className="cortex-card p-4">
             <div className="flex justify-between items-start mb-2">
               <div>
-                <div className="text-white font-medium">{job.name}</div>
-                <div className="text-sm text-gray-400">
+                <div className="text-cortex-text-primary font-medium">{job.name}</div>
+                <div className="text-sm text-cortex-text-muted">
                   {job.config.scope} • {job.config.format} • {job.config.includeMetadata ? 'with metadata' : 'data only'}
                 </div>
               </div>
               <div className="text-right">
-                <div className={`px-2 py-1 rounded text-xs font-medium ${
-                  job.status === 'completed' ? 'bg-green-900/20 text-green-400 border border-green-500/30' :
-                  job.status === 'running' ? 'bg-yellow-900/20 text-yellow-400 border border-yellow-500/30' :
-                  job.status === 'failed' ? 'bg-red-900/20 text-red-400 border border-red-500/30' :
-                  'bg-gray-900/20 text-gray-400 border border-gray-500/30'
-                }`}>
+                <div className={`px-2 py-1 rounded text-xs font-medium ${{
+                  'completed': 'bg-cortex-success/20 text-cortex-success border border-cortex-success/30',
+                  'running': 'bg-cortex-warning/20 text-cortex-warning border border-cortex-warning/30',
+                  'failed': 'bg-cortex-error/20 text-cortex-error border border-cortex-error/30',
+                  'pending': 'bg-cortex-info/20 text-cortex-info border border-cortex-info/30'
+                }[job.status]}`}>
                   {job.status}
                 </div>
               </div>
             </div>
             
-            <div className="flex justify-between items-center text-sm text-gray-500">
+            <div className="flex justify-between items-center text-sm text-cortex-text-muted">
               <div>
                 Created: {new Date(job.createdAt).toLocaleString()}
                 {job.completedAt && (
@@ -379,7 +379,7 @@ ORDER BY success_rate DESC, times_used DESC`,
                 {job.downloadUrl && (
                   <a
                     href={job.downloadUrl}
-                    className="text-blue-400 hover:text-blue-300 underline"
+                    className="text-cortex-blue hover:underline cortex-interactive"
                     download
                   >
                     📥 Download
@@ -389,7 +389,7 @@ ORDER BY success_rate DESC, times_used DESC`,
             </div>
             
             {job.error && (
-              <div className="mt-2 p-2 bg-red-900/20 border border-red-500/30 rounded text-red-400 text-sm">
+              <div className="mt-2 p-2 bg-cortex-error/20 border border-cortex-error/30 rounded text-cortex-error text-sm">
                 Error: {job.error}
               </div>
             )}
@@ -402,34 +402,35 @@ ORDER BY success_rate DESC, times_used DESC`,
   const TemplatesTab = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-xl font-bold text-white">📝 Query Templates</h3>
-        <button className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors">
-          ➕ New Template
+        <h3 className="text-xl font-bold text-cortex-text-primary">📝 Query Templates</h3>
+        <button className="btn-modern button-hover-lift cortex-interactive px-4 py-2 bg-cortex-green hover:bg-cortex-green-dark text-white rounded transition-colors">
+          New Template
         </button>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {queryTemplates.map(template => (
-          <div key={template.id} className="bg-gray-800/50 p-4 rounded border border-gray-600">
+          <div key={template.id} className="cortex-card p-4">
             <div className="flex justify-between items-start mb-3">
               <div>
-                <div className="text-white font-medium">{template.name}</div>
-                <div className="text-sm text-gray-400">{template.description}</div>
+                <div className="text-cortex-text-primary font-medium">{template.name}</div>
+                <div className="text-sm text-cortex-text-muted">{template.description}</div>
               </div>
-              <div className={`px-2 py-1 rounded text-xs font-medium ${
-                template.category === 'customer' ? 'bg-blue-900/20 text-blue-400' :
-                template.category === 'pov' ? 'bg-green-900/20 text-green-400' :
-                template.category === 'trr' ? 'bg-yellow-900/20 text-yellow-400' :
-                'bg-purple-900/20 text-purple-400'
-              }`}>
+              <div className={`px-2 py-1 rounded text-xs font-medium ${{
+                'customer': 'bg-cortex-blue/20 text-cortex-blue',
+                'pov': 'bg-cortex-green/20 text-cortex-green',
+                'trr': 'bg-cortex-warning/20 text-cortex-warning',
+                'analytics': 'bg-cortex-purple/20 text-cortex-purple',
+                'custom': 'bg-cortex-info/20 text-cortex-info'
+              }[template.category]}`}>
                 {template.category}
               </div>
             </div>
             
             <div className="mb-3">
               <details className="text-sm">
-                <summary className="cursor-pointer text-gray-400 hover:text-white">View SQL</summary>
-                <pre className="mt-2 p-2 bg-black rounded text-xs text-green-400 overflow-x-auto">
+                <summary className="cursor-pointer text-cortex-text-muted hover:text-cortex-text-primary cortex-interactive">View SQL</summary>
+                <pre className="mt-2 p-2 bg-cortex-bg-secondary rounded text-xs text-cortex-green overflow-x-auto terminal-scrollbar">
                   {template.sql}
                 </pre>
               </details>
@@ -437,11 +438,11 @@ ORDER BY success_rate DESC, times_used DESC`,
             
             {template.parameters.length > 0 && (
               <div className="mb-3">
-                <div className="text-sm text-gray-400 mb-1">Parameters:</div>
+                <div className="text-sm text-cortex-text-muted mb-1">Parameters:</div>
                 <div className="space-y-1">
                   {template.parameters.map((param, idx) => (
-                    <div key={idx} className="text-xs text-gray-500">
-                      <span className="font-mono text-cyan-400">@{param.name}</span> ({param.type}): {param.description}
+                    <div key={idx} className="text-xs text-cortex-text-muted">
+                      <span className="font-mono text-cortex-cyan">@{param.name}</span> ({param.type}): {param.description}
                     </div>
                   ))}
                 </div>
@@ -449,10 +450,10 @@ ORDER BY success_rate DESC, times_used DESC`,
             )}
             
             <div className="flex gap-2">
-              <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm transition-colors">
+              <button className="btn-modern button-hover-lift cortex-interactive px-3 py-1 bg-cortex-blue hover:bg-cortex-blue-dark text-white rounded text-sm transition-colors">
                 Run Query
               </button>
-              <button className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded text-sm transition-colors">
+              <button className="btn-modern button-hover-lift cortex-interactive px-3 py-1 bg-cortex-bg-secondary hover:bg-cortex-bg-hover text-cortex-text-primary rounded text-sm transition-colors">
                 Edit
               </button>
             </div>
@@ -464,32 +465,32 @@ ORDER BY success_rate DESC, times_used DESC`,
 
   const AnalyticsTab = () => (
     <div className="space-y-6">
-      <h3 className="text-xl font-bold text-white">📊 Analytics Dashboard</h3>
+      <h3 className="text-xl font-bold text-cortex-text-primary">📊 Analytics Dashboard</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-r from-green-900/20 to-blue-900/20 p-4 rounded border border-green-500/30">
-          <div className="text-green-400 font-bold mb-2">📈 Export Activity</div>
-          <div className="text-2xl font-mono text-white mb-1">{exportJobs.length}</div>
-          <div className="text-sm text-gray-400">Total exports</div>
+        <div className="cortex-card-elevated p-4">
+          <div className="text-cortex-green font-bold mb-2">📈 Export Activity</div>
+          <div className="text-2xl font-mono text-cortex-text-primary mb-1">{exportJobs.length}</div>
+          <div className="text-sm text-cortex-text-muted">Total exports</div>
         </div>
         
-        <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 p-4 rounded border border-blue-500/30">
-          <div className="text-blue-400 font-bold mb-2">💾 Data Volume</div>
-          <div className="text-2xl font-mono text-white mb-1">47.2 GB</div>
-          <div className="text-sm text-gray-400">Total processed</div>
+        <div className="cortex-card-elevated p-4">
+          <div className="text-cortex-blue font-bold mb-2">💾 Data Volume</div>
+          <div className="text-2xl font-mono text-cortex-text-primary mb-1">47.2 GB</div>
+          <div className="text-sm text-cortex-text-muted">Total processed</div>
         </div>
         
-        <div className="bg-gradient-to-r from-purple-900/20 to-pink-900/20 p-4 rounded border border-purple-500/30">
-          <div className="text-purple-400 font-bold mb-2">🎯 Success Rate</div>
-          <div className="text-2xl font-mono text-white mb-1">98.5%</div>
-          <div className="text-sm text-gray-400">Export success</div>
+        <div className="cortex-card-elevated p-4">
+          <div className="text-cortex-purple font-bold mb-2">🎯 Success Rate</div>
+          <div className="text-2xl font-mono text-cortex-text-primary mb-1">98.5%</div>
+          <div className="text-sm text-cortex-text-muted">Export success</div>
         </div>
       </div>
       
-      <div className="bg-gray-800/30 p-6 rounded border border-gray-600">
-        <h4 className="text-lg font-bold text-white mb-4">Recent Export Trends</h4>
-        <div className="h-64 bg-gray-900/50 rounded border border-gray-700 flex items-center justify-center">
-          <div className="text-gray-500 text-center">
+      <div className="glass-card p-6">
+        <h4 className="text-lg font-bold text-cortex-text-primary mb-4">Recent Export Trends</h4>
+        <div className="h-64 bg-cortex-bg-secondary rounded border border-cortex-border-secondary flex items-center justify-center">
+          <div className="text-cortex-text-muted text-center">
             <div className="text-2xl mb-2">📊</div>
             <div>Chart visualization would appear here</div>
             <div className="text-sm mt-2">Export volume, success rates, and format preferences over time</div>
@@ -500,28 +501,41 @@ ORDER BY success_rate DESC, times_used DESC`,
   );
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-cyan-400 mb-2">BigQuery Data Explorer</h1>
-          <p className="text-gray-400">Comprehensive data export and analytics platform for DC workflows</p>
+    <div className="p-8 space-y-8">
+      <div className="glass-card p-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-cortex-text-primary mb-2">BigQuery Data Explorer</h1>
+            <p className="text-cortex-text-muted">Comprehensive data export and analytics platform for DC workflows</p>
+          </div>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex space-x-1 mb-6 bg-gray-800/30 p-1 rounded-lg">
-          {[
-            { id: 'explorer', label: '🔍 Export Builder', desc: 'Configure and run exports' },
-            { id: 'exports', label: '📦 Export History', desc: 'View and manage exports' },
-            { id: 'templates', label: '📝 Query Templates', desc: 'Pre-built analytics queries' },
-            { id: 'analytics', label: '📊 Analytics', desc: 'Usage and performance metrics' }
-          ].map(tab => (
+        <div className="flex space-x-1 mb-6 bg-cortex-bg-secondary p-1 rounded-lg">
+          {[{
+            id: 'explorer',
+            label: 'Export Builder',
+            desc: 'Configure and run exports'
+          }, {
+            id: 'exports',
+            label: 'Export History',
+            desc: 'View and manage exports'
+          }, {
+            id: 'templates',
+            label: 'Query Templates',
+            desc: 'Pre-built analytics queries'
+          }, {
+            id: 'analytics',
+            label: 'Analytics',
+            desc: 'Usage and performance metrics'
+          }].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={`flex-1 px-4 py-3 text-center transition-colors rounded-lg ${
+              className={`flex-1 px-4 py-2 text-center transition-colors rounded-md cortex-interactive ${
                 activeTab === tab.id
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                  ? 'bg-cortex-blue text-white'
+                  : 'text-cortex-text-muted hover:text-white hover:bg-cortex-bg-hover'
               }`}
             >
               <div className="font-medium">{tab.label}</div>

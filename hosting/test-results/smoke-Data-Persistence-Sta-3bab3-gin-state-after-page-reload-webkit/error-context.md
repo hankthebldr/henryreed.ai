@@ -1,46 +1,5 @@
 # Page snapshot
 
 ```yaml
-- generic [active] [ref=e1]:
-  - generic [ref=e6] [cursor=pointer]:
-    - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
-      - img [ref=e8] [cursor=pointer]
-    - generic [ref=e13] [cursor=pointer]:
-      - button "Open issues overlay" [ref=e14] [cursor=pointer]:
-        - generic [ref=e15] [cursor=pointer]:
-          - generic [ref=e16] [cursor=pointer]: "0"
-          - generic [ref=e17] [cursor=pointer]: "1"
-        - generic [ref=e18] [cursor=pointer]: Issue
-      - button "Collapse issues badge" [ref=e19] [cursor=pointer]:
-        - img [ref=e20] [cursor=pointer]
-  - banner [ref=e22]:
-    - generic [ref=e23]:
-      - generic [ref=e24]:
-        - link "🛡️ Cortex DC Portal" [ref=e25]:
-          - /url: /gui
-          - generic [ref=e26]: 🛡️ Cortex DC Portal
-        - generic [ref=e27]: Palo Alto Networks
-      - generic [ref=e28]:
-        - navigation [ref=e29]:
-          - link "🎨 GUI" [ref=e30]:
-            - /url: /gui
-            - generic [ref=e31]: 🎨
-            - generic [ref=e32]: GUI
-          - link "📖 Docs" [ref=e33]:
-            - /url: /docs
-            - generic [ref=e34]: 📖
-            - generic [ref=e35]: Docs
-          - link "🔄 Align" [ref=e36]:
-            - /url: /alignment-guide
-            - generic [ref=e37]: 🔄
-            - generic [ref=e38]: Align
-        - generic [ref=e39]:
-          - generic [ref=e40]:
-            - generic [ref=e41]: 👤
-            - generic [ref=e42]: cortex
-            - generic [ref=e43]: GUI
-          - button "Logout" [ref=e44] [cursor=pointer]:
-            - generic [ref=e45] [cursor=pointer]: Logout
-  - generic [ref=e49]: Loading Cortex DC Portal...
-  - alert [ref=e50]
+- generic [active] [ref=e1]: Open Presentation Preview in Obsidian first!
 ```

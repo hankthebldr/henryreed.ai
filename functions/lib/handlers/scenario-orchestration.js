@@ -38,7 +38,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateDetectionQueries = exports.controlScenarioExecution = exports.executeScenario = exports.generateThreatActorScenario = void 0;
 // Comprehensive scenario orchestration handlers
-const functions = __importStar(require("firebase-functions"));
+const https_1 = require("firebase-functions/v2/https");
 const admin = __importStar(require("firebase-admin"));
 const zod_1 = require("zod");
 const openai_1 = __importDefault(require("openai"));
@@ -115,7 +115,7 @@ const initializeOpenAI = () => {
     if (!openai) {
         const apiKey = process.env.OPENAI_API_KEY;
         if (!apiKey) {
-            throw new functions.https.HttpsError('failed-precondition', 'OpenAI API key not configured');
+            throw new https_1.HttpsError('failed-precondition', 'OpenAI API key not configured');
         }
         openai = new openai_1.default({ apiKey });
     }
@@ -330,7 +330,7 @@ const generateThreatActorScenario = async (data, context) => {
     const request = ThreatActorProfileRequest.parse(data);
     const userId = (_a = context.auth) === null || _a === void 0 ? void 0 : _a.uid;
     if (!userId || userId !== request.context.userId) {
-        throw new functions.https.HttpsError('permission-denied', 'User ID mismatch');
+        throw new https_1.HttpsError('permission-denied', 'User ID mismatch');
     }
     logger_1.logger.info('Generating threat actor scenario', {
         userId,
@@ -341,7 +341,7 @@ const generateThreatActorScenario = async (data, context) => {
         const client = initializeOpenAI();
         const actorProfile = THREAT_ACTORS[request.actorName];
         if (!actorProfile) {
-            throw new functions.https.HttpsError('not-found', `Threat actor profile not found: ${request.actorName}`);
+            throw new https_1.HttpsError('not-found', `Threat actor profile not found: ${request.actorName}`);
         }
         // Format prompt with all context
         const prompt = SCENARIO_PROMPTS.threatActorProfile
@@ -369,7 +369,7 @@ const generateThreatActorScenario = async (data, context) => {
         });
         const aiResponse = (_c = (_b = completion.choices[0]) === null || _b === void 0 ? void 0 : _b.message) === null || _c === void 0 ? void 0 : _c.content;
         if (!aiResponse) {
-            throw new functions.https.HttpsError('internal', 'No response from AI service');
+            throw new https_1.HttpsError('internal', 'No response from AI service');
         }
         const parsedResponse = JSON.parse(aiResponse);
         // Store scenario blueprint in Firestore
@@ -425,10 +425,10 @@ const generateThreatActorScenario = async (data, context) => {
             userId,
             actorName: request.actorName,
         });
-        if (error instanceof functions.https.HttpsError) {
+        if (error instanceof https_1.HttpsError) {
             throw error;
         }
-        throw new functions.https.HttpsError('internal', 'Scenario generation failed');
+        throw new https_1.HttpsError('internal', 'Scenario generation failed');
     }
 };
 exports.generateThreatActorScenario = generateThreatActorScenario;
@@ -437,7 +437,7 @@ const executeScenario = async (data, context) => {
     const request = ScenarioExecutionRequest.parse(data);
     const userId = (_a = context.auth) === null || _a === void 0 ? void 0 : _a.uid;
     if (!userId || userId !== request.context.userId) {
-        throw new functions.https.HttpsError('permission-denied', 'User ID mismatch');
+        throw new https_1.HttpsError('permission-denied', 'User ID mismatch');
     }
     logger_1.logger.info('Starting scenario execution', {
         userId,
@@ -449,12 +449,12 @@ const executeScenario = async (data, context) => {
         // Get scenario blueprint
         const blueprintDoc = await db.collection('scenarioBlueprints').doc(request.blueprintId).get();
         if (!blueprintDoc.exists) {
-            throw new functions.https.HttpsError('not-found', 'Scenario blueprint not found');
+            throw new https_1.HttpsError('not-found', 'Scenario blueprint not found');
         }
         const blueprint = blueprintDoc.data();
         // Verify organization access
         if ((blueprint === null || blueprint === void 0 ? void 0 : blueprint.organizationId) !== request.context.organizationId) {
-            throw new functions.https.HttpsError('permission-denied', 'Access denied to scenario blueprint');
+            throw new https_1.HttpsError('permission-denied', 'Access denied to scenario blueprint');
         }
         // Create execution record
         const executionId = `${request.context.organizationId}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -523,10 +523,10 @@ const executeScenario = async (data, context) => {
             userId,
             blueprintId: request.blueprintId,
         });
-        if (error instanceof functions.https.HttpsError) {
+        if (error instanceof https_1.HttpsError) {
             throw error;
         }
-        throw new functions.https.HttpsError('internal', 'Scenario execution failed to start');
+        throw new https_1.HttpsError('internal', 'Scenario execution failed to start');
     }
 };
 exports.executeScenario = executeScenario;
@@ -535,7 +535,7 @@ const controlScenarioExecution = async (data, context) => {
     const request = ScenarioControlRequest.parse(data);
     const userId = (_a = context.auth) === null || _a === void 0 ? void 0 : _a.uid;
     if (!userId || userId !== request.context.userId) {
-        throw new functions.https.HttpsError('permission-denied', 'User ID mismatch');
+        throw new https_1.HttpsError('permission-denied', 'User ID mismatch');
     }
     logger_1.logger.info('Controlling scenario execution', {
         userId,
@@ -547,12 +547,12 @@ const controlScenarioExecution = async (data, context) => {
         const executionRef = db.collection('scenarioExecutions').doc(request.executionId);
         const executionDoc = await executionRef.get();
         if (!executionDoc.exists) {
-            throw new functions.https.HttpsError('not-found', 'Scenario execution not found');
+            throw new https_1.HttpsError('not-found', 'Scenario execution not found');
         }
         const execution = executionDoc.data();
         // Verify organization access
         if ((execution === null || execution === void 0 ? void 0 : execution.organizationId) !== request.context.organizationId) {
-            throw new functions.https.HttpsError('permission-denied', 'Access denied to scenario execution');
+            throw new https_1.HttpsError('permission-denied', 'Access denied to scenario execution');
         }
         const currentStatus = execution === null || execution === void 0 ? void 0 : execution.status;
         let newStatus;
@@ -563,26 +563,26 @@ const controlScenarioExecution = async (data, context) => {
         switch (request.action) {
             case 'pause':
                 if (currentStatus !== 'running') {
-                    throw new functions.https.HttpsError('failed-precondition', 'Can only pause running executions');
+                    throw new https_1.HttpsError('failed-precondition', 'Can only pause running executions');
                 }
                 newStatus = 'paused';
                 break;
             case 'resume':
                 if (currentStatus !== 'paused') {
-                    throw new functions.https.HttpsError('failed-precondition', 'Can only resume paused executions');
+                    throw new https_1.HttpsError('failed-precondition', 'Can only resume paused executions');
                 }
                 newStatus = 'running';
                 break;
             case 'cancel':
                 if (!['running', 'paused', 'initializing'].includes(currentStatus)) {
-                    throw new functions.https.HttpsError('failed-precondition', 'Cannot cancel completed or failed executions');
+                    throw new https_1.HttpsError('failed-precondition', 'Cannot cancel completed or failed executions');
                 }
                 newStatus = 'cancelled';
                 updateData.endTime = admin.firestore.FieldValue.serverTimestamp();
                 break;
             case 'restart':
                 if (currentStatus === 'running') {
-                    throw new functions.https.HttpsError('failed-precondition', 'Cannot restart running execution');
+                    throw new https_1.HttpsError('failed-precondition', 'Cannot restart running execution');
                 }
                 newStatus = 'pending';
                 updateData.startTime = admin.firestore.FieldValue.serverTimestamp();
@@ -593,7 +593,7 @@ const controlScenarioExecution = async (data, context) => {
                 updateData.adaptations = [];
                 break;
             default:
-                throw new functions.https.HttpsError('invalid-argument', 'Invalid control action');
+                throw new https_1.HttpsError('invalid-argument', 'Invalid control action');
         }
         updateData.status = newStatus;
         // Add control log entry
@@ -641,10 +641,10 @@ const controlScenarioExecution = async (data, context) => {
             executionId: request.executionId,
             action: request.action,
         });
-        if (error instanceof functions.https.HttpsError) {
+        if (error instanceof https_1.HttpsError) {
             throw error;
         }
-        throw new functions.https.HttpsError('internal', 'Scenario execution control failed');
+        throw new https_1.HttpsError('internal', 'Scenario execution control failed');
     }
 };
 exports.controlScenarioExecution = controlScenarioExecution;
@@ -653,7 +653,7 @@ const generateDetectionQueries = async (data, context) => {
     const request = DetectionQueryRequest.parse(data);
     const userId = (_a = context.auth) === null || _a === void 0 ? void 0 : _a.uid;
     if (!userId || userId !== request.context.userId) {
-        throw new functions.https.HttpsError('permission-denied', 'User ID mismatch');
+        throw new https_1.HttpsError('permission-denied', 'User ID mismatch');
     }
     logger_1.logger.info('Generating detection queries', {
         userId,
@@ -687,7 +687,7 @@ const generateDetectionQueries = async (data, context) => {
         });
         const aiResponse = (_c = (_b = completion.choices[0]) === null || _b === void 0 ? void 0 : _b.message) === null || _c === void 0 ? void 0 : _c.content;
         if (!aiResponse) {
-            throw new functions.https.HttpsError('internal', 'No response from AI service');
+            throw new https_1.HttpsError('internal', 'No response from AI service');
         }
         const parsedResponse = JSON.parse(aiResponse);
         // Log activity
@@ -725,10 +725,10 @@ const generateDetectionQueries = async (data, context) => {
             userId,
             queryLanguage: request.queryLanguage,
         });
-        if (error instanceof functions.https.HttpsError) {
+        if (error instanceof https_1.HttpsError) {
             throw error;
         }
-        throw new functions.https.HttpsError('internal', 'Detection query generation failed');
+        throw new https_1.HttpsError('internal', 'Detection query generation failed');
     }
 };
 exports.generateDetectionQueries = generateDetectionQueries;

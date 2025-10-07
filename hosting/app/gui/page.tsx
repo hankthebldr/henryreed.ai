@@ -5,20 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 
+import { Loading } from '../../components/ui';
+
 const CortexGUIInterface = dynamic(() => import('../../components/CortexGUIInterface'), {
   ssr: false,
-  loading: () => (
-    <div className="min-h-screen bg-cortex-bg-primary flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-cortex-border-muted border-t-cortex-orange mx-auto mb-6"></div>
-        <div className="text-cortex-text-primary font-semibold mb-2">Loading Dashboard</div>
-        <div className="text-cortex-text-muted text-sm">Initializing Cortex DC Portal...</div>
-        <div className="mt-4 w-64 bg-cortex-bg-tertiary rounded-full h-2 mx-auto">
-          <div className="bg-cortex-orange h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
-        </div>
-      </div>
-    </div>
-  ),
+  loading: () => <Loading size="lg" text="Loading Cortex DC Portal..." fullscreen />
 });
 
 export default function GUIPage() {
@@ -34,15 +25,7 @@ export default function GUIPage() {
 
   // Show loading while checking auth
   if (loading) {
-    return (
-      <div className="min-h-screen bg-cortex-bg-primary flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-cortex-border-muted border-t-cortex-orange mx-auto mb-6"></div>
-          <div className="text-cortex-text-primary font-semibold mb-2">Authenticating</div>
-          <div className="text-cortex-text-muted text-sm">Verifying your credentials...</div>
-        </div>
-      </div>
-    );
+    return <Loading size="lg" text="Verifying your credentials..." fullscreen />;
   }
 
   // Show GUI if authenticated

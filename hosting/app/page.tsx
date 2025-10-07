@@ -112,7 +112,7 @@ function LoginPage() {
           </div>
 
           {/* Login Card */}
-          <div className="bg-cortex-bg-tertiary/80 backdrop-blur-xl border border-cortex-border-secondary rounded-2xl p-8 shadow-2xl shadow-cortex-orange/10">
+          <div className="glass-card p-8 shadow-2xl shadow-cortex-orange/10">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Username Field */}
               <div className="space-y-2">
@@ -191,14 +191,9 @@ function LoginPage() {
 
               {/* Error Message */}
               {error && (
-                <div className="bg-cortex-error-bg/30 backdrop-blur-sm border border-cortex-error/50 text-cortex-text-primary px-4 py-3 rounded-xl text-sm flex items-start space-x-3">
-                  <svg className="h-5 w-5 text-cortex-error flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <div>
-                    <div className="font-medium">Authentication Failed</div>
-                    <div className="text-cortex-error-light">{error}</div>
-                  </div>
+                <div className="status-error">
+                  <div className="font-medium">Authentication Failed</div>
+                  <div>{error}</div>
                 </div>
               )}
 
@@ -206,7 +201,7 @@ function LoginPage() {
               <button
                 type="submit"
                 disabled={loading || !username || !password}
-                className="w-full bg-gradient-to-r from-cortex-orange to-cortex-green text-cortex-text-primary py-3 px-6 rounded-xl font-semibold shadow-lg shadow-cortex-orange/25 hover:from-cortex-orange-light hover:to-cortex-green-light focus:outline-none focus:ring-2 focus:ring-cortex-orange focus:ring-offset-2 focus:ring-offset-cortex-bg-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-2"
+                className="w-full btn-modern bg-gradient-to-r from-cortex-orange to-cortex-green text-cortex-text-primary py-3 px-6 rounded-xl font-semibold shadow-lg shadow-cortex-orange/25 hover:from-cortex-orange-light hover:to-cortex-green-light focus:outline-none focus:ring-2 focus:ring-cortex-orange focus:ring-offset-2 focus:ring-offset-cortex-bg-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-2"
               >
                 {loading ? (
                   <>

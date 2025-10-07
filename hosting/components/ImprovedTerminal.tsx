@@ -9,6 +9,7 @@ import { contextStorage, UserContext } from '../lib/context-storage';
 import { VFS, initVFS, serializeVFS, deserializeVFS } from '../lib/vfs';
 import { buildLinuxCommands } from '../lib/linux-commands';
 import { scenarioCommands } from '../lib/scenario-commands';
+import { Card, Loading } from './ui';
 
 interface Command {
   input: string;
@@ -1594,76 +1595,144 @@ level: high`}
   };
 
   return (
-    <div className="bg-black text-green-400 font-mono h-screen flex flex-col">
-      {/* Header */}
-      <div className="bg-gray-900 border-b border-gray-700 p-3 flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <div className="text-lg font-bold text-cyan-400">PoV-CLI Terminal</div>
-          <div className="text-sm text-gray-400">Henry Reed AI Platform</div>
-        </div>
-        <div className="flex items-center space-x-4 text-sm">
-          {user ? (
-            <div className="flex items-center space-x-2">
-              <span className="text-green-400">●</span>
-              <span className="text-gray-300">{user.email}</span>
-              <button 
-                onClick={() => executeCommand('logout')}
-                className="text-red-400 hover:text-red-300 px-2 py-1 rounded border border-red-600/30 hover:border-red-500/50 transition-colors"
-              >
-                Logout
-              </button>
+    <div className="min-h-screen bg-gradient-to-br from-cortex-bg-primary via-cortex-bg-secondary to-cortex-bg-primary">
+      {/* Modern Header */}
+      <div className="bg-cortex-bg-tertiary/60 backdrop-blur-xl border-b border-cortex-border-secondary/30 px-6 py-4">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-cortex-green to-cortex-orange rounded-lg flex items-center justify-center shadow-lg shadow-cortex-green/25">
+                <span className="text-cortex-text-primary font-bold text-sm">🖥️</span>
+              </div>
+              <div>
+                <h1 className="text-cortex-text-primary font-bold text-lg">Cortex DC Terminal</h1>
+                <p className="text-cortex-text-muted text-sm">Domain Consultant Command Interface</p>
+              </div>
             </div>
-          ) : (
-            <button 
-              onClick={() => setShowLogin(true)}
-              className="text-blue-400 hover:text-blue-300 px-2 py-1 rounded border border-blue-600/30 hover:border-blue-500/50 transition-colors"
-            >
-              Sign In
-            </button>
-          )}
+            <div className="hidden md:flex items-center space-x-4 text-sm">
+              <div className="flex items-center space-x-2 bg-cortex-bg-quaternary/50 px-3 py-1 rounded-full">
+                <div className="w-2 h-2 bg-cortex-success rounded-full animate-pulse"></div>
+                <span className="text-cortex-text-secondary">Terminal Ready</span>
+              </div>
+              <div className="text-cortex-text-muted">v2.5.1</div>
+            </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            {user ? (
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 bg-cortex-success/10 px-3 py-1 rounded-full border border-cortex-success/20">
+                  <div className="w-2 h-2 bg-cortex-success rounded-full animate-pulse"></div>
+                  <span className="text-cortex-text-secondary text-sm">{user.email}</span>
+                </div>
+                <button 
+                  onClick={() => executeCommand('logout')}
+                  className="text-cortex-error hover:text-cortex-error-light px-3 py-1 rounded-lg border border-cortex-error/20 hover:border-cortex-error/40 transition-all duration-200 text-sm bg-cortex-error/5 hover:bg-cortex-error/10"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={() => setShowLogin(true)}
+                className="text-cortex-info hover:text-cortex-info-light px-3 py-1 rounded-lg border border-cortex-info/20 hover:border-cortex-info/40 transition-all duration-200 text-sm bg-cortex-info/5 hover:bg-cortex-info/10"
+              >
+                Sign In
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Terminal Content */}
-      <div 
-        ref={terminalRef}
-        className="flex-1 p-4 overflow-y-auto terminal-scrollbar bg-gradient-to-b from-black to-gray-900"
-        style={{ fontSize: '14px', lineHeight: '1.5' }}
-      >
-        {commands.map((cmd, index) => (
-          <div key={index} className="mb-4">
-            {cmd.showPrompt !== false && (
-              <div className="flex items-start mb-2">
-                <span className="text-blue-400 mr-2 select-none whitespace-nowrap">{formatPrompt(cmd.cwd ?? cwd)}</span>
-                <span className="text-white font-mono whitespace-pre-wrap break-words">{cmd.input}</span>
-              </div>
-            )}
-            {cmd.output && (
-              <div className="ml-0 mb-2">
-                {cmd.output}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-      
-      {/* Input Form */}
-      <form onSubmit={handleSubmit} className="border-t border-gray-700 bg-gray-900 p-4">
-        <div className="flex items-start">
-          <span className="text-blue-400 mr-2 select-none whitespace-nowrap mt-1">{formatPrompt(cwd)}</span>
-          <textarea
-            ref={inputRef}
-            rows={1}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent outline-none text-white font-mono text-sm resize-none min-h-[1.5em] max-h-40 overflow-y-auto"
-            placeholder="Enter = run • Shift+Enter = newline • ↑/↓ history • Tab completion"
-            autoFocus
+      {/* Modern Terminal Container */}
+      <div className="p-6">
+        <Card variant="terminal" className="h-[calc(100vh-200px)] flex flex-col overflow-hidden">
+          {/* Terminal Content */}
+          <div 
+            ref={terminalRef}
+            className="flex-1 p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-cortex-green/30 scrollbar-track-transparent"
             style={{ fontSize: '14px', lineHeight: '1.5' }}
-          />
+          >
+            {commands.map((cmd, index) => (
+              <div key={index} className="mb-4 last:mb-2">
+                {cmd.showPrompt !== false && (
+                  <div className="flex items-start mb-2 group">
+                    <span className="text-cortex-green mr-3 select-none whitespace-nowrap font-mono text-sm opacity-80 group-hover:opacity-100 transition-opacity">
+                      {formatPrompt(cmd.cwd ?? cwd)}
+                    </span>
+                    <span className="text-cortex-text-primary font-mono whitespace-pre-wrap break-words text-sm">
+                      {cmd.input}
+                    </span>
+                  </div>
+                )}
+                {cmd.output && (
+                  <div className="ml-0 mb-2">
+                    {cmd.output}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          
+          {/* Modern Input Form */}
+          <div className="border-t border-cortex-green/20 bg-black/20 backdrop-blur-sm p-4">
+            <form onSubmit={handleSubmit}>
+              <div className="flex items-start space-x-3">
+                <span className="text-cortex-green select-none whitespace-nowrap font-mono text-sm mt-3 opacity-80">
+                  {formatPrompt(cwd)}
+                </span>
+                <div className="flex-1">
+                  <textarea
+                    ref={inputRef}
+                    rows={1}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="w-full bg-transparent outline-none text-cortex-green font-mono text-sm resize-none min-h-[1.5em] max-h-40 overflow-y-auto py-2 placeholder:text-cortex-green/40 border-none focus:ring-0"
+                    placeholder="Type command... (Tab = complete, ↑/↓ = history, Shift+Enter = newline)"
+                    autoFocus
+                    style={{ fontSize: '14px', lineHeight: '1.5' }}
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+        </Card>
+      </div>
+
+      {/* Modern Command Hints */}
+      <div className="px-6 pb-6">
+        <div className="bg-cortex-bg-tertiary/40 backdrop-blur-xl border border-cortex-border-secondary/20 rounded-xl p-4">
+          <div className="flex flex-wrap items-center gap-4 text-sm">
+            <div className="flex items-center space-x-2">
+              <span className="text-cortex-text-muted">Quick Start:</span>
+            </div>
+            <button 
+              onClick={() => executeCommand('help')}
+              className="text-cortex-green hover:text-cortex-green-light px-2 py-1 rounded border border-cortex-green/20 hover:border-cortex-green/40 transition-colors font-mono text-xs"
+            >
+              help
+            </button>
+            <button 
+              onClick={() => executeCommand('project')}
+              className="text-cortex-orange hover:text-cortex-orange-light px-2 py-1 rounded border border-cortex-orange/20 hover:border-cortex-orange/40 transition-colors font-mono text-xs"
+            >
+              project
+            </button>
+            <button 
+              onClick={() => executeCommand('trr')}
+              className="text-cortex-info hover:text-cortex-info-light px-2 py-1 rounded border border-cortex-info/20 hover:border-cortex-info/40 transition-colors font-mono text-xs"
+            >
+              trr
+            </button>
+            <button 
+              onClick={() => executeCommand('xsiam demo')}
+              className="text-cortex-warning hover:text-cortex-warning-light px-2 py-1 rounded border border-cortex-warning/20 hover:border-cortex-warning/40 transition-colors font-mono text-xs"
+            >
+              xsiam demo
+            </button>
+          </div>
         </div>
-      </form>
+      </div>
 
       {/* Login Modal */}
       {showLogin && <LoginForm onClose={() => setShowLogin(false)} />}

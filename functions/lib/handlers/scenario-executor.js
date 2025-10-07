@@ -35,7 +35,9 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ScenarioExecutionEngine = exports.cleanupOldExecutions = exports.monitorExecutionStatusChanges = exports.processScenarioExecution = void 0;
 // Background scenario execution engine
-const functions = __importStar(require("firebase-functions"));
+const firestore_1 = require("firebase-functions/v2/firestore");
+const pubsub_1 = require("firebase-functions/v2/pubsub");
+const scheduler_1 = require("firebase-functions/v2/scheduler");
 const admin = __importStar(require("firebase-admin"));
 // import { z } from 'zod'; // commented out: unused import causing TS6133 per build
 const logger_1 = require("../utils/logger");
@@ -487,17 +489,14 @@ function getEngine() {
     return engineInstance;
 }
 // Pub/Sub triggered background execution
-exports.processScenarioExecution = functions
-    .region('us-central1')
-    .runWith({
-    memory: '2GB',
-    timeoutSeconds: 540, // 9 minutes
-})
-    .pubsub
-    .topic('scenario-execution')
-    .onPublish(async (message) => {
+exports.processScenarioExecution = (0, pubsub_1.onMessagePublished)({
+    topic: 'scenario-execution',
+    region: 'us-central1',
+    memory: '2GiB',
+    timeoutSeconds: 540 // 9 minutes
+}, async (event) => {
     try {
-        const data = message.json;
+        const data = event.data.message.json;
         const executionId = data.executionId;
         if (!executionId) {
             logger_1.logger.error('No execution ID provided in pub/sub message');
@@ -511,15 +510,14 @@ exports.processScenarioExecution = functions
     }
 });
 // Firestore trigger to monitor execution status changes
-exports.monitorExecutionStatusChanges = functions
-    .region('us-central1')
-    .firestore
-    .document('scenarioExecutions/{executionId}')
-    .onUpdate(async (change, context) => {
+exports.monitorExecutionStatusChanges = (0, firestore_1.onDocumentUpdated)({
+    document: 'scenarioExecutions/{executionId}',
+    region: 'us-central1'
+}, async (event) => {
     try {
-        const executionId = context.params.executionId;
-        const before = change.before.data();
-        const after = change.after.data();
+        const executionId = event.params.executionId;
+        const before = event.data.before.data();
+        const after = event.data.after.data();
         if (before.status !== after.status) {
             logger_1.logger.info('Execution status changed', {
                 executionId,
@@ -558,21 +556,18 @@ exports.monitorExecutionStatusChanges = functions
     }
     catch (error) {
         logger_1.logger.error('Failed to process execution status change', error, {
-            executionId: context.params.executionId,
+            executionId: event.params.executionId,
         });
     }
 });
 // Scheduled function to cleanup old executions and logs
-exports.cleanupOldExecutions = functions
-    .region('us-central1')
-    .runWith({
-    memory: '1GB',
-    timeoutSeconds: 300,
-})
-    .pubsub
-    .schedule('0 2 * * *') // Daily at 2 AM
-    .timeZone('UTC')
-    .onRun(async (context) => {
+exports.cleanupOldExecutions = (0, scheduler_1.onSchedule)({
+    schedule: '0 2 * * *', // Daily at 2 AM
+    timeZone: 'UTC',
+    region: 'us-central1',
+    memory: '1GiB',
+    timeoutSeconds: 300
+}, async (event) => {
     try {
         const db = admin.firestore();
         const cutoffDate = new Date();
