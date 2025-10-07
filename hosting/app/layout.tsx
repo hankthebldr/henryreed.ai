@@ -5,12 +5,12 @@ import { AppStateProvider } from '../contexts/AppStateContext';
 import ConditionalLayout from '../components/ConditionalLayout';
 
 export const metadata = {
-  title: 'Cortex Domain Consultant Portal - Professional POV Management | Palo Alto Networks',
-  description: 'Professional Cortex Domain Consultant Engagement Platform for POV Management, Customer Demos, and Technical Sales Support powered by Palo Alto Networks',
-  keywords: 'Palo Alto Networks, Cortex, Domain Consultant, POV Management, Customer Engagement, Technical Sales, Security Demonstration, TRR, Solution Engineering',
+  title: 'Henry Reed AI - Professional Platform',
+  description: 'Professional engagement platform for project management, customer demos, and technical solutions',
+  keywords: 'Henry Reed AI, Professional Platform, Project Management, Customer Engagement, Technical Solutions, Portfolio Management',
   authors: [{ name: 'Henry Reed AI', url: 'https://henryreed.ai' }],
   creator: 'Henry Reed AI',
-  publisher: 'Palo Alto Networks Solution Partner',
+  publisher: 'Henry Reed AI',
   formatDetection: {
     email: false,
     address: false,
@@ -21,10 +21,10 @@ export const metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'Cortex Domain Consultant Portal - Professional POV Management Platform',
-    description: 'Advanced Palo Alto Networks Cortex platform for domain consultant POV management, customer engagement, and technical sales support',
+    title: 'Henry Reed AI - Professional Platform',
+    description: 'Professional platform for project management, customer engagement, and technical solutions',
     url: 'https://henryreed.ai',
-    siteName: 'Cortex Domain Consultant Portal',
+    siteName: 'Henry Reed AI',
     locale: 'en_US',
     type: 'website',
     images: [
@@ -38,9 +38,9 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Cortex Domain Consultant Portal - Professional POV Management',
-    description: 'Advanced Palo Alto Networks Cortex platform for domain consultant POV management and customer engagement',
-    images: ['/assets/branding/icons/cortex-192x192.png'],
+    title: 'Henry Reed AI - Professional Platform',
+    description: 'Professional platform for project management, customer engagement, and technical solutions',
+    images: ['/favicon.ico'],
   },
   robots: {
     index: true,
@@ -74,8 +74,7 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#FA582D', // Palo Alto Networks primary orange
-  // Legacy theme color: '#00CC66',
+  themeColor: '#e97444', // Orange theme color
 };
 
 export default function RootLayout({
@@ -86,24 +85,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Palo Alto Networks/Cortex Branding Favicons */}
         <link rel="icon" href="/favicon.ico" sizes="32x32" />
-        <link rel="icon" href="/assets/branding/icons/cortex-32x32.png" sizes="32x32" type="image/png" />
-        <link rel="icon" href="/assets/branding/icons/cortex-192x192.png" sizes="192x192" type="image/png" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#FA582D" />
-        <meta name="msapplication-TileColor" content="#FA582D" />
-        <meta name="msapplication-config" content="/browserconfig.xml" />
-        
-        {/* Legacy favicons (commented for reference)
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <meta name="theme-color" content="#00CC66" />
-        <meta name="msapplication-TileColor" content="#000000" />
-        */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#e97444" />
+        <meta name="msapplication-TileColor" content="#e97444" />
       </head>
-      <body>
+      <body className="bg-cortex-bg-primary text-cortex-text-primary">
         <AuthProvider>
           <AppStateProvider>
             <ConditionalLayout>

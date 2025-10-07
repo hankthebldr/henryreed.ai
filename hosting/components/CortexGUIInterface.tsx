@@ -1,16 +1,29 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import EnhancedManualCreationGUI from './EnhancedManualCreationGUI';
+import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import { useActivityTracking } from '../hooks/useActivityTracking';
 import { userManagementService } from '../lib/user-management';
-import { XSIAMHealthMonitor } from './XSIAMHealthMonitor';
-import { EnhancedAIAssistant } from './EnhancedAIAssistant';
-import { BigQueryExplorer } from './BigQueryExplorer';
-import { POVProjectManagement } from './POVProjectManagement';
-import { ProductionTRRManagement } from './ProductionTRRManagement';
-import { ManagementDashboard } from './ManagementDashboard';
-import UnifiedContentCreator from './UnifiedContentCreator';
+
+// Lazy load heavy components for better performance
+const EnhancedManualCreationGUI = lazy(() => import('./EnhancedManualCreationGUI'));
+const XSIAMHealthMonitor = lazy(() => import('./XSIAMHealthMonitor').then(m => ({ default: m.XSIAMHealthMonitor })));
+const EnhancedAIAssistant = lazy(() => import('./EnhancedAIAssistant').then(m => ({ default: m.EnhancedAIAssistant })));
+const BigQueryExplorer = lazy(() => import('./BigQueryExplorer').then(m => ({ default: m.BigQueryExplorer })));
+const POVProjectManagement = lazy(() => import('./POVProjectManagement').then(m => ({ default: m.POVProjectManagement })));
+const ProductionTRRManagement = lazy(() => import('./ProductionTRRManagement').then(m => ({ default: m.ProductionTRRManagement })));
+const ManagementDashboard = lazy(() => import('./ManagementDashboard').then(m => ({ default: m.ManagementDashboard })));
+const UnifiedContentCreator = lazy(() => import('./UnifiedContentCreator'));
+
+// Loading component with Cortex styling
+const ComponentLoader = React.memo(() => (
+  <div className="flex items-center justify-center p-8">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-4 border-cortex-border-muted border-t-cortex-orange mx-auto mb-4"></div>
+      <div className="text-cortex-text-muted text-sm">Loading component...</div>
+    </div>
+  </div>
+));
+ComponentLoader.displayName = 'ComponentLoader';
 
 interface GUITab {
   id: string;
@@ -28,9 +41,9 @@ interface QuickAction {
   className: string;
 }
 
-const POVDashboard = () => {
-  // Helper to create a Blueprint PDF from GUI
-  const createGuiBlueprintPdf = async () => {
+const POVDashboard = React.memo(() => {
+  // Optimized Blueprint PDF creation with better error handling
+  const createGuiBlueprintPdf = useCallback(async () => {
     try {
       const customer = window.prompt('Enter customer name for the Blueprint PDF:', 'Customer') || 'Customer';
       const { jsPDF } = await import('jspdf');
@@ -69,12 +82,13 @@ const POVDashboard = () => {
       });
       doc.save(`POV_Blueprint_${customer}.pdf`);
     } catch (e) {
-      alert('Failed to generate PDF.');
+      console.error('PDF generation failed:', e);
+      alert('Failed to generate PDF. Please try again.');
     }
-  };
+  }, []);
 
-  // Functional dashboard actions with proper routing
-  const quickActions: QuickAction[] = [
+  // Memoized functional dashboard actions with proper routing
+  const quickActions: QuickAction[] = useMemo(() => [
     {
       name: 'New POV',
       icon: '🎯',
@@ -152,147 +166,235 @@ const POVDashboard = () => {
       onClick: createGuiBlueprintPdf,
       className: 'bg-pink-900 bg-opacity-20 border-pink-500 border-opacity-30 hover:bg-pink-900 hover:bg-opacity-40 text-pink-400'
     }
-  ];
+  ], [createGuiBlueprintPdf]);
 
-  const activityData = [
+  // Memoized activity data for performance
+  const activityData = useMemo(() => [
     { action: 'POV Completed', target: 'Enterprise Banking Corp (vs Splunk)', time: '2 hours ago', status: 'success' },
     { action: 'Detection Deployed', target: 'Lateral Movement vs CrowdStrike', time: '4 hours ago', status: 'info' },
     { action: 'SOAR Playbook', target: 'Automated Triage vs Phantom', time: '6 hours ago', status: 'warning' },
     { action: 'TRR-SDW Linked', target: 'Multi-Cloud Security Design', time: '8 hours ago', status: 'success' },
     { action: 'Analytics Query', target: '10x Faster than Splunk SPL', time: '1 day ago', status: 'info' },
     { action: 'Cost Analysis', target: '60% Savings vs Sentinel', time: '1 day ago', status: 'success' }
-  ];
+  ], []);
 
   return (
-    <div className="space-y-6">
-      {/* Stats Overview */}
-      <div className="bg-gradient-to-r from-green-900 from-opacity-20 to-blue-900 to-opacity-20 p-6 rounded-lg border border-green-500 border-opacity-30">
-        <h2 className="text-2xl font-bold text-green-400 mb-4">🎯 POV Management Dashboard</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-gray-800 bg-opacity-50 p-4 rounded border border-green-500 border-opacity-20">
-            <h3 className="text-lg font-bold text-green-300 mb-2">Active POVs</h3>
-            <div className="text-3xl font-mono text-green-400">12</div>
-            <div className="text-sm text-gray-400 mt-2">3 in progress, 9 completed</div>
-            <div className="text-xs text-red-300 mt-1">vs Splunk's complex setup</div>
+    <div className="min-h-screen bg-gradient-to-br from-cortex-bg-primary via-cortex-bg-secondary to-cortex-bg-primary p-6 space-y-8">
+      {/* Modern Hero Section */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-cortex-orange/10 via-cortex-green/5 to-cortex-info/10 rounded-3xl" />
+        <div className="relative bg-cortex-bg-tertiary/40 backdrop-blur-xl border border-cortex-border-secondary/30 rounded-3xl p-8 shadow-2xl shadow-cortex-orange/10">
+          <div className="flex flex-col lg:flex-row items-start justify-between mb-8">
+            <div>
+              <h1 className="text-4xl font-bold text-cortex-text-primary mb-2 flex items-center">
+                <span className="text-cortex-orange mr-3">🎯</span>
+                Cortex DC Portal
+              </h1>
+              <p className="text-cortex-text-muted text-lg">Domain Consultant Engagement Platform</p>
+              <div className="flex items-center space-x-4 mt-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-cortex-success rounded-full animate-pulse"></div>
+                  <span className="text-cortex-text-secondary text-sm">Live Platform</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-cortex-info rounded-full"></div>
+                  <span className="text-cortex-text-secondary text-sm">12 Active POVs</span>
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-3xl font-light text-cortex-text-primary">98.7%</div>
+              <div className="text-cortex-text-muted text-sm">Success Rate</div>
+            </div>
           </div>
-          <div className="bg-gray-800 bg-opacity-50 p-4 rounded border border-blue-500 border-opacity-20">
-            <h3 className="text-lg font-bold text-blue-300 mb-2">Detection Scripts</h3>
-            <div className="text-3xl font-mono text-blue-400">47</div>
-            <div className="text-sm text-gray-400 mt-2">Production-ready detections</div>
-            <div className="text-xs text-red-300 mt-1">vs CrowdStrike IOA limits</div>
-          </div>
-          <div className="bg-gray-800 bg-opacity-50 p-4 rounded border border-purple-500 border-opacity-20">
-            <h3 className="text-lg font-bold text-purple-300 mb-2">TRR-SDW Pairs</h3>
-            <div className="text-3xl font-mono text-purple-400">23</div>
-            <div className="text-sm text-gray-400 mt-2">Linked design workbooks</div>
-            <div className="text-xs text-red-300 mt-1">vs manual documentation</div>
-          </div>
-          <div className="bg-gray-800 bg-opacity-50 p-4 rounded border border-orange-500 border-opacity-20">
-            <h3 className="text-lg font-bold text-orange-300 mb-2">Cost Savings</h3>
-            <div className="text-3xl font-mono text-orange-400">54%</div>
-            <div className="text-sm text-gray-400 mt-2">Avg vs competitors</div>
-            <div className="text-xs text-red-300 mt-1">Splunk/CrowdStrike/Sentinel</div>
+
+          {/* Modern Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-cortex-success/20 to-cortex-success/5 p-6 hover:from-cortex-success/30 hover:to-cortex-success/10 transition-all duration-300 transform hover:scale-105 border border-cortex-success/20">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-2xl">📈</div>
+                <div className="text-xs bg-cortex-success/20 text-cortex-success px-2 py-1 rounded-full">+15%</div>
+              </div>
+              <div className="text-2xl font-bold text-cortex-text-primary mb-1">12</div>
+              <div className="text-cortex-text-secondary text-sm mb-2">Active POVs</div>
+              <div className="text-xs text-cortex-text-muted">3 in progress • 9 completed</div>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-cortex-info/20 to-cortex-info/5 p-6 hover:from-cortex-info/30 hover:to-cortex-info/10 transition-all duration-300 transform hover:scale-105 border border-cortex-info/20">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-2xl">🛡️</div>
+                <div className="text-xs bg-cortex-info/20 text-cortex-info px-2 py-1 rounded-full">New</div>
+              </div>
+              <div className="text-2xl font-bold text-cortex-text-primary mb-1">47</div>
+              <div className="text-cortex-text-secondary text-sm mb-2">Detection Scripts</div>
+              <div className="text-xs text-cortex-text-muted">Production-ready detections</div>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-cortex-warning/20 to-cortex-warning/5 p-6 hover:from-cortex-warning/30 hover:to-cortex-warning/10 transition-all duration-300 transform hover:scale-105 border border-cortex-warning/20">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-2xl">📋</div>
+                <div className="text-xs bg-cortex-warning/20 text-cortex-warning px-2 py-1 rounded-full">23</div>
+              </div>
+              <div className="text-2xl font-bold text-cortex-text-primary mb-1">89%</div>
+              <div className="text-cortex-text-secondary text-sm mb-2">TRR Success</div>
+              <div className="text-xs text-cortex-text-muted">Linked design workbooks</div>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-cortex-orange/20 to-cortex-orange/5 p-6 hover:from-cortex-orange/30 hover:to-cortex-orange/10 transition-all duration-300 transform hover:scale-105 border border-cortex-orange/20">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-2xl">💰</div>
+                <div className="text-xs bg-cortex-orange/20 text-cortex-orange px-2 py-1 rounded-full">ROI</div>
+              </div>
+              <div className="text-2xl font-bold text-cortex-text-primary mb-1">54%</div>
+              <div className="text-cortex-text-secondary text-sm mb-2">Cost Savings</div>
+              <div className="text-xs text-cortex-text-muted">vs Splunk/CrowdStrike/Sentinel</div>
+            </div>
           </div>
         </div>
       </div>
       
-      {/* Activity and Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Activity */}
-        <div className="bg-gray-900 bg-opacity-50 p-6 rounded border border-gray-700">
-          <h3 className="text-xl font-bold text-cyan-400 mb-4">📊 Recent Activity</h3>
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {activityData.map((item, idx) => (
-              <div key={idx} className="flex justify-between items-center p-3 bg-gray-800 bg-opacity-30 rounded hover:bg-gray-700 bg-opacity-30 transition-colors">
-                <div className="flex-1">
-                  <div className="font-mono text-white text-sm">{item.action}</div>
-                  <div className="text-gray-400 text-xs">{item.target}</div>
-                </div>
-                <div className="text-right ml-4">
-                  <div className={`text-xs font-mono ${
-                    item.status === 'success' ? 'text-green-400' : 
-                    item.status === 'warning' ? 'text-yellow-400' : 'text-blue-400'
-                  }`}>
-                    {item.time}
+      {/* Modern Activity and Actions Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Recent Activity Card */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-cortex-info/5 to-cortex-success/5 rounded-2xl" />
+          <div className="relative bg-cortex-bg-tertiary/40 backdrop-blur-xl border border-cortex-border-secondary/30 rounded-2xl p-6 shadow-lg">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-cortex-text-primary flex items-center">
+                <span className="text-cortex-info mr-2">📊</span>
+                Recent Activity
+              </h3>
+              <div className="text-xs bg-cortex-info/10 text-cortex-info px-3 py-1 rounded-full border border-cortex-info/20">
+                Live Updates
+              </div>
+            </div>
+            
+            <div className="space-y-3 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-cortex-border-secondary scrollbar-track-transparent">
+              {activityData.map((item, idx) => (
+                <div key={idx} className="group relative overflow-hidden rounded-xl bg-cortex-bg-secondary/30 hover:bg-cortex-bg-secondary/50 p-4 transition-all duration-200 border border-cortex-border-muted/20 hover:border-cortex-border-secondary/40">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="font-medium text-cortex-text-primary text-sm mb-1">{item.action}</div>
+                      <div className="text-cortex-text-muted text-xs leading-relaxed">{item.target}</div>
+                    </div>
+                    <div className="flex items-center space-x-2 ml-4">
+                      <div className={`w-2 h-2 rounded-full ${
+                        item.status === 'success' ? 'bg-cortex-success' : 
+                        item.status === 'warning' ? 'bg-cortex-warning' : 'bg-cortex-info'
+                      } animate-pulse`}></div>
+                      <div className="text-xs text-cortex-text-muted font-mono">
+                        {item.time}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            
+            <div className="mt-4 pt-4 border-t border-cortex-border-muted/20">
+              <button className="w-full text-center py-2 text-sm text-cortex-text-muted hover:text-cortex-info transition-colors">
+                View All Activity →
+              </button>
+            </div>
           </div>
         </div>
         
-        {/* Quick Actions */}
-        <div className="bg-gray-900 bg-opacity-50 p-6 rounded border border-gray-700">
-          <h3 className="text-xl font-bold text-yellow-400 mb-4">⚡ Quick Actions</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {quickActions.map((action, idx) => (
-              <button
-                key={idx}
-                onClick={action.onClick}
-                className={`p-4 rounded border transition-all duration-200 text-center hover:scale-105 hover:shadow-lg ${action.className}`}
-                title={action.description}
-              >
-                <div className="text-2xl mb-2">{action.icon}</div>
-                <div className="text-sm font-mono">{action.name}</div>
-              </button>
-            ))}
-          </div>
-          
-          {/* Additional Actions */}
-          <div className="mt-4 pt-4 border-t border-gray-600">
-            <h4 className="text-sm font-bold text-gray-300 mb-2">Advanced Actions</h4>
-            <div className="space-y-2">
-              <button 
-                onClick={() => {
-                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'xsiam', action: 'sync-platform' } });
-                  window.dispatchEvent(event);
-                }}
-                className="w-full text-left p-2 rounded hover:bg-gray-800 hover:bg-opacity-50 transition-colors text-sm text-gray-400 hover:text-white"
-              >
-                🔄 Sync demo environment
-              </button>
-              <button 
-                onClick={() => {
-                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'export-dashboard' } });
-                  window.dispatchEvent(event);
-                }}
-                className="w-full text-left p-2 rounded hover:bg-gray-800 hover:bg-opacity-50 transition-colors text-sm text-gray-400 hover:text-white"
-              >
-                📋 Export current dashboard
-              </button>
-              <button 
-                onClick={() => {
-                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'engagement-metrics' } });
-                  window.dispatchEvent(event);
-                }}
-                className="w-full text-left p-2 rounded hover:bg-gray-800 hover:bg-opacity-50 transition-colors text-sm text-gray-400 hover:text-white"
-              >
-                📊 View customer engagement metrics
-              </button>
-              <button 
-                onClick={() => {
-                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'trr', action: 'create-sdw' } });
-                  window.dispatchEvent(event);
-                }}
-                className="w-full text-left p-2 rounded hover:bg-gray-800 hover:bg-opacity-50 transition-colors text-sm text-yellow-400 hover:text-yellow-300 border-t border-gray-600 mt-2 pt-2"
-              >
-                📝 Create Solution Design Workbook (SDW)
-              </button>
-              <button 
-                onClick={() => {
-                  window.open('/terminal', '_blank');
-                }}
-                className="w-full text-left p-2 rounded hover:bg-gray-800 hover:bg-opacity-50 transition-colors text-sm text-green-400 hover:text-green-300"
-              >
-                ⌨️ Open Terminal Interface
-              </button>
+        {/* Quick Actions Card */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-cortex-orange/5 to-cortex-warning/5 rounded-2xl" />
+          <div className="relative bg-cortex-bg-tertiary/40 backdrop-blur-xl border border-cortex-border-secondary/30 rounded-2xl p-6 shadow-lg">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-cortex-text-primary flex items-center">
+                <span className="text-cortex-orange mr-2">⚡</span>
+                Quick Actions
+              </h3>
+              <div className="text-xs bg-cortex-orange/10 text-cortex-orange px-3 py-1 rounded-full border border-cortex-orange/20">
+                6 Available
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {quickActions.map((action, idx) => (
+                <button
+                  key={idx}
+                  onClick={action.onClick}
+                  className="group relative overflow-hidden rounded-xl p-4 text-center transition-all duration-300 transform hover:scale-105 border border-cortex-border-muted/30 hover:border-cortex-orange/40 bg-cortex-bg-secondary/20 hover:bg-cortex-orange/10"
+                  title={action.description}
+                >
+                  <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">{action.icon}</div>
+                  <div className="text-xs font-medium text-cortex-text-secondary group-hover:text-cortex-text-primary transition-colors">
+                    {action.name}
+                  </div>
+                </button>
+              ))}
+            </div>
+            
+            {/* Advanced Actions */}
+            <div className="border-t border-cortex-border-muted/20 pt-4">
+              <h4 className="text-sm font-medium text-cortex-text-secondary mb-3">Advanced Actions</h4>
+              <div className="space-y-2">
+                <button 
+                  onClick={() => {
+                    const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'xsiam', action: 'sync-platform' } });
+                    window.dispatchEvent(event);
+                  }}
+                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 border border-transparent hover:border-cortex-border-secondary/20"
+                >
+                  <span>🔄</span>
+                  <span>Sync demo environment</span>
+                </button>
+                <button 
+                  onClick={() => {
+                    const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'export-dashboard' } });
+                    window.dispatchEvent(event);
+                  }}
+                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 border border-transparent hover:border-cortex-border-secondary/20"
+                >
+                  <span>📋</span>
+                  <span>Export current dashboard</span>
+                </button>
+                <button 
+                  onClick={() => {
+                    const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'engagement-metrics' } });
+                    window.dispatchEvent(event);
+                  }}
+                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 border border-transparent hover:border-cortex-border-secondary/20"
+                >
+                  <span>📊</span>
+                  <span>View engagement metrics</span>
+                </button>
+                <button 
+                  onClick={() => {
+                    const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'trr', action: 'create-sdw' } });
+                    window.dispatchEvent(event);
+                  }}
+                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-warning/10 transition-colors text-sm text-cortex-warning hover:text-cortex-warning border border-cortex-warning/20 hover:border-cortex-warning/40 mt-3"
+                >
+                  <div className="flex items-center space-x-3">
+                    <span>📝</span>
+                    <span>Create Solution Design Workbook</span>
+                  </div>
+                </button>
+                <button 
+                  onClick={() => {
+                    window.open('/terminal', '_blank');
+                  }}
+                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-success/10 transition-colors text-sm text-cortex-success hover:text-cortex-success border border-cortex-success/20 hover:border-cortex-success/40"
+                >
+                  <div className="flex items-center space-x-3">
+                    <span>⌨️</span>
+                    <span>Open Terminal Interface</span>
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-};
+});
+POVDashboard.displayName = 'POVDashboard';
 
 
 
@@ -414,7 +516,7 @@ export default function CortexGUIInterface() {
     return () => clearInterval(interval);
   }, []);
   
-  const handleTabChange = (tabId: string, action?: string, metadata?: any) => {
+  const handleTabChange = useCallback((tabId: string, action?: string, metadata?: any) => {
     const previousTab = activeTab;
     setActiveTab(tabId);
     
@@ -435,7 +537,7 @@ export default function CortexGUIInterface() {
         window.dispatchEvent(event);
       }, 100); // Allow tab to render first
     }
-  };
+  }, [activeTab, trackFeatureUsage, trackPageView]);
   
   // Listen for custom navigation events from dashboard buttons
   useEffect(() => {
@@ -449,7 +551,7 @@ export default function CortexGUIInterface() {
     return () => {
       window.removeEventListener('navigate-to-tab', handleNavigationEvent as EventListener);
     };
-  }, []);
+  }, [handleTabChange]);
   
   // Filter tabs based on user role
   const getVisibleTabs = () => {
@@ -473,59 +575,62 @@ export default function CortexGUIInterface() {
   const ActiveComponent = visibleTabs.find(tab => tab.id === activeTab)?.component || POVDashboard;
 
   return (
-    <div className="bg-black text-white min-h-screen">
-      {/* User Context Header */}
-      <div className="bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700 px-6 py-3">
+    <div className="bg-gradient-to-br from-cortex-bg-primary to-cortex-bg-secondary text-cortex-text-primary min-h-screen">
+      {/* Modern Header */}
+      <div className="bg-cortex-bg-tertiary/60 backdrop-blur-xl border-b border-cortex-border-secondary/30 px-6 py-4">
         <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold text-orange-400">🏢 Cortex DC Engagement Portal</h1>
+          <div className="flex items-center space-x-6">
+            <h1 className="text-2xl font-bold text-cortex-text-primary flex items-center">
+              <span className="text-cortex-orange mr-3">🏢</span>
+              Cortex DC Portal
+            </h1>
             {currentUser && (
               <div className="flex items-center space-x-4">
-                <div className="text-sm text-gray-300">
-                  Welcome, <span className="text-orange-400">{currentUser.firstName} {currentUser.lastName}</span>
-                  <span className="text-gray-500 ml-2">• {currentUser.role}</span>
+                <div className="text-sm text-cortex-text-secondary">
+                  Welcome, <span className="text-cortex-orange font-medium">{currentUser.firstName} {currentUser.lastName}</span>
+                  <span className="text-cortex-text-muted ml-2">• {currentUser.role}</span>
                 </div>
                 {isManagementMode && (
-                  <div className="text-xs text-orange-400 bg-orange-900/20 px-2 py-1 rounded border border-orange-500/30">
+                  <div className="text-xs text-cortex-orange bg-cortex-orange/10 px-3 py-1 rounded-full border border-cortex-orange/20">
                     📈 MANAGEMENT MODE
                   </div>
                 )}
-                <div className="text-xs text-gray-400">
-                  Data View: {isManagementMode ? 'Aggregated' : 'Personal'}
+                <div className="text-xs text-cortex-text-muted bg-cortex-bg-secondary/30 px-2 py-1 rounded">
+                  {isManagementMode ? 'Aggregated View' : 'Personal View'}
                 </div>
               </div>
             )}
           </div>
-          <div className="flex items-center space-x-3">
-            <div className="text-xs text-gray-400" data-testid="timestamp">
+          <div className="flex items-center space-x-4">
+            <div className="text-xs text-cortex-text-muted font-mono" data-testid="timestamp">
               {currentDateTime || new Date().toLocaleString()}
             </div>
             {activeTab === 'admin' && !(userPermissions as any).canAccessAdmin && (
-              <div className="text-xs text-yellow-400 bg-yellow-900/20 px-2 py-1 rounded">
+              <div className="text-xs text-cortex-warning bg-cortex-warning/10 px-2 py-1 rounded border border-cortex-warning/20">
                 🔒 Limited Access
               </div>
             )}
             {isManagementMode && (
-              <div className="text-xs text-green-400 bg-green-900/20 px-2 py-1 rounded border border-green-500/30">
+              <div className="text-xs text-cortex-success bg-cortex-success/10 px-2 py-1 rounded border border-cortex-success/20">
                 ⚙️ Admin View
               </div>
             )}
           </div>
         </div>
         
-        {/* Data Segregation Notice */}
+        {/* User Context Details */}
         {currentUser && (
-          <div className="mt-2 text-xs text-gray-400 border-t border-gray-700 pt-2">
+          <div className="mt-3 text-xs text-cortex-text-muted border-t border-cortex-border-muted/20 pt-3">
             <div className="flex justify-between items-center">
-              <span>
-                Current User: <span className="text-orange-400">{currentUser.email}</span> | 
-                Role: <span className="text-yellow-400">{currentUser.role}</span> | 
-                Session: <span className="text-green-400">{currentUser.id}</span>
+              <span className="flex items-center space-x-4">
+                <span>User: <span className="text-cortex-orange">{currentUser.email}</span></span>
+                <span>Role: <span className="text-cortex-warning">{currentUser.role}</span></span>
+                <span>Session: <span className="text-cortex-success">{currentUser.id}</span></span>
               </span>
               <span>
                 Access Level: {isManagementMode ? 
-                  <span className="text-orange-400">Management (All Data)</span> : 
-                  <span className="text-blue-400">User (Personal Data Only)</span>
+                  <span className="text-cortex-orange">Management (All Data)</span> : 
+                  <span className="text-cortex-info">User (Personal Data Only)</span>
                 }
               </span>
             </div>
@@ -533,41 +638,61 @@ export default function CortexGUIInterface() {
         )}
       </div>
       
-      {/* Tab Navigation */}
-      <div className="bg-gray-900 border-b border-gray-700 p-4">
-        <div className="flex space-x-1 overflow-x-auto">
+      {/* Modern Tab Navigation */}
+      <div className="bg-cortex-bg-secondary/40 backdrop-blur-sm border-b border-cortex-border-secondary/20 p-6">
+        <div className="flex space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-cortex-border-secondary scrollbar-track-transparent">
           {visibleTabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
               data-feature="navigation"
-              className={`px-4 py-2 text-sm rounded-lg border transition-colors whitespace-nowrap flex items-center space-x-2 ${
+              className={`group relative px-6 py-3 text-sm font-medium rounded-xl transition-all duration-200 whitespace-nowrap flex items-center space-x-3 min-w-fit ${
                 activeTab === tab.id 
-                  ? 'text-orange-400 border-orange-500 bg-gray-800/50' 
-                  : 'text-gray-400 border-gray-600 hover:text-gray-300 hover:border-gray-500'
+                  ? 'text-cortex-text-primary bg-cortex-orange/20 border-2 border-cortex-orange/40 shadow-lg shadow-cortex-orange/10' 
+                  : 'text-cortex-text-muted bg-cortex-bg-tertiary/30 border-2 border-cortex-border-muted/20 hover:text-cortex-text-primary hover:bg-cortex-bg-tertiary/50 hover:border-cortex-border-secondary/30'
               }`}
             >
-              <span>{tab.icon}</span>
+              <span className={`text-lg transition-transform group-hover:scale-110 ${
+                activeTab === tab.id ? 'text-cortex-orange' : 'text-cortex-text-muted'
+              }`}>{tab.icon}</span>
               <span>{tab.name}</span>
+              {activeTab === tab.id && (
+                <div className="absolute inset-0 rounded-xl bg-cortex-orange/5 animate-pulse" />
+              )}
             </button>
           ))}
         </div>
       </div>
 
       {/* Tab Description */}
-      <div className="bg-gray-800 border-b border-gray-700 px-4 py-2">
-        <div className="flex items-center space-x-3 text-sm">
-          <span className="text-orange-400">
-            {visibleTabs.find(tab => tab.id === activeTab)?.icon} {visibleTabs.find(tab => tab.id === activeTab)?.name}
-          </span>
-          <span className="text-gray-500">•</span>
-          <span className="text-gray-400">{visibleTabs.find(tab => tab.id === activeTab)?.description}</span>
+      <div className="bg-cortex-bg-secondary/20 border-b border-cortex-border-muted/10 px-6 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4 text-sm">
+            <div className="flex items-center space-x-2">
+              <span className="text-cortex-orange text-lg">
+                {visibleTabs.find(tab => tab.id === activeTab)?.icon}
+              </span>
+              <span className="text-cortex-text-primary font-medium">
+                {visibleTabs.find(tab => tab.id === activeTab)?.name}
+              </span>
+            </div>
+            <span className="text-cortex-text-muted">•</span>
+            <span className="text-cortex-text-muted">
+              {visibleTabs.find(tab => tab.id === activeTab)?.description}
+            </span>
+          </div>
+          <div className="flex items-center space-x-2 text-xs text-cortex-text-muted">
+            <div className="w-2 h-2 bg-cortex-success rounded-full animate-pulse"></div>
+            <span>Live Platform</span>
+          </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="p-6">
-        <ActiveComponent />
+      {/* Content with Modern Wrapper */}
+      <div className="min-h-screen">
+        <Suspense fallback={<ComponentLoader />}>
+          <ActiveComponent />
+        </Suspense>
       </div>
     </div>
   );

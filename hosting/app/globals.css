@@ -1,147 +1,90 @@
-/* Cortex DC Portal - Working CSS Build */
-/* Minimal CSS to bypass Tailwind build issues while maintaining functionality */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Global PANW Cortex Dark Theme */
+/* Henry Reed AI - Professional Platform CSS */
+/* Enhanced with Tailwind CSS integration */
+
+/* CSS Custom Properties for Cortex Theme */
+@layer base {
+  :root {
+    /* Cortex Color System */
+    --cortex-orange: #FF6900;
+    --cortex-orange-light: #FF8533;
+    --cortex-orange-dark: #E55A00;
+    --cortex-green: #00CC66;
+    --cortex-green-light: #33D580;
+    --cortex-green-dark: #00B359;
+    
+    /* Background Hierarchy */
+    --cortex-bg-primary: #000000;
+    --cortex-bg-secondary: #0D1117;
+    --cortex-bg-tertiary: #161B22;
+    --cortex-bg-quaternary: #21262D;
+    --cortex-bg-hover: #30363D;
+    
+    /* Text Hierarchy */
+    --cortex-text-primary: #F0F6FC;
+    --cortex-text-secondary: #C9D1D9;
+    --cortex-text-muted: #8B949E;
+    --cortex-text-disabled: #6E7681;
+    
+    /* Border System */
+    --cortex-border-primary: #FF6900;
+    --cortex-border-secondary: #30363D;
+    --cortex-border-muted: #21262D;
+    
+    /* Status Colors */
+    --cortex-success: #00CC66;
+    --cortex-error: #F85149;
+    --cortex-warning: #F1C40F;
+    --cortex-info: #58A6FF;
+    
+    /* Shadows */
+    --cortex-shadow-glow: 0 0 20px rgba(255, 105, 0, 0.4);
+    --cortex-shadow-terminal: 0 0 50px rgba(0, 204, 102, 0.3);
+  }
+}
+
+/* Global Dark Theme */
 html {
   scroll-behavior: smooth;
-  background-color: #000000; /* cortex-bg-primary */
+  background-color: #000000;
 }
 
 body {
-  background-color: #000000; /* cortex-bg-primary */
-  color: #F0F6FC; /* cortex-text-primary */
+  background-color: #000000;
+  color: #F0F6FC;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   margin: 0;
   padding: 0;
 }
 
-/* Essential Tailwind utility classes that the app depends on */
-.min-h-screen { min-height: 100vh; }
-.flex { display: flex; }
-.items-center { align-items: center; }
-.justify-center { justify-content: center; }
-.relative { position: relative; }
-.absolute { position: absolute; }
-.w-full { width: 100%; }
-.h-full { height: 100%; }
-.max-w-md { max-width: 28rem; }
-.text-center { text-align: center; }
-.text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
-.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
-.text-xs { font-size: 0.75rem; line-height: 1rem; }
-.font-bold { font-weight: 700; }
-.font-semibold { font-weight: 600; }
-.font-mono { font-family: 'JetBrains Mono', Consolas, Monaco, 'Courier New', monospace; }
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mb-8 { margin-bottom: 2rem; }
-.mt-1 { margin-top: 0.25rem; }
-.mt-6 { margin-top: 1.5rem; }
-.mt-8 { margin-top: 2rem; }
-.mr-2 { margin-right: 0.5rem; }
-.mr-3 { margin-right: 0.75rem; }
-.ml-2 { margin-left: 0.5rem; }
-.p-3 { padding: 0.75rem; }
-.p-8 { padding: 2rem; }
-.px-4 { padding-left: 1rem; padding-right: 1rem; }
-.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
-.pt-6 { padding-top: 1.5rem; }
-.space-y-6 > * + * { margin-top: 1.5rem; }
-.rounded-lg { border-radius: 0.5rem; }
-.border { border-width: 1px; }
-.bg-transparent { background-color: transparent; }
-.transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 300ms; }
-.duration-300 { transition-duration: 300ms; }
-.hover\:shadow-glow-green:hover { box-shadow: 0 0 20px rgba(0, 204, 102, 0.4), 0 0 40px rgba(0, 204, 102, 0.2); }
-.focus\:outline-none:focus { outline: none; }
-.focus\:ring-2:focus { --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color); --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000); }
-.disabled\:bg-gray-500:disabled { background-color: #6b7280; }
-.disabled\:cursor-not-allowed:disabled { cursor: not-allowed; }
-.group:hover .group-hover\:scale-110 { transform: scale(1.1); }
-.group:hover .group-hover\:opacity-100 { opacity: 1; }
+/* Custom component styles that extend Tailwind */
 
-/* Cortex & Palo Alto Networks color system */
-/* Official Palo Alto Networks brand colors */
-.text-pan-orange { color: #FA582D; }
-.bg-pan-orange { background-color: #FA582D; }
-.border-pan-orange { border-color: #FA582D; }
-.text-pan-dark { color: #141414; }
-.bg-pan-dark { background-color: #141414; }
-.border-pan-dark { border-color: #141414; }
-
-/* Cortex-specific enhanced palette */
-.text-cortex-text-primary { color: #FFFFFF; }
-.text-cortex-text-secondary { color: #E6E6E6; }
-.text-cortex-text-muted { color: #B3B3B3; }
-.text-cortex-text-disabled { color: #808080; }
-.text-cortex-green { color: #00CC66; }
-.text-cortex-orange { color: #FA582D; }
-.text-cortex-info { color: #58A6FF; }
-.text-cortex-warning { color: #F1C40F; }
-.text-cortex-error { color: #FF5757; }
-
-/* Background colors with lighter options */
-.bg-cortex-bg-primary { background-color: #0A0A0A; }
-.bg-cortex-bg-secondary { background-color: #1A1A1A; }
-.bg-cortex-bg-tertiary { background-color: #2A2A2A; }
-.bg-cortex-bg-quaternary { background-color: #3A3A3A; }
-.bg-cortex-bg-hover { background-color: #404040; }
-.bg-cortex-green { background-color: #00CC66; }
-.bg-cortex-green-light { background-color: #33D580; }
-.bg-cortex-orange { background-color: #FA582D; }
-.bg-cortex-orange-light { background-color: #FB7A5A; }
-
-/* Border colors */
-.border-cortex-green { border-color: #00CC66; }
-.border-cortex-orange { border-color: #FA582D; }
-.border-cortex-border-primary { border-color: #404040; }
-.border-cortex-border-secondary { border-color: #2A2A2A; }
-.border-cortex-border-tertiary { border-color: #1A1A1A; }
-.border-cortex-info { border-color: #58A6FF; }
-.border-cortex-warning { border-color: #F1C40F; }
-.border-cortex-error { border-color: #FF5757; }
-
-/* Brand integration classes */
-.pan-logo-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-.pan-logo {
-  height: 2rem;
-  width: auto;
-  opacity: 0.9;
-}
-
-.cortex-icon {
-  height: 1.5rem;
-  width: 1.5rem;
-}
+/* Colors are now handled by Tailwind with our custom color palette */
 
 /* Button styles */
-.btn-cortex-primary {
-  background-color: #00CC66;
-  color: #000000;
+.btn-primary {
+  background-color: #e97444;
+  color: #ffffff;
   font-weight: 600;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
-  border: 1px solid #00CC66;
+  border: 1px solid #e97444;
   transition: all 200ms;
   cursor: pointer;
 }
 
-.btn-cortex-primary:hover {
-  background-color: #33D580;
-  border-color: #33D580;
-  box-shadow: 0 0 20px rgba(0, 204, 102, 0.4);
+.btn-primary:hover {
+  background-color: #f19968;
+  border-color: #f19968;
+  box-shadow: 0 0 20px rgba(233, 116, 68, 0.4);
 }
 
-.btn-cortex-primary:focus {
+.btn-primary:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 204, 102, 0.5);
+  box-shadow: 0 0 0 2px rgba(233, 116, 68, 0.5);
 }
 
 /* Input styles */
@@ -161,8 +104,8 @@ input::placeholder {
 
 input:focus {
   outline: none;
-  border-color: #00CC66;
-  box-shadow: 0 0 0 2px rgba(0, 204, 102, 0.2);
+  border-color: #e97444;
+  box-shadow: 0 0 0 2px rgba(233, 116, 68, 0.2);
 }
 
 /* Glass card effect */
@@ -170,14 +113,14 @@ input:focus {
   background: rgba(33, 38, 45, 0.9);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 204, 102, 0.2);
+  border: 1px solid rgba(233, 116, 68, 0.2);
   border-radius: 0.5rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: all 500ms;
 }
 
 .glass-card:hover {
-  border-color: rgba(0, 204, 102, 0.4);
+  border-color: rgba(233, 116, 68, 0.4);
 }
 
 /* Status messages */
@@ -189,14 +132,48 @@ input:focus {
   border-radius: 0.5rem;
 }
 
-/* Loading spinner */
-.cortex-spinner {
-  border: 3px solid #21262D;
-  border-top: 3px solid #00CC66;
+/* Loading spinner - Enhanced */
+.spinner {
+  border: 3px solid var(--cortex-border-muted);
+  border-top: 3px solid var(--cortex-orange);
   border-radius: 50%;
   width: 20px;
   height: 20px;
   animation: spin 1s linear infinite;
+}
+
+/* Enhanced Cortex component animations */
+@layer components {
+  .cortex-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  .cortex-scale-in {
+    animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  .cortex-slide-up {
+    animation: slideUp 0.4s ease-out;
+  }
+  
+  .cortex-glow-pulse {
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+  
+  /* Interactive elements */
+  .cortex-interactive {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .cortex-interactive:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+  }
+  
+  .cortex-interactive:active {
+    transform: translateY(0);
+    filter: brightness(0.95);
+  }
 }
 
 @keyframes spin {
@@ -217,6 +194,39 @@ input:focus {
   100% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--cortex-orange), 0 0 40px var(--cortex-orange);
+    opacity: 0.8;
+  }
+  50% {
+    box-shadow: 0 0 30px var(--cortex-orange), 0 0 60px var(--cortex-orange);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
