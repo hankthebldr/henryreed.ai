@@ -244,12 +244,12 @@ const POVDashboard = () => {
             <div className="space-y-2">
               <button 
                 onClick={() => {
-                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'xsiam', action: 'sync-tenant' } });
+                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'xsiam', action: 'sync-platform' } });
                   window.dispatchEvent(event);
                 }}
                 className="w-full text-left p-2 rounded hover:bg-gray-800 hover:bg-opacity-50 transition-colors text-sm text-gray-400 hover:text-white"
               >
-                🔄 Sync with XSIAM tenant
+                🔄 Sync demo environment
               </button>
               <button 
                 onClick={() => {
@@ -262,12 +262,12 @@ const POVDashboard = () => {
               </button>
               <button 
                 onClick={() => {
-                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'analytics', action: 'system-metrics' } });
+                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'engagement-metrics' } });
                   window.dispatchEvent(event);
                 }}
                 className="w-full text-left p-2 rounded hover:bg-gray-800 hover:bg-opacity-50 transition-colors text-sm text-gray-400 hover:text-white"
               >
-                📊 View system metrics
+                📊 View customer engagement metrics
               </button>
               <button 
                 onClick={() => {
@@ -302,63 +302,63 @@ const guiTabs: GUITab[] = [
     name: 'Dashboard',
     icon: '📊',
     component: POVDashboard,
-    description: 'Overview of POVs, metrics, and activity'
+    description: 'DC engagement overview, metrics, and activity tracking'
   },
   {
     id: 'pov',
     name: 'POV Management',
     icon: '🎯',
     component: POVProjectManagement,
-    description: 'Complete POV lifecycle management and planning'
+    description: 'Complete POV lifecycle management and customer engagement planning'
   },
   {
     id: 'trr',
-    name: 'TRR Management',
+    name: 'TRR & Requirements',
     icon: '📋',
     component: ProductionTRRManagement,
-    description: 'Production-quality Technical Requirements Review system with full workflow automation'
+    description: 'Technical Requirements Review and customer requirement documentation'
   },
   {
     id: 'xsiam',
-    name: 'XSIAM Health',
-    icon: '🏥',
+    name: 'Platform Health',
+    icon: '🔍',
     component: XSIAMHealthMonitor,
-    description: 'Real-time XSIAM system health monitoring and alerting'
+    description: 'Cortex platform monitoring, demo environment health, and system status'
   },
   {
     id: 'ai',
     name: 'AI Assistant',
     icon: '🤖',
     component: EnhancedAIAssistant,
-    description: 'Enhanced AI assistant with workflow integration'
+    description: 'AI-powered customer engagement and POV optimization assistant'
   },
   {
     id: 'data',
-    name: 'Data Explorer',
+    name: 'Customer Analytics',
     icon: '📈',
     component: BigQueryExplorer,
-    description: 'BigQuery data export and analytics platform'
+    description: 'Customer data analysis and engagement metrics platform'
   },
   {
     id: 'creator',
-    name: 'Detection Engine',
+    name: 'Demo Builder',
     icon: '🔧',
     component: EnhancedManualCreationGUI,
-    description: 'Detection scripts, automation tools, and security scenarios (vs Splunk/CrowdStrike)'
+    description: 'Custom demo scenarios and competitive positioning content creation'
   },
   {
     id: 'scenarios',
-    name: 'Scenario Library',
+    name: 'Content Library',
     icon: '🚀',
     component: () => <UnifiedContentCreator mode="unified" onModeChange={() => {}} />,
-    description: 'Comprehensive security scenario library with terminal guidance and POV integration for all threat vectors'
+    description: 'Pre-built demo scenarios, competitive battlecards, and engagement content'
   },
   {
     id: 'admin',
-    name: 'Management',
+    name: 'DC Management',
     icon: '⚙️',
     component: ManagementDashboard,
-    description: 'Administrative dashboard for user management and system oversight'
+    description: 'Domain consultant team management and engagement oversight'
   }
 ];
 
@@ -478,11 +478,11 @@ export default function CortexGUIInterface() {
       <div className="bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700 px-6 py-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold text-cyan-400">🏢 Cortex Domain Consultant Platform</h1>
+            <h1 className="text-xl font-bold text-orange-400">🏢 Cortex DC Engagement Portal</h1>
             {currentUser && (
               <div className="flex items-center space-x-4">
                 <div className="text-sm text-gray-300">
-                  Welcome, <span className="text-cyan-400">{currentUser.firstName} {currentUser.lastName}</span>
+                  Welcome, <span className="text-orange-400">{currentUser.firstName} {currentUser.lastName}</span>
                   <span className="text-gray-500 ml-2">• {currentUser.role}</span>
                 </div>
                 {isManagementMode && (
@@ -518,7 +518,7 @@ export default function CortexGUIInterface() {
           <div className="mt-2 text-xs text-gray-400 border-t border-gray-700 pt-2">
             <div className="flex justify-between items-center">
               <span>
-                Current User: <span className="text-cyan-400">{currentUser.email}</span> | 
+                Current User: <span className="text-orange-400">{currentUser.email}</span> | 
                 Role: <span className="text-yellow-400">{currentUser.role}</span> | 
                 Session: <span className="text-green-400">{currentUser.id}</span>
               </span>
@@ -543,7 +543,7 @@ export default function CortexGUIInterface() {
               data-feature="navigation"
               className={`px-4 py-2 text-sm rounded-lg border transition-colors whitespace-nowrap flex items-center space-x-2 ${
                 activeTab === tab.id 
-                  ? 'text-cyan-400 border-cyan-500 bg-gray-800/50' 
+                  ? 'text-orange-400 border-orange-500 bg-gray-800/50' 
                   : 'text-gray-400 border-gray-600 hover:text-gray-300 hover:border-gray-500'
               }`}
             >
@@ -557,7 +557,7 @@ export default function CortexGUIInterface() {
       {/* Tab Description */}
       <div className="bg-gray-800 border-b border-gray-700 px-4 py-2">
         <div className="flex items-center space-x-3 text-sm">
-          <span className="text-cyan-400">
+          <span className="text-orange-400">
             {visibleTabs.find(tab => tab.id === activeTab)?.icon} {visibleTabs.find(tab => tab.id === activeTab)?.name}
           </span>
           <span className="text-gray-500">•</span>

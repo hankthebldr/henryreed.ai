@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
-import { PaloAltoLogo, BrandedButton } from '../src/components/branding';
 
 export default function Page() {
   const [username, setUsername] = useState('');
@@ -40,62 +39,55 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-cortex-bg-primary flex items-center justify-center relative overflow-hidden">
-      {/* Modern Background Pattern with Cortex Branding */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0 gradient-mesh"></div>
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center relative overflow-hidden">
+      {/* Modern Background Pattern with Cortex DC Branding */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-black"></div>
         <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(0,204,102,0.3) 1px, transparent 0)`,
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(250,88,45,0.1) 1px, transparent 0)`,
           backgroundSize: '20px 20px'
         }}></div>
       </div>
       
-      {/* Subtle Cortex Logo Watermark */}
-      <div className="absolute top-8 right-8 opacity-10">
-        <svg width="64" height="64" viewBox="0 0 32 32" className="text-cortex-green">
-          <circle cx="16" cy="16" r="15" fill="none" stroke="currentColor" strokeWidth="1"/>
-          <path d="M 10 8 C 20 8, 24 12, 24 16 C 24 20, 20 24, 10 24 C 8 24, 6 22, 6 20 L 8 20 C 8 21, 9 22, 10 22 C 18 22, 22 18, 22 16 C 22 14, 18 10, 10 10 C 9 10, 8 11, 8 12 L 6 12 C 6 10, 8 8, 10 8 Z" fill="currentColor"/>
-          <circle cx="24" cy="8" r="2" fill="#00CC66" opacity="0.6"/>
-        </svg>
+      {/* Palo Alto Networks Logo Watermark */}
+      <div className="absolute top-8 right-8 opacity-15">
+        <img src="/assets/branding/logos/pan-logo-dark.svg" alt="Palo Alto Networks" width="120" height="24" className="filter invert opacity-30" />
       </div>
 
       <div className="relative z-10 w-full max-w-md">
-        {/* Header with Palo Alto Networks & Cortex Branding */}
+        {/* Header with Palo Alto Networks & Cortex DC Branding */}
         <div className="text-center mb-8 relative">
-          {/* Palo Alto Networks Official Logo */}
-          <div className="flex justify-center mb-4">
-            <PaloAltoLogo size="lg" className="drop-shadow-lg" />
+          {/* Palo Alto Networks Official Logo with background */}
+          <div className="flex justify-center mb-6">
+            <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+              <img src="/assets/branding/logos/pan-logo-dark.svg" alt="Palo Alto Networks" width="180" height="35" className="filter invert" />
+            </div>
           </div>
           
-          {/* Subtle glow effect behind ASCII art */}
-          <div className="absolute inset-0 bg-cortex-green/5 blur-xl rounded-full"></div>
+          {/* Cortex DC Portal Title */}
           <div className="mb-4 relative">
-<pre className="text-cortex-green text-sm font-mono leading-tight drop-shadow-lg">
-{`
- ██████╗ ██████╗ ██████╗ ████████╗███████╗██╗  ██╗    ██████╗  ██████╗
-██╔════╝██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝╚██╗██╔╝    ██╔══██╗██╔════╝
-██║     ██║   ██║██████╔╝   ██║   █████╗   ╚███╔╝     ██║  ██║██║     
-██║     ██║   ██║██╔══██╗   ██║   ██╔══╝   ██╔██╗     ██║  ██║██║     
-╚██████╗╚██████╔╝██║  ██║   ██║   ███████╗██╔╝ ██╗    ██████╔╝╚██████╗
- ╚═════╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝    ╚═════╝  ╚═════╝
-`}
-            </pre>
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold mb-2">Cortex DC Portal</h1>
+            </div>
+            <div className="text-lg font-semibold text-gray-300 mb-2">
+              Domain Consultant Engagement Platform
+            </div>
           </div>
-<h1 className="text-3xl font-bold text-cortex-text-primary mb-2">Cortex DC Access</h1>
-          <p className="text-cortex-text-muted text-sm mb-2">
-            Secure access to the Cortex DC Engagement Portal
+          
+          <p className="text-gray-400 text-sm mb-2">
+            Professional POV Management & Customer Engagement Hub
           </p>
-          <div className="text-xs text-pan-orange font-medium">
-            Powered by Palo Alto Networks Security Platform
+          <div className="text-xs text-orange-400 font-medium">
+            Powered by Palo Alto Networks Cortex Platform
           </div>
         </div>
 
-        {/* Modern Login Card with Glassmorphism */}
-        <div className="glass-card p-8 animate-scale-in backdrop-blur-xl border border-cortex-green/20 hover:border-cortex-green/40 transition-all duration-500">
+        {/* Modern Login Card */}
+        <div className="bg-gray-800/80 backdrop-blur-xl border border-gray-700 rounded-lg p-8 shadow-2xl hover:border-orange-500/40 transition-all duration-500">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username Field */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-cortex-text-secondary mb-2">
+              <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
                 Username
               </label>
               <input
@@ -103,7 +95,7 @@ export default function Page() {
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:border-cortex-green focus:ring-2 focus:ring-cortex-green/20 transition-colors font-mono"
+                className="w-full px-4 py-3 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-colors"
                 placeholder="Enter username"
                 required
                 autoComplete="username"
@@ -112,7 +104,7 @@ export default function Page() {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-cortex-text-secondary mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
                 Password
               </label>
               <input
@@ -121,7 +113,7 @@ export default function Page() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:border-cortex-green focus:ring-2 focus:ring-cortex-green/20 transition-colors font-mono"
+                className="w-full px-4 py-3 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-colors"
                 placeholder="Enter password"
                 required
                 autoComplete="current-password"
@@ -130,45 +122,42 @@ export default function Page() {
 
             {/* Error Message */}
             {error && (
-              <div className="p-3 status-error rounded-lg">
+              <div className="p-3 bg-red-900/50 border border-red-600 rounded-lg">
                 <div className="flex items-center">
                   <div className="mr-2">⚠️</div>
-                  <div className="text-sm">{error}</div>
+                  <div className="text-sm text-red-200">{error}</div>
                 </div>
               </div>
             )}
 
             {/* Submit Button */}
-            <BrandedButton
+            <button
               type="submit"
-              variant="primary"
-              size="lg"
-              fullWidth
-              loading={loading}
-              loadingText="Authenticating..."
-              leftIcon={<span className="text-lg">🛡️</span>}
-              rightIcon={<span className="text-sm opacity-75">→</span>}
+              className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
-              className="hover:shadow-glow-green group"
             >
-              <span className="font-semibold">Access Portal</span>
-            </BrandedButton>
+              {loading ? (
+                <><span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>Authenticating...</>
+              ) : (
+                <><span className="text-lg mr-2">🚀</span>Access DC Portal<span className="text-sm opacity-75 ml-2">→</span></>
+              )}
+            </button>
           </form>
 
           {/* Footer Info */}
-          <div className="mt-6 pt-6 border-t border-cortex-border-secondary">
+          <div className="mt-6 pt-6 border-t border-gray-700">
             <div className="text-center">
-              <p className="text-xs text-cortex-text-muted mb-2">
-                Authorized domain consultants only
+              <p className="text-xs text-gray-400 mb-2">
+                Authorized Domain Consultants Only
               </p>
-              <div className="flex items-center justify-center space-x-4 text-xs text-cortex-text-muted">
+              <div className="flex items-center justify-center space-x-4 text-xs text-gray-400">
                 <div className="flex items-center">
-                  <div className="w-2 h-2 bg-cortex-green rounded-full mr-1 animate-pulse"></div>
-                  <span>System Online</span>
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></div>
+                  <span>Portal Online</span>
                 </div>
                 <div className="flex items-center">
-                  <div className="w-2 h-2 bg-cortex-green rounded-full mr-1"></div>
-                  <span>Portal Ready</span>
+                  <div className="w-2 h-2 bg-orange-500 rounded-full mr-1"></div>
+                  <span>Cortex Ready</span>
                 </div>
               </div>
             </div>
@@ -176,12 +165,14 @@ export default function Page() {
         </div>
 
         {/* Bottom Info */}
-        <div className="text-center mt-8 text-xs text-cortex-text-muted">
-          <p className="text-cortex-text-primary font-medium">Cortex DC Engagement Portal</p>
-          <p className="mt-1">v2.2 • Professional POV Management Platform</p>
-          <div className="flex items-center justify-center mt-2 space-x-2">
-            <span>Secured by</span>
-            <PaloAltoLogo size="sm" className="opacity-60" />
+        <div className="text-center mt-8 text-xs text-gray-400">
+          <p className="text-white font-medium">Cortex Domain Consultant Portal</p>
+          <p className="mt-1">v2.5 • Professional POV & Customer Engagement Platform</p>
+          <div className="flex items-center justify-center mt-3 space-x-2">
+            <span>Powered by</span>
+            <div className="bg-gray-800 px-2 py-1 rounded">
+              <img src="/assets/branding/logos/pan-logo-dark.svg" alt="Palo Alto Networks" width="60" height="12" className="filter invert opacity-80" />
+            </div>
           </div>
         </div>
       </div>

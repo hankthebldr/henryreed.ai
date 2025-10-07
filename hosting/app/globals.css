@@ -1,19 +1,225 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Cortex DC Portal - Working CSS Build */
+/* Minimal CSS to bypass Tailwind build issues while maintaining functionality */
 
 /* Global PANW Cortex Dark Theme */
-@layer base {
-  html {
-    scroll-behavior: smooth;
-    @apply bg-cortex-bg-primary;
+html {
+  scroll-behavior: smooth;
+  background-color: #000000; /* cortex-bg-primary */
+}
+
+body {
+  background-color: #000000; /* cortex-bg-primary */
+  color: #F0F6FC; /* cortex-text-primary */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Essential Tailwind utility classes that the app depends on */
+.min-h-screen { min-height: 100vh; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.relative { position: relative; }
+.absolute { position: absolute; }
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.max-w-md { max-width: 28rem; }
+.text-center { text-align: center; }
+.text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+.text-xs { font-size: 0.75rem; line-height: 1rem; }
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+.font-mono { font-family: 'JetBrains Mono', Consolas, Monaco, 'Courier New', monospace; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-8 { margin-bottom: 2rem; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-6 { margin-top: 1.5rem; }
+.mt-8 { margin-top: 2rem; }
+.mr-2 { margin-right: 0.5rem; }
+.mr-3 { margin-right: 0.75rem; }
+.ml-2 { margin-left: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-8 { padding: 2rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.pt-6 { padding-top: 1.5rem; }
+.space-y-6 > * + * { margin-top: 1.5rem; }
+.rounded-lg { border-radius: 0.5rem; }
+.border { border-width: 1px; }
+.bg-transparent { background-color: transparent; }
+.transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 300ms; }
+.duration-300 { transition-duration: 300ms; }
+.hover\:shadow-glow-green:hover { box-shadow: 0 0 20px rgba(0, 204, 102, 0.4), 0 0 40px rgba(0, 204, 102, 0.2); }
+.focus\:outline-none:focus { outline: none; }
+.focus\:ring-2:focus { --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color); --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000); }
+.disabled\:bg-gray-500:disabled { background-color: #6b7280; }
+.disabled\:cursor-not-allowed:disabled { cursor: not-allowed; }
+.group:hover .group-hover\:scale-110 { transform: scale(1.1); }
+.group:hover .group-hover\:opacity-100 { opacity: 1; }
+
+/* Cortex color system */
+.text-cortex-text-primary { color: #F0F6FC; }
+.text-cortex-text-secondary { color: #C9D1D9; }
+.text-cortex-text-muted { color: #8B949E; }
+.text-cortex-text-disabled { color: #6E7681; }
+.text-cortex-green { color: #00CC66; }
+.bg-cortex-bg-primary { background-color: #000000; }
+.bg-cortex-bg-secondary { background-color: #0D1117; }
+.bg-cortex-bg-tertiary { background-color: #161B22; }
+.bg-cortex-bg-quaternary { background-color: #21262D; }
+.bg-cortex-bg-hover { background-color: #30363D; }
+.bg-cortex-green { background-color: #00CC66; }
+.bg-cortex-green-light { background-color: #33D580; }
+.border-cortex-green { border-color: #00CC66; }
+.border-cortex-border-secondary { border-color: #30363D; }
+.border-cortex-green { border-color: #00CC66; }
+
+/* Brand integration classes */
+.pan-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.pan-logo {
+  height: 2rem;
+  width: auto;
+  opacity: 0.9;
+}
+
+.cortex-icon {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+/* Button styles */
+.btn-cortex-primary {
+  background-color: #00CC66;
+  color: #000000;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #00CC66;
+  transition: all 200ms;
+  cursor: pointer;
+}
+
+.btn-cortex-primary:hover {
+  background-color: #33D580;
+  border-color: #33D580;
+  box-shadow: 0 0 20px rgba(0, 204, 102, 0.4);
+}
+
+.btn-cortex-primary:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 204, 102, 0.5);
+}
+
+/* Input styles */
+input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: #161B22;
+  border: 1px solid #30363D;
+  border-radius: 0.5rem;
+  color: #F0F6FC;
+  font-family: 'JetBrains Mono', Consolas, Monaco, 'Courier New', monospace;
+}
+
+input::placeholder {
+  color: #8B949E;
+}
+
+input:focus {
+  outline: none;
+  border-color: #00CC66;
+  box-shadow: 0 0 0 2px rgba(0, 204, 102, 0.2);
+}
+
+/* Glass card effect */
+.glass-card {
+  background: rgba(33, 38, 45, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 204, 102, 0.2);
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 500ms;
+}
+
+.glass-card:hover {
+  border-color: rgba(0, 204, 102, 0.4);
+}
+
+/* Status messages */
+.status-error {
+  color: #F85149;
+  background-color: #2D0F0F;
+  border: 1px solid #F85149;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+}
+
+/* Loading spinner */
+.cortex-spinner {
+  border: 3px solid #21262D;
+  border-top: 3px solid #00CC66;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Animations */
+.animate-scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
   }
-  
-  body {
-    @apply bg-cortex-bg-primary text-cortex-text-primary;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  100% {
+    transform: scale(1);
+    opacity: 1;
   }
 }
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Utility classes for opacity and transitions */
+.opacity-60 { opacity: 0.6; }
+.opacity-100 { opacity: 1; }
+.transition-opacity { transition-property: opacity; }
+.transition-transform { transition-property: transform; }
+
+/* Hide/show utilities */
+.hidden { display: none; }
+.block { display: block; }
+.inline { display: inline; }
+.inline-block { display: inline-block; }
 
 /* PANW Cortex Terminal Scrollbar */
 .terminal-scrollbar {
@@ -51,92 +257,162 @@
   color: #000000;
 }
 
-/* PANW Cortex Component Styles */
-@layer components {
-  /* Terminal prompt with Cortex orange */
-  .cortex-prompt {
-    @apply text-cortex-orange font-mono;
-  }
-  
-  /* PANW Cortex button variants */
-  .btn-cortex-primary {
-    @apply bg-cortex-green text-black font-semibold py-2 px-4 rounded-lg
-           border border-cortex-green transition-all duration-200
-           hover:bg-cortex-green-light hover:border-cortex-green-light
-           focus:ring-2 focus:ring-cortex-green focus:ring-opacity-50;
-  }
-  
-  .btn-cortex-secondary {
-    @apply bg-cortex-bg-quaternary text-cortex-text-primary font-semibold py-2 px-4 rounded-lg
-           border border-cortex-border-secondary transition-all duration-200
-           hover:bg-cortex-bg-hover hover:border-cortex-green
-           focus:ring-2 focus:ring-cortex-green focus:ring-opacity-50;
-  }
-  
-  .btn-cortex-outline {
-    @apply bg-transparent text-cortex-green font-semibold py-2 px-4 rounded-lg
-           border border-cortex-green transition-all duration-200
-           hover:bg-cortex-green hover:text-black
-           focus:ring-2 focus:ring-cortex-green focus:ring-opacity-50;
-  }
-  
-  .btn-cortex-success {
-    @apply bg-cortex-green text-black font-semibold py-2 px-4 rounded-lg
-           border border-cortex-green transition-all duration-200
-           hover:bg-cortex-green-light hover:border-cortex-green-light
-           focus:ring-2 focus:ring-cortex-green focus:ring-opacity-50;
-  }
-  
-  /* PANW Cortex card styles */
-  .cortex-card {
-    @apply bg-cortex-bg-tertiary border border-cortex-border-muted rounded-lg
-           shadow-lg backdrop-blur-sm transition-all duration-200
-           hover:border-cortex-border-accent hover:shadow-xl;
-  }
-  
-  .cortex-card-elevated {
-    @apply bg-cortex-bg-quaternary border border-cortex-border-secondary rounded-lg
-           shadow-xl backdrop-blur-sm transition-all duration-200
-           hover:border-cortex-green;
-  }
-  
-  .cortex-card-primary {
-    @apply bg-cortex-bg-quaternary border border-cortex-border-primary rounded-lg
-           shadow-xl backdrop-blur-sm transition-all duration-200
-           hover:shadow-2xl;
-  }
-  
-  /* Status indicators */
-  .status-success {
-    @apply text-cortex-success bg-cortex-success-bg border border-cortex-success-border;
-  }
-  
-  .status-warning {
-    @apply text-cortex-warning bg-cortex-warning-bg border border-cortex-warning-border;
-  }
-  
-  .status-error {
-    @apply text-cortex-error bg-cortex-error-bg border border-cortex-error-border;
-  }
-  
-  .status-info {
-    @apply text-cortex-info bg-cortex-info-bg border border-cortex-info-border;
-  }
-  
-  /* Terminal specific styles */
-  .terminal-window {
-    @apply bg-cortex-bg-secondary border border-cortex-border-secondary rounded-lg
-           shadow-2xl backdrop-blur-sm;
-  }
-  
-  .terminal-header {
-    @apply bg-cortex-bg-tertiary border-b border-cortex-border-secondary
-           flex items-center justify-between px-4 py-2 rounded-t-lg;
-  }
-  
-  .terminal-content {
-    @apply bg-cortex-bg-primary font-mono text-sm p-4 min-h-96 max-h-96 overflow-y-auto;
-  }
+/* PANW Cortex Component Styles - Pure CSS */
+/* Terminal prompt with Cortex orange */
+.cortex-prompt {
+  color: #FF6900;
+  font-family: 'JetBrains Mono', Consolas, Monaco, 'Courier New', monospace;
+}
+
+/* PANW Cortex button variants */
+.btn-cortex-secondary {
+  background-color: #21262D;
+  color: #F0F6FC;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #30363D;
+  transition: all 200ms;
+}
+
+.btn-cortex-secondary:hover {
+  background-color: #30363D;
+  border-color: #00CC66;
+}
+
+.btn-cortex-secondary:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 204, 102, 0.5);
+}
+
+.btn-cortex-outline {
+  background-color: transparent;
+  color: #00CC66;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #00CC66;
+  transition: all 200ms;
+}
+
+.btn-cortex-outline:hover {
+  background-color: #00CC66;
+  color: #000000;
+}
+
+.btn-cortex-outline:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 204, 102, 0.5);
+}
+
+.btn-cortex-success {
+  background-color: #00CC66;
+  color: #000000;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #00CC66;
+  transition: all 200ms;
+}
+
+.btn-cortex-success:hover {
+  background-color: #33D580;
+  border-color: #33D580;
+}
+
+.btn-cortex-success:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 204, 102, 0.5);
+}
+
+/* PANW Cortex card styles */
+.cortex-card {
+  background-color: #161B22;
+  border: 1px solid #30363D;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(4px);
+  transition: all 200ms;
+}
+
+.cortex-card:hover {
+  border-color: #00CC66;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.cortex-card-elevated {
+  background-color: #21262D;
+  border: 1px solid #30363D;
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(4px);
+  transition: all 200ms;
+}
+
+.cortex-card-elevated:hover {
+  border-color: #00CC66;
+}
+
+.cortex-card-primary {
+  background-color: #21262D;
+  border: 1px solid #00CC66;
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(4px);
+  transition: all 200ms;
+}
+
+.cortex-card-primary:hover {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Status indicators - Updated to use actual values */
+.status-success {
+  color: #10B981;
+  background-color: #064E3B;
+  border: 1px solid #10B981;
+}
+
+.status-warning {
+  color: #F59E0B;
+  background-color: #451A03;
+  border: 1px solid #F59E0B;
+}
+
+.status-info {
+  color: #3B82F6;
+  background-color: #1E3A8A;
+  border: 1px solid #3B82F6;
+}
+
+/* Terminal specific styles */
+.terminal-window {
+  background-color: #0D1117;
+  border: 1px solid #30363D;
+  border-radius: 0.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+}
+
+.terminal-header {
+  background-color: #161B22;
+  border-bottom: 1px solid #30363D;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.terminal-content {
+  background-color: #000000;
+  font-family: 'JetBrains Mono', Consolas, Monaco, 'Courier New', monospace;
+  font-size: 0.875rem;
+  padding: 1rem;
+  min-height: 24rem;
+  max-height: 24rem;
+  overflow-y: auto;
 }
 
 /* PANW Cortex Animations */
@@ -168,7 +444,9 @@
 
 /* Focus states with Cortex green */
 input:focus, textarea:focus, select:focus {
-  @apply outline-none ring-2 ring-cortex-green ring-opacity-50 border-cortex-green;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 204, 102, 0.5);
+  border-color: #00CC66;
 }
 
 /* Loading spinner with PANW colors */

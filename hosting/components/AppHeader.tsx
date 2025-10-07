@@ -140,11 +140,13 @@ export default function AppHeader() {
             />
           </Link>
           <div className="flex flex-col">
-            <div className="text-xs md:text-sm text-cortex-text-muted">
-              Cortex XSIAM Portal
+            <div className="text-xs md:text-sm text-gray-300 font-semibold">
+              Cortex DC Portal
             </div>
             {!isMobile && (
-              <CortexBadge variant="xsiam" size="sm" className="mt-1" />
+              <div className="text-xs text-orange-400 font-medium mt-1">
+                Domain Consultant Platform
+              </div>
             )}
           </div>
         </div>

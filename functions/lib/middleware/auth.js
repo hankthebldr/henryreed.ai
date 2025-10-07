@@ -35,7 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cleanupRateLimit = exports.logActivity = exports.validateAuthAndOrganization = exports.checkRateLimit = exports.validateOrganizationAccess = exports.getUserOrganizations = exports.validateAuth = void 0;
 // Authentication and authorization middleware
-const functions = __importStar(require("firebase-functions"));
+const functions = __importStar(require("firebase-functions/v1"));
 const admin = __importStar(require("firebase-admin"));
 const logger_1 = require("../utils/logger");
 // Validate Firebase Auth token and extract user context

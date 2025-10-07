@@ -38,7 +38,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = exports.api = exports.cleanupOldExecutions = exports.monitorExecutionStatusChanges = exports.processScenarioExecution = exports.generateDetectionQueriesFunction = exports.controlScenarioExecutionFunction = exports.executeScenarioFunction = exports.generateThreatActorScenarioFunction = exports.aiTrrSuggest = void 0;
 // Cloud Functions for TRR Management System
-const functions = __importStar(require("firebase-functions"));
+const functions = __importStar(require("firebase-functions/v1"));
 const admin = __importStar(require("firebase-admin"));
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
@@ -71,9 +71,39 @@ const app = (0, express_1.default)();
 exports.app = app;
 // Middleware setup
 app.use((0, helmet_1.default)());
-app.use((0, cors_1.default)({ origin: true }));
+// CORS: allow specific origins if provided, otherwise allow all (dev-friendly)
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+app.use((0, cors_1.default)({
+    origin: (origin, callback) => {
+        if (!origin)
+            return callback(null, true);
+        if (allowedOrigins.length === 0)
+            return callback(null, true);
+        if (allowedOrigins.includes(origin))
+            return callback(null, true);
+        return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+}));
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
+// Auth middleware (best-effort)
+app.use(async (req, _res, next) => {
+    try {
+        const authHeader = req.headers.authorization || req.headers.Authorization;
+        if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.substring('Bearer '.length);
+            const decoded = await admin.auth().verifyIdToken(token);
+            req.user = { uid: decoded.uid, token: decoded };
+        }
+    }
+    catch (e) {
+        // Non-fatal: continue without user
+    }
+    next();
+});
 // Rate limiting middleware
 app.use(async (req, res, next) => {
     try {
@@ -105,6 +135,140 @@ app.get('/health', (req, res) => {
         timestamp: new Date().toISOString(),
         version: process.env.FUNCTIONS_VERSION || '1.0.0'
     });
+});
+// Extended health check: verify Firestore and Storage connectivity
+app.get('/health/full', async (_req, res) => {
+    const serviceStatus = { firestore: false, storage: false };
+    try {
+        await admin.firestore().collection('_health').doc('ping').set({ ts: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+        serviceStatus.firestore = true;
+    }
+    catch (e) {
+        serviceStatus.firestore = { error: (e === null || e === void 0 ? void 0 : e.message) || String(e) };
+    }
+    try {
+        await admin.storage().bucket().getMetadata();
+        serviceStatus.storage = true;
+    }
+    catch (e) {
+        serviceStatus.storage = { error: (e === null || e === void 0 ? void 0 : e.message) || String(e) };
+    }
+    res.json({ status: 'healthy', services: serviceStatus, timestamp: new Date().toISOString() });
+});
+// Mount Gemini AI HTTP endpoint under Express API
+const gemini_1 = require("./gemini");
+app.post('/gemini', (req, res) => (0, gemini_1.geminiHttpHandler)(req, res));
+// Simple auth gate for protected routes
+const allowUnauth = process.env.ALLOW_UNAUTH === 'true';
+function requireAuth(req, res, next) {
+    var _a;
+    if (((_a = req === null || req === void 0 ? void 0 : req.user) === null || _a === void 0 ? void 0 : _a.uid) || allowUnauth)
+        return next();
+    return res.status(401).json({ error: 'unauthenticated' });
+}
+// AI routes (Genkit/Vertex flows)
+const ai_1 = require("./routes/ai");
+app.use('/ai', requireAuth, ai_1.aiRouter);
+// Export routes (BigQuery)
+const bigquery_1 = require("./routes/bigquery");
+app.use('/export', requireAuth, bigquery_1.exportRouter);
+// TRR routes (export/signoff)
+const trr_1 = require("./routes/trr");
+app.use('/trr', requireAuth, trr_1.trrRouter);
+// Scenario HTTP endpoints to align with frontend CloudFunctionsAPI
+const scenario_orchestration_2 = require("./handlers/scenario-orchestration");
+// Deploy scenario (expects { blueprintId, options, context? })
+app.post('/scenario-deploy', async (req, res) => {
+    var _a;
+    try {
+        const { blueprintId, options, context } = req.body || {};
+        if (!blueprintId) {
+            return res.status(400).json({ success: false, message: 'Missing blueprintId' });
+        }
+        const userId = ((_a = req.user) === null || _a === void 0 ? void 0 : _a.uid) || (context === null || context === void 0 ? void 0 : context.userId) || 'demo';
+        const organizationId = (context === null || context === void 0 ? void 0 : context.organizationId) || 'default-org';
+        const result = await (0, scenario_orchestration_2.executeScenario)({ blueprintId, options: options || {}, context: { organizationId, userId } }, { auth: userId ? { uid: userId } : undefined });
+        return res.json({ success: true, ...result });
+    }
+    catch (error) {
+        return res.status(500).json({ success: false, message: (error === null || error === void 0 ? void 0 : error.message) || 'Deployment failed' });
+    }
+});
+// Scenario status
+app.get('/scenario-status/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const db = admin.firestore();
+        const doc = await db.collection('scenarioExecutions').doc(id).get();
+        if (!doc.exists)
+            return res.status(404).json({ success: false, message: 'Not found' });
+        return res.json({ success: true, deployment: doc.data(), message: 'Status retrieved successfully' });
+    }
+    catch (error) {
+        return res.status(500).json({ success: false, message: (error === null || error === void 0 ? void 0 : error.message) || 'Status retrieval failed' });
+    }
+});
+// Scenario list
+app.get('/scenario-list', async (_req, res) => {
+    try {
+        const db = admin.firestore();
+        const snapshot = await db.collection('scenarioExecutions').orderBy('startTime', 'desc').limit(25).get();
+        const deployments = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        return res.json({ success: true, deployments, message: 'Deployments retrieved successfully' });
+    }
+    catch (error) {
+        return res.status(500).json({ success: false, message: (error === null || error === void 0 ? void 0 : error.message) || 'List failed' });
+    }
+});
+// Scenario validate (placeholder)
+app.post('/scenario-validate', async (req, res) => {
+    try {
+        const { deploymentId } = req.body || {};
+        if (!deploymentId)
+            return res.status(400).json({ success: false, message: 'Missing deploymentId' });
+        const db = admin.firestore();
+        await db.collection('scenarioExecutions').doc(deploymentId).update({
+            status: 'validating',
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        return res.json({ success: true, results: { queued: true }, message: 'Validation queued' });
+    }
+    catch (error) {
+        return res.status(500).json({ success: false, message: (error === null || error === void 0 ? void 0 : error.message) || 'Validation failed' });
+    }
+});
+// Scenario destroy (placeholder)
+app.post('/scenario-destroy', async (req, res) => {
+    try {
+        const { deploymentId } = req.body || {};
+        if (!deploymentId)
+            return res.status(400).json({ success: false, message: 'Missing deploymentId' });
+        const db = admin.firestore();
+        await db.collection('scenarioExecutions').doc(deploymentId).update({
+            status: 'cancelled',
+            endTime: admin.firestore.FieldValue.serverTimestamp(),
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        return res.json({ success: true, message: 'Destroy completed' });
+    }
+    catch (error) {
+        return res.status(500).json({ success: false, message: (error === null || error === void 0 ? void 0 : error.message) || 'Destroy failed' });
+    }
+});
+// Scenario export (placeholder download URL)
+app.post('/scenario-export', async (req, res) => {
+    try {
+        const { deploymentId, format } = req.body || {};
+        if (!deploymentId)
+            return res.status(400).json({ success: false, message: 'Missing deploymentId' });
+        const bucket = process.env.FIREBASE_STORAGE_BUCKET || admin.storage().bucket().name;
+        const path = `exports/${deploymentId}.${(format || 'json')}`;
+        const downloadUrl = `https://storage.googleapis.com/${bucket}/${path}`;
+        return res.json({ success: true, downloadUrl, message: 'Export generated successfully' });
+    }
+    catch (error) {
+        return res.status(500).json({ success: false, message: (error === null || error === void 0 ? void 0 : error.message) || 'Export failed' });
+    }
 });
 // ============================================================================
 // AI-Enhanced TRR Functions

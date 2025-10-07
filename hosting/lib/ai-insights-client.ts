@@ -7,9 +7,10 @@ import GeminiAIService, { GeminiFunctionRequest, GeminiFunctionResponse } from '
 export type AIInsightsAction = GeminiFunctionRequest['action'];
 
 const getBaseUrl = () => {
-  if (typeof window === 'undefined') return null;
   const fromEnv = process.env.NEXT_PUBLIC_FUNCTIONS_BASE_URL;
-  return fromEnv && fromEnv.trim().length > 0 ? fromEnv.trim().replace(/\/$/, '') : null;
+  const sanitized = fromEnv && fromEnv.trim().length > 0 ? fromEnv.trim().replace(/\/$/, '') : '';
+  // Default to /api so Firebase Hosting rewrite hits the Express API
+  return sanitized || '/api';
 };
 
 async function callCloudFunction(payload: GeminiFunctionRequest): Promise<GeminiFunctionResponse> {

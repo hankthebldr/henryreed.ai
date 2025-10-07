@@ -35,7 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ScenarioExecutionEngine = exports.cleanupOldExecutions = exports.monitorExecutionStatusChanges = exports.processScenarioExecution = void 0;
 // Background scenario execution engine
-const functions = __importStar(require("firebase-functions"));
+const functions = __importStar(require("firebase-functions/v1"));
 const admin = __importStar(require("firebase-admin"));
 const logger_1 = require("../utils/logger");
 // ============================================================================

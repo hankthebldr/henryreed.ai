@@ -1,12 +1,13 @@
 import './globals.css';
+import './dc-portal-styles.css';
 import { AuthProvider } from '../contexts/AuthContext';
 import { AppStateProvider } from '../contexts/AppStateContext';
 import ConditionalLayout from '../components/ConditionalLayout';
 
 export const metadata = {
-  title: 'Cortex XSIAM Portal - Domain Consultant Hub | Palo Alto Networks Solution',
-  description: 'Professional Cortex XSIAM POV Management & Security Operations Platform powered by Palo Alto Networks technology for Domain Consultants',
-  keywords: 'Palo Alto Networks, Cortex XSIAM, XDR, XSOAR, Security Operations, SIEM, POV, Security Demonstration, Domain Consultant, Cloud Security',
+  title: 'Cortex Domain Consultant Portal - Professional POV Management | Palo Alto Networks',
+  description: 'Professional Cortex Domain Consultant Engagement Platform for POV Management, Customer Demos, and Technical Sales Support powered by Palo Alto Networks',
+  keywords: 'Palo Alto Networks, Cortex, Domain Consultant, POV Management, Customer Engagement, Technical Sales, Security Demonstration, TRR, Solution Engineering',
   authors: [{ name: 'Henry Reed AI', url: 'https://henryreed.ai' }],
   creator: 'Henry Reed AI',
   publisher: 'Palo Alto Networks Solution Partner',
@@ -20,10 +21,10 @@ export const metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'Cortex XSIAM Portal - Professional Security Operations Platform',
-    description: 'Advanced Palo Alto Networks Cortex XSIAM demonstration platform for proof-of-value engagements and security operations',
+    title: 'Cortex Domain Consultant Portal - Professional POV Management Platform',
+    description: 'Advanced Palo Alto Networks Cortex platform for domain consultant POV management, customer engagement, and technical sales support',
     url: 'https://henryreed.ai',
-    siteName: 'Cortex XSIAM Portal',
+    siteName: 'Cortex Domain Consultant Portal',
     locale: 'en_US',
     type: 'website',
     images: [
@@ -31,14 +32,14 @@ export const metadata = {
         url: '/assets/branding/icons/cortex-192x192.png',
         width: 192,
         height: 192,
-        alt: 'Cortex XSIAM Portal',
+        alt: 'Cortex Domain Consultant Portal',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Cortex XSIAM Portal - Professional Security Operations',
-    description: 'Advanced Palo Alto Networks Cortex XSIAM demonstration platform for proof-of-value engagements',
+    title: 'Cortex Domain Consultant Portal - Professional POV Management',
+    description: 'Advanced Palo Alto Networks Cortex platform for domain consultant POV management and customer engagement',
     images: ['/assets/branding/icons/cortex-192x192.png'],
   },
   robots: {

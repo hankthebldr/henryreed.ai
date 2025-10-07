@@ -7,9 +7,11 @@ interface User {
   id: string;
   username: string;
   email?: string;
-  role: 'admin' | 'user' | 'viewer';
+  role: 'admin' | 'manager' | 'senior_dc' | 'dc' | 'analyst';
   viewMode?: 'admin' | 'user';
   lastLogin?: string;
+  assignedProjects?: string[];
+  assignedCustomers?: string[];
 }
 
 interface SettingsPanelProps {
@@ -51,9 +53,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
   const tabs = [
     { id: 'profile', name: 'Profile', icon: '👤' },
-    ...(user?.role === 'admin' ? [{ id: 'view-mode', name: 'View Mode', icon: '⚙️' }] : []),
+    ...(['admin', 'manager'].includes(user?.role || '') ? [{ id: 'view-mode', name: 'View Mode', icon: '⚙️' }] : []),
     { id: 'auth', name: 'Authentication', icon: '🔐' },
-    ...(user?.role === 'admin' ? [{ id: 'system', name: 'System', icon: '🖥️' }] : [])
+    ...(['admin', 'manager'].includes(user?.role || '') ? [{ id: 'system', name: 'System', icon: '🖥️' }] : [])
   ];
 
   return (
@@ -119,10 +121,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <div className="mt-1">
                           <span className={`inline-flex px-2 py-1 rounded text-xs font-medium ${
                             user?.role === 'admin' 
-                              ? 'bg-cortex-error/20 text-cortex-error' 
-                              : user?.role === 'user'
-                                ? 'bg-cortex-info/20 text-cortex-info'
-                                : 'bg-cortex-text-muted/20 text-cortex-text-muted'
+                              ? 'bg-red-500/20 text-red-400' 
+                              : user?.role === 'manager'
+                                ? 'bg-orange-500/20 text-orange-400'
+                                : user?.role === 'senior_dc'
+                                  ? 'bg-blue-500/20 text-blue-400'
+                                  : user?.role === 'dc'
+                                    ? 'bg-green-500/20 text-green-400'
+                                    : 'bg-gray-500/20 text-gray-400'
                           }`}>
                             {user?.role?.toUpperCase() || 'UNKNOWN'}
                           </span>
@@ -148,7 +154,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               </div>
             )}
 
-            {activeTab === 'view-mode' && user?.role === 'admin' && (
+            {activeTab === 'view-mode' && ['admin', 'manager'].includes(user?.role || '') && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-lg font-semibold text-cortex-text-primary mb-4">View Mode</h3>
