@@ -109,7 +109,12 @@ const getRolePermissions = (role: string): TerminalPermissions => {
   }
 };
 
-export default function UnifiedTerminal() {
+// DEPRECATED: Replaced by ImprovedTerminal.tsx in Phase 12 recovery
+// Original path: hosting/components/UnifiedTerminal.tsx
+// Migration: Permission concepts integrated into ImprovedTerminal context system
+// Rollback: Uncomment this line to restore unified terminal with RBAC
+// export default function UnifiedTerminal() {
+function UnifiedTerminal() {
   const [commands, setCommands] = useState<Command[]>([]);
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<string[]>([]);

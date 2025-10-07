@@ -1,7 +1,8 @@
 'use client';
 
-import UnifiedTerminal from '../../components/UnifiedTerminal';
-// ActivityProvider will be added when the context is implemented
+import ImprovedTerminal from '../../components/ImprovedTerminal';
+// Phase 12 Recovery: Unified terminal architecture - using canonical ImprovedTerminal
+// Previous: UnifiedTerminal (deprecated, see docs/archive/terminal/DEPRECATED.md)
 import { useAuthGuard } from '../../hooks/useAuthGuard';
 
 export default function TerminalPage() {
@@ -19,7 +20,7 @@ export default function TerminalPage() {
   }
 
   if (isAuthenticated) {
-    return <UnifiedTerminal />;
+    return <ImprovedTerminal />;
   }
 
   return null;

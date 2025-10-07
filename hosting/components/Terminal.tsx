@@ -16,7 +16,12 @@ interface CommandConfig {
   handler: (args: string[]) => React.ReactNode;
 }
 
-export default function Terminal() {
+// DEPRECATED: Replaced by ImprovedTerminal.tsx in Phase 12 recovery
+// Original path: hosting/components/Terminal.tsx
+// Migration: Use ImprovedTerminal for all terminal functionality
+// Rollback: Uncomment this line to restore basic terminal
+// export default function Terminal() {
+function Terminal() {
   const [commands, setCommands] = useState<Command[]>([]);
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<string[]>([]);
