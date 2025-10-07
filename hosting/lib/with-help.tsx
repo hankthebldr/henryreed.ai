@@ -97,7 +97,7 @@ export function withAdvancedHelp(
   command: EnhancedCommandConfig,
   helpContext?: HelpContext
 ) {
-  return async (args: string[]): Promise<React.ReactNode> => {
+  const AdvancedHelpWrapper = async (args: string[]): Promise<React.ReactNode> => {
     // Check for any help patterns
     if (shouldShowHelp(args)) {
       return renderCommandHelp(command, helpContext);
@@ -118,4 +118,7 @@ export function withAdvancedHelp(
     
     return await command.handler(args);
   };
+  
+  AdvancedHelpWrapper.displayName = `withAdvancedHelp(${command.name})`;
+  return AdvancedHelpWrapper;
 }

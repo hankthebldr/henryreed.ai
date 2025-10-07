@@ -319,7 +319,7 @@ class BigQueryService {
     const { includeQueuedData = true, collectFreshData = true, customConfig = {} } = options;
     
     const config = { ...this.config, ...customConfig };
-    let dataToExport: BigQueryRow[] = [];
+    const dataToExport: BigQueryRow[] = [];
 
     try {
       // Include queued data

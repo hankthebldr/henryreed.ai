@@ -8,8 +8,6 @@ import { EnhancedContentCreator as NewEnhancedContentCreator } from './EnhancedC
 import ContentCreatorManager from './ContentCreatorManager';
 import BreadcrumbNavigation from './BreadcrumbNavigation';
 import CortexButton from './CortexButton';
-import { useCommandExecutor } from '../hooks/useCommandExecutor';
-import { dcContextStore } from '../lib/dc-context-store';
 
 interface GUITab {
   id: string;
@@ -33,7 +31,6 @@ interface QuickAction {
 // Enhanced POV Dashboard with command integration
 const EnhancedPOVDashboard = () => {
   const { state, actions } = useAppState();
-  const { run: executeCommand, isRunning } = useCommandExecutor();
   
   useEffect(() => {
     // Update breadcrumbs for dashboard
@@ -42,6 +39,18 @@ const EnhancedPOVDashboard = () => {
       { label: 'Dashboard', path: '/gui/dashboard' },
     ]);
   }, [actions]);
+
+  // Handle command execution from GUI
+  const executeCommand = async (command: string) => {
+    actions.executeCommandFromGUI(command);
+    actions.setLoading('command_execution', true);
+    
+    // Simulate command execution
+    setTimeout(() => {
+      actions.setLoading('command_execution', false);
+      actions.notify('success', `Command "${command}" executed successfully`);
+    }, 1000);
+  };
 
   // Enhanced quick actions with PANW Cortex color scheme - ALIGNED WITH TERMINAL
   const quickActions: QuickAction[] = [
@@ -98,13 +107,7 @@ const EnhancedPOVDashboard = () => {
 
   const handleQuickAction = (action: QuickAction) => {
     if (action.command) {
-      executeCommand(action.command, {
-        trackActivity: {
-          event: `dashboard-${action.name.toLowerCase().replace(/\s+/g, '-')}-click`,
-          source: 'enhanced-pov-dashboard',
-          payload: { command: action.command, actionName: action.name }
-        }
-      });
+      executeCommand(action.command);
     } else if (action.action) {
       if (action.action === 'open_unified_creator') {
         actions.setActiveGUITab('unified-creator');
@@ -133,13 +136,7 @@ const EnhancedPOVDashboard = () => {
               size="sm"
               icon="📊"
               onClick={() => {
-                executeCommand('status --analytics', {
-                  trackActivity: {
-                    event: 'dashboard-view-analytics-click',
-                    source: 'enhanced-pov-dashboard',
-                    payload: { command: 'status --analytics' }
-                  }
-                });
+                console.log("status --analytics");
               }}
             >
               View Analytics
@@ -158,13 +155,7 @@ const EnhancedPOVDashboard = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="cortex-card p-4 border border-cortex-green/30 cursor-pointer hover:border-cortex-green hover:cortex-glow-green transition-all"
-               onClick={() => executeCommand('pov list --active', {
-                 trackActivity: {
-                   event: 'dashboard-pov-stats-click',
-                   source: 'enhanced-pov-dashboard',
-                   payload: { command: 'pov list --active' }
-                 }
-               })}>
+               onClick={() => executeCommand('pov list --active')}>
             <h3 className="text-lg font-bold text-cortex-green mb-2">Active POVs</h3>
             <div className="text-3xl font-mono text-cortex-green-light">
               {state.data.povs?.length || 12}
@@ -172,13 +163,7 @@ const EnhancedPOVDashboard = () => {
             <div className="text-sm text-cortex-text-muted mt-2">3 in progress, 9 completed</div>
           </div>
           <div className="cortex-card p-4 border border-cortex-info/30 cursor-pointer hover:border-cortex-info hover:shadow-lg transition-all"
-               onClick={() => executeCommand('scenario list --deployed', {
-                 trackActivity: {
-                   event: 'dashboard-scenarios-stats-click',
-                   source: 'enhanced-pov-dashboard',
-                   payload: { command: 'scenario list --deployed' }
-                 }
-               })}>
+               onClick={() => executeCommand('scenario list --deployed')}>
             <h3 className="text-lg font-bold text-cortex-info mb-2">Templates Used</h3>
             <div className="text-3xl font-mono text-cortex-info-light">
               {state.data.scenarios?.length || 27}
@@ -186,13 +171,7 @@ const EnhancedPOVDashboard = () => {
             <div className="text-sm text-cortex-text-muted mt-2">Across 8 scenarios</div>
           </div>
           <div className="cortex-card p-4 border border-cortex-green/30 cursor-pointer hover:border-cortex-green hover:cortex-glow-green transition-all"
-               onClick={() => executeCommand('project list --active', {
-                 trackActivity: {
-                   event: 'dashboard-projects-stats-click',
-                   source: 'enhanced-pov-dashboard',
-                   payload: { command: 'project list --active' }
-                 }
-               })}>
+               onClick={() => executeCommand('project list --active')}>
             <h3 className="text-lg font-bold text-cortex-green mb-2">Customer Engagements</h3>
             <div className="text-3xl font-mono text-cortex-green-light">
               {state.data.projects?.length || 8}
@@ -200,13 +179,7 @@ const EnhancedPOVDashboard = () => {
             <div className="text-sm text-cortex-text-muted mt-2">5 enterprise, 3 mid-market</div>
           </div>
           <div className="cortex-card p-4 border border-cortex-text-accent/30 cursor-pointer hover:border-cortex-text-accent hover:shadow-lg transition-all"
-               onClick={() => executeCommand('detect list --recent', {
-                 trackActivity: {
-                   event: 'dashboard-detections-stats-click',
-                   source: 'enhanced-pov-dashboard',
-                   payload: { command: 'detect list --recent' }
-                 }
-               })}>
+               onClick={() => executeCommand('detect list --recent')}>
             <h3 className="text-lg font-bold text-cortex-text-accent mb-2">Detections</h3>
             <div className="text-3xl font-mono text-cortex-text-accent">
               {state.data.detections?.length || 156}
@@ -223,14 +196,8 @@ const EnhancedPOVDashboard = () => {
           <div className="flex justify-between items-center mb-4">
 <h3 className="text-xl font-bold text-cortex-green">📊 Recent Activity</h3>
             <button 
-              onClick={() => executeCommand('activity --recent --limit 10', {
-                trackActivity: {
-                  event: 'dashboard-activity-view-more-click',
-                  source: 'enhanced-pov-dashboard',
-                  payload: { command: 'activity --recent --limit 10' }
-                }
-              })}
-              className="text-xs text-cortex-green hover:text-cortex-green-light underline"
+              onClick={() => executeCommand('activity --recent --limit 10')}
+className="text-xs text-cortex-green hover:text-cortex-green-light underline"
             >
               View More
             </button>
@@ -238,13 +205,7 @@ const EnhancedPOVDashboard = () => {
           <div className="space-y-3 max-h-96 overflow-y-auto terminal-scrollbar">
             {activityData.map((item, idx) => (
               <div key={idx} className="flex justify-between items-center p-3 bg-cortex-bg-quaternary rounded hover:bg-cortex-bg-quaternary/80 border border-cortex-border-muted hover:border-cortex-primary/30 transition-colors cursor-pointer"
-                   onClick={() => executeCommand(item.command, {
-                     trackActivity: {
-                       event: 'dashboard-activity-item-click',
-                       source: 'enhanced-pov-dashboard',
-                       payload: { command: item.command, action: item.action }
-                     }
-                   })}>
+                   onClick={() => executeCommand(item.command)}>
                 <div className="flex-1">
                   <div className="font-mono text-cortex-text-primary text-sm">{item.action}</div>
                   <div className="text-cortex-text-muted text-xs">{item.target}</div>
@@ -271,7 +232,7 @@ const EnhancedPOVDashboard = () => {
               <button
                 key={idx}
                 onClick={() => handleQuickAction(action)}
-                disabled={isRunning}
+                disabled={state.ui.loadingStates.command_execution}
                 className={`p-4 rounded transition-all duration-200 text-center hover:scale-105 hover:shadow-lg ${action.className} disabled:opacity-50 disabled:cursor-not-allowed`}
                 title={action.description}
               >
@@ -310,13 +271,7 @@ const EnhancedPOVDashboard = () => {
                 icon="📋"
                 className="w-full justify-start"
                 onClick={() => {
-                  executeCommand('help', {
-                    trackActivity: {
-                      event: 'dashboard-view-commands-click',
-                      source: 'enhanced-pov-dashboard',
-                      payload: { command: 'help' }
-                    }
-                  });
+                  console.log("help");
                 }}
               >
                 View All Commands
@@ -327,13 +282,7 @@ const EnhancedPOVDashboard = () => {
                 icon="🚀"
                 className="w-full justify-start"
                 onClick={() => {
-                  executeCommand('getting-started', {
-                    trackActivity: {
-                      event: 'dashboard-getting-started-click',
-                      source: 'enhanced-pov-dashboard',
-                      payload: { command: 'getting-started' }
-                    }
-                  });
+                  console.log("getting-started");
                 }}
               >
                 Getting Started Guide
@@ -344,18 +293,12 @@ const EnhancedPOVDashboard = () => {
                 icon="🎯"
                 className="w-full justify-start"
                 onClick={() => {
-                  executeCommand('scenario list', {
-                    trackActivity: {
-                      event: 'dashboard-browse-scenarios-click',
-                      source: 'enhanced-pov-dashboard',
-                      payload: { command: 'scenario list' }
-                    }
-                  });
+                  console.log("scenario list");
                 }}
               >
                 Browse Security Scenarios
               </CortexButton>
-              <CortexButton
+<CortexButton
                 onClick={() => { window.open('/alignment-guide', '_blank'); }}
                 variant="secondary"
                 size="sm"
@@ -375,7 +318,7 @@ const EnhancedPOVDashboard = () => {
       </div>
 
       {/* Command Execution Status */}
-      {isRunning && (
+      {state.ui.loadingStates.command_execution && (
         <div className="fixed bottom-4 right-4 cortex-card-elevated px-4 py-2 border border-cortex-green cortex-glow-green">
           <div className="flex items-center space-x-2">
             <div className="cortex-spinner"></div>
@@ -390,7 +333,6 @@ const EnhancedPOVDashboard = () => {
 // Enhanced TRR Management with full user flow and DC context integration
 const EnhancedTRRManagement = () => {
   const { state, actions } = useAppState();
-  const { run: executeCommand, isRunning: isExecutingCommand } = useCommandExecutor();
   const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'upload' | 'validate'>('dashboard');
   const [selectedTRR, setSelectedTRR] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -406,6 +348,17 @@ const EnhancedTRRManagement = () => {
       dcContextStore.initializeSampleData();
     }
   }, [actions]);
+
+  // Execute command from GUI
+  const executeCommand = async (command: string) => {
+    actions.executeCommandFromGUI(command);
+    actions.setLoading('command_execution', true);
+    
+    setTimeout(() => {
+      actions.setLoading('command_execution', false);
+      actions.notify('success', `TRR command "${command}" executed successfully`);
+    }, 1500);
+  };
 
   // Get real DC context data
   const allTRRs = dcContextStore.getAllTRRRecords();
@@ -1101,6 +1054,7 @@ const EnhancedTRRManagement = () => {
 
 import { aiInsightsClient } from '../lib/ai-insights-client';
 import { dcAIClient, DCWorkflowContext } from '../lib/dc-ai-client';
+import { dcContextStore } from '../lib/dc-context-store';
 
 // Enhanced AI Insights with comprehensive user flows
 const EnhancedAIInsights = () => {

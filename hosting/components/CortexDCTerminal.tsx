@@ -55,7 +55,12 @@ const DC_MODES = {
   }
 };
 
-export default function CortexDCTerminal() {
+// DEPRECATED: Replaced by ImprovedTerminal.tsx in Phase 12 recovery
+// Original path: hosting/components/CortexDCTerminal.tsx
+// Migration: DC-specific commands available in ImprovedTerminal
+// Rollback: Uncomment this line to restore DC-focused terminal
+// export default function CortexDCTerminal() {
+function CortexDCTerminal() {
   const [commands, setCommands] = useState<Command[]>([]);
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<string[]>([]);

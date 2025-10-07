@@ -49,6 +49,11 @@ export class GeminiAIService {
     };
   }
 
+  // Allow runtime configuration without mutating process.env (Next.js static env)
+  configure(partial: Partial<GeminiConfig>) {
+    this.config = { ...this.config, ...partial };
+  }
+
   static getInstance(): GeminiAIService {
     if (!GeminiAIService.instance) {
       GeminiAIService.instance = new GeminiAIService();
@@ -461,12 +466,10 @@ export const initializeGeminiWithFirebase = (config: {
   apiKey: string;
   projectId: string;
 }) => {
-  // Set environment variables for Firebase integration
-  if (typeof window === 'undefined') {
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY = config.apiKey;
-    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID = config.projectId;
-  }
-  return GeminiAIService.getInstance();
+  // Do not assign to process.env at runtime in Next.js; configure the service instance instead
+  const instance = GeminiAIService.getInstance();
+  instance.configure({ apiKey: config.apiKey, projectId: config.projectId });
+  return instance;
 };
 
 export const createGeminiCloudFunction = () => {

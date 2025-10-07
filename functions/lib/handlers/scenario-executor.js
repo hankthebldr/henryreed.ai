@@ -35,18 +35,15 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ScenarioExecutionEngine = exports.cleanupOldExecutions = exports.monitorExecutionStatusChanges = exports.processScenarioExecution = void 0;
 // Background scenario execution engine
-const functions = __importStar(require("firebase-functions/v1"));
+const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
+// import { z } from 'zod'; // commented out: unused import causing TS6133 per build
 const logger_1 = require("../utils/logger");
 // ============================================================================
 // SCENARIO EXECUTION ENGINE CLASS
 // ============================================================================
 class ScenarioExecutionEngine {
     constructor() {
-        // Ensure Firebase is initialized
-        if (!admin.apps.length) {
-            admin.initializeApp();
-        }
         this.db = admin.firestore();
     }
     // Main execution orchestration
@@ -207,7 +204,6 @@ class ScenarioExecutionEngine {
                         description: `Detection point ${detectionPoint.name} found ${detection.findings} findings`,
                         source: detectionPoint.id,
                         actionRequired: true,
-                        timestamp: new Date(),
                     });
                     stageResult.status = 'completed';
                     stageResult.endTime = new Date();
@@ -224,7 +220,7 @@ class ScenarioExecutionEngine {
         catch (error) {
             stageResult.status = 'failed';
             stageResult.endTime = new Date();
-            stageResult.errors.push(error instanceof Error ? error.message : String(error));
+            stageResult.errors.push(String(error));
             this.logExecution(executionId, 'error', `stage-${stage.id}`, `Stage failed: ${error}`);
             // Handle failure based on strategy
             await this.handleStageFailure(executionId, stage, stageResult, error);
@@ -333,7 +329,6 @@ class ScenarioExecutionEngine {
                         description: `Rule ${rule.id} triggered pause due to: ${rule.condition}`,
                         source: 'adaptive-engine',
                         actionRequired: true,
-                        timestamp: new Date(),
                     });
                 }
                 break;
@@ -405,7 +400,6 @@ class ScenarioExecutionEngine {
                     description: `Stage ${stage.name} failed and requires manual intervention: ${error}`,
                     source: stage.id,
                     actionRequired: true,
-                    timestamp: new Date(),
                 });
                 break;
             case 'skip':
@@ -439,6 +433,7 @@ class ScenarioExecutionEngine {
         const alertWithId = {
             ...alert,
             id: `${executionId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            timestamp: new Date(),
             resolved: false,
         };
         const executionRef = this.db.collection('scenarioExecutions').doc(executionId);
@@ -485,7 +480,12 @@ exports.ScenarioExecutionEngine = ScenarioExecutionEngine;
 // ============================================================================
 // CLOUD FUNCTIONS
 // ============================================================================
-const engine = new ScenarioExecutionEngine();
+let engineInstance = null;
+function getEngine() {
+    if (!engineInstance)
+        engineInstance = new ScenarioExecutionEngine();
+    return engineInstance;
+}
 // Pub/Sub triggered background execution
 exports.processScenarioExecution = functions
     .region('us-central1')
@@ -503,7 +503,7 @@ exports.processScenarioExecution = functions
             logger_1.logger.error('No execution ID provided in pub/sub message');
             return;
         }
-        await engine.executeScenario(executionId);
+        await getEngine().executeScenario(executionId);
     }
     catch (error) {
         logger_1.logger.error('Failed to process scenario execution', error);

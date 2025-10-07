@@ -94,7 +94,7 @@ export interface ContentAttachment {
 }
 
 // Mock data stores
-let contentTemplates: ContentTemplate[] = [
+const contentTemplates: ContentTemplate[] = [
   {
     id: 'tpl-pov-001',
     name: 'Enterprise POV Template',
@@ -238,7 +238,7 @@ let contentTemplates: ContentTemplate[] = [
   }
 ];
 
-let contentInstances: ContentInstance[] = [
+const contentInstances: ContentInstance[] = [
   {
     id: 'content-001',
     templateId: 'tpl-pov-001',

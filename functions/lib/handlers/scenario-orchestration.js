@@ -38,7 +38,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateDetectionQueries = exports.controlScenarioExecution = exports.executeScenario = exports.generateThreatActorScenario = void 0;
 // Comprehensive scenario orchestration handlers
-const functions = __importStar(require("firebase-functions/v1"));
+const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const zod_1 = require("zod");
 const openai_1 = __importDefault(require("openai"));
@@ -493,6 +493,7 @@ const executeScenario = async (data, context) => {
         });
         // Start background execution (this would trigger a separate Cloud Function or pub/sub)
         if (!request.options.dryRun) {
+            // const pubsub = admin.firestore(); // commented out: unused variable caused TS6133
             // In a real implementation, you'd publish to a pub/sub topic for background processing
             // For now, we'll update the status to initializing
             await db.collection('scenarioExecutions').doc(executionId).update({

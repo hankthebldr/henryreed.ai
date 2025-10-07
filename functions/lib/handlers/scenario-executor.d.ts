@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions/v1';
+import * as functions from 'firebase-functions';
 declare class ScenarioExecutionEngine {
     private db;
     constructor();

@@ -1,0 +1,416 @@
+next.config.ts:64 - default
+playwright.config.ts:6 - default
+app/layout.tsx:8 - default
+components/AuthLanding.tsx:11 - default
+components/ConsolidatedContentLibrary.tsx:8 - ContentItem (used in module)
+components/ConsolidatedContentLibrary.tsx:40 - ContentField (used in module)
+components/ConsolidatedContentLibrary.tsx:729 - default
+components/ContentAnalytics.tsx:395 - default
+components/CortexCloudFrame.tsx:237 - default
+components/CortexDCTerminal.tsx:58 - default
+components/DomainConsultantWorkspace.tsx:11 - DomainConsultantWorkspace (used in module)
+components/DomainConsultantWorkspace.tsx:82 - default
+components/EnhancedGUIInterface.tsx:2387 - default
+components/EnhancedScenarioCreator.tsx:12 - ScenarioCreatorProps (used in module)
+components/EnhancedScenarioCreator.tsx:735 - default
+components/EnhancedTerminal.tsx:21 - default
+components/InteractiveCharts.tsx:17 - BarChart
+components/InteractiveCharts.tsx:68 - PieChart
+components/InteractiveCharts.tsx:136 - LineChart
+components/InteractiveCharts.tsx:242 - KPICard
+components/InteractiveCharts.tsx:296 - DashboardGrid
+components/ManualCreationGUI.tsx:768 - default
+components/OnboardingGuide.tsx:684 - OnboardingGuide (used in module)
+components/OnboardingGuide.tsx:1046 - default
+components/Terminal.tsx:19 - default
+components/TerminalOutputs.tsx:7 - SilentSuccess
+components/TerminalOutputs.tsx:44 - SuccessOutput
+components/TerminalOutputs.tsx:65 - InfoOutput
+components/TerminalOutputs.tsx:88 - WarningOutput
+components/TerminalOutputs.tsx:109 - LoadingOutput
+components/TerminalOutputs.tsx:123 - HelpSection
+components/TerminalOutputs.tsx:206 - StatusDisplay
+components/TerminalOutputs.tsx:239 - MetricsDisplay
+components/TerminalOutputs.tsx:262 - TipBox
+components/TRRManagement.tsx:8 - TRR (used in module)
+components/TRRManagement.tsx:8 - CreateTRRFormData (used in module)
+components/TRRManagement.tsx:8 - UpdateTRRFormData (used in module)
+components/TRRManagement.tsx:8 - TRRFilters (used in module)
+components/TRRManagement.tsx:8 - TRRStatus (used in module)
+components/TRRManagement.tsx:8 - TRRPriority (used in module)
+components/TRRManagement.tsx:8 - TRRCategory (used in module)
+components/TRRManagement.tsx:8 - RiskLevel (used in module)
+components/TRRManagement.tsx:8 - ValidationMethod (used in module)
+components/TRRManagement.tsx:11 - trrDatabase (used in module)
+components/TRRProgressChart.tsx:14 - TRRProgressChart
+components/UnifiedContentCreator.tsx:668 - default
+components/UnifiedTerminal.tsx:10 - TerminalPermissions (used in module)
+components/UserTimelineView.tsx:477 - default
+contexts/AppStateContext.tsx:283 - default
+hooks/useActivityTracking.ts:299 - withActivityTracking
+lib/ai-insights-client.ts:7 - AIInsightsAction
+lib/api-service.ts:9 - ApiResponse (used in module)
+lib/api-service.ts:17 - PaginatedResponse (used in module)
+lib/api-service.ts:26 - POVData (used in module)
+lib/api-service.ts:38 - TRRData (used in module)
+lib/api-service.ts:50 - ScenarioData (used in module)
+lib/api-service.ts:61 - AnalyticsData (used in module)
+lib/api-service.ts:451 - api
+lib/api-service.ts:487 - default
+lib/bigquery-commands.tsx:493 - default
+lib/bigquery-service.ts:8 - BigQueryExportConfig (used in module)
+lib/bigquery-service.ts:20 - BigQueryRow (used in module)
+lib/bigquery-service.ts:465 - trackPOV
+lib/bigquery-service.ts:468 - default
+lib/cloud-functions-api.ts:5 - CloudFunctionsAPI (used in module)
+lib/command-registry.ts:402 - default
+lib/content-library-service.ts:4 - ContentLibraryService (used in module)
+lib/data-service.ts:87 - fetchBlueprintSummary
+lib/data-service.ts:6 - AnalyticsFilters (used in module)
+lib/data-service.ts:13 - EngagementRecord (used in module)
+lib/data-service.ts:27 - AnalyticsResult (used in module)
+lib/dc-ai-client.ts:30 - DCRecommendation (used in module)
+lib/dc-ai-client.ts:40 - DCWorkflowSummary (used in module)
+lib/dc-api-client.ts:11 - APIResponse (used in module)
+lib/dc-api-client.ts:19 - DCMetrics (used in module)
+lib/dc-api-client.ts:90 - DCAPIClient (used in module)
+lib/dc-api-client.ts:662 - DCOperations
+lib/dc-context-store.ts:4 - UserProfile (used in module)
+lib/download-commands.tsx:5 - GCPBackendSchema (used in module)
+lib/download-commands.tsx:536 - WebCLISchema (used in module)
+lib/download-commands.tsx:569 - generateCLISchema
+lib/download-commands.tsx:608 - default
+lib/enhanced-pov-commands.tsx:6 - POVProject (used in module)
+lib/enhanced-pov-commands.tsx:34 - POVMilestone (used in module)
+lib/enhanced-pov-commands.tsx:46 - POVTask (used in module)
+lib/enhanced-pov-commands.tsx:63 - POVTeamMember (used in module)
+lib/enhanced-pov-commands.tsx:73 - POVRisk (used in module)
+lib/enhanced-pov-commands.tsx:85 - POVStakeholder (used in module)
+lib/enhanced-trr-commands.tsx:6 - TRRValidation (used in module)
+lib/feature-parity-audit.ts:10 - TerminalFeature (used in module)
+lib/feature-parity-audit.ts:20 - GUIComponent (used in module)
+lib/feature-parity-audit.ts:28 - FeatureMapping (used in module)
+lib/feature-parity-audit.ts:39 - FeatureParityAuditor (used in module)
+lib/feature-parity-audit.ts:576 - featureAuditor
+lib/gcp-backend-config.ts:4 - GCPBackendConfig (used in module)
+lib/gcp-backend-config.ts:50 - GCPStorageBucket (used in module)
+lib/gcp-backend-config.ts:59 - CORSRule (used in module)
+lib/gcp-backend-config.ts:66 - BucketPermission (used in module)
+lib/gcp-backend-config.ts:71 - StorageLifecycleRule (used in module)
+lib/gcp-backend-config.ts:83 - CloudFunction (used in module)
+lib/gcp-backend-config.ts:96 - CloudRunService (used in module)
+lib/gcp-backend-config.ts:105 - FirestoreCollection (used in module)
+lib/gcp-backend-config.ts:111 - FirestoreIndex (used in module)
+lib/gcp-backend-config.ts:116 - FirestoreSecurityRule (used in module)
+lib/gcp-backend-config.ts:122 - PubSubTopic (used in module)
+lib/gcp-backend-config.ts:127 - PubSubSubscription (used in module)
+lib/gcp-backend-config.ts:137 - ServiceAccount (used in module)
+lib/gcp-backend-config.ts:144 - IAMPolicy (used in module)
+lib/gcp-backend-config.ts:157 - LoggingConfig (used in module)
+lib/gcp-backend-config.ts:168 - MetricsConfig (used in module)
+lib/gcp-backend-config.ts:177 - AlertingConfig (used in module)
+lib/gcp-backend-config.ts:194 - henryReedAIGCPConfig (used in module)
+lib/gcp-backend-config.ts:577 - henryReedAIGCPDevConfig
+lib/gcp-backend-config.ts:644 - default
+lib/gemini-ai-service.ts:38 - GeminiAIService (used in module)
+lib/gemini-ai-service.ts:465 - initializeGeminiWithFirebase
+lib/gemini-ai-service.ts:475 - createGeminiCloudFunction
+lib/help-renderer.tsx:366 - renderHelpOverview
+lib/help-renderer.tsx:474 - renderCategoryHelp
+lib/help-renderer.tsx:522 - renderHelpSearch
+lib/knowledge-base.ts:8 - SearchFilters (used in module)
+lib/knowledge-base.ts:19 - SearchResult (used in module)
+lib/knowledge-base.ts:29 - KnowledgeBase (used in module)
+lib/resource-ledger.ts:4 - ResourceIdentity (used in module)
+lib/resource-ledger.ts:56 - OperationLog (used in module)
+lib/resource-ledger.ts:65 - LedgerQuery (used in module)
+lib/resource-ledger.ts:565 - DeletionWave (used in module)
+lib/resource-ledger.ts:571 - CleanupResult (used in module)
+lib/safety-policy.ts:4 - SafetyPolicy (used in module)
+lib/safety-policy.ts:41 - KubernetesGuards (used in module)
+lib/safety-policy.ts:50 - CloudGuards (used in module)
+lib/safety-policy.ts:74 - XsiamGuards (used in module)
+lib/safety-policy.ts:82 - ExecutionLock (used in module)
+lib/safety-policy.ts:92 - PolicyViolation (used in module)
+lib/safety-policy.ts:411 - KubernetesDeploymentRequest (used in module)
+lib/safety-policy.ts:417 - CloudDeploymentRequest (used in module)
+lib/scenario-engine-client.ts:166 - IoC (used in module)
+lib/scenario-engine-client.ts:174 - AdaptiveRule (used in module)
+lib/scenario-engine-client.ts:182 - SuccessMetric (used in module)
+lib/scenario-engine-client.ts:190 - ValidationRule (used in module)
+lib/scenario-engine-client.ts:198 - CleanupProcedure (used in module)
+lib/scenario-engine-client.ts:206 - StageResult (used in module)
+lib/scenario-engine-client.ts:217 - Detection (used in module)
+lib/scenario-engine-client.ts:226 - ScenarioArtifact (used in module)
+lib/scenario-engine-client.ts:237 - FailureStrategy (used in module)
+lib/scenario-engine-client.ts:244 - ExecutionLog (used in module)
+lib/scenario-engine-client.ts:252 - ExecutionAlert (used in module)
+lib/scenario-engine-client.ts:263 - AdaptationRecord (used in module)
+lib/scenario-engine-client.ts:272 - ThreatIntel (used in module)
+lib/scenario-engine-client.ts:284 - ScenarioEngineClient (used in module)
+lib/scenario-engine.ts:9 - ThreatVector (used in module)
+lib/scenario-engine.ts:23 - IoC (used in module)
+lib/scenario-engine.ts:31 - ScenarioStage (used in module)
+lib/scenario-engine.ts:49 - DetectionPoint (used in module)
+lib/scenario-engine.ts:62 - ScenarioArtifact (used in module)
+lib/scenario-engine.ts:73 - FailureStrategy (used in module)
+lib/scenario-engine.ts:80 - ScenarioBlueprint (used in module)
+lib/scenario-engine.ts:123 - EnvironmentSpec (used in module)
+lib/scenario-engine.ts:137 - UserRole (used in module)
+lib/scenario-engine.ts:147 - Permission (used in module)
+lib/scenario-engine.ts:153 - ThreatIntel (used in module)
+lib/scenario-engine.ts:161 - AdaptiveRule (used in module)
+lib/scenario-engine.ts:169 - SuccessMetric (used in module)
+lib/scenario-engine.ts:177 - ValidationRule (used in module)
+lib/scenario-engine.ts:185 - CleanupProcedure (used in module)
+lib/scenario-engine.ts:195 - ScenarioExecution (used in module)
+lib/scenario-engine.ts:220 - StageResult (used in module)
+lib/scenario-engine.ts:231 - Detection (used in module)
+lib/scenario-engine.ts:240 - ExecutionLog (used in module)
+lib/scenario-engine.ts:248 - ExecutionAlert (used in module)
+lib/scenario-engine.ts:259 - AdaptationRecord (used in module)
+lib/scenario-engine.ts:270 - ScenarioEngine (used in module)
+lib/scenario-types.ts:29 - Pipeline (used in module)
+lib/scenario-types.ts:49 - ScenarioManifest
+lib/sdw-models.ts:259 - SDWValidationRules (used in module)
+lib/sdw-models.ts:347 - SDWTemplate
+lib/sdw-models.ts:358 - SDWCalculator (used in module)
+lib/types.ts:33 - HelpMeta (used in module)
+lib/types.ts:63 - TerminalActions (used in module)
+lib/types.ts:93 - TutorialStep (used in module)
+lib/types.ts:102 - Tutorial
+lib/user-activity-service.ts:69 - UserPreferences (used in module)
+lib/user-activity-service.ts:88 - UserActivity (used in module)
+lib/user-activity-service.ts:616 - userActivityService (used in module)
+lib/user-management.ts:42 - UserPreferences (used in module)
+lib/user-management.ts:66 - UserPermissions (used in module)
+lib/user-management.ts:118 - UserSession (used in module)
+lib/user-management.ts:256 - UserManagementService (used in module)
+lib/vfs.ts:3 - VNode (used in module)
+lib/virtual-fs.ts:20 - normalizePath (used in module)
+lib/virtual-fs.ts:34 - resolvePath
+lib/virtual-fs.ts:44 - listDir
+lib/virtual-fs.ts:59 - isValidPath
+lib/virtual-fs.ts:1 - VFS (used in module)
+lib/with-help.tsx:12 - withHelp (used in module)
+lib/with-help.tsx:48 - withHelpBatch
+lib/with-help.tsx:61 - hasHelpFlag (used in module)
+lib/with-help.tsx:68 - stripHelpFlags
+lib/with-help.tsx:75 - shouldShowHelp (used in module)
+lib/with-help.tsx:96 - withAdvancedHelp
+lib/xsiam-api-service.ts:62 - XSIAMAPIResponse (used in module)
+lib/xsiam-api-service.ts:460 - default
+lib/xsiam-commands.tsx:740 - default
+types/trr-extended.ts:7 - Portfolio
+types/trr-extended.ts:30 - Project
+types/trr-extended.ts:52 - ProjectMilestone (used in module)
+types/trr-extended.ts:63 - TRRRequirement
+types/trr-extended.ts:78 - TRRTestCase (used in module)
+types/trr-extended.ts:93 - TRRDefect (used in module)
+types/trr-extended.ts:106 - TRRStatusEvent
+types/trr-extended.ts:115 - DORStatus (used in module)
+types/trr-extended.ts:124 - DORAutoCheck (used in module)
+types/trr-extended.ts:132 - SDWStatus (used in module)
+types/trr-extended.ts:141 - SDWApproval (used in module)
+types/trr-extended.ts:151 - RiskAssessment (used in module)
+types/trr-extended.ts:168 - AIPrediction (used in module)
+types/trr-extended.ts:179 - AIInsight (used in module)
+types/trr-extended.ts:192 - TenantUser
+types/trr-extended.ts:205 - TenantRole (used in module)
+types/trr-extended.ts:213 - Permission (used in module)
+types/trr-extended.ts:219 - UserPreferences (used in module)
+types/trr-extended.ts:234 - TRRAnalytics (used in module)
+types/trr-extended.ts:245 - VelocityDataPoint (used in module)
+types/trr-extended.ts:253 - DefectMetrics (used in module)
+types/trr-extended.ts:262 - PredictiveMetrics (used in module)
+types/trr-extended.ts:269 - ComplianceMetrics (used in module)
+types/trr-extended.ts:278 - TimelineEvent
+types/trr-extended.ts:290 - DependencyGraph (used in module)
+types/trr-extended.ts:302 - DependencyNode (used in module)
+types/trr-extended.ts:316 - DependencyEdge (used in module)
+types/trr-extended.ts:326 - ResourcePlan (used in module)
+types/trr-extended.ts:339 - ResourceAllocation (used in module)
+types/trr-extended.ts:351 - SkillProfile
+types/trr-extended.ts:360 - Skill (used in module)
+types/trr-extended.ts:368 - Certification (used in module)
+types/trr-extended.ts:377 - ExperienceArea (used in module)
+types/trr-extended.ts:383 - AvailabilityWindow (used in module)
+types/trr-extended.ts:392 - WorkflowAutomation
+types/trr-extended.ts:406 - WorkflowTrigger (used in module)
+types/trr-extended.ts:411 - WorkflowCondition (used in module)
+types/trr-extended.ts:418 - WorkflowAction (used in module)
+types/trr-extended.ts:428 - NotificationRule
+types/trr-extended.ts:440 - NotificationTrigger (used in module)
+types/trr-extended.ts:445 - NotificationChannel (used in module)
+types/trr-extended.ts:450 - NotificationRecipient (used in module)
+types/trr-extended.ts:456 - NotificationTemplate (used in module)
+types/trr-extended.ts:464 - ExtendedTRRActions
+types/trr-extended.ts:502 - ExternalIntegration
+types/trr-extended.ts:516 - IntegrationConfiguration (used in module)
+types/trr-extended.ts:529 - FieldMapping (used in module)
+types/trr-extended.ts:539 - SyncConfiguration (used in module)
+types/trr-extended.ts:547 - AdvancedFilter (used in module)
+types/trr-extended.ts:579 - SearchResult
+types/trr-extended.ts:589 - AuditEvent
+types/trr-extended.ts:603 - FieldChange (used in module)
+types/trr-extended.ts:610 - ComplianceReport
+types/trr-extended.ts:626 - ComplianceFinding (used in module)
+types/trr.ts:7 - SignoffType (used in module)
+types/trr.ts:89 - TRREvidence (used in module)
+types/trr.ts:105 - TRRAttachment (used in module)
+types/trr.ts:118 - TRRComment (used in module)
+types/trr.ts:132 - TRRCommentReaction (used in module)
+types/trr.ts:139 - TRRValidationResult (used in module)
+types/trr.ts:153 - TRRTestCase (used in module)
+types/trr.ts:168 - TRRTestStep (used in module)
+types/trr.ts:178 - TRRSignoff (used in module)
+types/trr.ts:204 - BlockchainSignature (used in module)
+types/trr.ts:216 - SignoffAuditEntry (used in module)
+types/trr.ts:226 - TRRApproval (used in module)
+types/trr.ts:293 - TRRBulkOperation (used in module)
+types/trr.ts:302 - BulkOperationResult (used in module)
+types/trr.ts:310 - TRRDashboardMetrics (used in module)
+types/trr.ts:324 - TRRActivity (used in module)
+types/trr.ts:334 - TRRTrendData (used in module)
+types/trr.ts:342 - TRRImportResult (used in module)
+types/trr.ts:351 - TRRImportError (used in module)
+types/trr.ts:359 - TRRExportOptions (used in module)
+types/trr.ts:369 - TRRTemplate (used in module)
+types/trr.ts:388 - TRRWorkflowRule
+types/trr.ts:399 - TRRWorkflowTrigger (used in module)
+types/trr.ts:404 - TRRWorkflowCondition (used in module)
+types/trr.ts:410 - TRRWorkflowAction (used in module)
+types/trr.ts:416 - TRRNotification
+types/trr.ts:431 - TRRIntegration
+types/trr.ts:444 - TRRListResponse (used in module)
+types/trr.ts:452 - TRRValidationResponse
+types/trr.ts:467 - TRRState
+types/trr.ts:480 - TRRActions
+hosting/contexts/AuthContext.tsx:26 - useAuth
+hosting/contexts/AuthContext.tsx:34 - AuthProvider
+hosting/lib/firebase.ts:17 - db
+hosting/lib/firebase.ts:18 - default
+lib/firebase/client.ts:75 - initializeFirebase (used in module)
+lib/firebase/client.ts:118 - getFirebaseServices (used in module)
+lib/firebase/client.ts:126 - signInWithEmail
+lib/firebase/client.ts:132 - createAccount
+lib/firebase/client.ts:138 - signOut (used in module)
+lib/firebase/client.ts:143 - onAuthStateChange
+lib/firebase/client.ts:149 - enableFirestoreNetwork
+lib/firebase/client.ts:154 - disableFirestoreNetwork
+lib/firebase/client.ts:160 - createCallableFunction (used in module)
+lib/firebase/client.ts:166 - callTRRAIFunction
+lib/firebase/client.ts:167 - callTRRExportFunction
+lib/firebase/client.ts:168 - callTRRSignoffFunction
+lib/firebase/client.ts:171 - getFirebaseErrorMessage
+lib/firebase/client.ts:202 - default
+src/dataconnect-generated/index.d.ts:152 - createMovie (used in module)
+src/dataconnect-generated/index.d.ts:164 - upsertUser (used in module)
+src/dataconnect-generated/index.d.ts:176 - addReview (used in module)
+src/dataconnect-generated/index.d.ts:188 - deleteReview (used in module)
+src/dataconnect-generated/index.d.ts:200 - listMovies (used in module)
+src/dataconnect-generated/index.d.ts:212 - listUsers (used in module)
+src/dataconnect-generated/index.d.ts:224 - listUserReviews (used in module)
+src/dataconnect-generated/index.d.ts:236 - getMovieById (used in module)
+src/dataconnect-generated/index.d.ts:248 - searchMovie (used in module)
+src/dataconnect-generated/index.d.ts:3 - connectorConfig
+src/dataconnect-generated/index.d.ts:5 - TimestampString
+src/dataconnect-generated/index.d.ts:6 - UUIDString (used in module)
+src/dataconnect-generated/index.d.ts:7 - Int64String
+src/dataconnect-generated/index.d.ts:8 - DateString (used in module)
+src/dataconnect-generated/index.d.ts:100 - MovieMetadata_Key
+src/dataconnect-generated/index.d.ts:105 - Movie_Key (used in module)
+src/dataconnect-generated/index.d.ts:110 - Review_Key (used in module)
+src/dataconnect-generated/index.d.ts:138 - User_Key (used in module)
+src/dataconnect-generated/index.d.ts:143 - CreateMovieRef (used in module)
+src/dataconnect-generated/index.d.ts:150 - createMovieRef
+src/dataconnect-generated/index.d.ts:155 - UpsertUserRef (used in module)
+src/dataconnect-generated/index.d.ts:162 - upsertUserRef
+src/dataconnect-generated/index.d.ts:167 - AddReviewRef (used in module)
+src/dataconnect-generated/index.d.ts:174 - addReviewRef
+src/dataconnect-generated/index.d.ts:179 - DeleteReviewRef (used in module)
+src/dataconnect-generated/index.d.ts:186 - deleteReviewRef
+src/dataconnect-generated/index.d.ts:191 - ListMoviesRef (used in module)
+src/dataconnect-generated/index.d.ts:198 - listMoviesRef
+src/dataconnect-generated/index.d.ts:203 - ListUsersRef (used in module)
+src/dataconnect-generated/index.d.ts:210 - listUsersRef
+src/dataconnect-generated/index.d.ts:215 - ListUserReviewsRef (used in module)
+src/dataconnect-generated/index.d.ts:222 - listUserReviewsRef
+src/dataconnect-generated/index.d.ts:227 - GetMovieByIdRef (used in module)
+src/dataconnect-generated/index.d.ts:234 - getMovieByIdRef
+src/dataconnect-generated/index.d.ts:239 - SearchMovieRef (used in module)
+src/dataconnect-generated/index.d.ts:246 - searchMovieRef
+.next/types/app/page.ts:54 - PageProps (used in module)
+.next/types/app/page.ts:58 - LayoutProps
+src/dataconnect-generated/react/index.d.ts:8 - useCreateMovie (used in module)
+src/dataconnect-generated/react/index.d.ts:11 - useUpsertUser (used in module)
+src/dataconnect-generated/react/index.d.ts:14 - useAddReview (used in module)
+src/dataconnect-generated/react/index.d.ts:17 - useDeleteReview (used in module)
+src/dataconnect-generated/react/index.d.ts:20 - useListMovies (used in module)
+src/dataconnect-generated/react/index.d.ts:23 - useListUsers (used in module)
+src/dataconnect-generated/react/index.d.ts:26 - useListUserReviews (used in module)
+src/dataconnect-generated/react/index.d.ts:29 - useGetMovieById (used in module)
+src/dataconnect-generated/react/index.d.ts:32 - useSearchMovie (used in module)
+.next/types/app/alignment-guide/page.ts:54 - PageProps (used in module)
+.next/types/app/alignment-guide/page.ts:58 - LayoutProps
+.next/types/app/content/page.ts:54 - PageProps (used in module)
+.next/types/app/content/page.ts:58 - LayoutProps
+.next/types/app/creator/page.ts:54 - PageProps (used in module)
+.next/types/app/creator/page.ts:58 - LayoutProps
+.next/types/app/docs/page.ts:54 - PageProps (used in module)
+.next/types/app/docs/page.ts:58 - LayoutProps
+.next/types/app/gui/page.ts:54 - PageProps (used in module)
+.next/types/app/gui/page.ts:58 - LayoutProps
+.next/types/app/terminal/page.ts:54 - PageProps (used in module)
+.next/types/app/terminal/page.ts:58 - LayoutProps
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:152 - createMovie (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:164 - upsertUser (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:176 - addReview (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:188 - deleteReview (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:200 - listMovies (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:212 - listUsers (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:224 - listUserReviews (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:236 - getMovieById (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:248 - searchMovie (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:3 - connectorConfig
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:5 - TimestampString
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:6 - UUIDString (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:7 - Int64String
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:8 - DateString (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:13 - AddReviewData (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:17 - AddReviewVariables (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:23 - CreateMovieData (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:27 - CreateMovieVariables (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:33 - DeleteReviewData (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:37 - DeleteReviewVariables (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:41 - GetMovieByIdData (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:64 - GetMovieByIdVariables (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:68 - ListMoviesData (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:77 - ListUserReviewsData (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:93 - ListUsersData (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:100 - MovieMetadata_Key
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:105 - Movie_Key (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:110 - Review_Key (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:116 - SearchMovieData (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:125 - SearchMovieVariables (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:130 - UpsertUserData (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:134 - UpsertUserVariables (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:138 - User_Key (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:143 - CreateMovieRef (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:150 - createMovieRef
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:155 - UpsertUserRef (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:162 - upsertUserRef
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:167 - AddReviewRef (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:174 - addReviewRef
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:179 - DeleteReviewRef (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:186 - deleteReviewRef
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:191 - ListMoviesRef (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:198 - listMoviesRef
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:203 - ListUsersRef (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:210 - listUsersRef
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:215 - ListUserReviewsRef (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:222 - listUserReviewsRef
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:227 - GetMovieByIdRef (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:234 - getMovieByIdRef
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:239 - SearchMovieRef (used in module)
+cloud-functions/bigquery-export/src/dataconnect-generated/index.d.ts:246 - searchMovieRef

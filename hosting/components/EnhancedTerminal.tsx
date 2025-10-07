@@ -18,7 +18,12 @@ interface CommandConfig {
   handler: (args: string[]) => React.ReactNode | Promise<React.ReactNode>;
 }
 
-export default function EnhancedTerminal() {
+// DEPRECATED: Replaced by ImprovedTerminal.tsx in Phase 12 recovery
+// Original path: hosting/components/EnhancedTerminal.tsx
+// Migration: Security commands available in ImprovedTerminal via lib/scenario-commands.tsx
+// Rollback: Uncomment this line to restore security-focused terminal
+// export default function EnhancedTerminal() {
+function EnhancedTerminal() {
   const [commands, setCommands] = useState<Command[]>([]);
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<string[]>([]);

@@ -93,7 +93,7 @@ export interface POVStakeholder {
 }
 
 // Mock POV data with project management features
-let povProjects: POVProject[] = [
+const povProjects: POVProject[] = [
   {
     id: 'POV-2024-001',
     name: 'ACME Corp XSIAM Implementation',
