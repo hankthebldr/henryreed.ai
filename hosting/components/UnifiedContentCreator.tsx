@@ -270,6 +270,83 @@ const ScenarioOverviewCard: React.FC<{
   );
 };
 
+// Helper function to determine the best provider for each scenario type
+const getScenarioProvider = (scenarioKey: string): string => {
+  const providerMapping: Record<string, string> = {
+    'cloud-posture': 'gcp',
+    'container-vuln': 'k8s',
+    'code-vuln': 'local',
+    'insider-threat': 'azure',
+    'ransomware': 'aws',
+    'waas-exploit': 'local',
+    'apt-simulation': 'multi-cloud',
+    'supply-chain': 'local',
+    'ai-threat': 'gcp',
+    'deepfake-detection': 'aws',
+    'pipeline-breach': 'local',
+    'identity-compromise': 'azure',
+    'lateral-movement-sim': 'multi-cloud',
+    'data-exfil-behavior': 'aws',
+    'beacon-emulation': 'local',
+    'phishing-sim': 'gcp',
+    'social-engineering': 'local',
+    'zero-day-simulation': 'multi-cloud',
+    'evasion-techniques': 'local',
+    'iot-security': 'aws',
+    'ot-security': 'local',
+    'custom': 'gcp'
+  };
+  return providerMapping[scenarioKey] || 'gcp';
+};
+
+// Helper function to get scenario-specific detection commands
+const getDetectionCommands = (scenarioKey: string, scenario: any): string[] => {
+  const baseCommands = [
+    `# Test detection rules for ${scenario.name}`,
+    `detect test --scenario ${scenarioKey} --all-rules --verbose`,
+    ``,
+    `# Validate MITRE coverage`,
+    `mitre validate --techniques ${scenario.mitreMapping.join(',')} --coverage-report`,
+    ``,
+  ];
+  
+  // Add scenario-specific detection commands
+  const specificCommands: Record<string, string[]> = {
+    'cloud-posture': [
+      `# Test cloud security posture rules`,
+      `detect test-cspm --provider ${getScenarioProvider(scenarioKey)} --check-misconfigurations`,
+      `cloud-audit --scan-permissions --check-encryption`
+    ],
+    'container-vuln': [
+      `# Scan container images for vulnerabilities`,
+      `detect scan-images --registry all --severity high,critical`,
+      `runtime-scan --monitor-containers --detect-escapes`
+    ],
+    'apt-simulation': [
+      `# Advanced threat hunting queries`,
+      `threat-hunt --ioc-sweep --behavioral-analysis`,
+      `detect lateral-movement --network-analysis --credential-tracking`
+    ],
+    'ransomware': [
+      `# Ransomware-specific detection tests`,
+      `detect anti-ransomware --monitor-encryption --backup-integrity`,
+      `behavioral-analysis --file-access-patterns --suspicious-processes`
+    ],
+    'identity-compromise': [
+      `# Identity and access monitoring`,
+      `detect identity-threats --privilege-escalation --credential-stuffing`,
+      `identity-analytics --anomaly-detection --access-patterns`
+    ]
+  };
+  
+  const scenarioSpecific = specificCommands[scenarioKey] || [
+    `# Scenario-specific detection test`,
+    `detect custom --scenario ${scenarioKey} --threat-vectors all`
+  ];
+  
+  return [...baseCommands, ...scenarioSpecific, ``, `# Generate detection report`, `detect report --scenario ${scenarioKey} --format technical --export pdf`];
+};
+
 const ScenarioDetailView: React.FC<{
   scenarioKey: string;
   scenario: any;
@@ -398,23 +475,31 @@ const ScenarioDetailView: React.FC<{
               title={`Deploy ${scenario.name} Scenario`}
               commands={[
                 `# Deploy ${scenario.name} scenario with validation`,
-                `scenario generate --scenario-type ${scenarioKey} --provider gcp --auto-validate`,
+                `scenario generate --scenario-type ${scenarioKey} --provider ${getScenarioProvider(scenarioKey)} --auto-validate`,
+                ``,
+                `# Configure scenario parameters`,
+                `scenario config --scenario-type ${scenarioKey} --set-parameters`,
                 ``,
                 `# Monitor deployment status`,
-                `scenario status --follow`,
+                `scenario status --follow --scenario-id latest`,
                 ``,
-                `# View deployment logs`,
-                `scenario logs --deployment-id latest --tail`
+                `# View deployment logs with filtering`,
+                `scenario logs --deployment-id latest --tail --filter="${scenarioKey}"`,
+                ``,
+                `# Get scenario execution metrics`,
+                `scenario metrics --scenario-type ${scenarioKey} --timeframe 1h`
               ]}
-              height="h-48"
+              height="h-64"
               initialOutput={
                 <div className="text-cyan-400">
                   <div className="text-lg font-bold mb-1">🔬 Scenario Deployment Terminal</div>
                   <div className="text-sm text-gray-400 mb-3">Ready to deploy {scenario.name} scenario</div>
-                  <div className="text-xs text-gray-500">
-                    • Provider: GCP with auto-validation
-                    • MITRE Mapping: {scenario.mitreMapping.join(', ')}
-                    • Detection Types: {scenario.detectionTypes.length} configured
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <div>• Provider: {getScenarioProvider(scenarioKey).toUpperCase()} with auto-validation</div>
+                    <div>• MITRE Mapping: {scenario.mitreMapping.join(', ')}</div>
+                    <div>• Detection Types: {scenario.detectionTypes.join(', ')}</div>
+                    <div>• Business Impact: {scenario.businessImpact.split(' - ')[0]}</div>
+                    <div>• Subcategories: {scenario.subcategories.length} attack vectors</div>
                   </div>
                 </div>
               }
@@ -428,13 +513,25 @@ const ScenarioDetailView: React.FC<{
             />
             
             <div className="mt-3 bg-cortex-bg-tertiary rounded-lg p-4">
-              <div className="font-medium text-cortex-text-secondary mb-2">CLI Guidance - Copy and execute these commands:</div>
+              <div className="font-medium text-cortex-text-secondary mb-2">📋 Essential Commands - Copy and execute:</div>
               <div className="space-y-2 text-sm font-mono">
-                <div className="text-cortex-green bg-black p-2 rounded">
-                  scenario generate --scenario-type {scenarioKey} --provider gcp --auto-validate
+                <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                  <span>scenario generate --scenario-type {scenarioKey} --provider {getScenarioProvider(scenarioKey)}</span>
+                  <button className="text-cortex-text-muted hover:text-cortex-green text-xs" onClick={() => navigator.clipboard?.writeText(`scenario generate --scenario-type ${scenarioKey} --provider ${getScenarioProvider(scenarioKey)}`)}>
+                    📋 Copy
+                  </button>
                 </div>
-                <div className="text-cortex-green bg-black p-2 rounded">
-                  scenario status --follow
+                <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                  <span>scenario status --follow --scenario-id latest</span>
+                  <button className="text-cortex-text-muted hover:text-cortex-green text-xs" onClick={() => navigator.clipboard?.writeText('scenario status --follow --scenario-id latest')}>
+                    📋 Copy
+                  </button>
+                </div>
+                <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                  <span>scenario metrics --scenario-type {scenarioKey} --timeframe 1h</span>
+                  <button className="text-cortex-text-muted hover:text-cortex-green text-xs" onClick={() => navigator.clipboard?.writeText(`scenario metrics --scenario-type ${scenarioKey} --timeframe 1h`)}>
+                    📋 Copy
+                  </button>
                 </div>
               </div>
             </div>
@@ -442,26 +539,40 @@ const ScenarioDetailView: React.FC<{
           
           {/* POV Integration Commands */}
           <div>
-            <h4 className="font-semibold text-cortex-text-secondary mb-3">🎯 POV Integration</h4>
+            <h4 className="font-semibold text-cortex-text-secondary mb-3">🎯 POV Integration & Customer Demo</h4>
             <TerminalWindow
               title={`POV Integration - ${scenario.name}`}
               commands={[
-                `# Initialize POV with ${scenario.name} scenario`,
-                `pov init "Customer Name" --template technical-deep-dive --scenarios ${scenarioKey}`,
+                `# Initialize comprehensive POV with ${scenario.name} scenario`,
+                `pov init "Customer Name" --template technical-deep-dive --scenarios ${scenarioKey} --industry manufacturing`,
                 ``,
-                `# Add detection rules for this scenario`,
-                `pov add-detection --scenario ${scenarioKey} --auto-map-mitre`,
+                `# Configure customer-specific parameters`,
+                `pov config --scenario ${scenarioKey} --customer-env production --sensitivity high`,
                 ``,
-                `# Generate POV report with scenario results`,
-                `pov report --scenario ${scenarioKey} --format executive --include-metrics`
+                `# Add detection rules with automatic MITRE mapping`,
+                `pov add-detection --scenario ${scenarioKey} --auto-map-mitre --include-hunting-queries`,
+                ``,
+                `# Generate threat landscape assessment`,
+                `pov threat-landscape --scenario ${scenarioKey} --competitor-analysis`,
+                ``,
+                `# Create demo environment`,
+                `pov demo-setup --scenario ${scenarioKey} --interactive --safe-mode`,
+                ``,
+                `# Generate executive and technical reports`,
+                `pov report --scenario ${scenarioKey} --format executive --include-metrics --export pdf`,
+                `pov report --scenario ${scenarioKey} --format technical --include-queries --export markdown`
               ]}
-              height="h-40"
+              height="h-80"
               initialOutput={
                 <div className="text-cyan-400">
                   <div className="text-lg font-bold mb-1">🎯 POV Integration Terminal</div>
-                  <div className="text-sm text-gray-400 mb-2">Integrate {scenario.name} into customer POV</div>
-                  <div className="text-xs text-gray-500">
-                    Business Impact: {scenario.businessImpact.split(' - ')[0]}
+                  <div className="text-sm text-gray-400 mb-3">Integrate {scenario.name} into customer POV demonstration</div>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <div>• Business Impact: {scenario.businessImpact.split(' - ')[0]}</div>
+                    <div>• MITRE Techniques: {scenario.mitreMapping.length} mapped</div>
+                    <div>• Detection Methods: {scenario.detectionTypes.length} technologies</div>
+                    <div>• Attack Vectors: {scenario.subcategories.length} subcategories</div>
+                    <div>• POV Templates: Executive, Technical, Competitive available</div>
                   </div>
                 </div>
               }
@@ -475,13 +586,37 @@ const ScenarioDetailView: React.FC<{
             />
             
             <div className="mt-3 bg-cortex-bg-tertiary rounded-lg p-4">
-              <div className="font-medium text-cortex-text-secondary mb-2">CLI Guidance - POV integration commands:</div>
-              <div className="space-y-2 text-sm font-mono">
-                <div className="text-cortex-green bg-black p-2 rounded">
-                  pov init "Customer Name" --template technical-deep-dive --scenarios {scenarioKey}
+              <div className="font-medium text-cortex-text-secondary mb-2">🎯 POV Workflow Commands:</div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 text-sm font-mono">
+                <div className="space-y-2">
+                  <div className="text-xs text-cortex-text-muted mb-1">Setup & Configuration:</div>
+                  <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                    <span className="truncate">pov init "Customer" --scenarios {scenarioKey}</span>
+                    <button className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2" onClick={() => navigator.clipboard?.writeText(`pov init "Customer Name" --scenarios ${scenarioKey}`)}>
+                      📋
+                    </button>
+                  </div>
+                  <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                    <span className="truncate">pov demo-setup --scenario {scenarioKey}</span>
+                    <button className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2" onClick={() => navigator.clipboard?.writeText(`pov demo-setup --scenario ${scenarioKey}`)}>                      
+                      📋
+                    </button>
+                  </div>
                 </div>
-                <div className="text-cortex-green bg-black p-2 rounded">
-                  pov add-detection --scenario {scenarioKey} --auto-map-mitre
+                <div className="space-y-2">
+                  <div className="text-xs text-cortex-text-muted mb-1">Reports & Analysis:</div>
+                  <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                    <span className="truncate">pov report --format executive</span>
+                    <button className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2" onClick={() => navigator.clipboard?.writeText('pov report --format executive --export pdf')}>
+                      📋
+                    </button>
+                  </div>
+                  <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                    <span className="truncate">pov threat-landscape --competitor</span>
+                    <button className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2" onClick={() => navigator.clipboard?.writeText('pov threat-landscape --competitor-analysis')}>
+                      📋
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -489,26 +624,21 @@ const ScenarioDetailView: React.FC<{
           
           {/* Detection and Validation Commands */}
           <div>
-            <h4 className="font-semibold text-cortex-text-secondary mb-3">🔍 Detection & Validation</h4>
+            <h4 className="font-semibold text-cortex-text-secondary mb-3">🔍 Detection & Validation Engine</h4>
             <TerminalWindow
               title={`Detection Validation - ${scenario.name}`}
-              commands={[
-                `# Test detection rules for ${scenario.name}`,
-                `detect test --scenario ${scenarioKey} --all-rules`,
-                ``,
-                `# Validate MITRE coverage`,
-                `mitre validate --techniques ${scenario.mitreMapping.join(',')}`,
-                ``,
-                `# Generate detection report`,
-                `detect report --scenario ${scenarioKey} --format technical`
-              ]}
-              height="h-36"
+              commands={getDetectionCommands(scenarioKey, scenario)}
+              height="h-96"
               initialOutput={
                 <div className="text-cyan-400">
                   <div className="text-lg font-bold mb-1">🔍 Detection Validation Terminal</div>
-                  <div className="text-sm text-gray-400 mb-2">Validate detection capabilities for {scenario.name}</div>
-                  <div className="text-xs text-gray-500">
-                    Detection Types: {scenario.detectionTypes.join(', ')}
+                  <div className="text-sm text-gray-400 mb-3">Comprehensive detection testing for {scenario.name}</div>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <div>• Detection Technologies: {scenario.detectionTypes.join(', ')}</div>
+                    <div>• MITRE Techniques: {scenario.mitreMapping.join(', ')}</div>
+                    <div>• Provider: {getScenarioProvider(scenarioKey).toUpperCase()}</div>
+                    <div>• Attack Vectors: {scenario.subcategories.length} threat patterns</div>
+                    <div>• Validation Mode: Comprehensive with false positive analysis</div>
                   </div>
                 </div>
               }
@@ -522,62 +652,209 @@ const ScenarioDetailView: React.FC<{
             />
             
             <div className="mt-3 bg-cortex-bg-tertiary rounded-lg p-4">
-              <div className="font-medium text-cortex-text-secondary mb-2">CLI Guidance - Detection validation:</div>
-              <div className="space-y-2 text-sm font-mono">
-                <div className="text-cortex-green bg-black p-2 rounded">
-                  detect test --scenario {scenarioKey} --all-rules
+              <div className="font-medium text-cortex-text-secondary mb-2">🔍 Detection Testing Workflow:</div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 text-sm font-mono">
+                <div className="space-y-2">
+                  <div className="text-xs text-cortex-text-muted mb-1">Basic Testing:</div>
+                  <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                    <span className="truncate">detect test --scenario {scenarioKey}</span>
+                    <button className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2" onClick={() => navigator.clipboard?.writeText(`detect test --scenario ${scenarioKey} --all-rules --verbose`)}>
+                      📋
+                    </button>
+                  </div>
+                  <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                    <span className="truncate">mitre validate --techniques</span>
+                    <button className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2" onClick={() => navigator.clipboard?.writeText(`mitre validate --techniques ${scenario.mitreMapping.join(',')} --coverage-report`)}>
+                      📋
+                    </button>
+                  </div>
                 </div>
-                <div className="text-cortex-green bg-black p-2 rounded">
-                  mitre validate --techniques {scenario.mitreMapping.join(',')}
+                <div className="space-y-2">
+                  <div className="text-xs text-cortex-text-muted mb-1">Advanced Analysis:</div>
+                  <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                    <span className="truncate">threat-hunt --behavioral</span>
+                    <button className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2" onClick={() => navigator.clipboard?.writeText('threat-hunt --ioc-sweep --behavioral-analysis')}>
+                      📋
+                    </button>
+                  </div>
+                  <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                    <span className="truncate">runtime-scan --monitor</span>
+                    <button className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2" onClick={() => navigator.clipboard?.writeText('runtime-scan --monitor-containers --detect-escapes')}>
+                      📋
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-xs text-cortex-text-muted mb-1">Reporting:</div>
+                  <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                    <span className="truncate">detect report --technical</span>
+                    <button className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2" onClick={() => navigator.clipboard?.writeText(`detect report --scenario ${scenarioKey} --format technical --export pdf`)}>
+                      📋
+                    </button>
+                  </div>
+                  <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                    <span className="truncate">metrics --coverage</span>
+                    <button className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2" onClick={() => navigator.clipboard?.writeText(`scenario metrics --scenario-type ${scenarioKey} --detection-coverage`)}>
+                      📋
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Monitoring and Analysis Commands */}
+          <div>
+            <h4 className="font-semibold text-cortex-text-secondary mb-3">📈 Monitoring & Analysis Dashboard</h4>
+            <TerminalWindow
+              title={`Real-time Monitoring - ${scenario.name}`}
+              commands={[
+                `# Real-time scenario monitoring and analysis`,
+                `monitor start --scenario ${scenarioKey} --real-time --alerts`,
+                ``,
+                `# Performance metrics and KPIs`,
+                `metrics dashboard --scenario ${scenarioKey} --kpi-view --export json`,
+                ``,
+                `# Threat intelligence correlation`,
+                `threat-intel correlate --scenario ${scenarioKey} --ioc-feeds --reputation-check`,
+                ``,
+                `# Continuous compliance checking`,
+                `compliance check --framework mitre,nist --scenario ${scenarioKey} --auto-remediate`,
+                ``,
+                `# Log analysis and forensics`,
+                `forensics analyze --scenario ${scenarioKey} --timeline --artifact-collection`,
+                ``,
+                `# Executive summary generation`,
+                `summary generate --scenario ${scenarioKey} --stakeholder executive --include-recommendations`
+              ]}
+              height="h-64"
+              initialOutput={
+                <div className="text-cyan-400">
+                  <div className="text-lg font-bold mb-1">📈 Monitoring Dashboard Terminal</div>
+                  <div className="text-sm text-gray-400 mb-3">Comprehensive monitoring and analysis for {scenario.name}</div>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <div>• Real-time Alerts: Enabled for {scenario.businessImpact.split(' - ')[0].toLowerCase()} risk events</div>
+                    <div>• KPI Tracking: MITRE coverage, detection efficiency, false positive rate</div>
+                    <div>• Threat Intel: Integrated with IOC feeds and reputation services</div>
+                    <div>• Compliance: MITRE ATT&CK, NIST, ISO 27001 framework alignment</div>
+                    <div>• Forensics: Timeline analysis and artifact preservation ready</div>
+                  </div>
+                </div>
+              }
+              onCommand={(command) => {
+                userActivityService.trackActivity('monitoring-terminal-command', 'unified-creator', {
+                  scenarioKey,
+                  command: command.split(' ')[0],
+                  fullCommand: command
+                });
+              }}
+            />
+            
+            <div className="mt-3 bg-cortex-bg-tertiary rounded-lg p-4">
+              <div className="font-medium text-cortex-text-secondary mb-2">📈 Monitoring & Analysis Workflows:</div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 text-sm font-mono">
+                <div className="space-y-2">
+                  <div className="text-xs text-cortex-text-muted mb-1">Real-time Monitoring:</div>
+                  <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                    <span className="truncate">monitor start --real-time</span>
+                    <button className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2" onClick={() => navigator.clipboard?.writeText(`monitor start --scenario ${scenarioKey} --real-time --alerts`)}>
+                      📋
+                    </button>
+                  </div>
+                  <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                    <span className="truncate">metrics dashboard --kpi</span>
+                    <button className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2" onClick={() => navigator.clipboard?.writeText(`metrics dashboard --scenario ${scenarioKey} --kpi-view --export json`)}>
+                      📋
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-xs text-cortex-text-muted mb-1">Analysis & Reporting:</div>
+                  <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                    <span className="truncate">forensics analyze --timeline</span>
+                    <button className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2" onClick={() => navigator.clipboard?.writeText(`forensics analyze --scenario ${scenarioKey} --timeline --artifact-collection`)}>
+                      📋
+                    </button>
+                  </div>
+                  <div className="text-cortex-green bg-black p-2 rounded flex justify-between items-center">
+                    <span className="truncate">summary executive --recs</span>
+                    <button className="text-cortex-text-muted hover:text-cortex-green text-xs ml-2" onClick={() => navigator.clipboard?.writeText(`summary generate --scenario ${scenarioKey} --stakeholder executive --include-recommendations`)}>
+                      📋
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           
           {/* Quick Action Buttons */}
-          <div className="flex flex-wrap gap-3">
-            <CortexButton
-              variant="primary"
-              icon="🚀"
-              onClick={() => {
-                userActivityService.trackActivity('scenario-deploy-click', 'unified-creator', { scenarioKey });
-                // Execute scenario generate command
-                console.log(`scenario generate --scenario-type ${scenarioKey} --provider gcp --auto-validate`);
-              }}
-            >
-              Deploy Scenario
-            </CortexButton>
-            <CortexButton
-              variant="outline"
-              icon="🎯"
-              onClick={() => {
-                userActivityService.trackActivity('pov-integration-click', 'unified-creator', { scenarioKey });
-                // Execute POV integration
-                console.log(`pov init "Customer Name" --template technical-deep-dive --scenarios ${scenarioKey}`);
-              }}
-            >
-              Integrate with POV
-            </CortexButton>
-            <CortexButton
-              variant="outline"
-              icon="📋"
-              onClick={() => {
-                userActivityService.trackActivity('scenario-templates-click', 'unified-creator', { scenarioKey });
-                console.log(`scenario list --scenario-type ${scenarioKey}`);
-              }}
-            >
-              View Templates
-            </CortexButton>
-            <CortexButton
-              variant="outline"
-              icon="🔍"
-              onClick={() => {
-                userActivityService.trackActivity('detection-test-click', 'unified-creator', { scenarioKey });
-                console.log(`detect test --scenario ${scenarioKey} --all-rules`);
-              }}
-            >
-              Test Detections
-            </CortexButton>
+          <div className="bg-cortex-bg-tertiary rounded-lg p-6">
+            <h4 className="font-semibold text-cortex-text-secondary mb-4">🏃‍♂️ Quick Actions</h4>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <CortexButton
+                variant="primary"
+                icon="🚀"
+                onClick={() => {
+                  userActivityService.trackActivity('scenario-deploy-click', 'unified-creator', { scenarioKey });
+                  console.log(`scenario generate --scenario-type ${scenarioKey} --provider ${getScenarioProvider(scenarioKey)} --auto-validate`);
+                }}
+              >
+                Deploy Scenario
+              </CortexButton>
+              <CortexButton
+                variant="outline"
+                icon="🎯"
+                onClick={() => {
+                  userActivityService.trackActivity('pov-integration-click', 'unified-creator', { scenarioKey });
+                  console.log(`pov init "Customer Name" --template technical-deep-dive --scenarios ${scenarioKey}`);
+                }}
+              >
+                Integrate with POV
+              </CortexButton>
+              <CortexButton
+                variant="outline"
+                icon="🔍"
+                onClick={() => {
+                  userActivityService.trackActivity('detection-test-click', 'unified-creator', { scenarioKey });
+                  console.log(`detect test --scenario ${scenarioKey} --all-rules`);
+                }}
+              >
+                Test Detections
+              </CortexButton>
+              <CortexButton
+                variant="outline"
+                icon="📈"
+                onClick={() => {
+                  userActivityService.trackActivity('monitoring-start-click', 'unified-creator', { scenarioKey });
+                  console.log(`monitor start --scenario ${scenarioKey} --real-time --alerts`);
+                }}
+              >
+                Start Monitoring
+              </CortexButton>
+            </div>
+            
+            <div className="mt-4 pt-4 border-t border-cortex-border-secondary">
+              <div className="flex flex-wrap gap-2 text-sm">
+                <div className="flex items-center space-x-2 px-3 py-1 bg-cortex-bg-primary rounded">
+                  <span className="text-cortex-text-muted">Provider:</span>
+                  <span className="text-cortex-text-primary font-mono">{getScenarioProvider(scenarioKey).toUpperCase()}</span>
+                </div>
+                <div className="flex items-center space-x-2 px-3 py-1 bg-cortex-bg-primary rounded">
+                  <span className="text-cortex-text-muted">MITRE:</span>
+                  <span className="text-cortex-text-primary font-mono">{scenario.mitreMapping.length} techniques</span>
+                </div>
+                <div className="flex items-center space-x-2 px-3 py-1 bg-cortex-bg-primary rounded">
+                  <span className="text-cortex-text-muted">Impact:</span>
+                  <span className={`font-mono ${
+                    scenario.businessImpact.startsWith('Critical') ? 'text-cortex-error' :
+                    scenario.businessImpact.startsWith('High') ? 'text-cortex-warning' :
+                    'text-cortex-info'
+                  }`}>
+                    {scenario.businessImpact.split(' - ')[0]}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

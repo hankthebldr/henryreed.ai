@@ -1,7 +1,6 @@
 // Background scenario execution engine
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { z } from 'zod';
 import { logger } from '../utils/logger';
 
 // ============================================================================
@@ -141,6 +140,10 @@ class ScenarioExecutionEngine {
   private db: FirebaseFirestore.Firestore;
 
   constructor() {
+    // Ensure Firebase is initialized
+    if (!admin.apps.length) {
+      admin.initializeApp();
+    }
     this.db = admin.firestore();
   }
 
@@ -329,6 +332,7 @@ class ScenarioExecutionEngine {
             description: `Detection point ${detectionPoint.name} found ${detection.findings} findings`,
             source: detectionPoint.id,
             actionRequired: true,
+            timestamp: new Date(),
           });
           
           stageResult.status = 'completed';
@@ -349,7 +353,7 @@ class ScenarioExecutionEngine {
     } catch (error) {
       stageResult.status = 'failed';
       stageResult.endTime = new Date();
-      stageResult.errors.push(error.toString());
+      stageResult.errors.push(error instanceof Error ? error.message : String(error));
       
       this.logExecution(executionId, 'error', `stage-${stage.id}`, `Stage failed: ${error}`);
       
@@ -478,6 +482,7 @@ class ScenarioExecutionEngine {
             description: `Rule ${rule.id} triggered pause due to: ${rule.condition}`,
             source: 'adaptive-engine',
             actionRequired: true,
+            timestamp: new Date(),
           });
         }
         break;
@@ -556,6 +561,7 @@ class ScenarioExecutionEngine {
           description: `Stage ${stage.name} failed and requires manual intervention: ${error}`,
           source: stage.id,
           actionRequired: true,
+          timestamp: new Date(),
         });
         break;
         
