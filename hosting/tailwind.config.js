@@ -8,8 +8,17 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Palo Alto Networks Cortex Brand Colors (Official)
-        cortex: {
+        // Official Palo Alto Networks Brand Colors (2025 Update)
+        'pan-orange': '#FA582D',           // Primary Palo Alto Networks orange
+        'pan-orange-dark': '#da532c',      // Darker orange variant
+        'pan-gray': '#141414',             // Primary text color
+        'cortex-primary': '#FA582D',       // Cortex primary (matches Palo Alto)
+        'cortex-teal': '#8ad3de',         // Cortex accent teal
+        'cortex-blue': '#00c0e8',         // Cortex interactive blue
+        'cortex-dark': '#141414',         // Cortex dark text
+        
+        // Previous color configuration (commented for reference)
+        /* cortex: {
           // Primary brand colors
           orange: {
             DEFAULT: '#FF6900',    // Primary Palo Alto Orange
@@ -22,8 +31,17 @@ module.exports = {
             700: '#CC4D00',
             800: '#B33D00',
             900: '#992B00',
+          }, */
+          
+          // Official Cortex branding with consistent colors
+          cortex: {
+            primary: '#FA582D',      // Matches Palo Alto primary
+            teal: '#8ad3de',        // Official theme accent
+            blue: '#00c0e8',        // Interactive elements
+            dark: '#141414',        // Text color
           },
           
+          /* Legacy colors (preserved for reference)
           // Cortex greens (secondary brand color)
           green: {
             DEFAULT: '#00CC66',    // Cortex green
@@ -36,8 +54,9 @@ module.exports = {
             700: '#00994C',
             800: '#008040',
             900: '#006633',
-          },
+          }, */
           
+          /* Legacy theme configurations (preserved for reference)
           // Dark theme backgrounds
           bg: {
             primary: '#000000',    // Pure black
@@ -93,6 +112,14 @@ module.exports = {
             bg: '#0C1D2E',
             border: '#58A6FF',
           },
+          */ 
+        },
+        
+        // Brand gradients for Palo Alto Networks
+        backgroundImage: {
+          'pan-gradient': 'linear-gradient(135deg, #FA582D 0%, #8ad3de 100%)',
+          'pan-gradient-reverse': 'linear-gradient(135deg, #8ad3de 0%, #FA582D 100%)',
+          'cortex-gradient': 'linear-gradient(135deg, #00c0e8 0%, #8ad3de 100%)',
         }
       },
       fontFamily: {
