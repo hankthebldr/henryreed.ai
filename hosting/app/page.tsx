@@ -2,174 +2,92 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppState } from '../contexts/AppStateContext';
-
-const VALID_CREDENTIALS = {
-  username: 'cortex',
-  password: 'xsiam'
-};
-
-// Mock user data for successful login
-const MOCK_USER = {
-  id: 'cortex-001',
-  username: 'cortex',
-  email: 'cortex@paloaltonetworks.com',
-  role: 'admin' as const,
-  viewMode: 'admin' as const,
-  permissions: ['scenario:execute', 'pov:create', 'system:admin', 'trr:manage'],
-  lastLogin: new Date().toISOString()
-};
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Page() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedInterface] = useState<'gui'>('gui');
-  const [showInterfaceSelection, setShowInterfaceSelection] = useState(false);
+  const { signIn, user, loading } = useAuth();
   const router = useRouter();
-  const { state, actions } = useAppState();
 
-  // If already authenticated, send users straight to GUI
+  // If already authenticated, redirect to GUI
   useEffect(() => {
-    const authenticated = sessionStorage.getItem('dc_authenticated');
-    const savedUser = sessionStorage.getItem('dc_user');
-    
-    if (authenticated === 'true' && savedUser && !state.auth.isAuthenticated) {
-      try {
-        const user = JSON.parse(savedUser);
-        actions.setUser(user);
-        actions.setViewMode(user.viewMode || 'user');
-      } catch (error) {
-        // Clear corrupted session data
-        sessionStorage.removeItem('dc_authenticated');
-        sessionStorage.removeItem('dc_user');
-      }
-    }
-    
-    if (authenticated === 'true' || state.auth.isAuthenticated) {
+    if (user && !loading) {
       router.push('/gui');
     }
-  }, [router, state.auth.isAuthenticated, actions]);
+  }, [user, loading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
 
-    // Simple delay to simulate authentication
-    await new Promise(resolve => setTimeout(resolve, 800));
-
-    if (username === VALID_CREDENTIALS.username && password === VALID_CREDENTIALS.password) {
-      // Store authentication state in session storage for persistence
-      sessionStorage.setItem('dc_authenticated', 'true');
-      sessionStorage.setItem('dc_user', JSON.stringify(MOCK_USER));
-      
-      // Update AppState with user authentication
-      actions.setUser(MOCK_USER);
-      actions.setViewMode('admin');
-      
-      // Show success notification
-      actions.notify('success', `Welcome back, ${MOCK_USER.username}!`);
-      
-      // Route directly to GUI
-      router.push('/gui');
-    } else {
-      setError('Invalid credentials. Please try again.');
-      // Show error notification
-      actions.notify('error', 'Authentication failed. Please check your credentials.');
-      // Clear password field on error
+    try {
+      await signIn(username, password);
+      // The useEffect hook will handle navigation after successful login
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error instanceof Error ? error.message : 'Authentication failed. Please try again.');
       setPassword('');
     }
-    setIsLoading(false);
-  };
-
-  const handleInterfaceSelection = (interfaceType: 'gui') => {
-    router.push(`/gui`);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !isLoading) {
+    if (e.key === 'Enter' && !loading) {
       handleSubmit(e as any);
     }
   };
 
   return (
-    <div className="min-h-screen bg-cortex-bg-primary flex items-center justify-center">
-      {/* Background Pattern */}
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center relative overflow-hidden">
+      {/* Modern Background Pattern with Cortex DC Branding */}
       <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-black"></div>
         <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(0,204,102,0.3) 1px, transparent 0)`,
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(250,88,45,0.1) 1px, transparent 0)`,
           backgroundSize: '20px 20px'
         }}></div>
       </div>
+      
+      {/* Palo Alto Networks Logo Watermark */}
+      <div className="absolute top-8 right-8 opacity-15">
+        <img src="/assets/branding/logos/pan-logo-dark.svg" alt="Palo Alto Networks" width="120" height="24" className="filter invert opacity-30" />
+      </div>
 
       <div className="relative z-10 w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="mb-4">
-<pre className="text-cortex-green text-sm font-mono leading-tight">
-{`
- ██████╗ ██████╗ ██████╗ ████████╗███████╗██╗  ██╗    ██████╗  ██████╗
-██╔════╝██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝╚██╗██╔╝    ██╔══██╗██╔════╝
-██║     ██║   ██║██████╔╝   ██║   █████╗   ╚███╔╝     ██║  ██║██║     
-██║     ██║   ██║██╔══██╗   ██║   ██╔══╝   ██╔██╗     ██║  ██║██║     
-╚██████╗╚██████╔╝██║  ██║   ██║   ███████╗██╔╝ ██╗    ██████╔╝╚██████╗
- ╚═════╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝    ╚═════╝  ╚═════╝
-`}
-            </pre>
+        {/* Header with Palo Alto Networks & Cortex DC Branding */}
+        <div className="text-center mb-8 relative">
+          {/* Palo Alto Networks Official Logo with background */}
+          <div className="flex justify-center mb-6">
+            <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+              <img src="/assets/branding/logos/pan-logo-dark.svg" alt="Palo Alto Networks" width="180" height="35" className="filter invert" />
+            </div>
           </div>
-<h1 className="text-3xl font-bold text-cortex-text-primary mb-2">Cortex DC Access</h1>
-          <p className="text-cortex-text-muted text-sm">
-            Secure access to the Cortex DC Engagement Portal
+          
+          {/* Cortex DC Portal Title */}
+          <div className="mb-4 relative">
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold mb-2">Cortex DC Portal</h1>
+            </div>
+            <div className="text-lg font-semibold text-gray-300 mb-2">
+              Domain Consultant Engagement Platform
+            </div>
+          </div>
+          
+          <p className="text-gray-400 text-sm mb-2">
+            Professional POV Management & Customer Engagement Hub
           </p>
+          <div className="text-xs text-orange-400 font-medium">
+            Powered by Palo Alto Networks Cortex Platform
+          </div>
         </div>
 
-        {/* Login Card / Interface Selection */}
-        <div className="cortex-card-elevated p-8">
-          {showInterfaceSelection ? (
-            <div className="space-y-6">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-cortex-green mb-2">Choose Your Experience</h2>
-                <p className="text-cortex-text-secondary text-sm">
-                  Select your preferred interface for the Cortex DC Portal
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-1 gap-4">
-                {/* GUI Only */}
-                <button
-                  onClick={() => handleInterfaceSelection('gui')}
-                  className="group p-6 border-2 border-cortex-border-secondary hover:border-cortex-green rounded-lg transition-all duration-200 hover:shadow-lg hover:cortex-glow-green text-left"
-                >
-                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">🎨</div>
-                  <h3 className="text-xl font-bold text-cortex-text-primary mb-2">Graphical Interface</h3>
-                  <p className="text-cortex-text-secondary text-sm mb-3">
-                    Modern web interface with forms, dashboards, and visual workflows. Optimized for the Domain Consultant experience.
-                  </p>
-                  <div className="text-xs text-cortex-green">
-                    ✓ Visual dashboards  ✓ Form-based inputs  ✓ Charts & reports
-                  </div>
-                </button>
-              </div>
-              
-              <div className="text-center pt-4 border-t border-cortex-border-secondary">
-                <p className="text-xs text-cortex-text-muted mb-2">
-                  You can switch between interfaces at any time using the navigation header
-                </p>
-                <button
-                  onClick={() => setShowInterfaceSelection(false)}
-                  className="text-cortex-text-accent hover:text-cortex-green text-sm underline"
-                >
-                  ← Back to Login
-                </button>
-              </div>
-            </div>
-          ) : (
+        {/* Modern Login Card */}
+        <div className="bg-gray-800/80 backdrop-blur-xl border border-gray-700 rounded-lg p-8 shadow-2xl hover:border-orange-500/40 transition-all duration-500">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username Field */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-cortex-text-secondary mb-2">
+              <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
                 Username
               </label>
               <input
@@ -177,7 +95,7 @@ export default function Page() {
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:border-cortex-green focus:ring-2 focus:ring-cortex-green/20 transition-colors font-mono"
+                className="w-full px-4 py-3 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-colors"
                 placeholder="Enter username"
                 required
                 autoComplete="username"
@@ -186,7 +104,7 @@ export default function Page() {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-cortex-text-secondary mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
                 Password
               </label>
               <input
@@ -195,7 +113,7 @@ export default function Page() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:border-cortex-green focus:ring-2 focus:ring-cortex-green/20 transition-colors font-mono"
+                className="w-full px-4 py-3 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-colors"
                 placeholder="Enter password"
                 required
                 autoComplete="current-password"
@@ -204,10 +122,10 @@ export default function Page() {
 
             {/* Error Message */}
             {error && (
-              <div className="p-3 status-error rounded-lg">
+              <div className="p-3 bg-red-900/50 border border-red-600 rounded-lg">
                 <div className="flex items-center">
                   <div className="mr-2">⚠️</div>
-                  <div className="text-sm">{error}</div>
+                  <div className="text-sm text-red-200">{error}</div>
                 </div>
               </div>
             )}
@@ -215,38 +133,31 @@ export default function Page() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full btn-cortex-primary disabled:bg-cortex-bg-hover disabled:text-cortex-text-disabled disabled:cursor-not-allowed flex items-center justify-center"
+              className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading}
             >
-              {isLoading ? (
-                <>
-                  <div className="cortex-spinner mr-3"></div>
-                  Authenticating...
-                </>
+              {loading ? (
+                <><span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>Authenticating...</>
               ) : (
-                <>
-                  <span className="mr-2">🛡️</span>
-                  Access Portal
-                </>
+                <><span className="text-lg mr-2">🚀</span>Access DC Portal<span className="text-sm opacity-75 ml-2">→</span></>
               )}
             </button>
           </form>
-          )}
 
           {/* Footer Info */}
-          <div className="mt-6 pt-6 border-t border-cortex-border-secondary">
+          <div className="mt-6 pt-6 border-t border-gray-700">
             <div className="text-center">
-              <p className="text-xs text-cortex-text-muted mb-2">
-                Authorized domain consultants only
+              <p className="text-xs text-gray-400 mb-2">
+                Authorized Domain Consultants Only
               </p>
-              <div className="flex items-center justify-center space-x-4 text-xs text-cortex-text-muted">
+              <div className="flex items-center justify-center space-x-4 text-xs text-gray-400">
                 <div className="flex items-center">
-                  <div className="w-2 h-2 bg-cortex-green rounded-full mr-1 animate-pulse"></div>
-                  <span>System Online</span>
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></div>
+                  <span>Portal Online</span>
                 </div>
                 <div className="flex items-center">
-                  <div className="w-2 h-2 bg-cortex-green rounded-full mr-1"></div>
-                  <span>Portal Ready</span>
+                  <div className="w-2 h-2 bg-orange-500 rounded-full mr-1"></div>
+                  <span>Cortex Ready</span>
                 </div>
               </div>
             </div>
@@ -254,9 +165,15 @@ export default function Page() {
         </div>
 
         {/* Bottom Info */}
-        <div className="text-center mt-8 text-xs text-cortex-text-muted">
-          <p>Cortex DC Engagement Portal</p>
-          <p className="mt-1">v2.2 • Professional POV Management Platform</p>
+        <div className="text-center mt-8 text-xs text-gray-400">
+          <p className="text-white font-medium">Cortex Domain Consultant Portal</p>
+          <p className="mt-1">v2.5 • Professional POV & Customer Engagement Platform</p>
+          <div className="flex items-center justify-center mt-3 space-x-2">
+            <span>Powered by</span>
+            <div className="bg-gray-800 px-2 py-1 rounded">
+              <img src="/assets/branding/logos/pan-logo-dark.svg" alt="Palo Alto Networks" width="60" height="12" className="filter invert opacity-80" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

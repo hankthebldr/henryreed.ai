@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import { processScenarioExecution, monitorExecutionStatusChanges, cleanupOldExecutions } from './handlers/scenario-executor';
 declare const app: import("express-serve-static-core").Express;
 /**

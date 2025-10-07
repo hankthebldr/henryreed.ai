@@ -1,35 +1,104 @@
-# Cortex DC Portal - Domain Consultant Hub
+# Cortex Domain Consultant Portal
 
-> **Professional XSIAM POV Management & Security Demonstration Platform for Domain Consultants**
+> **Professional POV Management & Customer Engagement Platform**  
+> *Powered by Palo Alto Networks Cortex Platform*
 
-[![Deploy to Firebase](https://img.shields.io/badge/deploy-Firebase-orange)](https://henryreedai.web.app)
-[![Built with Next.js](https://img.shields.io/badge/built%20with-Next.js-black)](https://nextjs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.4.1-black?style=flat&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-Ready-orange?style=flat&logo=firebase)](https://firebase.google.com/)
+[![Production Ready](https://img.shields.io/badge/Production-Ready-brightgreen)](https://henryreedai.web.app)
 
-A modern, GUI-first web application designed for Domain Consultants to manage POVs (Proof of Value), TRRs (Technical Requirements Review), and security scenarios. Built with Next.js 15 and deployed on Google Cloud Platform using Firebase services.
-
-![Cortex DC Portal Interface](https://via.placeholder.com/800x400/1a1a1a/00ff00?text=Cortex+DC+Portal+Interface)
+A professional-grade web application designed specifically for Palo Alto Networks Domain Consultants to manage Proof of Value (POV) engagements, customer demonstrations, and technical sales activities. Built with Next.js 15 and optimized for both desktop and mobile experiences.
 
 ---
 
-## 🚀 Features & Capabilities
+## 🔐 Authentication
 
-### 📊 **Core Modules**
-- **🎯 POV Management** - Complete POV project lifecycle with timeline tracking and stakeholder communication
-- **📋 TRR Management** - Technical Requirements Review tracking and automation
-- **🤖 AI Insights** - AI-powered analysis, recommendations, and chat assistance
-- **🛠️ Content Creator** - Unified creation flows for POVs, templates, and scenarios
-- **🔗 XSIAM Integration** - Real-time XSIAM connectivity, health monitoring, and analytics
-- **📊 BigQuery Export** - Data export and analytics pipeline integration
-- **🔧 Scenario Engine** - Security scenario deployment and management
+The application supports simple username/password authentication with two pre-configured accounts:
 
-### ⚙️ **Technical Stack**
-- **Frontend**: Next.js 15 with Turbopack, TypeScript, Tailwind CSS
-- **Backend**: Google Cloud Functions (Node.js 18/20), Firebase services
-- **Database**: Firebase Firestore + PostgreSQL Data Connect
-- **Authentication**: Firebase Authentication with role-based access control
-- **Hosting**: Firebase Hosting with global CDN
-- **AI/ML**: Google Genkit integration for advanced AI capabilities
+- **Regular User**: `user1` / `paloalto1` - Domain Consultant with standard permissions
+- **System Admin**: `cortex` / `xsiam` - Full administrative access
+
+*Note: The app runs in mock authentication mode for development and demonstration purposes.*
+
+---
+
+## ✨ Features & Capabilities
+
+### 🎯 Core Modules
+
+#### 1. **Dashboard**
+*Central engagement hub with real-time metrics*
+- Real-time POV progress and customer engagement stats
+- Customizable widgets and quick actions
+- Activity feed and executive reporting
+- Mobile-responsive design
+
+#### 2. **POV Management** 
+*Complete Proof of Value lifecycle management*
+- Template-based POV initialization and planning
+- Milestone tracking with visual timelines
+- Customer engagement and stakeholder management
+- Competitive analysis and ROI calculations
+- Success metrics and business value demonstrations
+
+#### 3. **TRR & Requirements**
+*Technical Requirements Review and documentation*
+- Interactive TRR forms with validation
+- CSV import/export for bulk operations
+- Solution Design Workbook (SDW) integration
+- Workflow automation and status tracking
+
+#### 4. **AI Assistant** 
+*AI-powered customer engagement optimization*
+- Context-aware recommendations
+- POV optimization suggestions
+- Predictive analytics for timeline and risk assessment
+- Auto-generated executive summaries
+
+#### 5. **Platform Health**
+*Real-time system monitoring and analytics*
+- Cortex platform health monitoring
+- Demo environment management
+- Performance metrics and alerting
+- Integration status monitoring
+
+#### 6. **Content Creator**
+*Unified content generation for DC workflows*
+- POV documentation automation
+- TRR report templates
+- Customer presentations with real data
+- Template management and version control
+
+#### 7. **BigQuery Analytics**
+*Advanced data export and analysis*
+- Configurable data exports
+- Multiple format support (JSON, CSV, Excel)
+- Usage metrics and analytics dashboard
+- Customer-specific and time-based filtering
+
+### 🏗️ Technical Stack
+
+**Frontend**
+- **Next.js 15** - React framework with Turbopack for fast development
+- **TypeScript** - Full type safety throughout the application  
+- **Tailwind CSS** - Utility-first CSS framework for responsive design
+- **React Hooks** - Modern state management and lifecycle handling
+
+**Backend & Services**
+- **Firebase Hosting** - Static site hosting with global CDN
+- **Google Cloud Functions** - Serverless backend (Node.js 18/20)
+- **Firebase Firestore** - Real-time document database with optimized indexes
+- **PostgreSQL Data Connect** - Advanced data relationships and queries
+- **Firebase Authentication** - Mock auth mode for development
+- **Firebase Storage** - Secure file and asset management
+
+**Key Features**
+- **Role-Based Access Control (RBAC)** - Granular permissions system
+- **Dual Interface** - Both GUI and terminal interfaces
+- **Real-time Updates** - Live data synchronization
+- **Mobile Responsive** - Optimized for all device sizes
+- **Performance Optimized** - Memoized components to prevent re-render issues
 
 ---
 
@@ -123,14 +192,14 @@ henryreed.ai/
 
 ---
 
-## 🚐 Getting Started
+## 🚀 Getting Started
 
-### **Prerequisites**
-- **Node.js** 18+ (LTS recommended)
+### Prerequisites
+- **Node.js** 18.0+ (LTS recommended)
 - **Firebase CLI**: `npm install -g firebase-tools`
 - **Git** for version control
 
-### **Local Development**
+### Local Development
 
 1. **Clone and setup:**
    ```bash
@@ -141,11 +210,22 @@ henryreed.ai/
 
 2. **Start development server:**
    ```bash
+   # With Turbopack (faster development)
    npm run dev
-   # Runs on http://localhost:3000 with Turbopack
+   
+   # Without Turbopack (if issues occur)
+   npm run dev:no-turbo
    ```
+   
+3. **Access the application:**
+   - **Login Page**: [http://localhost:3000](http://localhost:3000)
+   - **Main Application**: [http://localhost:3000/gui](http://localhost:3000/gui) (after login)
+   
+4. **Login with demo accounts:**
+   - **Regular User**: `user1` / `paloalto1`
+   - **System Admin**: `cortex` / `xsiam`
 
-3. **Firebase emulation (optional):**
+5. **Firebase emulation (optional):**
    ```bash
    npm run firebase:emulators
    # Starts local Firebase services

@@ -8,9 +8,12 @@ export class CloudFunctionsAPI {
 
   constructor(projectId: string = 'henryreedai') {
     this.projectId = projectId;
-    // Allow override via env for emulator or custom domain
-    const fromEnv = typeof window !== 'undefined' ? (window as any).NEXT_PUBLIC_FUNCTIONS_BASE_URL || process.env.NEXT_PUBLIC_FUNCTIONS_BASE_URL : process.env.NEXT_PUBLIC_FUNCTIONS_BASE_URL;
-    this.baseUrl = fromEnv || `https://us-central1-${projectId}.cloudfunctions.net`;
+    // Allow override via env for emulator or custom domain; default to /api (Firebase Hosting rewrite)
+    const fromEnv = (typeof window !== 'undefined'
+      ? ((window as any).NEXT_PUBLIC_FUNCTIONS_BASE_URL || process.env.NEXT_PUBLIC_FUNCTIONS_BASE_URL)
+      : process.env.NEXT_PUBLIC_FUNCTIONS_BASE_URL) as string | undefined;
+    const sanitized = fromEnv && fromEnv.trim().length > 0 ? fromEnv.trim().replace(/\/$/, '') : '';
+    this.baseUrl = sanitized || '/api';
   }
 
   private async getAuthHeaders(): Promise<Record<string, string>> {

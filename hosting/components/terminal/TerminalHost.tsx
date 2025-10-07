@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { useAppState } from '../../contexts/AppStateContext';
-import ImprovedTerminal from '../ImprovedTerminal';
+import ImprovedTerminal, { ImprovedTerminalRef } from '../ImprovedTerminal';
 
 export interface TerminalHostRef {
   focus: () => void;
@@ -14,45 +14,35 @@ export interface TerminalHostRef {
 
 export default function TerminalHost() {
   const { state, actions } = useAppState();
-  const terminalContainerRef = useRef<HTMLDivElement>(null);
+  const terminalRef = useRef<ImprovedTerminalRef>(null);
 
-  // Register terminal ref with AppState
+  // Register terminal ref with AppState - simplified approach
   useEffect(() => {
-    const hostRef = {
-      current: {
-        focus: () => {
-          // Focus the terminal container since we can't directly focus the ImprovedTerminal
-          if (terminalContainerRef.current) {
-            const inputElement = terminalContainerRef.current.querySelector('textarea');
-            if (inputElement) {
-              inputElement.focus();
-            }
-          }
-        },
-        executeCommand: (command: string) => {
-          // For now, we can't programmatically execute commands in ImprovedTerminal
-          // This would require modifying ImprovedTerminal to accept external command injection
-          console.log('Would execute command:', command);
-        },
-        isVisible: () => state.terminal.isVisible,
-        show: () => actions.openTerminal(),
-        hide: () => actions.closeTerminal()
-      }
-    };
+    // Directly pass the terminal ref to AppState
+    actions.setTerminalRef(terminalRef);
     
-    actions.setTerminalRef(hostRef);
-  }, [actions, state.terminal.isVisible]);
+    // Cleanup function to clear ref when component unmounts
+    return () => {
+      actions.setTerminalRef({ current: null });
+    };
+  }, [actions]); // Remove terminalRef from dependencies to prevent infinite re-renders
 
   // Handle command execution from GUI
   useEffect(() => {
     const bridge = state.commandBridge;
-    if (bridge.pendingExecution && bridge.lastExecutedCommand) {
-      // For now, just show a notification that the command should be executed
-      // In a full implementation, we'd modify ImprovedTerminal to accept external commands
-      actions.notify('info', `Please execute: ${bridge.lastExecutedCommand}`);
-      
-      // Clear pending execution flag
-      actions.clearPendingExecution();
+    if (bridge.pendingExecution && bridge.lastExecutedCommand && terminalRef.current) {
+      // Actually execute the command in the terminal
+      terminalRef.current.executeCommand(bridge.lastExecutedCommand)
+        .then(() => {
+          actions.notify('success', `Command executed: ${bridge.lastExecutedCommand}`);
+        })
+        .catch((error) => {
+          actions.notify('error', `Command failed: ${error.message}`);
+        })
+        .finally(() => {
+          // Clear pending execution flag
+          actions.clearPendingExecution();
+        });
     }
   }, [state.commandBridge.pendingExecution, state.commandBridge.lastExecutedCommand, actions]);
 
@@ -80,8 +70,8 @@ export default function TerminalHost() {
           </button>
         </div>
         
-        <div className="h-full" ref={terminalContainerRef}>
-          <ImprovedTerminal />
+        <div className="h-full">
+          <ImprovedTerminal ref={terminalRef} />
         </div>
       </div>
     </div>

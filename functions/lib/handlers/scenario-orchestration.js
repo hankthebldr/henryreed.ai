@@ -38,7 +38,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateDetectionQueries = exports.controlScenarioExecution = exports.executeScenario = exports.generateThreatActorScenario = void 0;
 // Comprehensive scenario orchestration handlers
-const functions = __importStar(require("firebase-functions"));
+const functions = __importStar(require("firebase-functions/v1"));
 const admin = __importStar(require("firebase-admin"));
 const zod_1 = require("zod");
 const openai_1 = __importDefault(require("openai"));

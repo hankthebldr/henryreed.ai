@@ -39,39 +39,7 @@ const DETECTION_RULES_MAP: Record<string, Array<{ id: string; name: string; seve
 
 import { CommandConfig } from './commands';
 
-export const detectCommands: CommandConfig[] = [
-  {
-    name: 'detect',
-    description: 'Detection rule testing and management',
-    usage: 'detect [test|rules|tune] [options]',
-    aliases: ['dt'],
-    handler: async (args: string[]) => {
-      const subcommand = args[0] || 'help';
-      const subArgs = args.slice(1);
-      
-      switch (subcommand) {
-        case 'test':
-          return await handleDetectTest(subArgs);
-        case 'rules':
-          return await handleDetectRules(subArgs);
-        case 'tune':
-          return await handleDetectTune(subArgs);
-        default:
-          return (
-            <div className="text-blue-300">
-              <div className="font-bold mb-2">🔍 Detection Commands</div>
-              <div className="space-y-1 text-sm">
-                <div>• <span className="font-mono">detect test --scenario [type]</span> - Test detection rules</div>
-                <div>• <span className="font-mono">detect rules --scenario [type]</span> - List detection rules</div>
-                <div>• <span className="font-mono">detect tune RULE_ID --threshold [value]</span> - Tune detection rules</div>
-              </div>
-            </div>
-          );
-      }
-    }
-  }
-];
-
+// Function declarations
 const handleDetectTest = async (args: string[]) => {
     const scenario = args.includes('--scenario') ? args[args.indexOf('--scenario') + 1] : '';
     const allRules = args.includes('--all-rules');
@@ -96,16 +64,17 @@ const handleDetectTest = async (args: string[]) => {
     }
 
     try {
-      if (USE_FUNCTIONS && !dryRun) {
-        await cloudFunctionsAPI.testDetections({
-          scenario,
-          rules: allRules ? rules.map(r => r.id) : rules.slice(0, 2).map(r => r.id),
-          verbose
-        });
-      } else {
+      // Note: testDetections method would need to be implemented in cloudFunctionsAPI
+      // if (USE_FUNCTIONS && !dryRun) {
+      //   await cloudFunctionsAPI.testDetections({
+      //     scenario,
+      //     rules: allRules ? rules.map(r => r.id) : rules.slice(0, 2).map(r => r.id),
+      //     verbose
+      //   });
+      // } else {
         // Simulate detection testing
         await new Promise(resolve => setTimeout(resolve, 2500));
-      }
+      // }
 
       const testResults = rules.map(rule => ({
         ...rule,
@@ -219,9 +188,10 @@ const handleDetectTest = async (args: string[]) => {
           <div>Error: {error instanceof Error ? error.message : 'Unknown error'}</div>
         </div>
       );
-  };
+    }
+};
 
-  const handleDetectRules = async (args: string[]) => {
+const handleDetectRules = async (args: string[]) => {
     const scenario = args.includes('--scenario') ? args[args.indexOf('--scenario') + 1] : '';
     const severity = args.includes('--severity') ? args[args.indexOf('--severity') + 1] : '';
 
@@ -310,10 +280,11 @@ const handleDetectTest = async (args: string[]) => {
         <div className="mt-4 text-sm text-gray-400">
           Use <span className="font-mono">detect test --scenario {scenario || 'SCENARIO'}</span> to test these rules
         </div>
-      );
-  };
+      </div>
+    );
+};
 
-  const handleDetectTune = async (args: string[]) => {
+const handleDetectTune = async (args: string[]) => {
     const ruleId = args[0];
     const threshold = args.includes('--threshold') ? parseFloat(args[args.indexOf('--threshold') + 1]) : null;
     const enableRule = args.includes('--enable');
@@ -355,4 +326,37 @@ const handleDetectTest = async (args: string[]) => {
         </div>
       );
     }
-  };
+};
+
+export const detectCommands: CommandConfig[] = [
+  {
+    name: 'detect',
+    description: 'Detection rule testing and management',
+    usage: 'detect [test|rules|tune] [options]',
+    aliases: ['dt'],
+    handler: async (args: string[]) => {
+      const subcommand = args[0] || 'help';
+      const subArgs = args.slice(1);
+      
+      switch (subcommand) {
+        case 'test':
+          return await handleDetectTest(subArgs);
+        case 'rules':
+          return await handleDetectRules(subArgs);
+        case 'tune':
+          return await handleDetectTune(subArgs);
+        default:
+          return (
+            <div className="text-blue-300">
+              <div className="font-bold mb-2">🔍 Detection Commands</div>
+              <div className="space-y-1 text-sm">
+                <div>• <span className="font-mono">detect test --scenario [type]</span> - Test detection rules</div>
+                <div>• <span className="font-mono">detect rules --scenario [type]</span> - List detection rules</div>
+                <div>• <span className="font-mono">detect tune RULE_ID --threshold [value]</span> - Tune detection rules</div>
+              </div>
+            </div>
+          );
+      }
+    }
+  }
+];

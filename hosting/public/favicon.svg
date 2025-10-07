@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="cortexGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6900;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#00CC66;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#58A6FF;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="#000000" stroke="url(#cortexGradient)" stroke-width="1"/>
+  
+  <!-- Stylized 'C' representing Cortex -->
+  <path d="M 10 8 
+           C 20 8, 24 12, 24 16
+           C 24 20, 20 24, 10 24
+           C 8 24, 6 22, 6 20
+           L 8 20
+           C 8 21, 9 22, 10 22
+           C 18 22, 22 18, 22 16
+           C 22 14, 18 10, 10 10
+           C 9 10, 8 11, 8 12
+           L 6 12
+           C 6 10, 8 8, 10 8 Z" 
+        fill="url(#cortexGradient)" 
+        filter="url(#glow)"/>
+        
+  <!-- Small accent dot for tech feel -->
+  <circle cx="24" cy="8" r="2" fill="#00CC66" opacity="0.8"/>
+</svg>

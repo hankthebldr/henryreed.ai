@@ -4,7 +4,7 @@
  * Deploy this function to enable AI Insights in the DC Portal GUI.
  * This function calls the real Gemini AI API or OpenAI API based on configuration.
  */
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import * as admin from 'firebase-admin';
 import OpenAI from 'openai';
 
@@ -13,10 +13,14 @@ if (admin.apps.length === 0) {
   admin.initializeApp();
 }
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy OpenAI client initialization to avoid deploy-time failures when key is missing
+function getOpenAI() {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY not configured');
+  }
+  return new OpenAI({ apiKey });
+}
 
 interface GeminiFunctionRequest {
   action: 'analyze_pov' | 'analyze_trr' | 'generate_detection' | 'optimize_scenario' | 'chat';
@@ -35,7 +39,7 @@ interface GeminiFunctionResponse {
   };
 }
 
-export const gemini = functions.https.onRequest(async (req, res) => {
+export async function geminiHttpHandler(req: any, res: any) {
   // CORS headers
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -64,8 +68,8 @@ export const gemini = functions.https.onRequest(async (req, res) => {
 
     switch (request.action) {
       case 'chat':
-        result = await handleChat(request.data.message, request.data.context);
-        tokensUsed = estimateTokens(request.data.message + JSON.stringify(result));
+        result = await handleChat(request.data?.message, request.data?.context);
+        tokensUsed = estimateTokens(String(request.data?.message || '') + JSON.stringify(result));
         break;
 
       case 'analyze_pov':
@@ -122,7 +126,9 @@ export const gemini = functions.https.onRequest(async (req, res) => {
 
     res.status(500).json(response);
   }
-});
+}
+
+export const gemini = functions.https.onRequest(geminiHttpHandler);
 
 async function handleChat(message: string, context?: any): Promise<any> {
   const systemPrompt = `You are an expert Domain Consultant for Palo Alto Networks XSIAM and Cortex platforms. You help with:
@@ -133,6 +139,7 @@ async function handleChat(message: string, context?: any): Promise<any> {
 
 Provide practical, actionable advice based on security operations best practices.`;
 
+  const openai = getOpenAI();
   const completion = await openai.chat.completions.create({
     model: 'gpt-4',
     messages: [
@@ -162,6 +169,7 @@ Provide analysis on:
 
 Format your response as structured insights.`;
 
+  const openai = getOpenAI();
   const completion = await openai.chat.completions.create({
     model: 'gpt-4',
     messages: [{ role: 'user', content: prompt }],
@@ -190,6 +198,7 @@ Provide insights on:
 
 Focus on technical validation and practical implementation.`;
 
+  const openai = getOpenAI();
   const completion = await openai.chat.completions.create({
     model: 'gpt-4',
     messages: [{ role: 'user', content: prompt }],
@@ -218,6 +227,7 @@ Provide:
 
 Focus on practical, production-ready detection logic.`;
 
+  const openai = getOpenAI();
   const completion = await openai.chat.completions.create({
     model: 'gpt-4',
     messages: [{ role: 'user', content: prompt }],

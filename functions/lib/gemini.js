@@ -37,24 +37,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.gemini = void 0;
+exports.geminiHttpHandler = geminiHttpHandler;
 /**
  * Firebase Cloud Function for Gemini AI Integration
  *
  * Deploy this function to enable AI Insights in the DC Portal GUI.
  * This function calls the real Gemini AI API or OpenAI API based on configuration.
  */
-const functions = __importStar(require("firebase-functions"));
+const functions = __importStar(require("firebase-functions/v1"));
 const admin = __importStar(require("firebase-admin"));
 const openai_1 = __importDefault(require("openai"));
 // Initialize Firebase Admin SDK
 if (admin.apps.length === 0) {
     admin.initializeApp();
 }
-// Initialize OpenAI client
-const openai = new openai_1.default({
-    apiKey: process.env.OPENAI_API_KEY,
-});
-exports.gemini = functions.https.onRequest(async (req, res) => {
+// Lazy OpenAI client initialization to avoid deploy-time failures when key is missing
+function getOpenAI() {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+        throw new Error('OPENAI_API_KEY not configured');
+    }
+    return new openai_1.default({ apiKey });
+}
+async function geminiHttpHandler(req, res) {
+    var _a, _b, _c;
     // CORS headers
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -77,8 +83,8 @@ exports.gemini = functions.https.onRequest(async (req, res) => {
         let tokensUsed = 0;
         switch (request.action) {
             case 'chat':
-                result = await handleChat(request.data.message, request.data.context);
-                tokensUsed = estimateTokens(request.data.message + JSON.stringify(result));
+                result = await handleChat((_a = request.data) === null || _a === void 0 ? void 0 : _a.message, (_b = request.data) === null || _b === void 0 ? void 0 : _b.context);
+                tokensUsed = estimateTokens(String(((_c = request.data) === null || _c === void 0 ? void 0 : _c.message) || '') + JSON.stringify(result));
                 break;
             case 'analyze_pov':
                 result = await analyzePOV(request.data);
@@ -127,7 +133,8 @@ exports.gemini = functions.https.onRequest(async (req, res) => {
         };
         res.status(500).json(response);
     }
-});
+}
+exports.gemini = functions.https.onRequest(geminiHttpHandler);
 async function handleChat(message, context) {
     var _a, _b, _c;
     const systemPrompt = `You are an expert Domain Consultant for Palo Alto Networks XSIAM and Cortex platforms. You help with:
@@ -137,6 +144,7 @@ async function handleChat(message, context) {
 - Customer fit analysis and timeline predictions
 
 Provide practical, actionable advice based on security operations best practices.`;
+    const openai = getOpenAI();
     const completion = await openai.chat.completions.create({
         model: 'gpt-4',
         messages: [
@@ -164,6 +172,7 @@ Provide analysis on:
 4. Next steps
 
 Format your response as structured insights.`;
+    const openai = getOpenAI();
     const completion = await openai.chat.completions.create({
         model: 'gpt-4',
         messages: [{ role: 'user', content: prompt }],
@@ -190,6 +199,7 @@ Provide insights on:
 4. Success metrics and timeline
 
 Focus on technical validation and practical implementation.`;
+    const openai = getOpenAI();
     const completion = await openai.chat.completions.create({
         model: 'gpt-4',
         messages: [{ role: 'user', content: prompt }],
@@ -216,6 +226,7 @@ Provide:
 4. Implementation guidance
 
 Focus on practical, production-ready detection logic.`;
+    const openai = getOpenAI();
     const completion = await openai.chat.completions.create({
         model: 'gpt-4',
         messages: [{ role: 'user', content: prompt }],

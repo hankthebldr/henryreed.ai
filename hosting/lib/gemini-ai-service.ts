@@ -461,8 +461,11 @@ export const initializeGeminiWithFirebase = (config: {
   apiKey: string;
   projectId: string;
 }) => {
-  process.env.NEXT_PUBLIC_GEMINI_API_KEY = config.apiKey;
-  process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID = config.projectId;
+  // Set environment variables for Firebase integration
+  if (typeof window === 'undefined') {
+    process.env.NEXT_PUBLIC_GEMINI_API_KEY = config.apiKey;
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID = config.projectId;
+  }
   return GeminiAIService.getInstance();
 };
 

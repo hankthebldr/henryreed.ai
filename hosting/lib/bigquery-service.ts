@@ -49,7 +49,7 @@ class BigQueryService {
       dataset: 'cortex_dc_analytics',
       table: 'user_interactions',
       projectId: process.env.NEXT_PUBLIC_GCP_PROJECT_ID || 'cortex-dc-project',
-      cloudFunctionUrl: process.env.NEXT_PUBLIC_BIGQUERY_FUNCTION_URL || 'https://us-central1-cortex-dc-project.cloudfunctions.net/exportToBigQuery',
+      cloudFunctionUrl: process.env.NEXT_PUBLIC_BIGQUERY_FUNCTION_URL || '/api/export/bigquery',
       includePII: false, // Default to false for privacy
       timeRange: {
         start: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Last 24 hours

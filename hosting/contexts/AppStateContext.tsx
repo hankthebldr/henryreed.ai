@@ -1,16 +1,72 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useMemo } from 'react';
 
 // User and authentication types
 export interface User {
   id: string;
   username: string;
   email?: string;
-  role: 'admin' | 'user' | 'viewer';
+  role: 'admin' | 'manager' | 'senior_dc' | 'dc' | 'analyst';
   viewMode?: 'admin' | 'user';
   permissions?: string[];
   lastLogin?: string;
+  assignedProjects?: string[];
+  assignedCustomers?: string[];
+}
+
+// Terminal integration types
+export interface CloudEnvironmentConfig {
+  provider: 'aws' | 'gcp' | 'azure';
+  connectionType: 'ssh' | 'api' | 'websocket';
+  credentials: {
+    accessKey?: string;
+    secretKey?: string;
+    region?: string;
+    projectId?: string;
+    subscriptionId?: string;
+    keyFilePath?: string;
+  };
+  endpoints: {
+    terminalProxy: string;
+    commandExecutor: string;
+    fileSystem: string;
+  };
+  enabled: boolean;
+}
+
+export interface IntegrationSettings {
+  contentHubIntegration: boolean;
+  detectionEngineIntegration: boolean;
+  cloudExecution: boolean;
+  realTimeUpdates: boolean;
+}
+
+// RBAC types
+export interface DataScope {
+  canViewAllUsers: boolean;
+  canViewAllPOVs: boolean;
+  canViewAllTRRs: boolean;
+  canModifySystemSettings: boolean;
+  allowedCustomers: string[] | 'all';
+  allowedProjects: string[] | 'all';
+}
+
+export interface UserPermissions {
+  canView: string[];
+  canCreate: string[];
+  canUpdate: string[];
+  canDelete: string[];
+}
+
+export interface RBACEvent {
+  timestamp: string;
+  userId: string;
+  userRole: string;
+  action: string;
+  resource: string;
+  allowed: boolean;
+  reason?: string;
 }
 
 // Types for unified app state
@@ -30,6 +86,17 @@ export interface AppState {
   terminal: {
     isVisible: boolean;
     ref: React.RefObject<any> | null;
+    cloudConfig?: CloudEnvironmentConfig;
+    integrationSettings: IntegrationSettings;
+    connectionStatus: 'disconnected' | 'connecting' | 'connected' | 'error';
+    isEnabled: boolean;
+  };
+  
+  // RBAC state
+  rbac: {
+    userPermissions: UserPermissions;
+    dataScope: DataScope;
+    auditLog: RBACEvent[];
   };
   
   // Navigation state
@@ -83,7 +150,12 @@ type AppAction =
   | { type: 'CLOSE_MODAL'; payload: string }
   | { type: 'SET_COMMAND_BRIDGE'; payload: Partial<AppState['commandBridge']> }
   | { type: 'CLEAR_PENDING_EXECUTION' }
-  | { type: 'TRIGGER_GUI_ACTION'; payload: { action: string; data?: any } };
+  | { type: 'TRIGGER_GUI_ACTION'; payload: { action: string; data?: any } }
+  | { type: 'UPDATE_TERMINAL_SETTINGS'; payload: { cloudConfig: CloudEnvironmentConfig; integrationSettings: IntegrationSettings; connectionStatus: boolean } }
+  | { type: 'SET_TERMINAL_CONNECTION_STATUS'; payload: 'disconnected' | 'connecting' | 'connected' | 'error' }
+  | { type: 'UPDATE_USER_PERMISSIONS'; payload: UserPermissions }
+  | { type: 'LOG_RBAC_EVENT'; payload: Omit<RBACEvent, 'timestamp'> }
+  | { type: 'CLEAR_RBAC_LOG' };
 
 const initialState: AppState = {
   mode: 'gui',
@@ -96,6 +168,31 @@ const initialState: AppState = {
   terminal: {
     isVisible: false,
     ref: null,
+    integrationSettings: {
+      contentHubIntegration: true,
+      detectionEngineIntegration: true,
+      cloudExecution: false,
+      realTimeUpdates: true
+    },
+    connectionStatus: 'disconnected',
+    isEnabled: false
+  },
+  rbac: {
+    userPermissions: {
+      canView: [],
+      canCreate: [],
+      canUpdate: [],
+      canDelete: []
+    },
+    dataScope: {
+      canViewAllUsers: false,
+      canViewAllPOVs: false,
+      canViewAllTRRs: false,
+      canModifySystemSettings: false,
+      allowedCustomers: [],
+      allowedProjects: []
+    },
+    auditLog: []
   },
   navigation: {
     activeGUITab: 'dashboard',
@@ -256,6 +353,58 @@ function appStateReducer(state: AppState, action: AppAction): AppState {
         },
       };
       
+    case 'UPDATE_TERMINAL_SETTINGS':
+      return {
+        ...state,
+        terminal: {
+          ...state.terminal,
+          cloudConfig: action.payload.cloudConfig,
+          integrationSettings: action.payload.integrationSettings,
+          connectionStatus: action.payload.connectionStatus ? 'connected' : 'disconnected',
+          isEnabled: action.payload.cloudConfig.enabled
+        }
+      };
+      
+    case 'SET_TERMINAL_CONNECTION_STATUS':
+      return {
+        ...state,
+        terminal: {
+          ...state.terminal,
+          connectionStatus: action.payload
+        }
+      };
+      
+    case 'UPDATE_USER_PERMISSIONS':
+      return {
+        ...state,
+        rbac: {
+          ...state.rbac,
+          userPermissions: action.payload
+        }
+      };
+      
+    case 'LOG_RBAC_EVENT':
+      const rbacEvent: RBACEvent = {
+        ...action.payload,
+        timestamp: new Date().toISOString()
+      };
+      return {
+        ...state,
+        rbac: {
+          ...state.rbac,
+          auditLog: [...state.rbac.auditLog, rbacEvent].slice(-1000) // Keep last 1000 events
+        }
+      };
+      
+    case 'CLEAR_RBAC_LOG':
+      return {
+        ...state,
+        rbac: {
+          ...state.rbac,
+          auditLog: []
+        }
+      };
+      
     default:
       return state;
   }
@@ -295,13 +444,23 @@ const AppStateContext = createContext<{
     executeCommandFromGUI: (command: string, options?: { open?: boolean; focus?: boolean; track?: boolean; context?: any }) => Promise<void>;
     clearPendingExecution: () => void;
     triggerGUIAction: (action: string, data?: any) => void;
+    
+    // Terminal integration actions
+    updateTerminalSettings: (settings: { cloudConfig: CloudEnvironmentConfig; integrationSettings: IntegrationSettings; connectionStatus: boolean }) => void;
+    setTerminalConnectionStatus: (status: 'disconnected' | 'connecting' | 'connected' | 'error') => void;
+    
+    // RBAC actions
+    updateUserPermissions: (permissions: UserPermissions) => void;
+    logRBACEvent: (event: Omit<RBACEvent, 'timestamp'>) => void;
+    clearRBACLog: () => void;
+    canAccessResource: (resource: string, action: string) => boolean;
   };
 } | null>(null);
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(appStateReducer, initialState);
   
-  const actions = {
+  const actions = useMemo(() => ({
     setMode: useCallback((mode: 'terminal' | 'gui') => {
       dispatch({ type: 'SET_MODE', payload: mode });
     }, []),
@@ -349,9 +508,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     
     focusTerminal: useCallback(() => {
       if (state.terminal.ref?.current) {
-        state.terminal.ref.current.focus?.();
+        state.terminal.ref.current.focus();
       }
-    }, [state.terminal.ref]),
+    }, []),
     
     setTerminalRef: useCallback((ref: React.RefObject<any>) => {
       dispatch({ type: 'SET_TERMINAL_REF', payload: ref });
@@ -416,12 +575,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
           setTimeout(() => {
             if (state.terminal.ref?.current?.focus) {
               state.terminal.ref.current.focus();
-            } else if (state.terminal.ref?.current) {
-              // Fallback: try to focus input element directly
-              const inputElement = document.querySelector('textarea[placeholder*="terminal"], input[placeholder*="terminal"]');
-              if (inputElement) {
-                (inputElement as HTMLElement).focus();
-              }
             }
           }, 100);
         }
@@ -441,7 +594,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         } });
         throw error;
       }
-    }, [state.terminal.ref]),
+    }, []),
     
     clearPendingExecution: useCallback(() => {
       dispatch({ type: 'CLEAR_PENDING_EXECUTION' });
@@ -450,10 +603,54 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     triggerGUIAction: useCallback((action: string, data?: any) => {
       dispatch({ type: 'TRIGGER_GUI_ACTION', payload: { action, data } });
     }, []),
-  };
+    
+    // Terminal integration actions
+    updateTerminalSettings: useCallback((settings: { cloudConfig: CloudEnvironmentConfig; integrationSettings: IntegrationSettings; connectionStatus: boolean }) => {
+      dispatch({ type: 'UPDATE_TERMINAL_SETTINGS', payload: settings });
+    }, []),
+    
+    setTerminalConnectionStatus: useCallback((status: 'disconnected' | 'connecting' | 'connected' | 'error') => {
+      dispatch({ type: 'SET_TERMINAL_CONNECTION_STATUS', payload: status });
+    }, []),
+    
+    // RBAC actions
+    updateUserPermissions: useCallback((permissions: UserPermissions) => {
+      dispatch({ type: 'UPDATE_USER_PERMISSIONS', payload: permissions });
+    }, []),
+    
+    logRBACEvent: useCallback((event: Omit<RBACEvent, 'timestamp'>) => {
+      dispatch({ type: 'LOG_RBAC_EVENT', payload: event });
+    }, []),
+    
+    clearRBACLog: useCallback(() => {
+      dispatch({ type: 'CLEAR_RBAC_LOG' });
+    }, []),
+    
+    canAccessResource: useCallback((resource: string, action: string) => {
+      // Import and use RBAC middleware
+      try {
+        const { RBACMiddleware } = require('../lib/rbac-middleware');
+        return RBACMiddleware.canAccessResource(
+          state.auth.user?.role || 'analyst',
+          resource,
+          action,
+          { userId: state.auth.user?.id }
+        );
+      } catch (error) {
+        console.error('Error checking resource access:', error);
+        return false;
+      }
+    }, [state.auth.user]),
+  }), [state.auth.viewMode, state.auth.user]); // Remove state.terminal.ref to prevent circular dependencies
+  
+  const contextValue = useMemo(() => ({
+    state,
+    dispatch,
+    actions
+  }), [state, actions]);
   
   return (
-    <AppStateContext.Provider value={{ state, dispatch, actions }}>
+    <AppStateContext.Provider value={contextValue}>
       {children}
     </AppStateContext.Provider>
   );

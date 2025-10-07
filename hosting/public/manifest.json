@@ -1,0 +1,33 @@
+{
+  "name": "Cortex XSIAM Portal - Palo Alto Networks",
+  "short_name": "Cortex XSIAM",
+  "description": "Palo Alto Networks Cortex XSIAM Portal - Professional Security Operations and POV Management Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#141414",
+  "theme_color": "#FA582D",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/branding/icons/cortex-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/branding/icons/cortex-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["security", "business", "productivity"],
+  "lang": "en-US",
+  "scope": "/",
+  "id": "cortex-xsiam-portal"
+}

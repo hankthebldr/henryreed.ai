@@ -1,5 +1,5 @@
 // AI-powered TRR suggestion handler
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
 import OpenAI from 'openai';

@@ -163,7 +163,7 @@ export const createCallableFunction = <T = any, R = any>(functionName: string) =
 };
 
 // Common Cloud Functions
-export const callTRRAIFunction = createCallableFunction('ai-trr-suggest');
+export const callTRRAIFunction = createCallableFunction('aiTrrSuggest');
 export const callTRRExportFunction = createCallableFunction('trr-export');
 export const callTRRSignoffFunction = createCallableFunction('trr-signoff-create');
 

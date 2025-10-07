@@ -30,6 +30,10 @@ export const ManagementDashboard: React.FC = () => {
   const [userMetrics, setUserMetrics] = useState<Record<string, UserMetrics>>({});
   const [activityFilter, setActivityFilter] = useState<'all' | 'today' | 'week' | 'month'>('today');
   const [isLoading, setIsLoading] = useState(false);
+  // Derive system-wide feature flags from the demo user store so the
+  // feature flag UI reflects the current defaults instead of using a
+  // hard-coded/inverted condition which caused incorrect rendering.
+  const systemFeatureFlags: Record<string, boolean> = userManagementService.getAllUsers()[0]?.featureFlags || {};
 
   useEffect(() => {
     loadDashboardData();
@@ -661,7 +665,12 @@ export const ManagementDashboard: React.FC = () => {
                 <div className="text-sm text-gray-400">{flag.description}</div>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" defaultChecked={flag.key !== 'beta_features'} />
+                {/* Use the systemFeatureFlags value for the checkbox initial state. */}
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  defaultChecked={!!systemFeatureFlags[flag.key]}
+                />
                 <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600"></div>
               </label>
             </div>
