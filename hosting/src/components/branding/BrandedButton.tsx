@@ -10,8 +10,7 @@
  */
 
 import React from 'react';
-import { brandSizes } from '../../config/brand';
-import type { ButtonSize } from '../../config/brand';
+import { brandSizes, type ButtonSize } from '../../config/brand';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'cortex' | 'ghost';
 

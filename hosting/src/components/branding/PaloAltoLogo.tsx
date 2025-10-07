@@ -11,8 +11,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { brandSizes, brandAssets } from '../../config/brand';
-import type { LogoSize } from '../../config/brand';
+import { brandSizes, brandAssets, type LogoSize } from '../../config/brand';
 
 export interface PaloAltoLogoProps {
   /** Size of the logo */

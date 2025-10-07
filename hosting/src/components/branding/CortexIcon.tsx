@@ -11,8 +11,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { brandSizes, brandAssets } from '../../config/brand';
-import type { IconSize } from '../../config/brand';
+import { brandSizes, brandAssets, type IconSize } from '../../config/brand';
 
 export type CortexVariant = 'xsiam' | 'xdr' | 'xsoar' | 'generic';
 
