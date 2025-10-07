@@ -1,78 +1,190 @@
-# Example queries for a simple movie app.
+# Generated example queries for Cortex DC Portal
+# This file is auto-generated based on the current schema
+# Edit tools/generate-graphql-examples.mjs to modify generation logic
 
-# @auth() directives control who can call each operation.
-# Anyone should be able to list all movies, so the auth level is set to PUBLIC
-query ListMovies @auth(level: PUBLIC, insecureReason: "Anyone can list all movies.") {
-  movies {
+# List all Pov entities
+query ListPovs @auth(level: USER) {
+  povs {
+    id
+    name
+    customer
+    industry
+    useCase
+  }
+}
+
+# List all Trr entities
+query ListTrrs @auth(level: USER) {
+  trrs {
     id
     title
-    imageUrl
-    genre
+    description
+    category
+    status
   }
 }
 
-# List all users, only admins should be able to list all users, so we use NO_ACCESS
-query ListUsers @auth(level: NO_ACCESS) {
-  users {
+# List all Scenario entities
+query ListScenarios @auth(level: USER) {
+  scenarios {
     id
-    username
+    name
+    description
+    type
+    platform
   }
 }
 
-# Logged in users can list all their reviews and movie titles associated with the review
-# Since the query uses the uid of the current authenticated user, we set auth level to USER
-query ListUserReviews @auth(level: USER) {
+# List all ActivityLog entities
+query ListActivityLogs @auth(level: USER) {
+  activityLogs {
+    id
+    entityType
+    entityId
+    action
+    description
+  }
+}
+
+# List all Comment entities
+query ListComments @auth(level: USER) {
+  comments {
+    id
+    content
+    entityType
+    entityId
+    createdAt
+  }
+}
+
+# List all Template entities
+query ListTemplates @auth(level: USER) {
+  templates {
+    id
+    name
+    description
+    type
+    content
+  }
+}
+
+# Get single Pov by ID
+query GetPovById($id: UUID!) @auth(level: USER) {
+  pov(id: $id) {
+    id
+    name
+    customer
+    industry
+    useCase
+    status
+    priority
+    startDate
+  }
+}
+
+# Get single Trr by ID
+query GetTrrById($id: UUID!) @auth(level: USER) {
+  trr(id: $id) {
+    id
+    title
+    description
+    category
+    status
+    priority
+    targetTimeline
+    createdAt
+  }
+}
+
+# Get single Scenario by ID
+query GetScenarioById($id: UUID!) @auth(level: USER) {
+  scenario(id: $id) {
+    id
+    name
+    description
+    type
+    platform
+    status
+    severity
+    mitreMapping
+  }
+}
+
+# Get single ActivityLog by ID
+query GetActivityLogById($id: UUID!) @auth(level: USER) {
+  activityLog(id: $id) {
+    id
+    entityType
+    entityId
+    action
+    description
+    timestamp
+    metadata
+    ipAddress
+  }
+}
+
+# Get single Comment by ID
+query GetCommentById($id: UUID!) @auth(level: USER) {
+  comment(id: $id) {
+    id
+    content
+    entityType
+    entityId
+    createdAt
+    updatedAt
+    isResolved
+  }
+}
+
+# Get single Template by ID
+query GetTemplateById($id: UUID!) @auth(level: USER) {
+  template(id: $id) {
+    id
+    name
+    description
+    type
+    content
+    category
+    isPublic
+    createdAt
+  }
+}
+
+# Get current user profile
+query GetCurrentUser @auth(level: USER) {
   user(key: { id_expr: "auth.uid" }) {
     id
-    username
-    # <field>_on_<foreign_key_field> makes it easy to grab info from another table
-    # Here, we use it to grab all the reviews written by the user.
-    reviews: reviews_on_user {
-      rating
-      reviewDate
-      reviewText
-      movie {
-        id
-        title
-      }
-    }
+    email
+    displayName
+    role
+    organization
+    createdAt
+    isActive
   }
 }
 
-# Get movie by id
-query GetMovieById($id: UUID!) @auth(level: PUBLIC, insecureReason: "Anyone can get a movie by id.") {
-  movie(id: $id) {
+# Get user by ID
+query GetUserById($id: String!) @auth(level: USER) {
+  user(id: $id) {
     id
-    title
-    imageUrl
-    genre
-    metadata: movieMetadata_on_movie {
-      rating
-      releaseYear
-      description
-    }
-    reviews: reviews_on_movie {
-      reviewText
-      reviewDate
-      rating
-      user {
-        id
-        username
-      }
-    }
+    email
+    displayName
+    role
+    organization
+    createdAt
+    isActive
   }
 }
 
-# Search for movies, actors, and reviews
-query SearchMovie($titleInput: String, $genre: String) @auth(level: PUBLIC, insecureReason: "Anyone can search for movies.") {
-  movies(
-    where: {
-      _and: [{ genre: { eq: $genre } }, { title: { contains: $titleInput } }]
-    }
-  ) {
+# List POVs created by current user
+query ListMyPovs @auth(level: USER) {
+  povs(where: { createdBy: { id: { eq_expr: "auth.uid" } } }) {
     id
-    title
-    genre
-    imageUrl
+    name
+    customer
+    status
+    priority
+    createdAt
   }
 }

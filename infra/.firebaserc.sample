@@ -1,0 +1,27 @@
+# .firebaserc (sample)
+# Do NOT replace the root .firebaserc yet. This is the target multi-env configuration.
+{
+  "projects": {
+    "default": "henryreedai-dev",
+    "dev": "henryreedai-dev",
+    "stage": "henryreedai-stage",
+    "prod": "henryreedai"
+  },
+  "targets": {
+    "henryreedai-dev": {
+      "hosting": {
+        "web": ["henryreedai-dev-web"]
+      }
+    },
+    "henryreedai-stage": {
+      "hosting": {
+        "web": ["henryreedai-stage-web"]
+      }
+    },
+    "henryreedai": {
+      "hosting": {
+        "web": ["henryreedai-web"]
+      }
+    }
+  }
+}

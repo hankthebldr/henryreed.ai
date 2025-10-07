@@ -1,0 +1,26 @@
+{
+  "name": "services-functions",
+  "version": "0.1.0",
+  "private": true,
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions"
+  },
+  "engines": { "node": "20" },
+  "dependencies": {
+    "express": "^4.19.2",
+    "@google-cloud/bigquery": "^7.7.0",
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^6.0.1",
+    "zod": "^3.25.7",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "rate-limiter-flexible": "^2.4.2",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}

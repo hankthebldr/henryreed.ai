@@ -1,33 +1,153 @@
-# Example mutations for a simple movie app
+# Generated example mutations for Cortex DC Portal
+# This file is auto-generated based on the current schema
+# Edit tools/generate-graphql-examples.mjs to modify generation logic
 
-# Create a movie based on user input
-mutation CreateMovie($title: String!, $genre: String!, $imageUrl: String!)
-@auth(level: USER_EMAIL_VERIFIED, insecureReason: "Any email verified users can create a new movie.") {
-  movie_insert(data: { title: $title, genre: $genre, imageUrl: $imageUrl })
+# Create a new User
+mutation CreateUser($email: String!, $isActive: Boolean!) @auth(level: USER) {
+  user_insert(data: {
+    email: $email,
+    isActive: $isActive
+  })
 }
 
-# Upsert (update or insert) a user's username based on their auth.uid
-mutation UpsertUser($username: String!) @auth(level: USER) {
-  # The "auth.uid" server value ensures that users can only register their own user.
-  user_upsert(data: { id_expr: "auth.uid", username: $username })
+# Example variables:
+# {
+#   "email": "user@example.com"
+#   "isActive": true
+# }
+
+# Create a new Pov
+mutation CreatePov($name: String!, $customer: String!, $useCase: String!, $status: String!) @auth(level: USER) {
+  pov_insert(data: {
+    name: $name,
+    customer: $customer,
+    useCase: $useCase,
+    status: $status
+    createdById_expr: "auth.uid"
+  })
 }
 
-# Add a review for a movie
-mutation AddReview($movieId: UUID!, $rating: Int!, $reviewText: String!)
-@auth(level: USER) {
-  review_upsert(
-    data: {
-      userId_expr: "auth.uid"
-      movieId: $movieId
-      rating: $rating
-      reviewText: $reviewText
-      # reviewDate defaults to today in the schema. No need to set it manually.
-    }
-  )
+# Example variables:
+# {
+#   "name": "Example " + fieldName
+#   "customer": "Acme Corp"
+#   "useCase": "Example value"
+#   "status": "active"
+# }
+
+# Create a new Trr
+mutation CreateTrr($title: String!, $description: String!, $category: String!, $status: String!, $priority: String!) @auth(level: USER) {
+  trr_insert(data: {
+    title: $title,
+    description: $description,
+    category: $category,
+    status: $status,
+    priority: $priority
+    createdById_expr: "auth.uid"
+  })
 }
 
-# Logged in user can delete their review for a movie
-mutation DeleteReview($movieId: UUID!) @auth(level: USER) {
-  # The "auth.uid" server value ensures that users can only delete their own reviews.
-  review_delete(key: { userId_expr: "auth.uid", movieId: $movieId })
+# Example variables:
+# {
+#   "title": "Example " + fieldName
+#   "description": "Example value"
+#   "category": "security"
+#   "status": "active"
+#   "priority": "high"
+# }
+
+# Create a new Scenario
+mutation CreateScenario($name: String!, $description: String!, $type: String!, $platform: String!, $status: String!, $severity: String!) @auth(level: USER) {
+  scenario_insert(data: {
+    name: $name,
+    description: $description,
+    type: $type,
+    platform: $platform,
+    status: $status,
+    severity: $severity
+    createdById_expr: "auth.uid"
+  })
+}
+
+# Example variables:
+# {
+#   "name": "Example " + fieldName
+#   "description": "Example value"
+#   "type": "Example value"
+#   "platform": "Example value"
+#   "status": "active"
+#   "severity": "Example value"
+# }
+
+# Create a new ActivityLog
+mutation CreateActivityLog($entityType: String!, $entityId: String!, $action: String!, $timestamp: Date!) @auth(level: USER) {
+  activityLog_insert(data: {
+    entityType: $entityType,
+    entityId: $entityId,
+    action: $action,
+    timestamp: $timestamp
+    userIdId_expr: "auth.uid"
+  })
+}
+
+# Example variables:
+# {
+#   "entityType": "Example value"
+#   "entityId": "Example value"
+#   "action": "Example value"
+#   "timestamp": "2024-01-01"
+# }
+
+# Create a new Comment
+mutation CreateComment($content: String!, $entityType: String!, $entityId: String!, $isResolved: Boolean!) @auth(level: USER) {
+  comment_insert(data: {
+    content: $content,
+    entityType: $entityType,
+    entityId: $entityId,
+    isResolved: $isResolved
+    authorId_expr: "auth.uid"
+  })
+}
+
+# Example variables:
+# {
+#   "content": "Example value"
+#   "entityType": "Example value"
+#   "entityId": "Example value"
+#   "isResolved": true
+# }
+
+# Create a new Template
+mutation CreateTemplate($name: String!, $type: String!, $content: String!, $isPublic: Boolean!) @auth(level: USER) {
+  template_insert(data: {
+    name: $name,
+    type: $type,
+    content: $content,
+    isPublic: $isPublic
+    createdById_expr: "auth.uid"
+  })
+}
+
+# Example variables:
+# {
+#   "name": "Example " + fieldName
+#   "type": "Example value"
+#   "content": "Example value"
+#   "isPublic": true
+# }
+
+# Update current user profile
+mutation UpdateUserProfile($email: String!, $displayName: String, $organization: String) @auth(level: USER) {
+  user_upsert(data: {
+    id_expr: "auth.uid"
+    email: $email
+    displayName: $displayName
+    organization: $organization
+  })
+}
+
+# Delete POV (only by creator)
+mutation DeletePov($povId: UUID!) @auth(level: USER) {
+  pov_delete(key: { id: $povId })
+  # Note: Add additional authorization checks in production
 }

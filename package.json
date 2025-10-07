@@ -1,4 +1,10 @@
 {
+  "scripts": {
+    "dc:validate": "node tools/validate-schema.mjs",
+    "dc:generate": "node tools/generate-graphql-examples.mjs",
+    "precommit": "npm run dc:validate",
+    "lint:dataconnect": "npm run dc:validate && npm run dc:generate && npm run dc:validate"
+  },
   "dependencies": {
     "@dataconnect/generated": "file:src/dataconnect-generated",
     "@vercel/analytics": "^1.5.0",
@@ -7,5 +13,8 @@
     "playwright": "^1.55.1",
     "react-ga": "^3.3.1",
     "react-gtm-module": "^2.0.11"
+  },
+  "devDependencies": {
+    "graphql": "^16.11.0"
   }
 }

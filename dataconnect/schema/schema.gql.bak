@@ -1,0 +1,117 @@
+# Cortex DC Portal - Data Connect Schema
+# Enhanced schema for POV, TRR, and Scenario management
+
+# User table keyed by Firebase Auth UID
+type User @table {
+  id: String! @default(expr: "auth.uid")
+  email: String! @col(dataType: "varchar(255)")
+  displayName: String @col(dataType: "varchar(100)")
+  role: String @col(dataType: "varchar(50)") @default(expr: "'user'")
+  organization: String @col(dataType: "varchar(100)")
+  createdAt: Date! @default(expr: "request.time")
+  lastLoginAt: Date
+  isActive: Boolean! @default(expr: "true")
+}
+
+# POV (Proof of Value) management
+type POV @table {
+  id: UUID! @default(expr: "uuidV4()")
+  name: String! @col(dataType: "varchar(200)")
+  customer: String! @col(dataType: "varchar(100)")
+  industry: String @col(dataType: "varchar(50)")
+  useCase: String! @col(dataType: "text")
+  status: String! @col(dataType: "varchar(20)") @default(expr: "'draft'")
+  priority: String @col(dataType: "varchar(20)") @default(expr: "'medium'")
+  startDate: Date
+  endDate: Date
+  estimatedTimeline: String @col(dataType: "varchar(50)")
+  budget: String @col(dataType: "varchar(50)")
+  createdBy: User!
+  assignedTo: User
+  createdAt: Date! @default(expr: "request.time")
+  updatedAt: Date! @default(expr: "request.time")
+  tags: String @col(dataType: "text")
+  notes: String @col(dataType: "text")
+}
+
+# TRR (Technical Requirements Review) management
+type TRR @table {
+  id: UUID! @default(expr: "uuidV4()")
+  title: String! @col(dataType: "varchar(200)")
+  description: String! @col(dataType: "text")
+  category: String! @col(dataType: "varchar(50)")
+  status: String! @col(dataType: "varchar(20)") @default(expr: "'draft'")
+  priority: String! @col(dataType: "varchar(20)") @default(expr: "'medium'")
+  targetTimeline: String @col(dataType: "varchar(50)")
+  createdBy: User!
+  assignedTo: User
+  approvedBy: User
+  createdAt: Date! @default(expr: "request.time")
+  updatedAt: Date! @default(expr: "request.time")
+  approvedAt: Date
+  tags: String @col(dataType: "text")
+  requirements: String @col(dataType: "text")
+  constraints: String @col(dataType: "text")
+}
+
+# Security Scenarios management
+type Scenario @table {
+  id: UUID! @default(expr: "uuidV4()")
+  name: String! @col(dataType: "varchar(200)")
+  description: String! @col(dataType: "text")
+  type: String! @col(dataType: "varchar(50)")
+  platform: String! @col(dataType: "varchar(50)")
+  status: String! @col(dataType: "varchar(20)") @default(expr: "'active'")
+  severity: String! @col(dataType: "varchar(20)")
+  mitreMapping: String @col(dataType: "text")
+  detectionRules: String @col(dataType: "text")
+  playbooks: String @col(dataType: "text")
+  createdBy: User!
+  createdAt: Date! @default(expr: "request.time")
+  updatedAt: Date! @default(expr: "request.time")
+  tags: String @col(dataType: "text")
+  environment: String @col(dataType: "varchar(100)")
+}
+
+# Activity logs for audit trail
+type ActivityLog @table {
+  id: UUID! @default(expr: "uuidV4()")
+  entityType: String! @col(dataType: "varchar(50)")
+  entityId: String! @col(dataType: "varchar(50)")
+  action: String! @col(dataType: "varchar(50)")
+  description: String @col(dataType: "text")
+  userId: User!
+  timestamp: Date! @default(expr: "request.time")
+  metadata: String @col(dataType: "text")
+  ipAddress: String @col(dataType: "varchar(45)")
+  userAgent: String @col(dataType: "text")
+}
+
+# Comments for POVs and TRRs
+type Comment @table {
+  id: UUID! @default(expr: "uuidV4()")
+  content: String! @col(dataType: "text")
+  entityType: String! @col(dataType: "varchar(20)")
+  entityId: String! @col(dataType: "varchar(50)")
+  author: User!
+  createdAt: Date! @default(expr: "request.time")
+  updatedAt: Date! @default(expr: "request.time")
+  isResolved: Boolean! @default(expr: "false")
+  parentComment: Comment
+}
+
+# Templates for reusable content
+type Template @table {
+  id: UUID! @default(expr: "uuidV4()")
+  name: String! @col(dataType: "varchar(200)")
+  description: String @col(dataType: "text")
+  type: String! @col(dataType: "varchar(50)")
+  content: String! @col(dataType: "text")
+  category: String @col(dataType: "varchar(50)")
+  isPublic: Boolean! @default(expr: "true")
+  createdBy: User!
+  createdAt: Date! @default(expr: "request.time")
+  updatedAt: Date! @default(expr: "request.time")
+  tags: String @col(dataType: "text")
+  version: String @col(dataType: "varchar(20)") @default(expr: "'1.0'")
+}

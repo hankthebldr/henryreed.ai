@@ -13,8 +13,9 @@ type User @table {
   isActive: Boolean! @default(expr: "true")
 }
 
-# POV (Proof of Value) management
-type POV @table {
+# POV (Proof of Value) management - renamed to Pov for PascalCase compliance
+# type POV @table {  # Original naming - replaced by Pov
+type Pov @table {
   id: UUID! @default(expr: "uuidV4()")
   name: String! @col(dataType: "varchar(200)")
   customer: String! @col(dataType: "varchar(100)")
@@ -34,8 +35,9 @@ type POV @table {
   notes: String @col(dataType: "text")
 }
 
-# TRR (Technical Requirements Review) management
-type TRR @table {
+# TRR (Technical Requirements Review) management - renamed to Trr for PascalCase compliance
+# type TRR @table {  # Original naming - replaced by Trr
+type Trr @table {
   id: UUID! @default(expr: "uuidV4()")
   title: String! @col(dataType: "varchar(200)")
   description: String! @col(dataType: "text")
