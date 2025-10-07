@@ -58,6 +58,8 @@
           }
         ]
       }
-    ]
+    ],
+    "cleanUrls": false,
+    "trailingSlash": true
   }
 }

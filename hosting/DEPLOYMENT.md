@@ -32,15 +32,19 @@ The application is configured for static export with the following settings in `
 
 ```typescript
 {
-  output: 'export',           // Static export mode
-  trailingSlash: true,        // Required for Firebase Hosting
-  skipTrailingSlashRedirect: true,
-  distDir: 'out',            // Output directory
+  output: 'export',                 // Static export mode
+  trailingSlash: true,              // Match Firebase routing expectations
+  distDir: 'out',                   // Output directory consumed by Firebase Hosting
   images: {
-    unoptimized: true        // Required for static hosting
+    unoptimized: true               // Required for static hosting
+  },
+  experimental: {
+    webpackBuildWorker: true        // Enabled when NEXT_ENABLE_WEBPACK_EXPERIMENTS=1
   }
 }
 ```
+
+> **Tip:** The Webpack build worker experiment only activates when you run build commands with `NEXT_ENABLE_WEBPACK_EXPERIMENTS=1` (e.g. via `npm run build:exp`).
 
 ## Deployment Commands
 
@@ -51,18 +55,19 @@ npm run deploy
 ```
 
 This command:
-1. Builds the Next.js application (`npm run build`)
+1. Builds the Next.js application with the Webpack worker experiment (`npm run build:exp`)
 2. Deploys to Firebase Hosting (`firebase deploy --only hosting`)
 
 ### Option 2: Manual Steps
 
-1. **Build the application:**
+1. **Build the application with the enhanced pipeline:**
    ```bash
-   npm run build
+   npm run build:exp
    ```
-   
+
    This will:
    - Compile the Next.js application
+   - Enable the optional Webpack build worker (`NEXT_ENABLE_WEBPACK_EXPERIMENTS=1`)
    - Generate static files in the `out/` directory
    - Optimize assets for production
 
@@ -112,7 +117,9 @@ The `firebase.json` file contains hosting-specific configurations:
         "source": "**",
         "destination": "/index.html"
       }
-    ]
+    ],
+    "cleanUrls": false,
+    "trailingSlash": true
   }
 }
 ```

@@ -1,6 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useMemo, useEffect, useRef } from 'react';
+
+type RBACModule = typeof import('../lib/rbac-middleware');
 
 // User and authentication types
 export interface User {
@@ -234,6 +236,7 @@ function appStateReducer(state: AppState, action: AppAction): AppState {
           user: action.payload,
           isAuthenticated: !!action.payload,
           viewMode: action.payload?.viewMode || state.auth.viewMode,
+          permissions: new Set(action.payload?.permissions ?? []),
         },
       };
       
@@ -459,190 +462,262 @@ const AppStateContext = createContext<{
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(appStateReducer, initialState);
-  
-  const actions = useMemo(() => ({
-    setMode: useCallback((mode: 'terminal' | 'gui') => {
-      dispatch({ type: 'SET_MODE', payload: mode });
-    }, []),
-    
-    setActiveGUITab: useCallback((tab: string) => {
-      dispatch({ type: 'SET_ACTIVE_GUI_TAB', payload: tab });
-    }, []),
-    
-    addTerminalCommand: useCallback((command: string) => {
+
+  const stateRef = useRef(state);
+  const rbacModuleRef = useRef<RBACModule | null>(null);
+
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    import('../lib/rbac-middleware')
+      .then((module) => {
+        if (isMounted) {
+          rbacModuleRef.current = module;
+        }
+      })
+      .catch((error) => {
+        console.error('Error loading RBAC middleware:', error);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const setMode = useCallback((mode: 'terminal' | 'gui') => {
+    dispatch({ type: 'SET_MODE', payload: mode });
+  }, [dispatch]);
+
+  const setActiveGUITab = useCallback((tab: string) => {
+    dispatch({ type: 'SET_ACTIVE_GUI_TAB', payload: tab });
+  }, [dispatch]);
+
+  const addTerminalCommand = useCallback((command: string) => {
+    dispatch({ type: 'ADD_TERMINAL_COMMAND', payload: command });
+    dispatch({ type: 'SET_COMMAND_BRIDGE', payload: { lastExecutedCommand: command } });
+  }, [dispatch]);
+
+  const updateBreadcrumbs = useCallback((breadcrumbs: Array<{ label: string; path: string }>) => {
+    dispatch({ type: 'UPDATE_BREADCRUMBS', payload: breadcrumbs });
+  }, [dispatch]);
+
+  const setUser = useCallback((user: User | null) => {
+    dispatch({ type: 'SET_USER', payload: user });
+  }, [dispatch]);
+
+  const setViewMode = useCallback((mode: 'admin' | 'user') => {
+    dispatch({ type: 'SET_VIEW_MODE', payload: mode });
+  }, [dispatch]);
+
+  const hasPermission = useCallback((permission: string) => {
+    const currentState = stateRef.current;
+    if (currentState.auth.viewMode === 'admin') {
+      return true;
+    }
+    const currentUser = currentState.auth.user;
+    return currentUser?.permissions?.includes(permission) || false;
+  }, []);
+
+  const openTerminal = useCallback(() => {
+    dispatch({ type: 'SET_TERMINAL_VISIBLE', payload: true });
+  }, [dispatch]);
+
+  const closeTerminal = useCallback(() => {
+    dispatch({ type: 'SET_TERMINAL_VISIBLE', payload: false });
+  }, [dispatch]);
+
+  const focusTerminal = useCallback(() => {
+    const terminalRef = stateRef.current.terminal.ref;
+    terminalRef?.current?.focus?.();
+  }, []);
+
+  const setTerminalRef = useCallback((ref: React.RefObject<any>) => {
+    dispatch({ type: 'SET_TERMINAL_REF', payload: ref });
+  }, [dispatch]);
+
+  const updateData = useCallback((key: keyof AppState['data'], data: any) => {
+    dispatch({ type: 'UPDATE_DATA', payload: { key, data } });
+  }, [dispatch]);
+
+  const notify = useCallback((type: 'success' | 'error' | 'info' | 'warning', message: string) => {
+    const notificationId = Math.random().toString(36).substring(2, 15);
+    const timestamp = Date.now();
+
+    dispatch({ type: 'ADD_NOTIFICATION', payload: { id: notificationId, type, message, timestamp } });
+
+    setTimeout(() => {
+      dispatch({ type: 'REMOVE_NOTIFICATION', payload: notificationId });
+    }, 5000);
+  }, [dispatch]);
+
+  const setLoading = useCallback((key: string, loading: boolean) => {
+    dispatch({ type: 'SET_LOADING', payload: { key, loading } });
+  }, [dispatch]);
+
+  const openModal = useCallback((key: string, data?: any) => {
+    dispatch({ type: 'OPEN_MODAL', payload: { key, data } });
+  }, [dispatch]);
+
+  const closeModal = useCallback((key: string) => {
+    dispatch({ type: 'CLOSE_MODAL', payload: key });
+  }, [dispatch]);
+
+  const executeCommandFromGUI = useCallback(async (command: string, options: { open?: boolean; focus?: boolean; track?: boolean; context?: any } = {}) => {
+    const { open = true, focus = true, track = false, context = null } = options;
+
+    try {
+      if (track) {
+        console.log('Command executed from GUI:', { command, context, timestamp: new Date().toISOString() });
+      }
+
+      if (open) {
+        dispatch({ type: 'SET_TERMINAL_VISIBLE', payload: true });
+      }
+
       dispatch({ type: 'ADD_TERMINAL_COMMAND', payload: command });
-      dispatch({ type: 'SET_COMMAND_BRIDGE', payload: { lastExecutedCommand: command } });
-    }, []),
-    
-    updateBreadcrumbs: useCallback((breadcrumbs: Array<{ label: string; path: string }>) => {
-      dispatch({ type: 'UPDATE_BREADCRUMBS', payload: breadcrumbs });
-    }, []),
-    
-    // Authentication actions
-    setUser: useCallback((user: User | null) => {
-      dispatch({ type: 'SET_USER', payload: user });
-    }, []),
-    
-    setViewMode: useCallback((mode: 'admin' | 'user') => {
-      dispatch({ type: 'SET_VIEW_MODE', payload: mode });
-    }, []),
-    
-    hasPermission: useCallback((permission: string) => {
-      if (state.auth.viewMode === 'admin') {
-        return true;
-      }
-      if (!state.auth.user) {
-        return false;
-      }
-      return state.auth.user.permissions?.includes(permission) || false;
-    }, [state.auth.viewMode, state.auth.user]),
-    
-    // Terminal actions
-    openTerminal: useCallback(() => {
-      dispatch({ type: 'SET_TERMINAL_VISIBLE', payload: true });
-    }, []),
-    
-    closeTerminal: useCallback(() => {
-      dispatch({ type: 'SET_TERMINAL_VISIBLE', payload: false });
-    }, []),
-    
-    focusTerminal: useCallback(() => {
-      if (state.terminal.ref?.current) {
-        state.terminal.ref.current.focus();
-      }
-    }, []),
-    
-    setTerminalRef: useCallback((ref: React.RefObject<any>) => {
-      dispatch({ type: 'SET_TERMINAL_REF', payload: ref });
-    }, []),
-    
-    updateData: useCallback((key: keyof AppState['data'], data: any) => {
-      dispatch({ type: 'UPDATE_DATA', payload: { key, data } });
-    }, []),
-    
-    notify: useCallback((type: 'success' | 'error' | 'info' | 'warning', message: string) => {
-      const notificationId = Math.random().toString(36).substring(2, 15);
-      const timestamp = Date.now();
-      
-      dispatch({ type: 'ADD_NOTIFICATION', payload: { id: notificationId, type, message, timestamp } });
-      
-      // Auto-remove notifications after 5 seconds
-      setTimeout(() => {
-        dispatch({ type: 'REMOVE_NOTIFICATION', payload: notificationId });
-      }, 5000);
-    }, []),
-    
-    setLoading: useCallback((key: string, loading: boolean) => {
-      dispatch({ type: 'SET_LOADING', payload: { key, loading } });
-    }, []),
-    
-    openModal: useCallback((key: string, data?: any) => {
-      dispatch({ type: 'OPEN_MODAL', payload: { key, data } });
-    }, []),
-    
-    closeModal: useCallback((key: string) => {
-      dispatch({ type: 'CLOSE_MODAL', payload: key });
-    }, []),
-    
-    executeCommandFromGUI: useCallback(async (command: string, options: { open?: boolean; focus?: boolean; track?: boolean; context?: any } = {}) => {
-      const { open = true, focus = true, track = false, context = null } = options;
-      
-      try {
-        // Log telemetry if tracking enabled
-        if (track) {
-          // Note: userActivityService integration would happen here
-          // For now, just log to console in development
-          console.log('Command executed from GUI:', { command, context, timestamp: new Date().toISOString() });
-        }
-        
-        // Open terminal if requested
-        if (open) {
-          dispatch({ type: 'SET_TERMINAL_VISIBLE', payload: true });
-        }
-        
-        // Add command to terminal history
-        dispatch({ type: 'ADD_TERMINAL_COMMAND', payload: command });
-        
-        // Update command bridge for terminal to execute
-        dispatch({ type: 'SET_COMMAND_BRIDGE', payload: { 
+
+      dispatch({
+        type: 'SET_COMMAND_BRIDGE',
+        payload: {
           lastExecutedCommand: command,
           pendingExecution: true,
           crossInterfaceData: context
-        }});
-        
-        // Focus terminal after a brief delay to ensure it's rendered
-        if (focus) {
-          setTimeout(() => {
-            if (state.terminal.ref?.current?.focus) {
-              state.terminal.ref.current.focus();
-            }
-          }, 100);
         }
-        
-        // Return a promise that resolves when command is queued
-        return Promise.resolve();
-      } catch (error) {
-        console.error('Error executing command from GUI:', error);
-        // Notify user of error
-        const notificationId = Math.random().toString(36).substring(2, 15);
-        const timestamp = Date.now();
-        dispatch({ type: 'ADD_NOTIFICATION', payload: { 
-          id: notificationId, 
-          type: 'error', 
-          message: `Failed to execute command: ${error instanceof Error ? error.message : 'Unknown error'}`, 
-          timestamp 
-        } });
-        throw error;
+      });
+
+      if (focus) {
+        setTimeout(() => {
+          const terminalRef = stateRef.current.terminal.ref;
+          terminalRef?.current?.focus?.();
+        }, 100);
       }
-    }, []),
-    
-    clearPendingExecution: useCallback(() => {
-      dispatch({ type: 'CLEAR_PENDING_EXECUTION' });
-    }, []),
-    
-    triggerGUIAction: useCallback((action: string, data?: any) => {
-      dispatch({ type: 'TRIGGER_GUI_ACTION', payload: { action, data } });
-    }, []),
-    
-    // Terminal integration actions
-    updateTerminalSettings: useCallback((settings: { cloudConfig: CloudEnvironmentConfig; integrationSettings: IntegrationSettings; connectionStatus: boolean }) => {
-      dispatch({ type: 'UPDATE_TERMINAL_SETTINGS', payload: settings });
-    }, []),
-    
-    setTerminalConnectionStatus: useCallback((status: 'disconnected' | 'connecting' | 'connected' | 'error') => {
-      dispatch({ type: 'SET_TERMINAL_CONNECTION_STATUS', payload: status });
-    }, []),
-    
-    // RBAC actions
-    updateUserPermissions: useCallback((permissions: UserPermissions) => {
-      dispatch({ type: 'UPDATE_USER_PERMISSIONS', payload: permissions });
-    }, []),
-    
-    logRBACEvent: useCallback((event: Omit<RBACEvent, 'timestamp'>) => {
-      dispatch({ type: 'LOG_RBAC_EVENT', payload: event });
-    }, []),
-    
-    clearRBACLog: useCallback(() => {
-      dispatch({ type: 'CLEAR_RBAC_LOG' });
-    }, []),
-    
-    canAccessResource: useCallback((resource: string, action: string) => {
-      // Import and use RBAC middleware
-      try {
-        const { RBACMiddleware } = require('../lib/rbac-middleware');
-        return RBACMiddleware.canAccessResource(
-          state.auth.user?.role || 'analyst',
-          resource,
-          action,
-          { userId: state.auth.user?.id }
-        );
-      } catch (error) {
-        console.error('Error checking resource access:', error);
-        return false;
-      }
-    }, [state.auth.user]),
-  }), [state.auth.viewMode, state.auth.user]); // Remove state.terminal.ref to prevent circular dependencies
-  
+
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Error executing command from GUI:', error);
+      const notificationId = Math.random().toString(36).substring(2, 15);
+      const timestamp = Date.now();
+      dispatch({
+        type: 'ADD_NOTIFICATION',
+        payload: {
+          id: notificationId,
+          type: 'error',
+          message: `Failed to execute command: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          timestamp
+        }
+      });
+      throw error;
+    }
+  }, [dispatch]);
+
+  const clearPendingExecution = useCallback(() => {
+    dispatch({ type: 'CLEAR_PENDING_EXECUTION' });
+  }, [dispatch]);
+
+  const triggerGUIAction = useCallback((action: string, data?: any) => {
+    dispatch({ type: 'TRIGGER_GUI_ACTION', payload: { action, data } });
+  }, [dispatch]);
+
+  const updateTerminalSettings = useCallback((settings: { cloudConfig: CloudEnvironmentConfig; integrationSettings: IntegrationSettings; connectionStatus: boolean }) => {
+    dispatch({ type: 'UPDATE_TERMINAL_SETTINGS', payload: settings });
+  }, [dispatch]);
+
+  const setTerminalConnectionStatus = useCallback((status: 'disconnected' | 'connecting' | 'connected' | 'error') => {
+    dispatch({ type: 'SET_TERMINAL_CONNECTION_STATUS', payload: status });
+  }, [dispatch]);
+
+  const updateUserPermissions = useCallback((permissions: UserPermissions) => {
+    dispatch({ type: 'UPDATE_USER_PERMISSIONS', payload: permissions });
+  }, [dispatch]);
+
+  const logRBACEvent = useCallback((event: Omit<RBACEvent, 'timestamp'>) => {
+    dispatch({ type: 'LOG_RBAC_EVENT', payload: event });
+  }, [dispatch]);
+
+  const clearRBACLog = useCallback(() => {
+    dispatch({ type: 'CLEAR_RBAC_LOG' });
+  }, [dispatch]);
+
+  const canAccessResource = useCallback((resource: string, action: string) => {
+    const currentState = stateRef.current;
+    const module = rbacModuleRef.current;
+
+    if (!module) {
+      console.warn('RBAC middleware not yet loaded; denying access by default.');
+      return false;
+    }
+
+    try {
+      return module.RBACMiddleware.canAccessResource(
+        currentState.auth.user?.role || 'analyst',
+        resource,
+        action,
+        { userId: currentState.auth.user?.id }
+      );
+    } catch (error) {
+      console.error('Error checking resource access:', error);
+      return false;
+    }
+  }, []);
+
+  const actions = useMemo(() => ({
+    setMode,
+    setActiveGUITab,
+    addTerminalCommand,
+    updateBreadcrumbs,
+    setUser,
+    setViewMode,
+    hasPermission,
+    openTerminal,
+    closeTerminal,
+    focusTerminal,
+    setTerminalRef,
+    updateData,
+    notify,
+    setLoading,
+    openModal,
+    closeModal,
+    executeCommandFromGUI,
+    clearPendingExecution,
+    triggerGUIAction,
+    updateTerminalSettings,
+    setTerminalConnectionStatus,
+    updateUserPermissions,
+    logRBACEvent,
+    clearRBACLog,
+    canAccessResource,
+  }), [
+    setMode,
+    setActiveGUITab,
+    addTerminalCommand,
+    updateBreadcrumbs,
+    setUser,
+    setViewMode,
+    hasPermission,
+    openTerminal,
+    closeTerminal,
+    focusTerminal,
+    setTerminalRef,
+    updateData,
+    notify,
+    setLoading,
+    openModal,
+    closeModal,
+    executeCommandFromGUI,
+    clearPendingExecution,
+    triggerGUIAction,
+    updateTerminalSettings,
+    setTerminalConnectionStatus,
+    updateUserPermissions,
+    logRBACEvent,
+    clearRBACLog,
+    canAccessResource,
+  ]);
+
   const contextValue = useMemo(() => ({
     state,
     dispatch,

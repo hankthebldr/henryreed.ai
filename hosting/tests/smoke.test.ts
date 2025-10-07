@@ -24,9 +24,44 @@ const React = {
 // Import the app state reducer for testing
 const initialState: AppState = {
   mode: 'gui',
+  auth: {
+    user: null,
+    isAuthenticated: false,
+    viewMode: 'user',
+    permissions: new Set<string>(),
+  },
+  terminal: {
+    isVisible: false,
+    ref: null,
+    integrationSettings: {
+      contentHubIntegration: true,
+      detectionEngineIntegration: true,
+      cloudExecution: false,
+      realTimeUpdates: true,
+    },
+    connectionStatus: 'disconnected',
+    isEnabled: false,
+  },
+  rbac: {
+    userPermissions: {
+      canView: [],
+      canCreate: [],
+      canUpdate: [],
+      canDelete: [],
+    },
+    dataScope: {
+      canViewAllUsers: false,
+      canViewAllPOVs: false,
+      canViewAllTRRs: false,
+      canModifySystemSettings: false,
+      allowedCustomers: [],
+      allowedProjects: [],
+    },
+    auditLog: [],
+  },
   navigation: {
     activeGUITab: 'dashboard',
-    terminalHistory: [],
+    terminalHistory: [] as string[],
     breadcrumbs: [{ label: 'Home', path: '/gui' }],
   },
   data: {
@@ -36,6 +71,7 @@ const initialState: AppState = {
     projects: [],
     scenarios: [],
     detections: [],
+    currentPovId: undefined,
   },
   ui: {
     notifications: [],
@@ -45,6 +81,7 @@ const initialState: AppState = {
   commandBridge: {
     lastExecutedCommand: null,
     pendingGUIAction: null,
+    pendingExecution: false,
     crossInterfaceData: null,
   },
 };

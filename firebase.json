@@ -133,8 +133,8 @@
         ]
       }
     ],
-    "cleanUrls": true,
-    "trailingSlash": false
+    "cleanUrls": false,
+    "trailingSlash": true
   },
   "firestore": {
     "rules": "hosting/firestore.rules",
