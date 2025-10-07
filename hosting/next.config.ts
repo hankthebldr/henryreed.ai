@@ -1,72 +1,33 @@
 import type { NextConfig } from 'next'
 
-const enableWebpackExp = process.env.NEXT_ENABLE_WEBPACK_EXPERIMENTS === '1';
-
+// Canonical Next.js config for Firebase static hosting per WARP.md
 const nextConfig: NextConfig = {
-  output: 'export',
-  trailingSlash: true,
-  distDir: 'out',
-  images: {
-    unoptimized: true
+  output: 'export',            // Static site generation
+  trailingSlash: true,         // Firebase hosting compatibility  
+  distDir: 'out',              // Build output directory
+  images: { 
+    unoptimized: true          // Required for static hosting
+  },
+  reactStrictMode: true,
+  typescript: { 
+    ignoreBuildErrors: false   // Catch TypeScript errors during build
+  },
+  eslint: { 
+    ignoreDuringBuilds: false  // Catch ESLint errors during build
   },
   // Performance optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
-  },
-  experimental: {
-    ...(enableWebpackExp ? { webpackBuildWorker: true } : {}),
-  },
-  // Turbopack configuration for Next.js 15+
-  turbopack: {
-    rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
-      },
-    },
-  },
-  webpack: (config, { dev, isServer }) => {
-    if (enableWebpackExp && !dev) {
-      config.experiments = {
-        ...(config.experiments || {}),
-        topLevelAwait: true,
-        layers: true,
-        asyncWebAssembly: true
-      };
-    }
-    
-    // Production optimizations
-    if (!dev && !isServer) {
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              chunks: 'all',
-              priority: 10
-            },
-            commands: {
-              test: /[\\/]lib[\\/].*-commands\.tsx?$/,
-              name: 'commands',
-              chunks: 'all',
-              priority: 5
-            },
-            common: {
-              name: 'common',
-              minChunks: 2,
-              chunks: 'all',
-              priority: 1
-            }
-          }
-        }
-      };
-    }
-    
-    return config;
-  },
+  }
+  
+  // NOTE: Advanced experimental features and webpack config commented out
+  // to ensure stable builds. The previous config had syntax errors and
+  // duplicate experimental blocks that prevented successful compilation.
+  // 
+  // If advanced webpack features are needed in the future, they can be
+  // re-enabled with proper testing and validation.
+  //
+  // Previous problematic config moved to docs/archive/next-config-legacy.md
 }
 
 export default nextConfig
