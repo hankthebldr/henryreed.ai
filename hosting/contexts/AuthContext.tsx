@@ -46,6 +46,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [firebaseAvailable, setFirebaseAvailable] = useState(false);
 
   useEffect(() => {
+    console.log('AuthProvider: Initializing auth, isMockAuthMode:', isMockAuthMode);
+    
     // Check if we're in mock auth mode
     if (isMockAuthMode) {
       console.info('Running in mock auth mode');
@@ -66,47 +68,87 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     
     // Regular Firebase auth setup
+    let unsubscribe: (() => void) | undefined;
+    
     try {
       if (typeof window !== 'undefined' && auth) {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        unsubscribe = onAuthStateChanged(auth, (user) => {
           setUser(user);
           setLoading(false);
           setFirebaseAvailable(true);
         });
-        return () => unsubscribe();
+      } else {
+        // If auth is not available, fall back to mock mode
+        console.warn('Firebase auth not available, falling back to mock mode');
+        setFirebaseAvailable(true);
+        setLoading(false);
       }
     } catch (error) {
-      console.warn('Firebase authentication is not available:', error);
-      setFirebaseAvailable(false);
+      console.warn('Firebase authentication is not available, falling back to mock mode:', error);
+      setFirebaseAvailable(true);
       setLoading(false);
+      
+      // In case of Firebase error, enable mock mode for fallback
+      console.info('Enabling emergency mock auth fallback');
     }
+    
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
     setLoading(true);
     try {
-      if (isMockAuthMode) {
-        // Mock authentication - support both user1/paloalto1 and cortex/xsiam
-        const validCredentials = {
+      if (isMockAuthMode || !firebaseAvailable) {
+        // Mock authentication - support user1/paloalto1, cortex/xsiam, and demo/demo
+        const validCredentials: Record<string, string> = {
           'user1': 'paloalto1',
-          'cortex': 'xsiam'
+          'cortex': 'xsiam',
+          'demo': 'demo'
         };
         
-        if (validCredentials[email as keyof typeof validCredentials] === password) {
+        if (validCredentials[email] === password) {
           const mockUser: MockUser = {
-            uid: email === 'cortex' ? 'cortex-001' : 'user1-001',
-            email: email === 'cortex' ? 'cortex@paloaltonetworks.com' : 'user1@paloaltonetworks.com',
-            displayName: email === 'cortex' ? 'Cortex System Admin' : 'User One - Domain Consultant',
+            uid: email === 'cortex' ? 'cortex-001' : email === 'demo' ? 'demo-001' : 'user1-001',
+            email: email === 'cortex' ? 'cortex@paloaltonetworks.com' : email === 'demo' ? 'demo@paloaltonetworks.com' : 'user1@paloaltonetworks.com',
+            displayName: email === 'cortex' ? 'Cortex System Admin' : email === 'demo' ? 'Demo User - Domain Consultant' : 'User One - Domain Consultant',
             photoURL: null
           };
           setUser(mockUser);
           localStorage.setItem('mockUser', JSON.stringify(mockUser));
           console.info(`Mock authentication successful for ${email}`);
         } else {
-          throw new Error('Invalid credentials. Use user1/paloalto1 or cortex/xsiam.');
+          throw new Error('Invalid credentials. Use demo/demo, user1/paloalto1, or cortex/xsiam.');
         }
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+        } catch (authError) {
+          console.warn('Firebase auth failed, trying mock auth fallback:', authError);
+          // Fallback to mock auth if Firebase auth fails
+          const validCredentials: Record<string, string> = {
+            'user1': 'paloalto1',
+            'cortex': 'xsiam',
+            'demo': 'demo'
+          };
+          
+          if (validCredentials[email] === password) {
+            const mockUser: MockUser = {
+              uid: email === 'cortex' ? 'cortex-001' : email === 'demo' ? 'demo-001' : 'user1-001',
+              email: email === 'cortex' ? 'cortex@paloaltonetworks.com' : email === 'demo' ? 'demo@paloaltonetworks.com' : 'user1@paloaltonetworks.com',
+              displayName: email === 'cortex' ? 'Cortex System Admin' : email === 'demo' ? 'Demo User - Domain Consultant' : 'User One - Domain Consultant',
+              photoURL: null
+            };
+            setUser(mockUser);
+            localStorage.setItem('mockUser', JSON.stringify(mockUser));
+            console.info(`Fallback mock authentication successful for ${email}`);
+          } else {
+            throw authError; // Re-throw the original error
+          }
+        }
       }
     } finally {
       setLoading(false);

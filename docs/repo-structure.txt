@@ -1,0 +1,410 @@
+.
+├── .depcheck-report.txt
+├── .dockerignore
+├── .firebaserc
+├── .gitignore
+├── .repo-inventory.txt
+├── .ts-prune-report.txt
+├── .vscode
+│   └── extensions.json
+├── BACKEND_SERVICES_SUMMARY.md
+├── BRANDING_ASSETS.md
+├── CLOUD_NATIVE_SECOPS_EXPANSION_PLAN.md
+├── COMMAND_INVENTORY.md
+├── COMPREHENSIVE_SCENARIO_ENGINE.md
+├── Cortex_DC_Portal_Design.md
+├── DATA_FLOW_LIFECYCLE_DOCUMENTATION.md
+├── dataconnect
+│   ├── dataconnect.yaml
+│   ├── example
+│   │   ├── connector.yaml
+│   │   ├── mutations.gql
+│   │   └── queries.gql
+│   └── schema
+│       └── schema.gql
+├── deploy-test.sh
+├── deploy.sh
+├── DEPLOYMENT.md
+├── docker-compose.yml
+├── Dockerfile
+├── docs
+│   ├── architecture.md
+│   ├── archive
+│   │   └── terminal
+│   ├── branding
+│   │   ├── BRAND_GUIDELINES.md
+│   │   ├── COLOR_REFERENCE.md
+│   │   └── COMPONENT_API.md
+│   ├── cli.md
+│   ├── cloud-integration.md
+│   ├── commands
+│   │   └── README.md
+│   ├── dataconnect
+│   │   ├── baseline-errors.log
+│   │   └── smoke-results
+│   ├── decisions
+│   ├── development.md
+│   ├── guides
+│   ├── integrations
+│   ├── README.md
+│   ├── RECOVERY-TODO.md
+│   ├── reference
+│   ├── repo-structure.txt
+│   ├── restore-branch-analysis.md
+│   ├── testing
+│   └── user-guides
+├── examples
+│   └── pov-ransomware-gcp.yaml
+├── EXTENSION_FRAMEWORK_DOCUMENTATION.md
+├── EXTERNAL_INTEGRATION_ARCHITECTURE.md
+├── FIREBASE_CONFIGURATION_SUMMARY.md
+├── firebase.json
+├── firestore-debug.log
+├── functions
+│   ├── lib
+│   │   ├── ai
+│   │   ├── gemini.d.ts
+│   │   ├── gemini.js
+│   │   ├── gemini.js.map
+│   │   ├── handlers
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── index.js.map
+│   │   ├── middleware
+│   │   ├── routes
+│   │   └── utils
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── src
+│   │   ├── ai
+│   │   ├── dataconnect-generated
+│   │   ├── gemini.ts
+│   │   ├── handlers
+│   │   ├── index.ts
+│   │   ├── middleware
+│   │   ├── routes
+│   │   └── utils
+│   └── tsconfig.json
+├── functions-shared
+│   ├── package.json
+│   ├── src
+│   │   └── index.ts
+│   └── tsconfig.json
+├── henryreedai
+│   ├── .gitignore
+│   ├── LEGACY_README.md
+│   ├── lib
+│   │   ├── ai-functions.js
+│   │   ├── ai-functions.js.map
+│   │   ├── genkit-sample.js
+│   │   ├── genkit-sample.js.map
+│   │   ├── index.js
+│   │   └── index.js.map
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── src
+│   │   ├── ai-functions.ts
+│   │   ├── genkit-sample.ts
+│   │   └── index.ts
+│   └── tsconfig.json
+├── hosting
+│   ├── .depcheck-report.txt
+│   ├── .env.example
+│   ├── .env.local
+│   ├── .eslintrc.cjs
+│   ├── .firebaserc
+│   ├── .gitignore
+│   ├── .prettierignore
+│   ├── .prettierrc
+│   ├── .repo-inventory.txt
+│   ├── .ts-prune-report.txt
+│   ├── app
+│   │   ├── alignment-guide
+│   │   ├── content
+│   │   ├── creator
+│   │   ├── dc-portal-styles.css
+│   │   ├── docs
+│   │   ├── globals.css
+│   │   ├── gui
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   ├── terminal
+│   │   └── test.tsx
+│   ├── BRANDING_ASSETS.md
+│   ├── CHANGELOG.md
+│   ├── cloud-functions
+│   │   └── bigquery-export
+│   ├── COMMAND_AUDIT.md
+│   ├── COMMAND_PARAMETERS_SCHEMA.md
+│   ├── COMMAND_REFERENCE_POV.md
+│   ├── COMMAND_REFERENCE.md
+│   ├── components
+│   │   ├── AppHeader.tsx
+│   │   ├── AppShell.tsx
+│   │   ├── AuthLanding.tsx
+│   │   ├── BigQueryExplorer.tsx
+│   │   ├── BigQueryExportPanel.tsx
+│   │   ├── BreadcrumbNavigation.tsx
+│   │   ├── CommandAlignmentGuide.tsx
+│   │   ├── ConditionalLayout.tsx
+│   │   ├── ConsolidatedContentLibrary.tsx
+│   │   ├── ContentAnalytics.tsx
+│   │   ├── ContentCreatorManager.tsx
+│   │   ├── ContentLibrary.tsx
+│   │   ├── CortexButton.tsx
+│   │   ├── CortexCloudFrame.tsx
+│   │   ├── CortexCommandButton.tsx
+│   │   ├── CortexDCTerminal.tsx
+│   │   ├── CortexGUIInterface.tsx
+│   │   ├── DomainConsultantWorkspace.tsx
+│   │   ├── EnhancedAIAssistant.tsx
+│   │   ├── EnhancedContentCreator.tsx
+│   │   ├── EnhancedGUIInterface.tsx
+│   │   ├── EnhancedManualCreationGUI.tsx
+│   │   ├── EnhancedScenarioCreator.tsx
+│   │   ├── EnhancedTerminal.tsx
+│   │   ├── ImprovedTerminal.tsx
+│   │   ├── InteractiveCharts.tsx
+│   │   ├── LoginForm.tsx
+│   │   ├── ManagementDashboard.tsx
+│   │   ├── ManualCreationGUI.tsx
+│   │   ├── NotificationSystem.tsx
+│   │   ├── OnboardingGuide.tsx
+│   │   ├── POVManagement.tsx
+│   │   ├── POVProjectManagement.tsx
+│   │   ├── ProductionTRRManagement.tsx
+│   │   ├── ScenarioEngine.tsx.bak
+│   │   ├── SDWWorkflow.tsx
+│   │   ├── SettingsPanel.tsx
+│   │   ├── terminal
+│   │   ├── Terminal.tsx
+│   │   ├── TerminalIntegrationSettings.tsx
+│   │   ├── TerminalOutput.tsx
+│   │   ├── TerminalOutputs.tsx
+│   │   ├── TerminalWindow.tsx
+│   │   ├── TRRManagement.tsx
+│   │   ├── TRRProgressChart.tsx
+│   │   ├── ui
+│   │   ├── UnifiedContentCreator.tsx
+│   │   ├── UnifiedTerminal.tsx
+│   │   ├── UserTimelineView.tsx
+│   │   ├── XSIAMHealthMonitor.tsx
+│   │   └── XSIAMIntegrationPanel.tsx
+│   ├── contexts
+│   │   ├── AppStateContext.tsx
+│   │   └── AuthContext.tsx
+│   ├── DEPLOYMENT.md
+│   ├── docs
+│   │   ├── bigquery-export.md
+│   │   ├── branding
+│   │   ├── content-architecture.md
+│   │   ├── cortex-branding-implementation.md
+│   │   ├── dc-portal-optimization-summary.md
+│   │   ├── domain-consultant-guide.md
+│   │   ├── gui-user-flows.md
+│   │   ├── panw-cortex-branding-final.md
+│   │   ├── portal-ui-map.md
+│   │   ├── POV_CONSULTANT_GUIDE.md
+│   │   ├── POV_OPTIMIZATION_ANALYSIS.md
+│   │   ├── README.md
+│   │   ├── technical-specs
+│   │   ├── trr-optimization-summary.md
+│   │   ├── user-stories
+│   │   └── xsiam-integration.md
+│   ├── documentation
+│   │   ├── 00-conventions.md
+│   │   ├── 01-navigation-structure.md
+│   │   ├── 03-page-layouts
+│   │   ├── 04-workflows
+│   │   ├── 06-route-mapping.md
+│   │   ├── 99-changelog.md
+│   │   ├── index.json
+│   │   └── README.md
+│   ├── ENHANCED_SYSTEM_GUIDE.md
+│   ├── ENHANCEMENT_SUMMARY.md
+│   ├── FIREBASE_DEPLOYMENT_FIX.md
+│   ├── firebase.json
+│   ├── firestore.indexes.json
+│   ├── firestore.rules
+│   ├── HEADER_OPTIMIZATION_SUMMARY.md
+│   ├── hooks
+│   │   ├── useActivityTracking.ts
+│   │   ├── useAuthGuard.ts
+│   │   └── useCommandExecutor.ts
+│   ├── hosting
+│   │   ├── contexts
+│   │   └── lib
+│   ├── INTEGRATION_LOG.md
+│   ├── jest.config.js
+│   ├── jest.setup.js
+│   ├── lib
+│   │   ├── ai
+│   │   ├── ai-insights-client.ts
+│   │   ├── api
+│   │   ├── api-service.ts
+│   │   ├── arg-parser.ts
+│   │   ├── auth
+│   │   ├── auth-service.ts
+│   │   ├── bigquery-commands.tsx
+│   │   ├── bigquery-service.ts
+│   │   ├── cdr-commands.tsx
+│   │   ├── cloud-command-executor.ts
+│   │   ├── cloud-config-commands.tsx
+│   │   ├── cloud-functions-api.ts
+│   │   ├── command-registry.ts
+│   │   ├── commands-ext.tsx
+│   │   ├── commands.tsx
+│   │   ├── content-library-service.ts
+│   │   ├── context-storage.ts
+│   │   ├── cortex-dc-commands.tsx
+│   │   ├── data-service.ts
+│   │   ├── dc-ai-client.ts
+│   │   ├── dc-api-client.ts
+│   │   ├── dc-context-store.ts
+│   │   ├── detect-commands.tsx
+│   │   ├── download-commands.tsx
+│   │   ├── enhanced-cdr-commands.tsx
+│   │   ├── enhanced-help-commands.tsx
+│   │   ├── enhanced-pov-commands.tsx
+│   │   ├── enhanced-trr-commands.tsx
+│   │   ├── feature-parity-audit.ts
+│   │   ├── firebase
+│   │   ├── firebase-config.ts
+│   │   ├── gcp-backend-config.ts
+│   │   ├── gemini-ai-service.ts
+│   │   ├── gemini-commands.tsx
+│   │   ├── guide-commands.tsx
+│   │   ├── help-renderer.tsx
+│   │   ├── knowledge-base.ts
+│   │   ├── linux-commands.tsx
+│   │   ├── monitor-commands.tsx
+│   │   ├── pov-commands.tsx
+│   │   ├── project-commands.tsx
+│   │   ├── rbac-middleware.ts
+│   │   ├── resource-ledger.ts
+│   │   ├── resources-commands.tsx
+│   │   ├── safety-policy.ts
+│   │   ├── scenario-command-wrapper.tsx
+│   │   ├── scenario-commands.tsx
+│   │   ├── scenario-engine-client.ts.bak
+│   │   ├── scenario-engine.ts.bak
+│   │   ├── scenario-pov-map.ts
+│   │   ├── scenario-types.ts
+│   │   ├── sdw-models.ts
+│   │   ├── template-config-commands.tsx
+│   │   ├── trr-blockchain-signoff.tsx
+│   │   ├── types.ts
+│   │   ├── unified-command-service.ts
+│   │   ├── user-activity-service.ts
+│   │   ├── user-management.ts
+│   │   ├── utils.ts
+│   │   ├── vfs.ts
+│   │   ├── virtual-fs.ts
+│   │   ├── with-help.tsx
+│   │   ├── xsiam-api-service.ts
+│   │   └── xsiam-commands.tsx
+│   ├── next-env.d.ts
+│   ├── next.config.ts
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── playwright-report
+│   │   ├── data
+│   │   └── index.html
+│   ├── playwright.config.ts
+│   ├── postcss.config.js
+│   ├── PRODUCTION_READINESS_REPORT.md
+│   ├── PROJECT_COMPLETION_SUMMARY.md
+│   ├── providers
+│   │   └── ThemeProvider.tsx
+│   ├── public
+│   │   ├── apple-touch-icon-180x180.png
+│   │   ├── apple-touch-icon.png
+│   │   ├── assets
+│   │   ├── content-index.json
+│   │   ├── favicon.ico
+│   │   ├── favicon.svg
+│   │   └── manifest.json
+│   ├── QA_CHECKLIST.md
+│   ├── README-DOWNLOADS.md
+│   ├── README.md
+│   ├── remoteconfig.template.json
+│   ├── scripts
+│   │   ├── content-index.ts
+│   │   ├── firestore-ingest.ts
+│   │   └── validate-qa.js
+│   ├── SETUP.md
+│   ├── src
+│   │   ├── components
+│   │   ├── config
+│   │   ├── dataconnect-generated
+│   │   └── lib
+│   ├── storage.rules
+│   ├── store
+│   ├── STYLING_GUIDE.md
+│   ├── SYNC_VALIDATION.md
+│   ├── tailwind.config.js
+│   ├── TERMINAL_TEST_VERIFICATION.md
+│   ├── TEST_COMPLETION_SUMMARY.md
+│   ├── test-results
+│   │   ├── .last-run.json
+│   │   ├── results.json
+│   │   ├── results.xml
+│   │   ├── smoke-Authentication-Flow--bfc1a-ogin-with-valid-credentials-chromium
+│   │   ├── smoke-Authentication-Flow--bfc1a-ogin-with-valid-credentials-firefox
+│   │   ├── smoke-Authentication-Flow--bfc1a-ogin-with-valid-credentials-Mobile-Chrome
+│   │   ├── smoke-Authentication-Flow--bfc1a-ogin-with-valid-credentials-Mobile-Safari
+│   │   └── smoke-Authentication-Flow--bfc1a-ogin-with-valid-credentials-webkit
+│   ├── tests
+│   │   ├── e2e
+│   │   └── smoke.test.ts
+│   ├── tsconfig.json
+│   ├── tsconfig.tsbuildinfo
+│   ├── types
+│   │   ├── content.ts
+│   │   ├── gray-matter.d.ts
+│   │   ├── trr-extended.ts
+│   │   └── trr.ts
+│   ├── UX_IMPLEMENTATION_GUIDE.md
+│   └── UX_IMPROVEMENT_PLAN.md
+├── k8s
+│   ├── configmap.yaml
+│   ├── deployment.yaml
+│   ├── hpa.yaml
+│   ├── ingress.yaml
+│   ├── kustomization.yaml
+│   ├── namespace.yaml
+│   ├── pdb.yaml
+│   ├── service.yaml
+│   └── tls-secret-template.yaml
+├── package-lock.json
+├── package.json
+├── public
+│   ├── apple-touch-icon-180x180.png
+│   ├── assets
+│   │   └── branding
+│   └── favicon.ico
+├── README_NEW.md
+├── README.md
+├── scenario-lifecycle-flowchart.md
+├── scenario-management-schema-documentation.md
+├── scripts
+│   ├── build.sh
+│   ├── cleanup-k8s.sh
+│   └── deploy-k8s.sh
+├── src
+│   ├── components
+│   │   └── branding
+│   ├── config
+│   │   └── brand.ts
+│   └── dataconnect-generated
+│       ├── esm
+│       ├── index.cjs.js
+│       ├── index.d.ts
+│       ├── package.json
+│       └── README.md
+├── TRR_MANAGEMENT_OPTIMIZATION_SUMMARY.md
+├── TYPESCRIPT_STRUCTURE_ANALYSIS.md
+├── UNIFIED_SCHEMA_DOCUMENTATION.md
+└── WARP.md
+
+100 directories, 308 files

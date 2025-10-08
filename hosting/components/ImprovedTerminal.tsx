@@ -9,6 +9,7 @@ import { contextStorage, UserContext } from '../lib/context-storage';
 import { VFS, initVFS, serializeVFS, deserializeVFS } from '../lib/vfs';
 import { buildLinuxCommands } from '../lib/linux-commands';
 import { scenarioCommands } from '../lib/scenario-commands';
+import { enhancedScenarioCommands } from '../lib/scenario-commands-enhanced';
 import { Card, Loading } from './ui';
 
 interface Command {
@@ -991,57 +992,95 @@ level: high`}
     },
     {
       name: 'scenario',
-      description: 'Deploy and manage security assessment scenarios',
-      usage: 'scenario <subcommand> [options]',
+      description: 'Enhanced security scenario management with PANW integration',
+      usage: 'scenario <command> [options]',
       aliases: ['scenarios', 'sec-scenario'],
       handler: async (args) => {
+        // Check if user wants enhanced features by using specific commands or flags
+        const useEnhanced = args.includes('--enhanced') || 
+                          args.includes('--product') || 
+                          args.includes('--business-value') || 
+                          args.includes('registry') || 
+                          args.includes('stats') ||
+                          (args[0] && ['list', 'generate', 'status', 'validate', 'export', 'destroy'].includes(args[0]) && args.includes('--detailed'));
+
+        // If no args, show enhanced overview
         if (args.length === 0) {
           return (
             <TerminalOutput type="info">
-              <div className="space-y-4">
-                <div className="font-bold text-xl text-blue-300">🎯 Scenario Management System</div>
-                <div className="text-gray-300">
-                  Deploy and manage security assessment scenarios across cloud environments.
+              <div className="space-y-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-300 mb-2">🎯 Enhanced Scenario Management</div>
+                  <div className="text-gray-300 max-w-2xl mx-auto">
+                    Enterprise-grade security scenario orchestration with PANW product integration and business value alignment
+                  </div>
                 </div>
-                <div className="space-y-3">
-                  <div className="text-green-400 font-bold">Available Subcommands:</div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="border border-blue-500 p-3 rounded">
-                      <div className="text-blue-400 font-mono font-bold">list</div>
-                      <div className="text-sm text-gray-300">Browse available scenario templates</div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="text-green-300 font-semibold text-sm">CORE COMMANDS</div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-blue-300 font-mono text-sm">scenario list</span>
+                        <span className="text-gray-400 text-xs">Browse scenarios</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-green-300 font-mono text-sm">scenario generate</span>
+                        <span className="text-gray-400 text-xs">Deploy scenario</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-yellow-300 font-mono text-sm">scenario status</span>
+                        <span className="text-gray-400 text-xs">Monitor progress</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-purple-300 font-mono text-sm">scenario validate</span>
+                        <span className="text-gray-400 text-xs">Run tests</span>
+                      </div>
                     </div>
-                    <div className="border border-green-500 p-3 rounded">
-                      <div className="text-green-400 font-mono font-bold">generate</div>
-                      <div className="text-sm text-gray-300">Deploy a new scenario instance</div>
-                    </div>
-                    <div className="border border-yellow-500 p-3 rounded">
-                      <div className="text-yellow-400 font-mono font-bold">status</div>
-                      <div className="text-sm text-gray-300">Check deployment status</div>
-                    </div>
-                    <div className="border border-purple-500 p-3 rounded">
-                      <div className="text-purple-400 font-mono font-bold">validate</div>
-                      <div className="text-sm text-gray-300">Run validation tests</div>
-                    </div>
-                    <div className="border border-cyan-500 p-3 rounded">
-                      <div className="text-cyan-400 font-mono font-bold">export</div>
-                      <div className="text-sm text-gray-300">Export configurations and results</div>
-                    </div>
-                    <div className="border border-red-500 p-3 rounded">
-                      <div className="text-red-400 font-mono font-bold">destroy</div>
-                      <div className="text-sm text-gray-300">Clean up deployed scenarios</div>
-                    </div>
-                    <div className="border border-orange-500 p-3 rounded">
-                      <div className="text-orange-400 font-mono font-bold">mitre</div>
-                      <div className="text-sm text-gray-300">MITRE ATT&CK mappings</div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="text-purple-300 font-semibold text-sm">ADVANCED FEATURES</div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-cyan-300 font-mono text-sm">scenario registry</span>
+                        <span className="text-gray-400 text-xs">View analytics</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-orange-300 font-mono text-sm">scenario export</span>
+                        <span className="text-gray-400 text-xs">Generate reports</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-red-300 font-mono text-sm">scenario destroy</span>
+                        <span className="text-gray-400 text-xs">Cleanup resources</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-pink-300 font-mono text-sm">scenario stats</span>
+                        <span className="text-gray-400 text-xs">Engine metrics</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div className="p-4 bg-gray-800 rounded border border-gray-600">
-                  <div className="text-cyan-400 font-bold mb-2">🚀 Quick Examples</div>
-                  <div className="text-sm space-y-1 font-mono">
-                    <div className="text-green-400">scenario list --scenario-type cloud-posture</div>
-                    <div className="text-blue-400">scenario generate --scenario-type ai-threat --provider gcp</div>
-                    <div className="text-yellow-400">scenario status</div>
+
+                <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                  <div className="text-green-300 font-semibold mb-3 text-sm">🚀 ENHANCED FILTERING</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <div className="text-blue-300 font-mono">scenario list --product prisma-cloud</div>
+                      <div className="text-gray-400 ml-2">Filter by PANW product</div>
+                    </div>
+                    <div>
+                      <div className="text-green-300 font-mono">scenario list --business-value risk-mitigation</div>
+                      <div className="text-gray-400 ml-2">Filter by business value</div>
+                    </div>
+                    <div>
+                      <div className="text-purple-300 font-mono">scenario generate --id cloud-posture-s3</div>
+                      <div className="text-gray-400 ml-2">Deploy specific scenario</div>
+                    </div>
+                    <div>
+                      <div className="text-yellow-300 font-mono">scenario list --detailed</div>
+                      <div className="text-gray-400 ml-2">Comprehensive view</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1049,6 +1088,20 @@ level: high`}
           );
         }
 
+        // Try enhanced commands first if conditions are met
+        if (useEnhanced) {
+          try {
+            const enhancedHandler = enhancedScenarioCommands.find(cmd => cmd.name === 'scenario');
+            if (enhancedHandler) {
+              return enhancedHandler.handler(args);
+            }
+          } catch (error) {
+            // Fall back to legacy commands if enhanced fails
+            console.warn('Enhanced scenario commands failed, falling back to legacy:', error);
+          }
+        }
+
+        // Legacy command handling
         const subcommand = args[0].toLowerCase();
         const subArgs = args.slice(1);
 

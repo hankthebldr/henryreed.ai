@@ -12,6 +12,7 @@ import { commands as baseCommands } from './commands';
 import { allCommands as extendedCommands } from './commands-ext';
 import { downloadCommands } from './download-commands';
 import { scenarioCommandConfig } from './scenario-command-wrapper';
+import { enhancedScenarioCommands } from './scenario-commands-enhanced';
 
 // Category metadata for better organization
 export const CATEGORY_INFO: Record<CommandCategory, CategoryInfo> = {
@@ -107,12 +108,38 @@ const enhancedDownloadCommands: EnhancedCommandConfig[] = downloadCommands
   )
   .map(cmd => enhanceCommand(cmd, 'downloads'));
 
+// Convert enhanced scenario commands to proper format
+const enhancedScenarioCommandConfigs: EnhancedCommandConfig[] = enhancedScenarioCommands.map(cmd => ({
+  ...cmd,
+  help: {
+    category: 'scenarios' as CommandCategory,
+    topics: [cmd.name, ...(cmd.aliases || []), 'security', 'deployment', 'panw', 'mitre', 'validation'],
+    examples: [
+      {
+        cmd: `${cmd.name} list --detailed`,
+        description: 'Browse scenarios with comprehensive details'
+      },
+      {
+        cmd: `${cmd.name} generate --id cloud-posture-misconfigured-s3`,
+        description: 'Deploy a cloud security scenario'
+      },
+      {
+        cmd: `${cmd.name} list --product prisma-cloud --business-value risk-mitigation`,
+        description: 'Filter scenarios by PANW product and business value'
+      }
+    ],
+    longDescription: 'Enhanced security scenario management with PANW product integration, business value quantification, and complete lifecycle orchestration. Deploy, validate, and manage security scenarios with enterprise-grade capabilities.'
+  }
+}));
+
 // Merge all command sources
 const allEnhancedCommands: EnhancedCommandConfig[] = [
   ...enhancedBaseCommands,
   ...enhancedExtendedCommands,
   ...enhancedDownloadCommands,
-  scenarioCommandConfig
+  // Include both legacy and enhanced scenario commands
+  scenarioCommandConfig,
+  ...enhancedScenarioCommandConfigs
 ];
 
 // Build alias index for fast lookup
