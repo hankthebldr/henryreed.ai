@@ -2,7 +2,10 @@
 
 import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import { useActivityTracking } from '../hooks/useActivityTracking';
+import { useCommandExecutor } from '../hooks/useCommandExecutor';
 import { userManagementService } from '../lib/user-management';
+import EnhancedTerminalSidebar from './EnhancedTerminalSidebar';
+import { cn } from '../lib/utils';
 
 // Lazy load heavy components for better performance
 const EnhancedManualCreationGUI = lazy(() => import('./EnhancedManualCreationGUI'));
@@ -41,7 +44,9 @@ interface QuickAction {
   className: string;
 }
 
-const POVDashboard = React.memo(() => {
+const POVDashboard = React.memo(({ terminalExpanded, setTerminalExpanded }: { terminalExpanded: boolean; setTerminalExpanded: (expanded: boolean) => void }) => {
+  const { run: executeCommand, isRunning } = useCommandExecutor();
+  
   // Optimized Blueprint PDF creation with better error handling
   const createGuiBlueprintPdf = useCallback(async () => {
     try {
@@ -87,22 +92,22 @@ const POVDashboard = React.memo(() => {
     }
   }, []);
 
-  // Memoized functional dashboard actions with proper routing
+  // Enhanced quick actions with proper terminal command integration
   const quickActions: QuickAction[] = useMemo(() => [
     {
       name: 'New POV',
       icon: '🎯',
       description: 'Initialize a new Proof of Value project',
-      onClick: () => {
-        // Switch to project management tab and trigger new POV creation
-        if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
-          // If in iframe, post message to parent
-          window.parent.postMessage({ action: 'navigate', tab: 'pov' }, '*');
-        } else {
-          // Direct navigation within the app
-          const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'pov', action: 'create-pov' } });
-          window.dispatchEvent(event);
-        }
+      onClick: async () => {
+        await executeCommand('pov init --interactive', {
+          openTerminal: true,
+          focus: true,
+          trackActivity: {
+            event: 'quick-action-execute',
+            source: 'dashboard-quick-actions',
+            payload: { action: 'new-pov', command: 'pov init --interactive' }
+          }
+        });
       },
       className: 'bg-green-900 bg-opacity-20 border-green-500 border-opacity-30 hover:bg-green-900 hover:bg-opacity-40 text-green-400'
     },
@@ -110,19 +115,16 @@ const POVDashboard = React.memo(() => {
       name: 'Upload CSV',
       icon: '📄',
       description: 'Import TRR data from CSV file',
-      onClick: () => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.csv,.xlsx';
-        input.onchange = (e) => {
-          const file = (e.target as HTMLInputElement).files?.[0];
-          if (file) {
-            // Navigate to TRR tab with import mode
-            const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'trr', action: 'import-csv', file: file.name } });
-            window.dispatchEvent(event);
+      onClick: async () => {
+        await executeCommand('trr import --format csv --interactive', {
+          openTerminal: true,
+          focus: true,
+          trackActivity: {
+            event: 'quick-action-execute',
+            source: 'dashboard-quick-actions',
+            payload: { action: 'upload-csv', command: 'trr import --format csv --interactive' }
           }
-        };
-        input.click();
+        });
       },
       className: 'bg-blue-900 bg-opacity-20 border-blue-500 border-opacity-30 hover:bg-blue-900 hover:bg-opacity-40 text-blue-400'
     },
@@ -130,10 +132,16 @@ const POVDashboard = React.memo(() => {
       name: 'Generate Report',
       icon: '📝',
       description: 'Create executive or technical report',
-      onClick: () => {
-        // Navigate to data explorer with report generation mode
-        const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'generate-report' } });
-        window.dispatchEvent(event);
+      onClick: async () => {
+        await executeCommand('pov report --format executive --export pdf', {
+          openTerminal: true,
+          focus: true,
+          trackActivity: {
+            event: 'quick-action-execute',
+            source: 'dashboard-quick-actions',
+            payload: { action: 'generate-report', command: 'pov report --format executive --export pdf' }
+          }
+        });
       },
       className: 'bg-purple-900 bg-opacity-20 border-purple-500 border-opacity-30 hover:bg-purple-900 hover:bg-opacity-40 text-purple-400'
     },
@@ -141,10 +149,16 @@ const POVDashboard = React.memo(() => {
       name: 'AI Analysis',
       icon: '🤖',
       description: 'Run Gemini AI analysis on current data',
-      onClick: () => {
-        // Navigate to AI assistant tab
-        const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'ai', action: 'start-analysis' } });
-        window.dispatchEvent(event);
+      onClick: async () => {
+        await executeCommand('gemini analyze --context dashboard', {
+          openTerminal: true,
+          focus: true,
+          trackActivity: {
+            event: 'quick-action-execute',
+            source: 'dashboard-quick-actions',
+            payload: { action: 'ai-analysis', command: 'gemini analyze --context dashboard' }
+          }
+        });
       },
       className: 'bg-cyan-900 bg-opacity-20 border-cyan-500 border-opacity-30 hover:bg-cyan-900 hover:bg-opacity-40 text-cyan-400'
     },
@@ -152,35 +166,44 @@ const POVDashboard = React.memo(() => {
       name: 'Detection Engine',
       icon: '🔧',
       description: 'Access detection scripts and automation tools',
-      onClick: () => {
-        // Open detection engine (formerly template creator) with competitive focus
-        const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'creator', action: 'detection-engine' } });
-        window.dispatchEvent(event);
+      onClick: async () => {
+        await executeCommand('detect list --engine --interactive', {
+          openTerminal: true,
+          focus: true,
+          trackActivity: {
+            event: 'quick-action-execute',
+            source: 'dashboard-quick-actions',
+            payload: { action: 'detection-engine', command: 'detect list --engine --interactive' }
+          }
+        });
       },
-      className: 'bg-orange-900 bg-opacity-20 border-orange-500 border-opacity-30 hover:bg-orange-900 hover:bg-opacity-40 text-orange-400'
+      className: 'bg-orange-900 bg-opacity-20 border-orange-500 border-opacity-30 hover:bg-orange-900 hover:bg-orange-opacity-40 text-orange-400'
     },
     {
       name: 'Documentation',
       icon: '📖',
       description: 'Access comprehensive UI guide and workflow documentation',
-      onClick: () => {
-        // Open documentation in new tab to preserve current workflow
-        const docUrl = '/docs/portal-ui-map.md';
-        window.open(docUrl, '_blank', 'noopener,noreferrer');
-        // Also track the documentation access
-        const event = new CustomEvent('track-action', { detail: { action: 'documentation_accessed', source: 'dashboard_quick_action' } });
-        window.dispatchEvent(event);
+      onClick: async () => {
+        await executeCommand('docs open --interactive', {
+          openTerminal: true,
+          focus: true,
+          trackActivity: {
+            event: 'quick-action-execute',
+            source: 'dashboard-quick-actions',
+            payload: { action: 'documentation', command: 'docs open --interactive' }
+          }
+        });
       },
-      className: 'bg-indigo-900 bg-opacity-20 border-indigo-500 border-opacity-30 hover:bg-indigo-900 hover:bg-opacity-40 text-indigo-400'
+      className: 'bg-indigo-900 bg-opacity-20 border-indigo-500 border-opacity-30 hover:bg-indigo-900 hover:bg-indigo-opacity-40 text-indigo-400'
     },
     {
       name: 'Badass Blueprint',
       icon: '🧭',
       description: 'Create transformation blueprint and download PDF',
       onClick: createGuiBlueprintPdf,
-      className: 'bg-pink-900 bg-opacity-20 border-pink-500 border-opacity-30 hover:bg-pink-900 hover:bg-opacity-40 text-pink-400'
+      className: 'bg-pink-900 bg-opacity-20 border-pink-500 border-opacity-30 hover:bg-pink-900 hover:bg-pink-opacity-40 text-pink-400'
     }
-  ], [createGuiBlueprintPdf]);
+  ], [createGuiBlueprintPdf, executeCommand]);
 
   // Memoized activity data for performance
   const activityData = useMemo(() => [
@@ -383,14 +406,25 @@ const POVDashboard = React.memo(() => {
                   </div>
                 </button>
                 <button 
-                  onClick={() => {
-                    window.open('/terminal', '_blank');
+                  onClick={async () => {
+                    setTerminalExpanded(!terminalExpanded);
+                    if (!terminalExpanded) {
+                      await executeCommand('whoami', {
+                        openTerminal: true,
+                        focus: true,
+                        trackActivity: {
+                          event: 'terminal-sidebar-open',
+                          source: 'dashboard-advanced-actions',
+                          payload: { action: 'toggle-terminal', expanded: !terminalExpanded }
+                        }
+                      });
+                    }
                   }}
                   className="w-full text-left p-3 rounded-lg hover:bg-cortex-success/10 transition-colors text-sm text-cortex-success hover:text-cortex-success border border-cortex-success/20 hover:border-cortex-success/40 cortex-interactive"
                 >
                   <div className="flex items-center space-x-3">
                     <span>⌨️</span>
-                    <span>Open Terminal Interface</span>
+                    <span>{terminalExpanded ? 'Hide Terminal Sidebar' : 'Show Terminal Sidebar'}</span>
                   </div>
                 </button>
               </div>
@@ -476,8 +510,10 @@ export default function CortexGUIInterface() {
   const [isManagementMode, setIsManagementMode] = useState(false);
   const [userPermissions, setUserPermissions] = useState({});
   const [currentDateTime, setCurrentDateTime] = useState('');
+  const [terminalExpanded, setTerminalExpanded] = useState(false);
   
   const { trackFeatureUsage, trackPageView } = useActivityTracking();
+  const { run: executeCommand, isRunning } = useCommandExecutor();
   
   useEffect(() => {
     // Initialize user context and permissions
@@ -578,18 +614,34 @@ export default function CortexGUIInterface() {
   };
   
   const visibleTabs = getVisibleTabs();
-  const ActiveComponent = visibleTabs.find(tab => tab.id === activeTab)?.component || POVDashboard;
+  const ActiveComponentClass = visibleTabs.find(tab => tab.id === activeTab)?.component || POVDashboard;
+  
+  // Create component with props for POVDashboard
+  const ActiveComponent = () => {
+    if (ActiveComponentClass === POVDashboard) {
+      return <POVDashboard terminalExpanded={terminalExpanded} setTerminalExpanded={setTerminalExpanded} />;
+    }
+    const Component = ActiveComponentClass as React.ComponentType<any>;
+    return <Component />;
+  };
 
   return (
-    <div className="bg-gradient-to-br from-cortex-bg-primary to-cortex-bg-secondary text-cortex-text-primary min-h-screen">
-      {/* Modern Header */}
-      <div className="bg-cortex-bg-tertiary/60 backdrop-blur-xl border-b border-cortex-border-secondary/30 px-6 py-3 sticky top-0 z-20">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-6">
-            <h1 className="text-2xl font-bold text-cortex-text-primary flex items-center">
-              <span className="text-cortex-orange mr-3">🏢</span>
-              Cortex DC Portal
-            </h1>
+    <div className="h-screen flex bg-gradient-to-br from-cortex-bg-primary to-cortex-bg-secondary text-cortex-text-primary">
+      {/* Main Content Area */}
+      <div 
+        className={cn(
+          'flex-1 flex flex-col transition-all duration-300',
+          terminalExpanded ? 'mr-96' : 'mr-12' // Adjust margin based on terminal state
+        )}
+      >
+        {/* Modern Header */}
+        <div className="bg-cortex-bg-tertiary/60 backdrop-blur-xl border-b border-cortex-border-secondary/30 px-6 py-3 sticky top-0 z-20">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-6">
+              <h1 className="text-2xl font-bold text-cortex-text-primary flex items-center">
+                <span className="text-cortex-orange mr-3">🏢</span>
+                Cortex DC Portal
+              </h1>
             {currentUser && (
               <div className="flex items-center space-x-4">
                 <div className="text-sm text-cortex-text-secondary">
@@ -608,6 +660,21 @@ export default function CortexGUIInterface() {
             )}
           </div>
           <div className="flex items-center space-x-4">
+            {/* Terminal Toggle */}
+            <button
+              onClick={() => setTerminalExpanded(!terminalExpanded)}
+              className={cn(
+                'flex items-center space-x-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
+                terminalExpanded 
+                  ? 'bg-cortex-success/20 border border-cortex-success/30 text-cortex-success'
+                  : 'bg-cortex-bg-tertiary/30 border border-cortex-border-muted/20 text-cortex-text-muted hover:text-cortex-text-primary hover:border-cortex-border-secondary/30'
+              )}
+              title={terminalExpanded ? 'Hide Terminal' : 'Show Terminal'}
+            >
+              <span>⌨️</span>
+              <span>{terminalExpanded ? 'Hide Terminal' : 'Terminal'}</span>
+            </button>
+            
             <div className="text-xs text-cortex-text-muted font-mono" data-testid="timestamp">
               {currentDateTime || new Date().toLocaleString()}
             </div>
@@ -695,11 +762,18 @@ export default function CortexGUIInterface() {
       </div>
 
       {/* Content with Modern Wrapper */}
-      <div className="p-8">
+      <div className="flex-1 overflow-auto p-8">
         <Suspense fallback={<ComponentLoader />}>
           <ActiveComponent />
         </Suspense>
       </div>
     </div>
+    
+    {/* Enhanced Terminal Sidebar */}
+    <EnhancedTerminalSidebar
+      defaultExpanded={terminalExpanded}
+      onToggle={setTerminalExpanded}
+    />
+  </div>
   );
 }

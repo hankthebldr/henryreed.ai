@@ -7,16 +7,16 @@ const connectorConfig = {
 };
 exports.connectorConfig = connectorConfig;
 
-const createMovieRef = (dcOrVars, vars) => {
+const createPovRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'CreateMovie', inputVars);
+  return mutationRef(dcInstance, 'CreatePOV', inputVars);
 }
-createMovieRef.operationName = 'CreateMovie';
-exports.createMovieRef = createMovieRef;
+createPovRef.operationName = 'CreatePOV';
+exports.createPovRef = createPovRef;
 
-exports.createMovie = function createMovie(dcOrVars, vars) {
-  return executeMutation(createMovieRef(dcOrVars, vars));
+exports.createPov = function createPov(dcOrVars, vars) {
+  return executeMutation(createPovRef(dcOrVars, vars));
 };
 
 const upsertUserRef = (dcOrVars, vars) => {
@@ -31,40 +31,40 @@ exports.upsertUser = function upsertUser(dcOrVars, vars) {
   return executeMutation(upsertUserRef(dcOrVars, vars));
 };
 
-const addReviewRef = (dcOrVars, vars) => {
+const addCommentRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'AddReview', inputVars);
+  return mutationRef(dcInstance, 'AddComment', inputVars);
 }
-addReviewRef.operationName = 'AddReview';
-exports.addReviewRef = addReviewRef;
+addCommentRef.operationName = 'AddComment';
+exports.addCommentRef = addCommentRef;
 
-exports.addReview = function addReview(dcOrVars, vars) {
-  return executeMutation(addReviewRef(dcOrVars, vars));
+exports.addComment = function addComment(dcOrVars, vars) {
+  return executeMutation(addCommentRef(dcOrVars, vars));
 };
 
-const deleteReviewRef = (dcOrVars, vars) => {
+const deleteCommentRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'DeleteReview', inputVars);
+  return mutationRef(dcInstance, 'DeleteComment', inputVars);
 }
-deleteReviewRef.operationName = 'DeleteReview';
-exports.deleteReviewRef = deleteReviewRef;
+deleteCommentRef.operationName = 'DeleteComment';
+exports.deleteCommentRef = deleteCommentRef;
 
-exports.deleteReview = function deleteReview(dcOrVars, vars) {
-  return executeMutation(deleteReviewRef(dcOrVars, vars));
+exports.deleteComment = function deleteComment(dcOrVars, vars) {
+  return executeMutation(deleteCommentRef(dcOrVars, vars));
 };
 
-const listMoviesRef = (dc) => {
+const listPoVsRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
   dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'ListMovies');
+  return queryRef(dcInstance, 'ListPOVs');
 }
-listMoviesRef.operationName = 'ListMovies';
-exports.listMoviesRef = listMoviesRef;
+listPoVsRef.operationName = 'ListPOVs';
+exports.listPoVsRef = listPoVsRef;
 
-exports.listMovies = function listMovies(dc) {
-  return executeQuery(listMoviesRef(dc));
+exports.listPoVs = function listPoVs(dc) {
+  return executeQuery(listPoVsRef(dc));
 };
 
 const listUsersRef = (dc) => {
@@ -79,38 +79,38 @@ exports.listUsers = function listUsers(dc) {
   return executeQuery(listUsersRef(dc));
 };
 
-const listUserReviewsRef = (dc) => {
+const listUserPoVsRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
   dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'ListUserReviews');
+  return queryRef(dcInstance, 'ListUserPOVs');
 }
-listUserReviewsRef.operationName = 'ListUserReviews';
-exports.listUserReviewsRef = listUserReviewsRef;
+listUserPoVsRef.operationName = 'ListUserPOVs';
+exports.listUserPoVsRef = listUserPoVsRef;
 
-exports.listUserReviews = function listUserReviews(dc) {
-  return executeQuery(listUserReviewsRef(dc));
+exports.listUserPoVs = function listUserPoVs(dc) {
+  return executeQuery(listUserPoVsRef(dc));
 };
 
-const getMovieByIdRef = (dcOrVars, vars) => {
+const getPovByIdRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'GetMovieById', inputVars);
+  return queryRef(dcInstance, 'GetPOVById', inputVars);
 }
-getMovieByIdRef.operationName = 'GetMovieById';
-exports.getMovieByIdRef = getMovieByIdRef;
+getPovByIdRef.operationName = 'GetPOVById';
+exports.getPovByIdRef = getPovByIdRef;
 
-exports.getMovieById = function getMovieById(dcOrVars, vars) {
-  return executeQuery(getMovieByIdRef(dcOrVars, vars));
+exports.getPovById = function getPovById(dcOrVars, vars) {
+  return executeQuery(getPovByIdRef(dcOrVars, vars));
 };
 
-const searchMovieRef = (dcOrVars, vars) => {
+const searchPoVsRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars);
   dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'SearchMovie', inputVars);
+  return queryRef(dcInstance, 'SearchPOVs', inputVars);
 }
-searchMovieRef.operationName = 'SearchMovie';
-exports.searchMovieRef = searchMovieRef;
+searchPoVsRef.operationName = 'SearchPOVs';
+exports.searchPoVsRef = searchPoVsRef;
 
-exports.searchMovie = function searchMovie(dcOrVars, vars) {
-  return executeQuery(searchMovieRef(dcOrVars, vars));
+exports.searchPoVs = function searchPoVs(dcOrVars, vars) {
+  return executeQuery(searchPoVsRef(dcOrVars, vars));
 };

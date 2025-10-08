@@ -1,33 +1,26 @@
 {
-  "name": "Cortex XSIAM Portal - Palo Alto Networks",
-  "short_name": "Cortex XSIAM",
-  "description": "Palo Alto Networks Cortex XSIAM Portal - Professional Security Operations and POV Management Platform",
+  "name": "Cortex Domain Consultant Platform",
+  "short_name": "Cortex DC",
+  "description": "Professional platform for project management, customer engagement, and technical solutions",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#141414",
-  "theme_color": "#FA582D",
-  "orientation": "portrait-primary",
+  "background_color": "#1a1a1a",
+  "theme_color": "#e97444",
   "icons": [
     {
-      "src": "/assets/branding/icons/cortex-32x32.png",
-      "sizes": "32x32",
-      "type": "image/png",
-      "purpose": "any"
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
     },
     {
       "src": "/assets/branding/icons/cortex-192x192.png",
-      "type": "image/png",
       "sizes": "192x192",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "favicon.ico",
-      "sizes": "32x32",
-      "type": "image/x-icon"
+      "src": "/assets/branding/icons/cortex-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
-  ],
-  "categories": ["security", "business", "productivity"],
-  "lang": "en-US",
-  "scope": "/",
-  "id": "cortex-xsiam-portal"
+  ]
 }

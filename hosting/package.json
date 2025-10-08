@@ -34,6 +34,7 @@
     "firebase": "^12.3.0",
     "gray-matter": "^4.0.3",
     "jspdf": "^2.5.1",
+    "lucide-react": "^0.545.0",
     "next": "latest",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

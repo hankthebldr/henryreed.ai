@@ -10,121 +10,146 @@ export type DateString = string;
 
 
 
-export interface AddReviewData {
-  review_upsert: Review_Key;
+export interface ActivityLog_Key {
+  id: UUIDString;
+  __typename?: 'ActivityLog_Key';
 }
 
-export interface AddReviewVariables {
-  movieId: UUIDString;
-  rating: number;
-  reviewText: string;
+export interface AddCommentData {
+  comment_insert: Comment_Key;
 }
 
-export interface CreateMovieData {
-  movie_insert: Movie_Key;
+export interface AddCommentVariables {
+  entityType: string;
+  entityId: string;
+  content: string;
 }
 
-export interface CreateMovieVariables {
-  title: string;
-  genre: string;
-  imageUrl: string;
+export interface Comment_Key {
+  id: UUIDString;
+  __typename?: 'Comment_Key';
 }
 
-export interface DeleteReviewData {
-  review_delete?: Review_Key | null;
+export interface CreatePovData {
+  pov_insert: Pov_Key;
 }
 
-export interface DeleteReviewVariables {
-  movieId: UUIDString;
+export interface CreatePovVariables {
+  name: string;
+  customer: string;
+  useCase: string;
 }
 
-export interface GetMovieByIdData {
-  movie?: {
+export interface DeleteCommentData {
+  comment_delete?: Comment_Key | null;
+}
+
+export interface DeleteCommentVariables {
+  commentId: UUIDString;
+}
+
+export interface GetPovByIdData {
+  pov?: {
     id: UUIDString;
-    title: string;
-    imageUrl: string;
-    genre?: string | null;
-    metadata?: {
-      rating?: number | null;
-      releaseYear?: number | null;
-      description?: string | null;
-    };
-      reviews: ({
-        reviewText?: string | null;
-        reviewDate: DateString;
-        rating?: number | null;
-        user: {
-          id: string;
-          username: string;
-        } & User_Key;
-      })[];
-  } & Movie_Key;
+    name: string;
+    customer: string;
+    industry?: string | null;
+    useCase: string;
+    status: string;
+    priority?: string | null;
+    startDate?: DateString | null;
+    endDate?: DateString | null;
+    estimatedTimeline?: string | null;
+    budget?: string | null;
+    createdBy: {
+      id: string;
+      email: string;
+      displayName?: string | null;
+    } & User_Key;
+      assignedTo?: {
+        id: string;
+        email: string;
+        displayName?: string | null;
+      } & User_Key;
+        createdAt: DateString;
+        updatedAt: DateString;
+        tags?: string | null;
+        notes?: string | null;
+  } & Pov_Key;
 }
 
-export interface GetMovieByIdVariables {
+export interface GetPovByIdVariables {
   id: UUIDString;
 }
 
-export interface ListMoviesData {
-  movies: ({
+export interface ListPoVsData {
+  povs: ({
     id: UUIDString;
-    title: string;
-    imageUrl: string;
-    genre?: string | null;
-  } & Movie_Key)[];
+    name: string;
+    customer: string;
+    industry?: string | null;
+    status: string;
+  } & Pov_Key)[];
 }
 
-export interface ListUserReviewsData {
+export interface ListUserPoVsData {
   user?: {
     id: string;
-    username: string;
-    reviews: ({
-      rating?: number | null;
-      reviewDate: DateString;
-      reviewText?: string | null;
-      movie: {
-        id: UUIDString;
-        title: string;
-      } & Movie_Key;
-    })[];
+    email: string;
+    displayName?: string | null;
+    createdPOVs: ({
+      id: UUIDString;
+      name: string;
+      customer: string;
+      status: string;
+      priority?: string | null;
+      startDate?: DateString | null;
+      endDate?: DateString | null;
+    } & Pov_Key)[];
   } & User_Key;
 }
 
 export interface ListUsersData {
   users: ({
     id: string;
-    username: string;
+    email: string;
+    displayName?: string | null;
   } & User_Key)[];
 }
 
-export interface MovieMetadata_Key {
+export interface Pov_Key {
   id: UUIDString;
-  __typename?: 'MovieMetadata_Key';
+  __typename?: 'Pov_Key';
 }
 
-export interface Movie_Key {
+export interface Scenario_Key {
   id: UUIDString;
-  __typename?: 'Movie_Key';
+  __typename?: 'Scenario_Key';
 }
 
-export interface Review_Key {
-  userId: string;
-  movieId: UUIDString;
-  __typename?: 'Review_Key';
-}
-
-export interface SearchMovieData {
-  movies: ({
+export interface SearchPoVsData {
+  povs: ({
     id: UUIDString;
-    title: string;
-    genre?: string | null;
-    imageUrl: string;
-  } & Movie_Key)[];
+    name: string;
+    customer: string;
+    status: string;
+    priority?: string | null;
+  } & Pov_Key)[];
 }
 
-export interface SearchMovieVariables {
-  titleInput?: string | null;
-  genre?: string | null;
+export interface SearchPoVsVariables {
+  nameInput?: string | null;
+  customer?: string | null;
+}
+
+export interface Template_Key {
+  id: UUIDString;
+  __typename?: 'Template_Key';
+}
+
+export interface Trr_Key {
+  id: UUIDString;
+  __typename?: 'Trr_Key';
 }
 
 export interface UpsertUserData {
@@ -132,7 +157,8 @@ export interface UpsertUserData {
 }
 
 export interface UpsertUserVariables {
-  username: string;
+  email: string;
+  displayName?: string | null;
 }
 
 export interface User_Key {
@@ -140,17 +166,17 @@ export interface User_Key {
   __typename?: 'User_Key';
 }
 
-interface CreateMovieRef {
+interface CreatePovRef {
   /* Allow users to create refs without passing in DataConnect */
-  (vars: CreateMovieVariables): MutationRef<CreateMovieData, CreateMovieVariables>;
+  (vars: CreatePovVariables): MutationRef<CreatePovData, CreatePovVariables>;
   /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: CreateMovieVariables): MutationRef<CreateMovieData, CreateMovieVariables>;
+  (dc: DataConnect, vars: CreatePovVariables): MutationRef<CreatePovData, CreatePovVariables>;
   operationName: string;
 }
-export const createMovieRef: CreateMovieRef;
+export const createPovRef: CreatePovRef;
 
-export function createMovie(vars: CreateMovieVariables): MutationPromise<CreateMovieData, CreateMovieVariables>;
-export function createMovie(dc: DataConnect, vars: CreateMovieVariables): MutationPromise<CreateMovieData, CreateMovieVariables>;
+export function createPov(vars: CreatePovVariables): MutationPromise<CreatePovData, CreatePovVariables>;
+export function createPov(dc: DataConnect, vars: CreatePovVariables): MutationPromise<CreatePovData, CreatePovVariables>;
 
 interface UpsertUserRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -164,41 +190,41 @@ export const upsertUserRef: UpsertUserRef;
 export function upsertUser(vars: UpsertUserVariables): MutationPromise<UpsertUserData, UpsertUserVariables>;
 export function upsertUser(dc: DataConnect, vars: UpsertUserVariables): MutationPromise<UpsertUserData, UpsertUserVariables>;
 
-interface AddReviewRef {
+interface AddCommentRef {
   /* Allow users to create refs without passing in DataConnect */
-  (vars: AddReviewVariables): MutationRef<AddReviewData, AddReviewVariables>;
+  (vars: AddCommentVariables): MutationRef<AddCommentData, AddCommentVariables>;
   /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: AddReviewVariables): MutationRef<AddReviewData, AddReviewVariables>;
+  (dc: DataConnect, vars: AddCommentVariables): MutationRef<AddCommentData, AddCommentVariables>;
   operationName: string;
 }
-export const addReviewRef: AddReviewRef;
+export const addCommentRef: AddCommentRef;
 
-export function addReview(vars: AddReviewVariables): MutationPromise<AddReviewData, AddReviewVariables>;
-export function addReview(dc: DataConnect, vars: AddReviewVariables): MutationPromise<AddReviewData, AddReviewVariables>;
+export function addComment(vars: AddCommentVariables): MutationPromise<AddCommentData, AddCommentVariables>;
+export function addComment(dc: DataConnect, vars: AddCommentVariables): MutationPromise<AddCommentData, AddCommentVariables>;
 
-interface DeleteReviewRef {
+interface DeleteCommentRef {
   /* Allow users to create refs without passing in DataConnect */
-  (vars: DeleteReviewVariables): MutationRef<DeleteReviewData, DeleteReviewVariables>;
+  (vars: DeleteCommentVariables): MutationRef<DeleteCommentData, DeleteCommentVariables>;
   /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: DeleteReviewVariables): MutationRef<DeleteReviewData, DeleteReviewVariables>;
+  (dc: DataConnect, vars: DeleteCommentVariables): MutationRef<DeleteCommentData, DeleteCommentVariables>;
   operationName: string;
 }
-export const deleteReviewRef: DeleteReviewRef;
+export const deleteCommentRef: DeleteCommentRef;
 
-export function deleteReview(vars: DeleteReviewVariables): MutationPromise<DeleteReviewData, DeleteReviewVariables>;
-export function deleteReview(dc: DataConnect, vars: DeleteReviewVariables): MutationPromise<DeleteReviewData, DeleteReviewVariables>;
+export function deleteComment(vars: DeleteCommentVariables): MutationPromise<DeleteCommentData, DeleteCommentVariables>;
+export function deleteComment(dc: DataConnect, vars: DeleteCommentVariables): MutationPromise<DeleteCommentData, DeleteCommentVariables>;
 
-interface ListMoviesRef {
+interface ListPoVsRef {
   /* Allow users to create refs without passing in DataConnect */
-  (): QueryRef<ListMoviesData, undefined>;
+  (): QueryRef<ListPoVsData, undefined>;
   /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect): QueryRef<ListMoviesData, undefined>;
+  (dc: DataConnect): QueryRef<ListPoVsData, undefined>;
   operationName: string;
 }
-export const listMoviesRef: ListMoviesRef;
+export const listPoVsRef: ListPoVsRef;
 
-export function listMovies(): QueryPromise<ListMoviesData, undefined>;
-export function listMovies(dc: DataConnect): QueryPromise<ListMoviesData, undefined>;
+export function listPoVs(): QueryPromise<ListPoVsData, undefined>;
+export function listPoVs(dc: DataConnect): QueryPromise<ListPoVsData, undefined>;
 
 interface ListUsersRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -212,39 +238,39 @@ export const listUsersRef: ListUsersRef;
 export function listUsers(): QueryPromise<ListUsersData, undefined>;
 export function listUsers(dc: DataConnect): QueryPromise<ListUsersData, undefined>;
 
-interface ListUserReviewsRef {
+interface ListUserPoVsRef {
   /* Allow users to create refs without passing in DataConnect */
-  (): QueryRef<ListUserReviewsData, undefined>;
+  (): QueryRef<ListUserPoVsData, undefined>;
   /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect): QueryRef<ListUserReviewsData, undefined>;
+  (dc: DataConnect): QueryRef<ListUserPoVsData, undefined>;
   operationName: string;
 }
-export const listUserReviewsRef: ListUserReviewsRef;
+export const listUserPoVsRef: ListUserPoVsRef;
 
-export function listUserReviews(): QueryPromise<ListUserReviewsData, undefined>;
-export function listUserReviews(dc: DataConnect): QueryPromise<ListUserReviewsData, undefined>;
+export function listUserPoVs(): QueryPromise<ListUserPoVsData, undefined>;
+export function listUserPoVs(dc: DataConnect): QueryPromise<ListUserPoVsData, undefined>;
 
-interface GetMovieByIdRef {
+interface GetPovByIdRef {
   /* Allow users to create refs without passing in DataConnect */
-  (vars: GetMovieByIdVariables): QueryRef<GetMovieByIdData, GetMovieByIdVariables>;
+  (vars: GetPovByIdVariables): QueryRef<GetPovByIdData, GetPovByIdVariables>;
   /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: GetMovieByIdVariables): QueryRef<GetMovieByIdData, GetMovieByIdVariables>;
+  (dc: DataConnect, vars: GetPovByIdVariables): QueryRef<GetPovByIdData, GetPovByIdVariables>;
   operationName: string;
 }
-export const getMovieByIdRef: GetMovieByIdRef;
+export const getPovByIdRef: GetPovByIdRef;
 
-export function getMovieById(vars: GetMovieByIdVariables): QueryPromise<GetMovieByIdData, GetMovieByIdVariables>;
-export function getMovieById(dc: DataConnect, vars: GetMovieByIdVariables): QueryPromise<GetMovieByIdData, GetMovieByIdVariables>;
+export function getPovById(vars: GetPovByIdVariables): QueryPromise<GetPovByIdData, GetPovByIdVariables>;
+export function getPovById(dc: DataConnect, vars: GetPovByIdVariables): QueryPromise<GetPovByIdData, GetPovByIdVariables>;
 
-interface SearchMovieRef {
+interface SearchPoVsRef {
   /* Allow users to create refs without passing in DataConnect */
-  (vars?: SearchMovieVariables): QueryRef<SearchMovieData, SearchMovieVariables>;
+  (vars?: SearchPoVsVariables): QueryRef<SearchPoVsData, SearchPoVsVariables>;
   /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars?: SearchMovieVariables): QueryRef<SearchMovieData, SearchMovieVariables>;
+  (dc: DataConnect, vars?: SearchPoVsVariables): QueryRef<SearchPoVsData, SearchPoVsVariables>;
   operationName: string;
 }
-export const searchMovieRef: SearchMovieRef;
+export const searchPoVsRef: SearchPoVsRef;
 
-export function searchMovie(vars?: SearchMovieVariables): QueryPromise<SearchMovieData, SearchMovieVariables>;
-export function searchMovie(dc: DataConnect, vars?: SearchMovieVariables): QueryPromise<SearchMovieData, SearchMovieVariables>;
+export function searchPoVs(vars?: SearchPoVsVariables): QueryPromise<SearchPoVsData, SearchPoVsVariables>;
+export function searchPoVs(dc: DataConnect, vars?: SearchPoVsVariables): QueryPromise<SearchPoVsData, SearchPoVsVariables>;
 

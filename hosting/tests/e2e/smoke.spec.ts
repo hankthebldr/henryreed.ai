@@ -10,6 +10,10 @@ const TEST_CREDENTIALS = {
 async function login(page: Page) {
   await page.goto('/');
   await page.waitForLoadState('networkidle');
+  
+  // Wait for auth context to initialize (loading spinner to disappear)
+  await page.waitForSelector('div:has-text("Authenticating")', { state: 'hidden', timeout: 15000 });
+  
   await page.fill('#username', TEST_CREDENTIALS.username);
   await page.fill('#password', TEST_CREDENTIALS.password);
   await page.click('button[type="submit"]');
@@ -21,9 +25,19 @@ test.describe('Authentication Flow @smoke', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     
+    // Wait for auth context to initialize (loading spinner to disappear)
+    await page.waitForSelector('div:has-text("Authenticating")', { state: 'hidden', timeout: 15000 });
+    
     // Check login page elements with better wait
-    await expect(page).toHaveTitle(/Cortex Domain Consultant Platform/);
-    await expect(page.locator('text=Cortex Domain Consultant Platform')).toBeVisible({ timeout: 10000 });
+    await page.waitForSelector('h1:has-text("Cortex Domain Consultant Platform")', { timeout: 15000 });
+    
+    // Check title with retry for Firefox compatibility
+    await expect(async () => {
+      const title = await page.title();
+      expect(title).toMatch(/Cortex Domain Consultant Platform/);
+    }).toPass({ timeout: 10000 });
+    
+    await expect(page.locator('h1:has-text("Cortex Domain Consultant Platform")')).toBeVisible();
     
     // Wait for form elements to be ready
     await page.waitForSelector('#username', { timeout: 10000 });
@@ -43,6 +57,9 @@ test.describe('Authentication Flow @smoke', () => {
   test('should show error for invalid credentials', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    
+    // Wait for auth context to initialize (loading spinner to disappear)
+    await page.waitForSelector('div:has-text("Authenticating")', { state: 'hidden', timeout: 15000 });
     
     // Wait for form elements to be ready
     await page.waitForSelector('#username', { timeout: 10000 });

@@ -1,33 +1,33 @@
-import { CreateMovieData, CreateMovieVariables, UpsertUserData, UpsertUserVariables, AddReviewData, AddReviewVariables, DeleteReviewData, DeleteReviewVariables, ListMoviesData, ListUsersData, ListUserReviewsData, GetMovieByIdData, GetMovieByIdVariables, SearchMovieData, SearchMovieVariables } from '../';
+import { CreatePovData, CreatePovVariables, UpsertUserData, UpsertUserVariables, AddCommentData, AddCommentVariables, DeleteCommentData, DeleteCommentVariables, ListPoVsData, ListUsersData, ListUserPoVsData, GetPovByIdData, GetPovByIdVariables, SearchPoVsData, SearchPoVsVariables } from '../';
 import { UseDataConnectQueryResult, useDataConnectQueryOptions, UseDataConnectMutationResult, useDataConnectMutationOptions} from '@tanstack-query-firebase/react/data-connect';
 import { UseQueryResult, UseMutationResult} from '@tanstack/react-query';
 import { DataConnect } from 'firebase/data-connect';
 import { FirebaseError } from 'firebase/app';
 
 
-export function useCreateMovie(options?: useDataConnectMutationOptions<CreateMovieData, FirebaseError, CreateMovieVariables>): UseDataConnectMutationResult<CreateMovieData, CreateMovieVariables>;
-export function useCreateMovie(dc: DataConnect, options?: useDataConnectMutationOptions<CreateMovieData, FirebaseError, CreateMovieVariables>): UseDataConnectMutationResult<CreateMovieData, CreateMovieVariables>;
+export function useCreatePov(options?: useDataConnectMutationOptions<CreatePovData, FirebaseError, CreatePovVariables>): UseDataConnectMutationResult<CreatePovData, CreatePovVariables>;
+export function useCreatePov(dc: DataConnect, options?: useDataConnectMutationOptions<CreatePovData, FirebaseError, CreatePovVariables>): UseDataConnectMutationResult<CreatePovData, CreatePovVariables>;
 
 export function useUpsertUser(options?: useDataConnectMutationOptions<UpsertUserData, FirebaseError, UpsertUserVariables>): UseDataConnectMutationResult<UpsertUserData, UpsertUserVariables>;
 export function useUpsertUser(dc: DataConnect, options?: useDataConnectMutationOptions<UpsertUserData, FirebaseError, UpsertUserVariables>): UseDataConnectMutationResult<UpsertUserData, UpsertUserVariables>;
 
-export function useAddReview(options?: useDataConnectMutationOptions<AddReviewData, FirebaseError, AddReviewVariables>): UseDataConnectMutationResult<AddReviewData, AddReviewVariables>;
-export function useAddReview(dc: DataConnect, options?: useDataConnectMutationOptions<AddReviewData, FirebaseError, AddReviewVariables>): UseDataConnectMutationResult<AddReviewData, AddReviewVariables>;
+export function useAddComment(options?: useDataConnectMutationOptions<AddCommentData, FirebaseError, AddCommentVariables>): UseDataConnectMutationResult<AddCommentData, AddCommentVariables>;
+export function useAddComment(dc: DataConnect, options?: useDataConnectMutationOptions<AddCommentData, FirebaseError, AddCommentVariables>): UseDataConnectMutationResult<AddCommentData, AddCommentVariables>;
 
-export function useDeleteReview(options?: useDataConnectMutationOptions<DeleteReviewData, FirebaseError, DeleteReviewVariables>): UseDataConnectMutationResult<DeleteReviewData, DeleteReviewVariables>;
-export function useDeleteReview(dc: DataConnect, options?: useDataConnectMutationOptions<DeleteReviewData, FirebaseError, DeleteReviewVariables>): UseDataConnectMutationResult<DeleteReviewData, DeleteReviewVariables>;
+export function useDeleteComment(options?: useDataConnectMutationOptions<DeleteCommentData, FirebaseError, DeleteCommentVariables>): UseDataConnectMutationResult<DeleteCommentData, DeleteCommentVariables>;
+export function useDeleteComment(dc: DataConnect, options?: useDataConnectMutationOptions<DeleteCommentData, FirebaseError, DeleteCommentVariables>): UseDataConnectMutationResult<DeleteCommentData, DeleteCommentVariables>;
 
-export function useListMovies(options?: useDataConnectQueryOptions<ListMoviesData>): UseDataConnectQueryResult<ListMoviesData, undefined>;
-export function useListMovies(dc: DataConnect, options?: useDataConnectQueryOptions<ListMoviesData>): UseDataConnectQueryResult<ListMoviesData, undefined>;
+export function useListPoVs(options?: useDataConnectQueryOptions<ListPoVsData>): UseDataConnectQueryResult<ListPoVsData, undefined>;
+export function useListPoVs(dc: DataConnect, options?: useDataConnectQueryOptions<ListPoVsData>): UseDataConnectQueryResult<ListPoVsData, undefined>;
 
 export function useListUsers(options?: useDataConnectQueryOptions<ListUsersData>): UseDataConnectQueryResult<ListUsersData, undefined>;
 export function useListUsers(dc: DataConnect, options?: useDataConnectQueryOptions<ListUsersData>): UseDataConnectQueryResult<ListUsersData, undefined>;
 
-export function useListUserReviews(options?: useDataConnectQueryOptions<ListUserReviewsData>): UseDataConnectQueryResult<ListUserReviewsData, undefined>;
-export function useListUserReviews(dc: DataConnect, options?: useDataConnectQueryOptions<ListUserReviewsData>): UseDataConnectQueryResult<ListUserReviewsData, undefined>;
+export function useListUserPoVs(options?: useDataConnectQueryOptions<ListUserPoVsData>): UseDataConnectQueryResult<ListUserPoVsData, undefined>;
+export function useListUserPoVs(dc: DataConnect, options?: useDataConnectQueryOptions<ListUserPoVsData>): UseDataConnectQueryResult<ListUserPoVsData, undefined>;
 
-export function useGetMovieById(vars: GetMovieByIdVariables, options?: useDataConnectQueryOptions<GetMovieByIdData>): UseDataConnectQueryResult<GetMovieByIdData, GetMovieByIdVariables>;
-export function useGetMovieById(dc: DataConnect, vars: GetMovieByIdVariables, options?: useDataConnectQueryOptions<GetMovieByIdData>): UseDataConnectQueryResult<GetMovieByIdData, GetMovieByIdVariables>;
+export function useGetPovById(vars: GetPovByIdVariables, options?: useDataConnectQueryOptions<GetPovByIdData>): UseDataConnectQueryResult<GetPovByIdData, GetPovByIdVariables>;
+export function useGetPovById(dc: DataConnect, vars: GetPovByIdVariables, options?: useDataConnectQueryOptions<GetPovByIdData>): UseDataConnectQueryResult<GetPovByIdData, GetPovByIdVariables>;
 
-export function useSearchMovie(vars?: SearchMovieVariables, options?: useDataConnectQueryOptions<SearchMovieData>): UseDataConnectQueryResult<SearchMovieData, SearchMovieVariables>;
-export function useSearchMovie(dc: DataConnect, vars?: SearchMovieVariables, options?: useDataConnectQueryOptions<SearchMovieData>): UseDataConnectQueryResult<SearchMovieData, SearchMovieVariables>;
+export function useSearchPoVs(vars?: SearchPoVsVariables, options?: useDataConnectQueryOptions<SearchPoVsData>): UseDataConnectQueryResult<SearchPoVsData, SearchPoVsVariables>;
+export function useSearchPoVs(dc: DataConnect, vars?: SearchPoVsVariables, options?: useDataConnectQueryOptions<SearchPoVsData>): UseDataConnectQueryResult<SearchPoVsData, SearchPoVsVariables>;
