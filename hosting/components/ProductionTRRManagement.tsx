@@ -8,7 +8,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
 import { dcAPIClient, UserScopeContext } from '../lib/dc-api-client';
-import { dcContextStore, TRRRecord, CustomerEngagement, ActivePOV, UserProfile } from '../lib/dc-context-store';
+import { dcContextStore, TRRRecord, CustomerEngagement, ActivePOV, UserProfile, AIWorkflowInsight } from '../lib/dc-context-store';
 import { dcAIClient, DCWorkflowContext } from '../lib/dc-ai-client';
 import { aiInsightsClient } from '../lib/ai-insights-client';
 import type { GeminiFunctionResponse, GeminiResponse } from '../lib/gemini-ai-service';
@@ -76,7 +76,7 @@ export const ProductionTRRManagement: React.FC = () => {
   const [showSDWWorkflow, setShowSDWWorkflow] = useState(false);
   const [selectedTRRForSDW, setSelectedTRRForSDW] = useState<string | null>(null);
   const [sdwList, setSDWList] = useState<Record<string, SolutionDesignWorkbook>>({});
-  const [povList, setPovList] = useState<POVRecord[]>([]);
+  const [povList, setPovList] = useState<ActivePOV[]>([]);
   const [isSeeding, setIsSeeding] = useState(false);
 
   const buildUserContext = useCallback((): UserScopeContext | null => {

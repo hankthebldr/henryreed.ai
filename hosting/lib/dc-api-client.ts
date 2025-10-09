@@ -8,7 +8,8 @@ import {
   CustomerEngagement,
   ActivePOV as POVRecord,
   TRRRecord,
-  WorkflowHistory as WorkflowHistoryEntry
+  WorkflowHistory as WorkflowHistoryEntry,
+  UserProfile
 } from './dc-context-store';
 import { dcAIClient, DCWorkflowContext } from './dc-ai-client';
 import { SolutionDesignWorkbook, SDWExportConfiguration } from './sdw-models';
@@ -103,6 +104,12 @@ export interface KnowledgeBaseEntry {
   searchable: boolean;
 }
 
+export interface DCWorkflowSnapshot {
+  customers: CustomerEngagement[];
+  povs: POVRecord[];
+  trrs: TRRRecord[];
+}
+
 export interface UserScopeContext {
   userId: string;
   scope?: 'self' | 'team';
@@ -154,6 +161,12 @@ export class DCAPIClient {
         throw new Error('Target user not within team scope');
       }
     }
+  }
+
+  private syncContextSnapshot(snapshot: DCWorkflowSnapshot) {
+    snapshot.customers.forEach((customer) => dcContextStore.addCustomerEngagement(customer));
+    snapshot.povs.forEach((pov) => dcContextStore.addActivePOV(pov));
+    snapshot.trrs.forEach((trr) => dcContextStore.addTRRRecord(trr));
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<APIResponse<T>> {
@@ -449,23 +462,6 @@ export class DCAPIClient {
     }
   }
 
-  async createTRR(trr: Omit<TRRRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<APIResponse<TRRRecord>> {
-    const newTRR: TRRRecord = {
-      ...trr,
-      id: `trr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      aiInsights: trr.aiInsights || []
-    };
-
-    dcContextStore.addTRRRecord(newTRR);
-
-    return {
-      success: true,
-      data: newTRR,
-      timestamp: new Date().toISOString(),
-      requestId: `req_${Date.now()}_local`
-    };
   async createTRR(context: UserScopeContext, trr: Omit<TRRRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<APIResponse<TRRRecord>> {
     try {
       const ownerId = context.targetUserId || context.userId;

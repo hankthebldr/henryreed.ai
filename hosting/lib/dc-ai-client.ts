@@ -18,6 +18,18 @@ export interface DCWorkflowContext {
     scope?: string[];
     stakeholders?: string[];
     objectives?: string[];
+    povStatus?: {
+      id: string;
+      status: string;
+      completedScenarios: number;
+      totalScenarios: number;
+    };
+    trrFocus?: {
+      id: string;
+      title: string;
+      status: string;
+      priority: 'low' | 'medium' | 'high' | 'critical';
+    };
   };
   workInProgress?: {
     povsActive?: number;

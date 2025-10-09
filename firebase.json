@@ -68,8 +68,7 @@
       { "source": "/genkit/**", "function": {
         "functionId": "healthCheck",
         "region": "us-central1"
-      }},
-      { "source": "**", "destination": "/index.html" }
+      }}
     ],
     "cleanUrls": false,
     "trailingSlash": true

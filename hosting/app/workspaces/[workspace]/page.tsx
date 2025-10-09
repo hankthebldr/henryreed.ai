@@ -9,13 +9,14 @@ export function generateStaticParams() {
 
 
 interface WorkspacePageProps {
-  params: {
+  params: Promise<{
     workspace: string;
-  };
+  }>;
 }
 
-export default function WorkspacePage({ params }: WorkspacePageProps) {
-  const workspaceKey = resolveWorkspaceSlug(params.workspace);
+export default async function WorkspacePage({ params }: WorkspacePageProps) {
+  const { workspace } = await params;
+  const workspaceKey = resolveWorkspaceSlug(workspace);
 
   return <WorkspacePageClient workspaceKey={workspaceKey} />;
 }

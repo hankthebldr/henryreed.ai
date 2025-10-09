@@ -58,7 +58,7 @@ export const ManagementDashboard: React.FC = () => {
   });
 
   const authUserId =
-    state.auth.user?.id || state.auth.user?.uid || state.auth.user?.email || 'system';
+    state.auth.user?.id || state.auth.user?.email || 'system';
   const authUserRole = (state.auth.user?.role as UserRole | undefined) || 'analyst';
 
   const applyFeatureFlagSnapshotToUsers = useCallback((flags: FeatureFlagState[]) => {
@@ -108,52 +108,52 @@ export const ManagementDashboard: React.FC = () => {
     async (force = false) => {
       setIsLoading(true);
       try {
-      let scope: 'all' | 'team' | 'self' = 'self';
-      if (authUserRole === 'admin') {
-        scope = 'all';
-      } else if (authUserRole === 'manager') {
-        scope = 'team';
-      }
+        let scope: 'all' | 'team' | 'self' = 'self';
+        if (authUserRole === 'admin') {
+          scope = 'all';
+        } else if (authUserRole === 'manager') {
+          scope = 'team';
+        }
 
-      const scopedUsers = await userManagementService.getUsers({
-        scope,
-        managerId: scope === 'team' ? authUserId : undefined,
-        userId: authUserId,
-        includeInactive: true,
-        force,
-      });
+        const scopedUsers = await userManagementService.getUsers({
+          scope,
+          managerId: scope === 'team' ? authUserId : undefined,
+          userId: authUserId,
+          includeInactive: true,
+          force,
+        });
 
-      setUsers(scopedUsers);
-      setPage(0);
-      setSelectedUser((previous) => {
-        if (!scopedUsers.length) return null;
-        if (!previous) return scopedUsers[0];
-        return scopedUsers.find((user) => user.id === previous.id) || scopedUsers[0];
-      });
+        setUsers(scopedUsers);
+        setPage(0);
+        setSelectedUser((previous) => {
+          if (!scopedUsers.length) return null;
+          if (!previous) return scopedUsers[0];
+          return scopedUsers.find((user) => user.id === previous.id) || scopedUsers[0];
+        });
 
-      const userIds = scopedUsers.map((user) => user.id);
-      if (userIds.length === 0) {
-        setUserMetrics({});
-        setSystemMetrics(null);
-        setActivityFeed([]);
-        setSystemFeatureFlags({});
-        return;
-      }
+        const userIds = scopedUsers.map((user) => user.id);
+        if (userIds.length === 0) {
+          setUserMetrics({});
+          setSystemMetrics(null);
+          setActivityFeed([]);
+          setSystemFeatureFlags({});
+          return;
+        }
 
-      const metricsMap = await userManagementService.getMetricsForUsers(userIds, { period: 'daily', force });
-      setUserMetrics(metricsMap);
+        const metricsMap = await userManagementService.getMetricsForUsers(userIds, { period: 'daily', force });
+        setUserMetrics(metricsMap);
 
-      const sysMetrics = await userManagementService.generateSystemMetrics(userIds, { period: 'daily', force });
-      setSystemMetrics(sysMetrics);
-      actions.updateData('analytics', sysMetrics);
+        const sysMetrics = await userManagementService.generateSystemMetrics(userIds, { period: 'daily', force });
+        setSystemMetrics(sysMetrics);
+        actions.updateData('analytics', sysMetrics);
 
-      const activities = await userManagementService.getSystemActivities(100, { userIds, force });
-      setActivityFeed(activities);
+        const activities = await userManagementService.getSystemActivities(100, { userIds, force });
+        setActivityFeed(activities);
 
-      setSystemFeatureFlags(userManagementService.getFeatureFlagSummary(userIds));
-    } catch (error) {
-      console.error('Failed to load dashboard data:', error);
-      actions.notify('error', 'Failed to load dashboard data');
+        setSystemFeatureFlags(userManagementService.getFeatureFlagSummary(userIds));
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+        actions.notify('error', 'Failed to load dashboard data');
       } finally {
         setIsLoading(false);
       }
@@ -163,7 +163,9 @@ export const ManagementDashboard: React.FC = () => {
 
   useEffect(() => {
     void loadDashboardData();
-    const interval = setInterval(() => void loadDashboardData(), 30000);
+    const interval = setInterval(() => {
+      void loadDashboardData();
+    }, 30000);
     return () => clearInterval(interval);
   }, [loadDashboardData]);
 
@@ -211,10 +213,12 @@ export const ManagementDashboard: React.FC = () => {
   const handleEnvironmentChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, type, value, checked } = event.target;
+    const target = event.target as HTMLInputElement;
+    const { name, type, value } = target;
+    const nextValue = type === 'checkbox' ? target.checked : value;
     setEnvironmentConfig((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: nextValue,
     } as EnvironmentConfig));
 
     setEnvironmentErrors((prev) => {
@@ -416,6 +420,18 @@ export const ManagementDashboard: React.FC = () => {
   };
 
   const UsersTab = () => {
+    const pageSize = 10;
+    const teamOptions = useMemo(() => {
+      const teamsMap = new Map<string, { id: string; name: string }>();
+      users.forEach((user) => {
+        (user.teams || []).forEach((team) => {
+          if (team.id) {
+            teamsMap.set(team.id, { id: team.id, name: team.name });
+          }
+        });
+      });
+      return Array.from(teamsMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+    }, [users]);
     const filteredUsers = useMemo(() => {
       const query = searchTerm.toLowerCase().trim();
       return users.filter((user) => {

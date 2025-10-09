@@ -319,11 +319,20 @@ export class UserManagementService {
     });
   }
 
+  applyFeatureFlagSnapshot(snapshot: Record<string, boolean>): void {
+    Object.values(this.users).forEach((user) => {
+      user.featureFlags = {
+        ...user.featureFlags,
+        ...snapshot,
+      };
+    });
+  }
+
   private mapBackendUser(user: BackendUserProfile): UserProfile {
     const displayName = user.displayName || user.email || user.uid;
     const [firstName, ...rest] = displayName.trim().split(/\s+/);
     const lastName = rest.join(' ');
-    const preferences = this.mergePreferences(user.preferences as Partial<UserPreferences> | undefined);
+    const preferences = this.mergePreferences(user.preferences as unknown as Partial<UserPreferences> | undefined);
     const role = this.mapRole(user.role);
     const teamAssignments = this.userTeams.get(user.uid) || [];
 

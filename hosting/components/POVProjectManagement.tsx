@@ -1,3 +1,5 @@
+'use client';
+
 // legacy-orange: replaced by green per Cortex rebrand (2025-10-08)
 /**
  * POV Project Management System
@@ -7,7 +9,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
 import { dcAPIClient, UserScopeContext } from '../lib/dc-api-client';
-import { dcContextStore, ActivePOV as POVRecord, CustomerEngagement, UserProfile } from '../lib/dc-context-store';
+import { dcContextStore, ActivePOV as POVRecord, CustomerEngagement, UserProfile, AIWorkflowInsight } from '../lib/dc-context-store';
 import { dcAIClient, DCWorkflowContext } from '../lib/dc-ai-client';
 import { aiInsightsClient } from '../lib/ai-insights-client';
 import type { GeminiFunctionResponse, GeminiResponse } from '../lib/gemini-ai-service';
@@ -17,6 +19,16 @@ interface POVScenario {
   name: string;
   type: string;
   status: 'planned' | 'deployed' | 'validated' | 'completed';
+  description?: string;
+  estimatedDuration?: number;
+  actualDuration?: number;
+  successCriteria?: string[];
+  outcomes?: {
+    completed: boolean;
+    evidence: string[];
+    metrics: Record<string, unknown>;
+    notes: string;
+  };
   results?: string;
   customerFeedback?: string;
 }
@@ -76,7 +88,6 @@ export const POVProjectManagement: React.FC = () => {
   const [selectedPOV, setSelectedPOV] = useState<POVRecord | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [aiStatus, setAIStatus] = useState<string | null>(null);
-  const [povs, setPovs] = useState<POVRecord[]>(dcContextStore.getAllActivePOVs());
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState<Partial<POVFormData>>({
     objectives: [],
@@ -332,7 +343,7 @@ export const POVProjectManagement: React.FC = () => {
 
     const updated = dcContextStore.recordPOVInsight(povId, insight);
     if (updated) {
-      setPovs(dcContextStore.getAllActivePOVs());
+      setPovList(dcContextStore.getAllActivePOVs());
       setSelectedPOV(updated);
       actions.notify('success', 'AI insight saved to POV');
     }

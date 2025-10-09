@@ -558,6 +558,7 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
   const [activeTab, setActiveTab] = useState(() =>
     initialTab && guiTabs.some(tab => tab.id === initialTab) ? initialTab : DEFAULT_TAB_ID
   );
+  const { state, actions } = useAppState();
   const [currentUser, setCurrentUser] = useState(null);
   const [isManagementMode, setIsManagementMode] = useState(false);
   const [userPermissions, setUserPermissions] = useState(() => derivePermissionsFromRole());

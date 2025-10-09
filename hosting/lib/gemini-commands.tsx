@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { CommandConfig } from './commands';
 import { TerminalOutput } from '../components/TerminalOutput';
-import GeminiAIService, { AIInsight, GeminiResponse } from './gemini-ai-service';
+import { aiInsightsClient } from './ai-insights-client';
+import type { AIInsight, GeminiResponse } from './gemini-ai-service';
 
 // Gemini AI Chat Component
 const GeminiChatInterface: React.FC<{
@@ -17,8 +18,6 @@ const GeminiChatInterface: React.FC<{
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId] = useState(`session_${Date.now()}`);
 
-  const gemini = GeminiAIService.getInstance();
-
   useEffect(() => {
     if (initialMessage) {
       handleSendMessage();
@@ -33,10 +32,14 @@ const GeminiChatInterface: React.FC<{
     setIsLoading(true);
 
     try {
-      const response = await gemini.chatWithGemini(input, context, sessionId);
+      const result = await aiInsightsClient.chat(input, context);
+      if (!result.success || !result.data) {
+        throw new Error(result.error || 'No response generated');
+      }
+      const chatResponse = result.data as GeminiResponse;
       const assistantMessage = {
         type: 'assistant' as const,
-        content: response.response,
+        content: chatResponse.response,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, assistantMessage]);
@@ -198,7 +201,6 @@ export const geminiCommands: CommandConfig[] = [
     aliases: ['ai', 'gai', 'assistant'],
     handler: (args) => {
       const subcommand = args[0] || 'chat';
-      const gemini = GeminiAIService.getInstance();
 
       if (subcommand === 'chat') {
         const message = args.slice(1).join(' ');
@@ -257,8 +259,12 @@ export const geminiCommands: CommandConfig[] = [
             const analyzeProject = async () => {
               setIsLoading(true);
               try {
-                const analysis = await gemini.analyzePOV(mockPOV);
-                setInsight(analysis);
+                const analysis = await aiInsightsClient.analyzePOV(mockPOV);
+                if (analysis.success && analysis.data) {
+                  setInsight(analysis.data as AIInsight);
+                } else {
+                  console.error('Analysis failed:', analysis.error || 'Unknown error');
+                }
               } catch (error) {
                 console.error('Analysis failed:', error);
               } finally {
@@ -336,8 +342,12 @@ export const geminiCommands: CommandConfig[] = [
             const analyzeTRR = async () => {
               setIsLoading(true);
               try {
-                const analysis = await gemini.analyzeTRR(mockTRR);
-                setInsight(analysis);
+                const analysis = await aiInsightsClient.analyzeTRR(mockTRR);
+                if (analysis.success && analysis.data) {
+                  setInsight(analysis.data as AIInsight);
+                } else {
+                  console.error('TRR analysis failed:', analysis.error || 'Unknown error');
+                }
               } catch (error) {
                 console.error('TRR analysis failed:', error);
               } finally {
@@ -406,8 +416,12 @@ export const geminiCommands: CommandConfig[] = [
             const generateRule = async () => {
               setIsLoading(true);
               try {
-                const rule = await gemini.generateDetectionRule(mockScenario);
-                setInsight(rule);
+                const rule = await aiInsightsClient.generateDetection(mockScenario);
+                if (rule.success && rule.data) {
+                  setInsight(rule.data as AIInsight);
+                } else {
+                  console.error('Rule generation failed:', rule.error || 'Unknown error');
+                }
               } catch (error) {
                 console.error('Rule generation failed:', error);
               } finally {

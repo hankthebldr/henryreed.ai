@@ -6,13 +6,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
-import { dcAPIClient, DCWorkflowSnapshot } from '../lib/dc-api-client';
+import { dcAPIClient, DCWorkflowSnapshot, UserScopeContext } from '../lib/dc-api-client';
 import {
   dcContextStore,
   CustomerEngagement,
   ActivePOV,
   TRRRecord,
-  AIWorkflowInsight
+  AIWorkflowInsight,
+  UserProfile
 } from '../lib/dc-context-store';
 import { dcAIClient, DCWorkflowContext } from '../lib/dc-ai-client';
 import { aiInsightsClient, GeminiArtifact } from '../lib/ai-insights-client';
@@ -109,39 +110,48 @@ export const EnhancedAIAssistant: React.FC = () => {
       })
       .filter(Boolean) as GeminiArtifact[];
 
-  const refreshSnapshot = () => {
-    setWorkflowSnapshot(getSnapshotFromStore());
+const refreshSnapshot = () => {
+  setWorkflowSnapshot(getSnapshotFromStore());
+};
+
+const buildUserContextData = (): { context: UserScopeContext; profile: UserProfile } | null => {
+  if (!state.auth.user) {
+    return null;
+  }
+
+  const context: UserScopeContext = {
+    userId: state.auth.user.id,
+    scope: state.auth.user.role === 'manager' || state.auth.user.role === 'admin' ? 'team' : 'self',
+    teamUserIds: state.auth.user.assignedProjects || [],
   };
 
-  useEffect(() => {
-    const ensureData = async () => {
-      if (!state.auth.user) {
-        return;
-      }
+  const profile: UserProfile = {
+    id: state.auth.user.id,
+    name: state.auth.user.username || state.auth.user.email || 'Team Member',
+    email: state.auth.user.email || `${state.auth.user.username || 'user'}@henryreed.ai`,
+    role: (state.auth.user.role === 'manager' || state.auth.user.role === 'admin') ? 'manager' : 'dc',
+    region: 'AMER',
+    specializations: state.auth.user.assignedProjects || [],
+    createdAt: state.auth.user.lastLogin || new Date().toISOString(),
+    lastActive: new Date().toISOString(),
+  };
 
-      const context: UserScopeContext = {
-        userId: state.auth.user.id,
-        scope: state.auth.user.role === 'manager' || state.auth.user.role === 'admin' ? 'team' : 'self',
-        teamUserIds: state.auth.user.assignedProjects || []
-      };
+  return { context, profile };
+};
 
-      const profile: UserProfile = {
-        id: state.auth.user.id,
-        name: state.auth.user.username || state.auth.user.email || 'Team Member',
-        email: state.auth.user.email || `${state.auth.user.username || 'user'}@henryreed.ai`,
-        role: (state.auth.user.role === 'manager' || state.auth.user.role === 'admin') ? 'manager' : 'dc',
-        region: 'AMER',
-        specializations: state.auth.user.assignedProjects || [],
-        createdAt: state.auth.user.lastLogin || new Date().toISOString(),
-        lastActive: new Date().toISOString()
-      };
+useEffect(() => {
+  const ensureData = async () => {
+    const userData = buildUserContextData();
+    if (!userData) {
+      return;
+    }
 
-      await dcAPIClient.ensureStarterDataForUser(context, profile);
-    };
+    await dcAPIClient.ensureStarterDataForUser(userData.context, userData.profile);
+  };
 
-    ensureData();
-    initializeAssistant();
-    loadInsights();
+  ensureData();
+  initializeAssistant();
+  loadInsights();
   }, [actions, state.auth.user]);
 
   useEffect(() => {
@@ -199,13 +209,18 @@ What would you like to work on today?`,
   const loadUserContext = async () => {
     setContextLoading(true);
     setContextError(null);
+    const userData = buildUserContextData();
 
     try {
       const response = await dcAPIClient.fetchUserContext();
       if (response.success && response.data) {
         setWorkflowSnapshot(response.data);
-        if (response.data.customers.length === 0 && dcContextStore.getAllCustomerEngagements().length === 0) {
-          dcContextStore.initializeSampleData();
+        if (
+          response.data.customers.length === 0 &&
+          dcContextStore.getAllCustomerEngagements().length === 0 &&
+          userData?.profile
+        ) {
+          dcContextStore.seedStarterDataForUser(userData.profile);
           refreshSnapshot();
         }
       } else {
@@ -215,8 +230,8 @@ What would you like to work on today?`,
       const message = error instanceof Error ? error.message : 'Context unavailable';
       console.warn('Falling back to local workflow context:', message);
       setContextError(message);
-      if (dcContextStore.getAllCustomerEngagements().length === 0) {
-        dcContextStore.initializeSampleData();
+      if (dcContextStore.getAllCustomerEngagements().length === 0 && userData?.profile) {
+        dcContextStore.seedStarterDataForUser(userData.profile);
       }
       refreshSnapshot();
     } finally {
@@ -1008,7 +1023,7 @@ Could you be more specific about what you'd like help with? I can provide detail
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-bold text-white">🧠 AI-Generated Insights</h3>
         <button
-          onClick={loadInsights}
+          onClick={() => loadInsights()}
           className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm transition-colors"
         >
           🔄 Refresh
