@@ -2,9 +2,21 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { CortexCloudFrame } from './CortexCloudFrame';
+import cloudStoreService from '../lib/cloud-store-service';
+import userActivityService from '../lib/user-activity-service';
 
-type CreationMode = 'pov' | 'template' | 'scenario' | 'none';
-type BlockType = 'text' | 'heading' | 'list' | 'checkbox' | 'date' | 'select' | 'number' | 'multiline' | 'tags';
+type CreationMode = 'pov' | 'template' | 'scenario' | 'markdown' | 'none';
+type BlockType =
+  | 'text'
+  | 'heading'
+  | 'list'
+  | 'checkbox'
+  | 'date'
+  | 'select'
+  | 'number'
+  | 'multiline'
+  | 'markdown'
+  | 'tags';
 
 interface Block {
   id: string;
@@ -263,6 +275,53 @@ const SCENARIO_SCHEMA: FormSchema = {
   ]
 };
 
+const MARKDOWN_SCHEMA: FormSchema = {
+  title: 'Create Demo Markdown',
+  description: 'Author and store a reusable markdown-based demo asset',
+  icon: '🗒️',
+  color: 'orange',
+  blocks: [
+    {
+      id: 'fileName',
+      type: 'text',
+      content: 'demo-blueprint',
+      placeholder: 'demo-blueprint',
+      label: '📄 File Name (without extension)',
+      required: true
+    },
+    {
+      id: 'title',
+      type: 'heading',
+      content: '',
+      placeholder: 'Executive Threat Demo',
+      label: 'Demo Title',
+      required: true
+    },
+    {
+      id: 'summary',
+      type: 'multiline',
+      content: '',
+      placeholder: 'Describe what this demo covers and the key business outcomes...',
+      label: '📝 Summary'
+    },
+    {
+      id: 'tags',
+      type: 'tags',
+      content: ['demo', 'markdown'],
+      label: '🏷️ Tags',
+      placeholder: 'Add descriptive tags'
+    },
+    {
+      id: 'markdownBody',
+      type: 'markdown',
+      content: '## Demo Overview\n\n- Objective\n- Environment\n- Success criteria',
+      placeholder: '## Demo Overview\n\nDetail the narrative, steps, and validation points...',
+      label: '🗂️ Markdown Content',
+      required: true
+    }
+  ]
+};
+
 // Notion-inspired Block Components
 const BlockRenderer: React.FC<{
   block: Block;
@@ -278,6 +337,7 @@ const BlockRenderer: React.FC<{
       case 'heading': return '📝';
       case 'text': return '✏️';
       case 'multiline': return '📄';
+      case 'markdown': return '🗂️';
       case 'list': return '📝';
       case 'checkbox': return '☐';
       case 'date': return '📅';
@@ -337,6 +397,22 @@ const BlockRenderer: React.FC<{
             rows={4}
             className={`w-full bg-transparent border-none outline-none text-white placeholder-gray-500 py-2 resize-none ${
               focused ? 'ring-2 ring-blue-500 ring-opacity-50 rounded' : ''
+            }`}
+          />
+        );
+
+      case 'markdown':
+        return (
+          <textarea
+            ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            placeholder={block.placeholder}
+            rows={12}
+            className={`w-full bg-gray-900 border border-gray-700 rounded px-3 py-3 text-white font-mono text-sm leading-6 resize-y ${
+              focused ? 'ring-2 ring-blue-500 ring-opacity-50' : ''
             }`}
           />
         );
@@ -523,6 +599,7 @@ export const EnhancedManualCreationGUI: React.FC = () => {
       case 'pov': return POV_SCHEMA;
       case 'template': return TEMPLATE_SCHEMA;
       case 'scenario': return SCENARIO_SCHEMA;
+      case 'markdown': return MARKDOWN_SCHEMA;
       default: return null;
     }
   };
@@ -566,14 +643,78 @@ export const EnhancedManualCreationGUI: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      console.log(`Creating ${activeMode}:`, formData);
-      alert(`${schema.title} created successfully!`);
+      if (activeMode === 'markdown') {
+        const fileNameInput = String(formData.fileName || '').trim();
+        const normalizedBaseName = fileNameInput
+          ? fileNameInput
+              .replace(/\s+/g, '-')
+              .replace(/[^a-zA-Z0-9-_.]/g, '-')
+              .replace(/-+/g, '-')
+              .replace(/^-+|-+$/g, '')
+          : 'demo-blueprint';
+        const fileName = normalizedBaseName.endsWith('.md')
+          ? normalizedBaseName
+          : `${normalizedBaseName || 'demo-blueprint'}.md`;
+        const title = String(formData.title || '').trim() || fileName.replace(/\.md$/i, '');
+        const summary = String(formData.summary || '').trim();
+        const markdownBody = String(formData.markdownBody || '').trim();
+        const tags = Array.isArray(formData.tags)
+          ? formData.tags.map((tag: any) => String(tag).trim()).filter(Boolean)
+          : [];
+
+        const timestamp = new Date().toISOString();
+        const frontMatterLines: string[] = ['---', `title: ${JSON.stringify(title)}`, 'type: demo'];
+
+        if (summary) {
+          frontMatterLines.splice(1, 0, `summary: ${JSON.stringify(summary)}`);
+        }
+
+        if (tags.length > 0) {
+          frontMatterLines.push('tags:');
+          tags.forEach(tag => frontMatterLines.push(`  - ${tag}`));
+        } else {
+          frontMatterLines.push('tags: []');
+        }
+
+        frontMatterLines.push(`createdAt: ${timestamp}`);
+        frontMatterLines.push('---', '');
+
+        const fullMarkdown = `${frontMatterLines.join('\n')}${markdownBody}\n`;
+        const markdownFile = new File([fullMarkdown], fileName, { type: 'text/markdown' });
+
+        const storedMarkdown = await cloudStoreService.saveMarkdownNote(markdownFile, {
+          metadata: {
+            name: fileName,
+            title,
+            summary,
+            tags,
+            type: 'demo',
+            createdAt: timestamp,
+            component: 'enhanced-manual-creator',
+          },
+          contentText: fullMarkdown,
+        });
+
+        userActivityService.trackActivity('demo-markdown-created', 'enhanced-manual-creator', {
+          fileName,
+          storagePath: storedMarkdown.path,
+          storageId: storedMarkdown.id,
+          tagsCount: tags.length,
+        });
+
+        alert('Demo markdown file created and routed to Content Hub storage.');
+      } else {
+        // Simulate API call for structured modes
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        console.log(`Creating ${activeMode}:`, formData);
+        alert(`${schema.title} created successfully!`);
+      }
+
       setActiveMode('none');
       setFormData({});
     } catch (error) {
+      console.error('Failed to create content', error);
       alert('Failed to create. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -685,7 +826,7 @@ export const EnhancedManualCreationGUI: React.FC = () => {
         </div>
 
         {/* Creation Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           <div
             onClick={() => handleModeChange('pov')}
             className="cortex-card-elevated p-8 cortex-interactive button-hover-lift"
@@ -730,6 +871,23 @@ export const EnhancedManualCreationGUI: React.FC = () => {
               Build Cloud Detection and Response scenarios with MITRE mapping, attack vectors, and detection rules.
             </p>
             <div className="mt-4 flex items-center text-purple-400 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+              <span>Click to start</span>
+              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+
+          <div
+            onClick={() => handleModeChange('markdown')}
+            className="cortex-card-elevated p-8 cortex-interactive button-hover-lift"
+          >
+            <div className="text-5xl mb-4">🗒️</div>
+            <h3 className="text-xl font-bold text-orange-400 mb-3">Markdown Demo File</h3>
+            <p className="text-cortex-text-muted text-sm leading-relaxed">
+              Capture demo runbooks or customer narratives in markdown and automatically store them in the Content Hub.
+            </p>
+            <div className="mt-4 flex items-center text-orange-400 text-sm opacity-0 group-hover:opacity-100 transition-opacity">
               <span>Click to start</span>
               <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
