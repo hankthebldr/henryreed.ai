@@ -1,8 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import CortexButton from './CortexButton';
-import userActivityService from '../lib/user-activity-service';
+import userActivityService, { type UserNote } from '../lib/user-activity-service';
+import matter from 'gray-matter';
+import cloudStoreService from '../lib/cloud-store-service';
+import authService, { type AuthUser } from '../lib/auth-service';
 
 // Unified content item interface that consolidates all form types
 export interface ContentItem {
@@ -217,11 +220,16 @@ const ConsolidatedContentLibrary: React.FC<ConsolidatedContentLibraryProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'kanban'>(initialView);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedType, setSelectedType] = useState<string>('all');
+  const [selectedType, setSelectedType] = useState<string>(allowedTypes?.[0] || 'all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [sortBy, setSortBy] = useState<'name' | 'created' | 'updated' | 'usage'>('updated');
+  const [isSuperUser, setIsSuperUser] = useState(false);
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importFeedback, setImportFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Filter and search logic
   useEffect(() => {
@@ -280,6 +288,167 @@ const ConsolidatedContentLibrary: React.FC<ConsolidatedContentLibraryProps> = ({
 
     setFilteredItems(filtered);
   }, [contentItems, selectedType, selectedCategory, selectedStatus, showOnlyFavorites, searchTerm, sortBy, allowedTypes]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const user = authService.getCurrentUser();
+    setCurrentUser(user);
+    setIsSuperUser(Boolean(user && (user.role === 'admin' || user.viewMode === 'admin')));
+  }, []);
+
+  useEffect(() => {
+    if (!importFeedback) return;
+    const timer = window.setTimeout(() => setImportFeedback(null), 5000);
+    return () => window.clearTimeout(timer);
+  }, [importFeedback]);
+
+  const normalizeNoteType = (value?: string): UserNote['type'] => {
+    if (!value) return 'general';
+    const normalized = value.toLowerCase();
+    if (['meeting', 'pov', 'scenario', 'customer'].includes(normalized)) {
+      return normalized as UserNote['type'];
+    }
+    return 'general';
+  };
+
+  const normalizeTags = (raw: unknown): string[] => {
+    if (!raw) return [];
+    if (Array.isArray(raw)) {
+      return raw.map(tag => String(tag)).filter(Boolean);
+    }
+    if (typeof raw === 'string') {
+      return raw
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(Boolean);
+    }
+    return [];
+  };
+
+  const triggerMarkdownImport = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleMarkdownFile = async (file: File) => {
+    setIsImporting(true);
+    setImportFeedback(null);
+
+    try {
+      if (!file.name.toLowerCase().endsWith('.md') && file.type !== 'text/markdown') {
+        throw new Error('Please select a valid Markdown (.md) file.');
+      }
+
+      const rawContent = await file.text();
+      const { data: frontMatter, content: markdownBody } = matter(rawContent);
+
+      const tags = normalizeTags(frontMatter?.tags);
+      const titleFromFrontMatter = typeof frontMatter?.title === 'string' ? frontMatter.title : '';
+      const noteTitle = (titleFromFrontMatter || file.name.replace(/\.md$/i, '') || 'Imported Markdown Note').trim();
+      const noteType = normalizeNoteType(typeof frontMatter?.type === 'string' ? frontMatter.type : undefined);
+      const descriptionSource =
+        typeof frontMatter?.description === 'string' && frontMatter.description.trim().length > 0
+          ? frontMatter.description.trim()
+          : markdownBody.replace(/\s+/g, ' ').trim().slice(0, 200);
+      const summary = descriptionSource || 'Imported markdown note';
+
+      const metadataPayload = {
+        ...frontMatter,
+        title: noteTitle,
+        noteType,
+        importedBy: currentUser?.email ?? currentUser?.username ?? 'system@henryreed.ai',
+      };
+
+      const storedMarkdown = await cloudStoreService.saveMarkdownNote(file, {
+        metadata: metadataPayload,
+        contentText: markdownBody,
+      });
+
+      let createdNoteId: string | undefined;
+      try {
+        const createdNote = await userActivityService.createNote({
+          title: noteTitle,
+          content: markdownBody,
+          type: noteType,
+          associatedId: typeof frontMatter?.associatedId === 'string' ? frontMatter.associatedId : undefined,
+          tags: Array.from(new Set([...tags, 'markdown-import'])),
+          pinned: false,
+          archived: false,
+        });
+        createdNoteId = createdNote.id;
+      } catch (noteError) {
+        console.warn('Failed to persist imported markdown as user note. Continuing without timeline entry.', noteError);
+      }
+
+      const uploadedAt = storedMarkdown.uploadedAt;
+      const newItem: ContentItem = {
+        id: `note-${Date.now()}`,
+        type: 'note',
+        title: noteTitle,
+        description: summary,
+        content: {
+          markdown: markdownBody,
+          frontMatter,
+          storageId: storedMarkdown.id,
+          storagePath: storedMarkdown.path,
+          downloadUrl: storedMarkdown.downloadUrl,
+          callableId: storedMarkdown.id,
+          userNoteId: createdNoteId,
+        },
+        metadata: {
+          tags: Array.from(new Set([...tags, 'markdown-import', 'shared'])),
+          category: typeof frontMatter?.category === 'string' ? frontMatter.category : 'notes',
+          priority: 'medium',
+          status: 'active',
+          createdBy: currentUser?.email ?? currentUser?.username ?? 'system@henryreed.ai',
+          createdAt: uploadedAt,
+          updatedAt: uploadedAt,
+          version: 1,
+          usageCount: 0,
+          favorited: false,
+          shared: true,
+        },
+        relationships: {
+          relatedItems: Array.isArray(frontMatter?.relatedItems)
+            ? frontMatter.relatedItems.map((item: unknown) => String(item)).filter(Boolean)
+            : [],
+          dependencies: [],
+          children: [],
+        },
+        template: {
+          isTemplate: false,
+          customFields: CONTENT_TEMPLATES['note'] || [],
+        },
+      };
+
+      setContentItems(prev => [newItem, ...prev]);
+      setSelectedItem(newItem);
+      setIsEditing(false);
+
+      userActivityService.trackActivity('markdown-note-imported', 'content-library', {
+        storageId: storedMarkdown.id,
+        title: noteTitle,
+        shared: true,
+      });
+
+      setImportFeedback({ type: 'success', message: `${noteTitle} imported successfully.` });
+    } catch (error) {
+      console.error('Markdown import failed:', error);
+      setImportFeedback({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to import markdown file.',
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const handleMarkdownInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    await handleMarkdownFile(file);
+    event.target.value = '';
+  };
 
   // Get unique categories and tags
   const availableCategories = useMemo(() => {
@@ -394,6 +563,27 @@ const ConsolidatedContentLibrary: React.FC<ConsolidatedContentLibraryProps> = ({
           </div>
 
           <div className="flex items-center space-x-2">
+            {isSuperUser && (
+              <>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".md,text/markdown"
+                  className="hidden"
+                  onChange={handleMarkdownInputChange}
+                />
+                <CortexButton
+                  variant="outline"
+                  size="sm"
+                  icon="📥"
+                  onClick={triggerMarkdownImport}
+                  disabled={isImporting}
+                  tooltip="Import Markdown as Shared Note"
+                >
+                  {isImporting ? 'Importing...' : 'Import Markdown'}
+                </CortexButton>
+              </>
+            )}
             {showCreateButton && (
               <div className="flex items-center space-x-1">
                 <CortexButton
@@ -447,6 +637,26 @@ const ConsolidatedContentLibrary: React.FC<ConsolidatedContentLibraryProps> = ({
             </div>
           </div>
         </div>
+
+        {isSuperUser && (
+          <div className="mt-2 space-y-1">
+            {isImporting && (
+              <div className="text-cortex-text-secondary text-sm flex items-center space-x-2">
+                <span className="inline-flex h-3 w-3 animate-spin rounded-full border-2 border-cortex-border-muted border-t-cortex-green"></span>
+                <span>Uploading markdown to cloud store...</span>
+              </div>
+            )}
+            {importFeedback && (
+              <div
+                className={`text-sm ${
+                  importFeedback.type === 'success' ? 'text-cortex-green' : 'text-red-400'
+                }`}
+              >
+                {importFeedback.message}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Filters */}
         <div className="space-y-4">
