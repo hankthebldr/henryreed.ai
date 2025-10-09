@@ -6,8 +6,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
-import { dcAPIClient, XSIAMHealthStatus } from '../lib/dc-api-client';
-import { dcContextStore } from '../lib/dc-context-store';
+import { dcAPIClient, XSIAMHealthStatus, UserScopeContext } from '../lib/dc-api-client';
+import { dcContextStore, UserProfile } from '../lib/dc-context-store';
 
 interface HealthAlert {
   id: string;
@@ -52,23 +52,43 @@ export const XSIAMHealthMonitor: React.FC = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<string>('');
 
   useEffect(() => {
-    
-    // Initialize sample data if empty
-    if (dcContextStore.getAllCustomerEngagements().length === 0) {
-      dcContextStore.initializeSampleData();
-    }
-    
+    const ensureData = async () => {
+      if (!state.auth.user) {
+        return;
+      }
+
+      const context: UserScopeContext = {
+        userId: state.auth.user.id,
+        scope: state.auth.user.role === 'manager' || state.auth.user.role === 'admin' ? 'team' : 'self',
+        teamUserIds: state.auth.user.assignedProjects || []
+      };
+
+      const profile: UserProfile = {
+        id: state.auth.user.id,
+        name: state.auth.user.username || state.auth.user.email || 'Team Member',
+        email: state.auth.user.email || `${state.auth.user.username || 'user'}@henryreed.ai`,
+        role: (state.auth.user.role === 'manager' || state.auth.user.role === 'admin') ? 'manager' : 'dc',
+        region: 'AMER',
+        specializations: state.auth.user.assignedProjects || [],
+        createdAt: state.auth.user.lastLogin || new Date().toISOString(),
+        lastActive: new Date().toISOString()
+      };
+
+      await dcAPIClient.ensureStarterDataForUser(context, profile);
+    };
+
+    ensureData();
+
     loadHealthStatus();
     loadAlerts();
-    
-    // Auto-refresh every 30 seconds
+
     const interval = setInterval(() => {
       loadHealthStatus();
       loadAlerts();
     }, 30000);
-    
+
     return () => clearInterval(interval);
-  }, [actions, selectedCustomer]);
+  }, [actions, selectedCustomer, state.auth.user]);
 
   const loadHealthStatus = async () => {
     try {
