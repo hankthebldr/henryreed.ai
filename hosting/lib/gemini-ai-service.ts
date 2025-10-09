@@ -2,11 +2,13 @@
 // Firebase/GCP implementation with advanced AI features
 
 interface GeminiConfig {
-  apiKey: string;
-  projectId: string;
+  apiKey?: string;
+  projectId?: string;
   location: string;
   model: string;
   endpoint?: string;
+  authType?: 'apiKey' | 'serviceAccount';
+  serviceAccountJson?: string;
 }
 
 interface GeminiRequest {
@@ -58,15 +60,20 @@ export interface AIInsight {
 export class GeminiAIService {
   private static instance: GeminiAIService;
   private config: GeminiConfig;
+  private vertexClientPromise: Promise<any> | null = null;
   private sessionHistory: Map<string, any[]> = new Map();
 
   private constructor() {
+    const defaultModel = process.env.NEXT_PUBLIC_GEMINI_MODEL || process.env.GEMINI_MODEL || 'gemini-1.5-pro';
+    const projectId = process.env.GEMINI_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT;
     this.config = {
-      apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY || '',
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'cortex-dc-portal',
-      location: process.env.NEXT_PUBLIC_GEMINI_LOCATION || 'us-central1',
-      model: process.env.NEXT_PUBLIC_GEMINI_MODEL || 'gemini-1.5-pro',
-      endpoint: process.env.NEXT_PUBLIC_GEMINI_ENDPOINT,
+      apiKey: process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY,
+      projectId: projectId || undefined,
+      location: process.env.GEMINI_LOCATION || process.env.NEXT_PUBLIC_GEMINI_LOCATION || 'us-central1',
+      model: defaultModel,
+      endpoint: process.env.GEMINI_API_ENDPOINT || process.env.NEXT_PUBLIC_GEMINI_ENDPOINT,
+      authType: (process.env.GEMINI_AUTH_TYPE as GeminiConfig['authType']) || undefined,
+      serviceAccountJson: process.env.GEMINI_SERVICE_ACCOUNT || process.env.GEMINI_SERVICE_ACCOUNT_JSON,
     };
   }
 
@@ -350,42 +357,140 @@ export class GeminiAIService {
   }
 
   private async invokeModel(payload: Record<string, any>) {
-    const { apiKey, projectId, location, model } = this.config;
-    if (!apiKey) {
-      throw new Error('Gemini API key is not configured');
-    }
+    const authMode = this.resolveAuthType();
+    const { url, headers } = await this.buildRequestDetails(authMode);
 
-    const endpoint = this.config.endpoint?.trim();
-    const baseUrl = endpoint && endpoint.length > 0
-      ? endpoint.replace(/\/$/, '')
-      : `https://${location}-aiplatform.googleapis.com/v1`;
-
-    const url = projectId
-      ? `${baseUrl}/projects/${projectId}/locations/${location}/publishers/google/models/${model}:generateContent`
-      : `${baseUrl}/models/${model}:generateContent`;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-
-    if (url.includes('aiplatform.googleapis.com')) {
-      headers['Authorization'] = `Bearer ${apiKey}`;
-    } else {
-      headers['x-goog-api-key'] = apiKey;
-    }
-
-    const response = await fetch(url, {
+    const response = await fetch(`${url}:generateContent`, {
       method: 'POST',
-      headers,
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers,
+      },
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      const errorText = await response.text().catch(() => '');
-      throw new Error(`Gemini API error ${response.status}: ${errorText || response.statusText}`);
+      const isJson = response.headers.get('content-type')?.includes('application/json');
+      const errorPayload = isJson ? await response.json().catch(() => undefined) : undefined;
+      const errorText = !isJson ? await response.text().catch(() => '') : undefined;
+      const reason = errorPayload?.error?.message || errorText || response.statusText;
+      throw new Error(`Gemini API error ${response.status}: ${reason}`);
     }
 
     return response.json();
+  }
+
+  private resolveAuthType(): NonNullable<GeminiConfig['authType']> {
+    if (this.config.authType) {
+      return this.config.authType;
+    }
+
+    if (typeof window !== 'undefined') {
+      return 'apiKey';
+    }
+
+    if (this.config.projectId && (this.config.serviceAccountJson || process.env.GOOGLE_APPLICATION_CREDENTIALS)) {
+      return 'serviceAccount';
+    }
+
+    return 'apiKey';
+  }
+
+  private async buildRequestDetails(authMode: NonNullable<GeminiConfig['authType']>): Promise<{ url: string; headers: Record<string, string> }> {
+    const { projectId, location, endpoint } = this.config;
+    const modelPath = this.resolveModelPath(authMode);
+
+    if (authMode === 'serviceAccount') {
+      if (typeof window !== 'undefined') {
+        throw new Error('Vertex AI service account authentication is not available in the browser');
+      }
+
+      if (!projectId) {
+        throw new Error('Gemini Vertex AI calls require a projectId');
+      }
+
+      const baseUrl = `${(endpoint?.trim().replace(/\/$/, '') || `https://${location}-aiplatform.googleapis.com/v1`)}/projects/${projectId}/locations/${location}`;
+      const token = await this.getAccessToken();
+      return {
+        url: `${baseUrl}/${modelPath}`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+    }
+
+    const apiKey = this.config.apiKey?.trim();
+    if (!apiKey) {
+      throw new Error('Gemini API key is not configured');
+    }
+
+    const baseUrl = endpoint?.trim().replace(/\/$/, '') || 'https://generativelanguage.googleapis.com/v1beta';
+    return {
+      url: `${baseUrl}/${modelPath}`,
+      headers: {
+        'x-goog-api-key': apiKey,
+      },
+    };
+  }
+
+  private resolveModelPath(authMode: NonNullable<GeminiConfig['authType']>): string {
+    const rawModel = this.config.model || 'gemini-1.5-pro';
+    const model = rawModel.replace(/:generateContent$/, '');
+
+    if (authMode === 'serviceAccount') {
+      if (model.includes('/')) {
+        return model.replace(/^\/+/, '');
+      }
+      return `publishers/google/models/${model}`;
+    }
+
+    if (model.startsWith('models/')) {
+      return model;
+    }
+
+    if (model.includes('/')) {
+      return model.replace(/^\/+/, '');
+    }
+
+    return `models/${model}`;
+  }
+
+  private async getAccessToken(): Promise<string> {
+    if (typeof window !== 'undefined') {
+      throw new Error('Access tokens cannot be generated in the browser');
+    }
+
+    if (!this.vertexClientPromise) {
+      const { GoogleAuth } = await import('google-auth-library');
+      if (!GoogleAuth) {
+        throw new Error('google-auth-library is not available. Install the dependency to use service account authentication.');
+      }
+
+      let credentials: Record<string, any> | undefined;
+      if (this.config.serviceAccountJson) {
+        try {
+          credentials = JSON.parse(this.config.serviceAccountJson);
+        } catch (error) {
+          throw new Error(`Invalid Gemini service account JSON: ${error instanceof Error ? error.message : 'Unknown parse error'}`);
+        }
+      }
+      const auth = new GoogleAuth({
+        scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+        credentials,
+      });
+
+      this.vertexClientPromise = auth.getClient();
+    }
+
+    const client = await this.vertexClientPromise;
+    const accessTokenResponse = await client.getAccessToken();
+    const token = typeof accessTokenResponse === 'string' ? accessTokenResponse : accessTokenResponse?.token;
+
+    if (!token) {
+      throw new Error('Unable to obtain Vertex AI access token');
+    }
+
+    return token;
   }
 
   private extractResponseText(response: any): { text: string; confidence?: number } {
