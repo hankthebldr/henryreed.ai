@@ -326,9 +326,8 @@ Return JSON format:
 // HANDLER FUNCTIONS
 // ============================================================================
 const generateThreatActorScenario = async (data, context) => {
-    var _a, _b, _c, _d, _e, _f;
     const request = ThreatActorProfileRequest.parse(data);
-    const userId = (_a = context.auth) === null || _a === void 0 ? void 0 : _a.uid;
+    const userId = context.auth?.uid;
     if (!userId || userId !== request.context.userId) {
         throw new https_1.HttpsError('permission-denied', 'User ID mismatch');
     }
@@ -367,7 +366,7 @@ const generateThreatActorScenario = async (data, context) => {
             max_tokens: 4000,
             response_format: { type: 'json_object' }
         });
-        const aiResponse = (_c = (_b = completion.choices[0]) === null || _b === void 0 ? void 0 : _b.message) === null || _c === void 0 ? void 0 : _c.content;
+        const aiResponse = completion.choices[0]?.message?.content;
         if (!aiResponse) {
             throw new https_1.HttpsError('internal', 'No response from AI service');
         }
@@ -414,9 +413,9 @@ const generateThreatActorScenario = async (data, context) => {
             confidence: parsedResponse.confidence,
             rationale: parsedResponse.rationale,
             tokens: {
-                prompt: ((_d = completion.usage) === null || _d === void 0 ? void 0 : _d.prompt_tokens) || 0,
-                completion: ((_e = completion.usage) === null || _e === void 0 ? void 0 : _e.completion_tokens) || 0,
-                total: ((_f = completion.usage) === null || _f === void 0 ? void 0 : _f.total_tokens) || 0,
+                prompt: completion.usage?.prompt_tokens || 0,
+                completion: completion.usage?.completion_tokens || 0,
+                total: completion.usage?.total_tokens || 0,
             },
         };
     }
@@ -433,9 +432,8 @@ const generateThreatActorScenario = async (data, context) => {
 };
 exports.generateThreatActorScenario = generateThreatActorScenario;
 const executeScenario = async (data, context) => {
-    var _a;
     const request = ScenarioExecutionRequest.parse(data);
-    const userId = (_a = context.auth) === null || _a === void 0 ? void 0 : _a.uid;
+    const userId = context.auth?.uid;
     if (!userId || userId !== request.context.userId) {
         throw new https_1.HttpsError('permission-denied', 'User ID mismatch');
     }
@@ -453,7 +451,7 @@ const executeScenario = async (data, context) => {
         }
         const blueprint = blueprintDoc.data();
         // Verify organization access
-        if ((blueprint === null || blueprint === void 0 ? void 0 : blueprint.organizationId) !== request.context.organizationId) {
+        if (blueprint?.organizationId !== request.context.organizationId) {
             throw new https_1.HttpsError('permission-denied', 'Access denied to scenario blueprint');
         }
         // Create execution record
@@ -467,14 +465,14 @@ const executeScenario = async (data, context) => {
             startTime: admin.firestore.FieldValue.serverTimestamp(),
             options: request.options,
             variables: {
-                ...blueprint === null || blueprint === void 0 ? void 0 : blueprint.globalVariables,
+                ...blueprint?.globalVariables,
                 ...request.options.variables,
             },
             stageResults: [],
             logs: [],
             alerts: [],
             adaptations: [],
-            metrics: (blueprint === null || blueprint === void 0 ? void 0 : blueprint.successMetrics) || [],
+            metrics: blueprint?.successMetrics || [],
             cleanupStatus: 'pending',
         };
         await db.collection('scenarioExecutions').doc(executionId).set(execution);
@@ -511,10 +509,10 @@ const executeScenario = async (data, context) => {
             executionId,
             status: request.options.dryRun ? 'dry-run-completed' : 'initializing',
             blueprint: {
-                id: blueprint === null || blueprint === void 0 ? void 0 : blueprint.id,
-                name: blueprint === null || blueprint === void 0 ? void 0 : blueprint.name,
-                description: blueprint === null || blueprint === void 0 ? void 0 : blueprint.description,
-                estimatedDuration: blueprint === null || blueprint === void 0 ? void 0 : blueprint.estimatedDuration,
+                id: blueprint?.id,
+                name: blueprint?.name,
+                description: blueprint?.description,
+                estimatedDuration: blueprint?.estimatedDuration,
             },
         };
     }
@@ -531,9 +529,8 @@ const executeScenario = async (data, context) => {
 };
 exports.executeScenario = executeScenario;
 const controlScenarioExecution = async (data, context) => {
-    var _a;
     const request = ScenarioControlRequest.parse(data);
-    const userId = (_a = context.auth) === null || _a === void 0 ? void 0 : _a.uid;
+    const userId = context.auth?.uid;
     if (!userId || userId !== request.context.userId) {
         throw new https_1.HttpsError('permission-denied', 'User ID mismatch');
     }
@@ -551,10 +548,10 @@ const controlScenarioExecution = async (data, context) => {
         }
         const execution = executionDoc.data();
         // Verify organization access
-        if ((execution === null || execution === void 0 ? void 0 : execution.organizationId) !== request.context.organizationId) {
+        if (execution?.organizationId !== request.context.organizationId) {
             throw new https_1.HttpsError('permission-denied', 'Access denied to scenario execution');
         }
-        const currentStatus = execution === null || execution === void 0 ? void 0 : execution.status;
+        const currentStatus = execution?.status;
         let newStatus;
         let updateData = {
             lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
@@ -649,9 +646,8 @@ const controlScenarioExecution = async (data, context) => {
 };
 exports.controlScenarioExecution = controlScenarioExecution;
 const generateDetectionQueries = async (data, context) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
     const request = DetectionQueryRequest.parse(data);
-    const userId = (_a = context.auth) === null || _a === void 0 ? void 0 : _a.uid;
+    const userId = context.auth?.uid;
     if (!userId || userId !== request.context.userId) {
         throw new https_1.HttpsError('permission-denied', 'User ID mismatch');
     }
@@ -685,7 +681,7 @@ const generateDetectionQueries = async (data, context) => {
             max_tokens: 3000,
             response_format: { type: 'json_object' }
         });
-        const aiResponse = (_c = (_b = completion.choices[0]) === null || _b === void 0 ? void 0 : _b.message) === null || _c === void 0 ? void 0 : _c.content;
+        const aiResponse = completion.choices[0]?.message?.content;
         if (!aiResponse) {
             throw new https_1.HttpsError('internal', 'No response from AI service');
         }
@@ -701,22 +697,22 @@ const generateDetectionQueries = async (data, context) => {
             details: {
                 queryLanguage: request.queryLanguage,
                 dataSource: request.dataSource,
-                queryCount: ((_d = parsedResponse.detectionQueries) === null || _d === void 0 ? void 0 : _d.length) || 0,
+                queryCount: parsedResponse.detectionQueries?.length || 0,
                 confidence: parsedResponse.confidence,
             },
             timestamp: admin.firestore.FieldValue.serverTimestamp(),
         });
         logger_1.logger.info('Detection queries generated successfully', {
             userId,
-            queryCount: ((_e = parsedResponse.detectionQueries) === null || _e === void 0 ? void 0 : _e.length) || 0,
+            queryCount: parsedResponse.detectionQueries?.length || 0,
             confidence: parsedResponse.confidence,
         });
         return {
             ...parsedResponse,
             tokens: {
-                prompt: ((_f = completion.usage) === null || _f === void 0 ? void 0 : _f.prompt_tokens) || 0,
-                completion: ((_g = completion.usage) === null || _g === void 0 ? void 0 : _g.completion_tokens) || 0,
-                total: ((_h = completion.usage) === null || _h === void 0 ? void 0 : _h.total_tokens) || 0,
+                prompt: completion.usage?.prompt_tokens || 0,
+                completion: completion.usage?.completion_tokens || 0,
+                total: completion.usage?.total_tokens || 0,
             },
         };
     }

@@ -1,23 +1,41 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Enhanced Firebase deployment script with multi-service support
+set -euo pipefail
 
-# Deploy script for Henry Reed AI website
-# This script builds the Next.js app and deploys to Firebase Hosting
+PROJECT=$(firebase use --json | jq -r '.active')
+echo "🚀 Deploying to Firebase Project: $PROJECT"
+echo "📊 Environment: Node $(node -v) | Firebase $(firebase --version)"
 
-set -e  # Exit on any error
+# Pre-deployment validation
+echo "🔍 Running pre-deployment checks..."
+npm --prefix hosting run type-check
+npm --prefix hosting run lint || echo "⚠️  Lint warnings found"
 
-echo "🚀 Starting deployment process..."
+# Build all components
+echo "🏗️  Building hosting application..."
+npm --prefix hosting ci --silent
+npm --prefix hosting run build
 
-# Navigate to hosting directory
-cd hosting
+echo "🔧 Building functions..."
+npm --prefix functions ci --silent && npm --prefix functions run build
+npm --prefix henryreedai ci --silent && npm --prefix henryreedai run build
 
-echo "📦 Building Next.js application with experimental webpack..."
-npm run build:exp
+# Apply Data Connect if available
+if firebase dataconnect:apply --help >/dev/null 2>&1; then
+    echo "🗃️  Applying Data Connect configuration..."
+    (cd dataconnect && firebase dataconnect:apply --project "$PROJECT" --non-interactive --force)
+else
+    echo "ℹ️  Data Connect CLI not available, skipping..."
+fi
 
-# Navigate back to root for Firebase deployment
-cd ..
+# Deploy to Firebase
+echo "🚀 Deploying to Firebase..."
+firebase deploy --only functions,hosting,firestore:rules,storage:rules
 
-echo "🔥 Deploying to Firebase Hosting..."
-firebase deploy --only hosting
+# Post-deployment health checks
+echo "🏥 Running post-deployment health checks..."
+sleep 5
+curl -f -s -I "https://henryreedai.web.app" > /dev/null && echo "✅ Hosting health check passed" || echo "❌ Hosting health check failed"
 
 echo "✅ Deployment complete!"
-echo "🌐 Your site is available at: https://henryreedai.web.app"
+echo "🌐 Production URL: https://henryreedai.web.app"

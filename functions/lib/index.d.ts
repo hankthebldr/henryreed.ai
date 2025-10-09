@@ -41,6 +41,5 @@ export { monitorExecutionStatusChanges };
  */
 export { cleanupOldExecutions };
 export declare const api: import("firebase-functions/v2/https").HttpsFunction;
-export { menuSuggestion } from './ai/henry-genkit-sample';
-export { aiPovAnalysis, aiTrrRecommendations, aiDetectionGeneration, aiScenarioOptimization, aiChatAssistant, aiCompetitiveAnalysis, aiRiskAssessment } from './ai/henry-ai-functions';
+export { beforeUserCreation, beforeUserSignIn, onUserDocumentCreated, createUserProfile, updateUserProfile } from './auth/user-creation-handler';
 export { app };

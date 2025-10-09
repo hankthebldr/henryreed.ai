@@ -1,55 +1,108 @@
 {
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "predeploy": [
+        "npm --prefix functions ci",
+        "npm --prefix functions run build"
+      ]
+    },
+    {
+      "source": "henryreedai",
+      "codebase": "genkit",
+      "predeploy": [
+        "npm --prefix henryreedai ci",
+        "npm --prefix henryreedai run build"
+      ]
+    }
+  ],
   "hosting": {
-    "predeploy": [
-      "npm --prefix hosting ci || npm --prefix hosting install",
-      "npm --prefix hosting run build:exp"
-    ],
     "public": "hosting/out",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      { "source": "**", "destination": "/index.html" }
+    "ignore": ["**/.*", "**/node_modules/**"],
+    "predeploy": [
+      "npm --prefix hosting ci",
+      "npm --prefix hosting run build"
     ],
     "headers": [
       {
-        "source": "**/*.@(js|css|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2)",
-        "headers": [{ 
-          "key": "Cache-Control", 
-          "value": "public,max-age=31536000,immutable" 
-        }]
+        "source": "**/*.@(js|css|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|otf)",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        ]
+      },
+      {
+        "source": "/_next/static/**",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        ]
       },
       {
         "source": "**/*.html",
-        "headers": [{ 
-          "key": "Cache-Control", 
-          "value": "public,max-age=3600" 
-        }]
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=300, must-revalidate" }
+        ]
       },
       {
         "source": "**/*.json",
         "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "public,max-age=300,s-maxage=600,stale-while-revalidate=1800"
-          },
-          {
-            "key": "X-Content-Type-Options",
-            "value": "nosniff"
-          }
+          { "key": "Cache-Control", "value": "public, max-age=300, s-maxage=600, stale-while-revalidate=1800" },
+          { "key": "X-Content-Type-Options", "value": "nosniff" }
+        ]
+      },
+      {
+        "source": "**",
+        "headers": [
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "X-Frame-Options", "value": "DENY" },
+          { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+          { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=()" },
+          { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+          { "key": "Content-Security-Policy", "value": "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.cloudfunctions.net https://*.run.app; font-src 'self' data: https:" }
         ]
       }
+    ],
+    "rewrites": [
+      { "source": "/api/**", "function": "api" },
+      { "source": "/health", "function": "api" },
+      { "source": "/genkit/**", "function": {
+        "functionId": "healthCheck",
+        "region": "us-central1"
+      }},
+      { "source": "**", "destination": "/index.html" }
     ],
     "cleanUrls": false,
     "trailingSlash": true
   },
-  "functions": {
-    "predeploy": [
-      "npm --prefix functions ci || npm --prefix functions install",
-      "npm --prefix functions run build"
-    ],
-    "source": "functions"
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "dataconnect": {
+    "source": "dataconnect"
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "hosting": {
+      "port": 5005
+    },
+    "storage": {
+      "port": 9199
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    }
   }
 }
