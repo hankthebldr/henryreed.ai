@@ -14,6 +14,7 @@ export interface UserProfile {
 
 export interface CustomerEngagement {
   id: string;
+  ownerId?: string;
   name: string;
   industry: string;
   size: 'startup' | 'smb' | 'mid-market' | 'enterprise';
@@ -44,6 +45,7 @@ export interface CustomerEngagement {
 
 export interface ActivePOV {
   id: string;
+  ownerId?: string;
   customerId: string;
   name: string;
   status: 'planning' | 'executing' | 'completed' | 'on-hold';
@@ -80,6 +82,7 @@ export interface ActivePOV {
 
 export interface TRRRecord {
   id: string;
+  ownerId?: string;
   customerId: string;
   povId?: string;
   title: string;
@@ -411,166 +414,146 @@ class DCContextStore {
     };
   }
 
-  // Initialize sample data for development/demo
-  initializeSampleData() {
-    // Sample user
-    const sampleUser: UserProfile = {
-      id: 'dc_user_001',
-      name: 'Demo User',
-      email: 'demo@henryreed.ai',
-      role: 'dc',
-      region: 'AMER',
-      specializations: ['Cloud Security', 'XSIAM', 'POV Management'],
-      createdAt: new Date().toISOString(),
-      lastActive: new Date().toISOString()
-    };
-    this.setCurrentUser(sampleUser);
+  }
 
-    // Sample customer engagement
+  // Onboarding starter data generation scoped to authenticated user
+  seedStarterDataForUser(user: UserProfile) {
+    if (!user?.id) {
+      throw new Error('Valid user profile required to seed starter data');
+    }
+
+    const existingRecords = Array.from(this.data.trrRecords.values()).some(record => record.ownerId === user.id);
+    if (existingRecords) {
+      return { seeded: false };
+    }
+
+    const customerId = `cust_${user.id}_starter`;
+    const povId = `pov_${user.id}_starter`;
+
     const sampleCustomer: CustomerEngagement = {
-      id: 'cust_001',
-      name: 'TechCorp Industries',
+      id: customerId,
+      ownerId: user.id,
+      name: 'Starter Engagement',
       industry: 'Technology',
       size: 'enterprise',
       maturityLevel: 'intermediate',
       primaryConcerns: ['Cloud Security', 'Insider Threats', 'Compliance'],
       techStack: ['AWS', 'Kubernetes', 'Splunk', 'ServiceNow'],
       stakeholders: [
-        { name: 'John Smith', role: 'CISO', influence: 'high', technical: true },
-        { name: 'Sarah Johnson', role: 'Security Manager', influence: 'medium', technical: true },
-        { name: 'Mike Davis', role: 'IT Director', influence: 'medium', technical: false }
+        { name: 'Executive Sponsor', role: 'CISO', influence: 'high', technical: true },
+        { name: 'Security Manager', role: 'Security Manager', influence: 'medium', technical: true }
       ],
       timeline: {
-        startDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-        targetDecision: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        targetDecision: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString(),
         keyMilestones: [
-          { name: 'Initial Assessment', date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), status: 'complete' },
-          { name: 'POV Kickoff', date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), status: 'complete' },
-          { name: 'Executive Briefing', date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), status: 'pending' }
+          { name: 'Initial Assessment', date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), status: 'complete' },
+          { name: 'POV Kickoff', date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), status: 'complete' },
+          { name: 'Executive Briefing', date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), status: 'pending' }
         ]
       },
       budget: {
-        range: '$500K-$1M',
-        decisionMaker: 'John Smith (CISO)',
-        approvalProcess: 'Executive Committee Review'
+        range: '$250K-$500K',
+        decisionMaker: 'Executive Sponsor',
+        approvalProcess: 'Executive Steering Committee'
       },
       competition: ['CrowdStrike', 'Microsoft Sentinel'],
       notes: [
-        'Strong technical team, looking for advanced automation',
-        'Previous bad experience with legacy SIEM',
-        'High interest in cloud-native solutions'
+        'Starter engagement generated for onboarding',
+        'Customize this record with real customer information'
       ],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    this.addCustomerEngagement(sampleCustomer);
 
-    // Sample POV
     const samplePOV: ActivePOV = {
-      id: 'pov_001',
-      customerId: 'cust_001',
-      name: 'TechCorp XSIAM POV',
-      status: 'executing',
+      id: povId,
+      ownerId: user.id,
+      customerId,
+      name: 'Starter XSIAM POV',
+      status: 'planning',
       scenarios: [
-        { id: 'sc_001', name: 'Cloud Posture Assessment', type: 'cloud-posture', status: 'completed', results: 'Identified 15 misconfigurations', customerFeedback: 'Very impressed with visibility' },
-        { id: 'sc_002', name: 'Insider Threat Detection', type: 'insider-threat', status: 'deployed', results: 'Currently monitoring 500 users' },
-        { id: 'sc_003', name: 'Ransomware Simulation', type: 'ransomware', status: 'planned' }
+        { id: `sc_${user.id}_001`, name: 'Cloud Posture Assessment', type: 'cloud-posture', status: 'planned' },
+        { id: `sc_${user.id}_002`, name: 'Insider Threat Detection', type: 'insider-threat', status: 'planned' }
       ],
       objectives: [
-        'Demonstrate superior detection capabilities',
-        'Show integration with existing AWS infrastructure',
-        'Prove ROI through automation savings'
+        'Demonstrate detection and response capabilities',
+        'Integrate with existing cloud infrastructure'
       ],
       successMetrics: [
-        'Detect 90%+ of simulated attacks',
-        'Reduce MTTD by 50%',
-        'Automate 80% of tier-1 responses'
+        'Detect 90% of simulated attacks',
+        'Automate 70% of tier-1 responses'
       ],
       timeline: {
-        planned: '6 weeks',
-        actual: '4 weeks completed',
+        planned: new Date().toISOString(),
+        actual: undefined,
         milestones: [
-          { name: 'Environment Setup', planned: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), actual: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
-          { name: 'Scenario Execution', planned: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() },
-          { name: 'Results Presentation', planned: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString() }
+          { name: 'Environment Setup', planned: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() },
+          { name: 'Scenario Execution', planned: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString() }
         ]
       },
       resources: {
-        dcHours: 40,
-        seHours: 20,
-        infrastructure: ['AWS Test Environment', 'XSIAM Tenant', 'Sample Data Sets']
+        dcHours: 32,
+        seHours: 16,
+        infrastructure: ['XSIAM Tenant', 'Sample Data Sets']
       },
       outcomes: {
-        technicalWins: ['Faster detection than current solution', 'Better integration capabilities'],
-        businessImpact: ['Projected 60% reduction in analyst time', '$200K annual savings'],
-        lessonsLearned: ['Customer values automation over alerts', 'Integration complexity is key concern']
+        technicalWins: [],
+        businessImpact: [],
+        lessonsLearned: []
       },
       nextSteps: ['Complete ransomware scenario', 'Prepare executive presentation', 'Draft technical proposal'],
       aiInsights: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    this.addActivePOV(samplePOV);
 
-    // Sample TRRs
     const sampleTRRs: TRRRecord[] = [
       {
-        id: 'trr_001',
-        customerId: 'cust_001',
-        povId: 'pov_001',
-        title: 'AWS CloudTrail Integration',
+        id: `trr_${user.id}_001`,
+        ownerId: user.id,
+        customerId,
+        povId,
+        title: 'CloudTrail Integration Validation',
         category: 'integration',
         priority: 'high',
-        status: 'validated',
-        description: 'Validate XSIAM can ingest and parse AWS CloudTrail logs',
-        acceptanceCriteria: ['Logs ingested within 5 minutes', 'All standard fields parsed correctly', 'Custom queries work'],
-        validationMethod: 'Live demonstration with customer data',
-        validationEvidence: ['Screenshots of parsed logs', 'Query results', 'Performance metrics'],
-        assignedTo: 'Demo User',
-        reviewers: ['John Smith', 'Sarah Johnson'],
+        status: 'draft',
+        description: 'Validate ingestion and parsing of AWS CloudTrail logs into XSIAM.',
+        acceptanceCriteria: [
+          'Logs ingested within 5 minutes',
+          'Standard fields parsed correctly',
+          'Custom queries execute successfully'
+        ],
+        validationMethod: 'Demonstration with sample datasets',
+        validationEvidence: [],
+        assignedTo: user.name,
+        reviewers: ['Security Manager'],
         timeline: {
-          created: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          targetValidation: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          actualValidation: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+          created: new Date().toISOString(),
+          targetValidation: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+          actualValidation: undefined
         },
-        dependencies: ['AWS test account', 'CloudTrail configuration'],
+        dependencies: ['AWS account access', 'CloudTrail configuration'],
         riskLevel: 'medium',
-        businessImpact: 'Critical for cloud visibility requirements',
-        customerStakeholder: 'Mike Davis',
-        notes: ['Customer very satisfied with ingestion speed', 'Requested additional custom fields'],
-        aiInsights: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-      {
-        id: 'trr_002',
-        customerId: 'cust_001',
-        povId: 'pov_001',
-        title: 'ServiceNow Integration',
-        category: 'integration',
-        priority: 'medium',
-        status: 'in-review',
-        description: 'Validate bi-directional integration with ServiceNow for incident management',
-        acceptanceCriteria: ['Incidents created automatically', 'Status updates sync back', 'Custom fields mapped'],
-        validationMethod: 'End-to-end workflow testing',
-        assignedTo: 'Demo User',
-        reviewers: ['Sarah Johnson'],
-        timeline: {
-          created: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          targetValidation: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        dependencies: ['ServiceNow dev instance', 'API credentials'],
-        riskLevel: 'low',
-        businessImpact: 'Important for operational workflow',
-        customerStakeholder: 'Sarah Johnson',
-        notes: ['Waiting for dev instance access', 'Customer excited about automation potential'],
-        aiInsights: [],
+        businessImpact: 'Critical for establishing cloud visibility',
+        customerStakeholder: 'Executive Sponsor',
+        notes: ['Starter TRR created for onboarding'],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
     ];
-    
+
+    this.setCurrentUser(user);
+    this.addCustomerEngagement(sampleCustomer);
+    this.addActivePOV(samplePOV);
     sampleTRRs.forEach(trr => this.addTRRRecord(trr));
+
+    return {
+      seeded: true,
+      customer: sampleCustomer,
+      pov: samplePOV,
+      trrs: sampleTRRs
+    };
   }
 }
 

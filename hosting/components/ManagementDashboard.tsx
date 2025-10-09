@@ -4,16 +4,22 @@
  * Comprehensive admin interface for user oversight, analytics, and system management
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, ChangeEvent, FormEvent } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
-import { 
-  userManagementService, 
-  UserProfile, 
-  UserActivity, 
-  UserMetrics, 
+import {
+  userManagementService,
+  UserProfile,
+  UserActivity,
+  UserMetrics,
   SystemMetrics,
-  UserRole 
+  UserRole
 } from '../lib/user-management';
+import {
+  platformSettingsService,
+  FeatureFlagState,
+  EnvironmentConfig,
+  PlatformSettingsAuditEntry,
+} from '../lib/platform-settings-service';
 
 interface DashboardTab {
   id: string;
@@ -24,54 +30,253 @@ interface DashboardTab {
 
 export const ManagementDashboard: React.FC = () => {
   const { state, actions } = useAppState();
+  const platformSettingsSnapshot = useMemo(() => platformSettingsService.getSnapshot(), []);
   const [activeTab, setActiveTab] = useState('overview');
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [userMetrics, setUserMetrics] = useState<Record<string, UserMetrics>>({});
+  const [activityFeed, setActivityFeed] = useState<UserActivity[]>([]);
   const [activityFilter, setActivityFilter] = useState<'all' | 'today' | 'week' | 'month'>('today');
+  const [systemFeatureFlags, setSystemFeatureFlags] = useState<Record<string, boolean>>({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [teamFilter, setTeamFilter] = useState<string>('all');
+  const [userFilter, setUserFilter] = useState<UserRole | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [page, setPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  // Derive system-wide feature flags from the demo user store so the
-  // feature flag UI reflects the current defaults instead of using a
-  // hard-coded/inverted condition which caused incorrect rendering.
-  const systemFeatureFlags: Record<string, boolean> = userManagementService.getAllUsers()[0]?.featureFlags || {};
+  const [featureFlags, setFeatureFlags] = useState<FeatureFlagState[]>(platformSettingsSnapshot.featureFlags);
+  const [settingsLoading, setSettingsLoading] = useState(false);
+  const [flagSavingKey, setFlagSavingKey] = useState<string | null>(null);
+  const [environmentConfig, setEnvironmentConfig] = useState<EnvironmentConfig>(platformSettingsSnapshot.environment);
+  const [environmentErrors, setEnvironmentErrors] = useState<Record<string, string>>({});
+  const [environmentSaving, setEnvironmentSaving] = useState(false);
+  const [auditLog, setAuditLog] = useState<PlatformSettingsAuditEntry[]>(platformSettingsSnapshot.auditLog);
+  const [settingsMetadata, setSettingsMetadata] = useState<{ updatedAt: string; updatedBy: string } | null>({
+    updatedAt: platformSettingsSnapshot.updatedAt,
+    updatedBy: platformSettingsSnapshot.updatedBy,
+  });
+
+  const applyFeatureFlagSnapshotToUsers = useCallback((flags: FeatureFlagState[]) => {
+    const snapshot = flags.reduce((acc, flag) => {
+      acc[flag.key] = flag.enabled;
+      return acc;
+    }, {} as Record<string, boolean>);
+    userManagementService.applyFeatureFlagSnapshot(snapshot);
+  }, []);
+
+  const loadPlatformSettings = useCallback(
+    async (showLoading = false) => {
+      if (showLoading) {
+        setSettingsLoading(true);
+      }
+
+      try {
+        const settings = await platformSettingsService.getSettings();
+        setFeatureFlags(settings.featureFlags);
+        setEnvironmentConfig(settings.environment);
+        setAuditLog(settings.auditLog);
+        setSettingsMetadata({ updatedAt: settings.updatedAt, updatedBy: settings.updatedBy });
+        setEnvironmentErrors({});
+        applyFeatureFlagSnapshotToUsers(settings.featureFlags);
+      } catch (error) {
+        console.error('Failed to load platform settings:', error);
+        actions.notify('error', 'Failed to load platform settings');
+      } finally {
+        if (showLoading) {
+          setSettingsLoading(false);
+        }
+      }
+    },
+    [actions, applyFeatureFlagSnapshotToUsers]
+  );
 
   useEffect(() => {
     loadDashboardData();
+    void loadPlatformSettings(true);
     // Auto-refresh every 30 seconds
-    const interval = setInterval(loadDashboardData, 30000);
+    const interval = setInterval(() => {
+      loadDashboardData();
+      void loadPlatformSettings();
+    }, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [loadPlatformSettings]);
 
-  const loadDashboardData = async () => {
     setIsLoading(true);
     try {
-      // Load users
-      const allUsers = userManagementService.getAllUsers();
-      setUsers(allUsers);
-      
-      // Load system metrics
-      const sysMetrics = userManagementService.generateSystemMetrics();
-      setSystemMetrics(sysMetrics);
-      
-      // Load user metrics for active users
-      const metricsPromises = allUsers.map(async (user) => {
-        const metrics = userManagementService.generateUserMetrics(user.id, 'daily');
-        return { userId: user.id, metrics };
+      let scope: 'all' | 'team' | 'self' = 'self';
+      if (authUserRole === 'admin') {
+        scope = 'all';
+      } else if (authUserRole === 'manager') {
+        scope = 'team';
+      }
+
+      const scopedUsers = await userManagementService.getUsers({
+        scope,
+        managerId: scope === 'team' ? authUserId : undefined,
+        userId: authUserId,
+        includeInactive: true,
+        force,
       });
-      
-      const metricsResults = await Promise.all(metricsPromises);
-      const metricsMap: Record<string, UserMetrics> = {};
-      metricsResults.forEach(({ userId, metrics }) => {
-        metricsMap[userId] = metrics;
+
+      setUsers(scopedUsers);
+      setPage(0);
+      setSelectedUser((previous) => {
+        if (!scopedUsers.length) return null;
+        if (!previous) return scopedUsers[0];
+        return scopedUsers.find((user) => user.id === previous.id) || scopedUsers[0];
       });
+
+      const userIds = scopedUsers.map((user) => user.id);
+      if (userIds.length === 0) {
+        setUserMetrics({});
+        setSystemMetrics(null);
+        setActivityFeed([]);
+        setSystemFeatureFlags({});
+        return;
+      }
+
+      const metricsMap = await userManagementService.getMetricsForUsers(userIds, { period: 'daily', force });
       setUserMetrics(metricsMap);
-      
+
+      const sysMetrics = await userManagementService.generateSystemMetrics(userIds, { period: 'daily', force });
+      setSystemMetrics(sysMetrics);
+      actions.updateData('analytics', sysMetrics);
+
+      const activities = await userManagementService.getSystemActivities(100, { userIds, force });
+      setActivityFeed(activities);
+
+      setSystemFeatureFlags(userManagementService.getFeatureFlagSummary(userIds));
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
       actions.notify('error', 'Failed to load dashboard data');
     } finally {
       setIsLoading(false);
+    }
+  }, [authUserId, authUserRole, actions]);
+
+  useEffect(() => {
+    loadDashboardData();
+    const interval = setInterval(() => loadDashboardData(), 30000);
+    return () => clearInterval(interval);
+  }, [loadDashboardData]);
+
+  const handleFeatureFlagToggle = async (flagKey: string, enabled: boolean) => {
+    const actor = {
+      id: state.auth.user?.id || 'system',
+      name: state.auth.user?.email || state.auth.user?.username || 'System Administrator',
+    };
+
+    setFlagSavingKey(flagKey);
+    try {
+      const { flag, settings } = await platformSettingsService.updateFeatureFlag(flagKey, enabled, actor);
+      setFeatureFlags(settings.featureFlags);
+      setAuditLog(settings.auditLog);
+      setSettingsMetadata({ updatedAt: settings.updatedAt, updatedBy: settings.updatedBy });
+      applyFeatureFlagSnapshotToUsers(settings.featureFlags);
+
+      actions.notify('success', `${flag.name} ${enabled ? 'enabled' : 'disabled'}`);
+      actions.logRBACEvent({
+        userId: actor.id,
+        userRole: state.auth.user?.role || 'admin',
+        action: 'update',
+        resource: `feature_flag:${flag.key}`,
+        allowed: true,
+        reason: `Set to ${enabled ? 'enabled' : 'disabled'}`,
+      });
+    } catch (error) {
+      console.error('Failed to update feature flag:', error);
+      const message = error instanceof Error ? error.message : 'Failed to update feature flag';
+      actions.notify('error', message);
+      actions.logRBACEvent({
+        userId: state.auth.user?.id || 'system',
+        userRole: state.auth.user?.role || 'admin',
+        action: 'update',
+        resource: `feature_flag:${flagKey}`,
+        allowed: false,
+        reason: message,
+      });
+      await loadPlatformSettings();
+    } finally {
+      setFlagSavingKey(null);
+    }
+  };
+
+  const handleEnvironmentChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, type, value, checked } = event.target;
+    setEnvironmentConfig((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    } as EnvironmentConfig));
+
+    setEnvironmentErrors((prev) => {
+      if (!(name in prev)) {
+        return prev;
+      }
+      const { [name]: _removed, ...rest } = prev;
+      return rest;
+    });
+  };
+
+  const handleEnvironmentSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setEnvironmentSaving(true);
+
+    const actor = {
+      id: state.auth.user?.id || 'system',
+      name: state.auth.user?.email || state.auth.user?.username || 'System Administrator',
+    };
+
+    try {
+      const { settings } = await platformSettingsService.updateEnvironmentConfig(environmentConfig, actor);
+      setEnvironmentConfig(settings.environment);
+      setAuditLog(settings.auditLog);
+      setSettingsMetadata({ updatedAt: settings.updatedAt, updatedBy: settings.updatedBy });
+      setEnvironmentErrors({});
+
+      actions.notify('success', 'Environment configuration saved');
+      actions.logRBACEvent({
+        userId: actor.id,
+        userRole: state.auth.user?.role || 'admin',
+        action: 'update',
+        resource: 'environment_config',
+        allowed: true,
+        reason: `${settings.environment.environment} / ${settings.environment.releaseChannel}`,
+      });
+    } catch (error) {
+      console.error('Failed to update environment configuration:', error);
+      const validationErrors =
+        error && typeof error === 'object' && 'validationErrors' in error
+          ? (error as Error & { validationErrors: Record<string, string> }).validationErrors
+          : {};
+
+      if (Object.keys(validationErrors).length > 0) {
+        setEnvironmentErrors(validationErrors);
+        actions.notify('error', 'Please resolve the highlighted configuration issues.');
+        actions.logRBACEvent({
+          userId: actor.id,
+          userRole: state.auth.user?.role || 'admin',
+          action: 'update',
+          resource: 'environment_config',
+          allowed: false,
+          reason: 'Validation failed',
+        });
+      } else {
+        const message = error instanceof Error ? error.message : 'Failed to update environment configuration';
+        actions.notify('error', message);
+        actions.logRBACEvent({
+          userId: actor.id,
+          userRole: state.auth.user?.role || 'admin',
+          action: 'update',
+          resource: 'environment_config',
+          allowed: false,
+          reason: message,
+        });
+      }
+    } finally {
+      setEnvironmentSaving(false);
     }
   };
 
@@ -205,22 +410,26 @@ export const ManagementDashboard: React.FC = () => {
   };
 
   const UsersTab = () => {
-    const [userFilter, setUserFilter] = useState<UserRole | 'all'>('all');
-    const [statusFilter, setStatusFilter] = useState<string>('all');
+    const filteredUsers = useMemo(() => {
+      const query = searchTerm.toLowerCase().trim();
+      return users.filter((user) => {
+        const roleMatch = userFilter === 'all' || user.role === userFilter;
+        const statusMatch = statusFilter === 'all' || user.status === statusFilter;
+        const teamMatch = teamFilter === 'all' || (user.teams || []).some((team) => team.id === teamFilter);
+        const normalized = `${user.firstName || ""} ${user.lastName || ""} ${user.email || ""}`.toLowerCase();
+        const searchMatch = query.length === 0 || normalized.includes(query);
+        return roleMatch && statusMatch && teamMatch && searchMatch;
+      });
+    }, [users, userFilter, statusFilter, teamFilter, searchTerm]);
 
-    const filteredUsers = users.filter(user => {
-      const roleMatch = userFilter === 'all' || user.role === userFilter;
-      const statusMatch = statusFilter === 'all' || user.status === statusFilter;
-      return roleMatch && statusMatch;
-    });
+    const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
+    const paginatedUsers = filteredUsers.slice(page * pageSize, page * pageSize + pageSize);
 
     const handleUpdateUserRole = async (userId: string, newRole: UserRole) => {
       try {
-        // In a real implementation, this would call an API
-        const user = users.find(u => u.id === userId);
+        const user = users.find((u) => u.id === userId);
         if (user) {
           user.role = newRole;
-          user.permissions = userManagementService['getDefaultPermissions'](newRole);
           user.updatedAt = new Date().toISOString();
           setUsers([...users]);
           actions.notify('success', `Updated ${user.firstName} ${user.lastName}'s role to ${newRole}`);
@@ -232,7 +441,7 @@ export const ManagementDashboard: React.FC = () => {
 
     const handleToggleUserStatus = async (userId: string) => {
       try {
-        const user = users.find(u => u.id === userId);
+        const user = users.find((u) => u.id === userId);
         if (user) {
           user.status = user.status === 'active' ? 'inactive' : 'active';
           user.updatedAt = new Date().toISOString();
@@ -281,10 +490,33 @@ export const ManagementDashboard: React.FC = () => {
               </select>
             </div>
 
-            <div className="flex-1"></div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-cortex-text-muted">Team:</span>
+              <select
+                value={teamFilter}
+                onChange={(e) => setTeamFilter(e.target.value)}
+                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent text-sm"
+              >
+                <option value="all">All Teams</option>
+                {teamOptions.map((team) => (
+                  <option key={team.id} value={team.id}>{team.name}</option>
+                ))}
+              </select>
+            </div>
 
-            <div className="text-sm text-cortex-text-muted">
-              Showing {filteredUsers.length} of {users.length} users
+            <div className="flex items-center gap-2 flex-1 min-w-[220px]">
+              <span className="text-sm text-cortex-text-muted">Search:</span>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Name or email"
+                className="cortex-card w-full p-2 border-cortex-border-secondary text-sm bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
+              />
+            </div>
+
+            <div className="ml-auto text-sm text-cortex-text-muted">
+              Showing {paginatedUsers.length} of {filteredUsers.length} users ({users.length} total)
             </div>
           </div>
         </div>
@@ -305,18 +537,24 @@ export const ManagementDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map(user => {
+                {paginatedUsers.map((user) => {
                   const metrics = userMetrics[user.id];
+                  const initials = `${(user.firstName || "")[0] || ""}${(user.lastName || "")[0] || ""}`.toUpperCase() || 'NA';
                   return (
                     <tr key={user.id} className="border-t border-cortex-border-secondary hover:bg-cortex-bg-hover">
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 bg-gradient-to-r from-cortex-cyan to-cortex-blue rounded-full flex items-center justify-center text-white font-bold text-xs">
-                            {user.firstName[0]}{user.lastName[0]}
+                            {initials}
                           </div>
                           <div>
                             <div className="text-cortex-text-primary font-medium">{user.firstName} {user.lastName}</div>
                             <div className="text-sm text-cortex-text-muted">{user.email}</div>
+                            {(user.teams?.length || 0) > 0 && (
+                              <div className="text-xs text-cortex-text-muted">
+                                Teams: {(user.teams || []).map((team) => team.name).join(', ')}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </td>
@@ -335,16 +573,20 @@ export const ManagementDashboard: React.FC = () => {
                         </select>
                       </td>
                       <td className="p-4">
-                        <div className="text-cortex-text-primary">{user.department}</div>
-                        <div className="text-sm text-cortex-text-muted">{user.title}</div>
+                        <div className="text-cortex-text-primary">{user.department || '—'}</div>
+                        <div className="text-sm text-cortex-text-muted">{user.title || '—'}</div>
                       </td>
                       <td className="p-4">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${{
-                          'active': 'bg-cortex-success/20 text-cortex-success border border-cortex-success/30',
-                          'inactive': 'bg-cortex-bg-secondary/50 text-cortex-text-muted border border-cortex-border-secondary/50',
-                          'suspended': 'bg-cortex-error/20 text-cortex-error border border-cortex-error/30',
-                          'pending': 'bg-cortex-warning/20 text-cortex-warning border border-cortex-warning/30'
-                        }[user.status]}`}>
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-medium ${
+                            {
+                              active: 'bg-cortex-success/20 text-cortex-success border border-cortex-success/30',
+                              inactive: 'bg-cortex-bg-secondary/50 text-cortex-text-muted border border-cortex-border-secondary/50',
+                              suspended: 'bg-cortex-error/20 text-cortex-error border border-cortex-error/30',
+                              pending: 'bg-cortex-warning/20 text-cortex-warning border border-cortex-warning/30',
+                            }[user.status]
+                          }`}
+                        >
                           {user.status}
                         </span>
                       </td>
@@ -358,26 +600,20 @@ export const ManagementDashboard: React.FC = () => {
                           <span className="text-cortex-text-muted">No data</span>
                         )}
                       </td>
-                      <td className="p-4">
-                        <div className="text-cortex-text-primary text-sm">
-                          {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}
-                        </div>
+                      <td className="p-4 text-sm text-cortex-text-muted">
+                        {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : '—'}
                       </td>
                       <td className="p-4">
                         <div className="flex gap-2">
                           <button
                             onClick={() => setSelectedUser(user)}
-                            className="btn-modern button-hover-lift cortex-interactive px-2 py-1 bg-cortex-blue hover:bg-cortex-blue-dark text-white rounded text-xs transition-colors"
+                            className="btn-modern px-3 py-1 text-sm"
                           >
                             View
                           </button>
                           <button
                             onClick={() => handleToggleUserStatus(user.id)}
-                            className={`btn-modern button-hover-lift cortex-interactive px-2 py-1 rounded text-xs transition-colors ${
-                              user.status === 'active' 
-                                ? 'bg-cortex-error hover:bg-cortex-error-dark text-white'
-                                : 'bg-cortex-success hover:bg-cortex-success-dark text-white'
-                            }`}
+                            className="btn-modern px-3 py-1 text-sm bg-cortex-bg-tertiary"
                           >
                             {user.status === 'active' ? 'Deactivate' : 'Activate'}
                           </button>
@@ -389,11 +625,31 @@ export const ManagementDashboard: React.FC = () => {
               </tbody>
             </table>
           </div>
+          <div className="flex items-center justify-between px-4 py-3 border-t border-cortex-border-secondary bg-cortex-bg-secondary/30">
+            <div className="text-xs text-cortex-text-muted">
+              Page {page + 1} of {totalPages}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPage((prev) => Math.max(0, prev - 1))}
+                disabled={page === 0}
+                className="btn-modern px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                disabled={page + 1 >= totalPages}
+                className="btn-modern px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
   };
-
   const AnalyticsTab = () => {
     if (!systemMetrics) return <div>Loading...</div>;
 
@@ -492,17 +748,10 @@ export const ManagementDashboard: React.FC = () => {
   };
 
   const ActivityTab = () => {
-    const [activities, setActivities] = useState<UserActivity[]>([]);
-    
-    useEffect(() => {
-      const systemActivities = userManagementService.getSystemActivities(50);
-      setActivities(systemActivities);
-    }, []);
-
-    const filteredActivities = activities.filter(activity => {
+    const filteredActivities = useMemo(() => activityFeed.filter(activity => {
       const activityDate = new Date(activity.timestamp);
       const now = new Date();
-      
+
       switch (activityFilter) {
         case 'today':
           return activityDate.toDateString() === now.toDateString();
@@ -515,7 +764,7 @@ export const ManagementDashboard: React.FC = () => {
         default:
           return true;
       }
-    });
+    }), [activityFeed, activityFilter]);
 
     return (
       <div className="space-y-6">
@@ -648,70 +897,304 @@ export const ManagementDashboard: React.FC = () => {
     );
   };
 
-  const SettingsTab = () => (
-    <div className="space-y-6">
-      <div className="glass-card p-6">
-        <h3 className="text-lg font-bold text-cortex-text-primary mb-4">🚀 Feature Flags</h3>
-        <div className="space-y-3">
-          {[{
-            name: 'Beta Features',
-            key: 'beta_features',
-            description: 'Enable access to beta features for all users'
-          }, {
-            name: 'Advanced Analytics',
-            key: 'advanced_analytics',
-            description: 'Enable advanced analytics dashboard'
-          }, {
-            name: 'AI Recommendations',
-            key: 'ai_recommendations',
-            description: 'Enable AI-powered recommendations'
-          }, {
-            name: 'PDF Export',
-            key: 'export_to_pdf',
-            description: 'Allow PDF export functionality'
-          }, {
-            name: 'Team Collaboration',
-            key: 'team_collaboration',
-            description: 'Enable team collaboration features'
-          }, {
-            name: 'Mobile App',
-            key: 'mobile_app',
-            description: 'Enable mobile application access'
-          }].map(flag => (
-            <div key={flag.key} className="cortex-card p-3 flex items-center justify-between">
-              <div>
-                <div className="text-cortex-text-primary font-medium">{flag.name}</div>
-                <div className="text-sm text-cortex-text-muted">{flag.description}</div>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                {/* Use the systemFeatureFlags value for the checkbox initial state. */}
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  defaultChecked={!!systemFeatureFlags[flag.key]}
-                />
-                <div className="w-11 h-6 bg-cortex-bg-secondary peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cortex-cyan"></div>
-              </label>
-            </div>
+  const SettingsTab = () => {
+    const formatTimestamp = (timestamp: string) => {
+      try {
+        return new Date(timestamp).toLocaleString();
+      } catch (error) {
+        console.warn('Failed to format timestamp', timestamp, error);
+        return timestamp;
+      }
+    };
+
+    const renderMetadataChips = (metadata?: Record<string, string>) => {
+      if (!metadata) return null;
+      return (
+        <div className="mt-1 flex flex-wrap gap-2">
+          {Object.entries(metadata).map(([key, value]) => (
+            <span
+              key={`${key}-${value}`}
+              className="text-xs font-mono bg-cortex-bg-secondary text-cortex-text-muted px-2 py-1 rounded"
+            >
+              {key}: {value}
+            </span>
           ))}
         </div>
-      </div>
+      );
+    };
 
-      <div className="glass-card p-6">
-        <h3 className="text-lg font-bold text-cortex-text-primary mb-4">🔧 System Configuration</h3>
-        <div className="text-cortex-text-muted">
-          System configuration options would be available here for administrators.
+    return (
+      <div className="space-y-6">
+        <div className="glass-card p-6">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+            <div>
+              <h3 className="text-lg font-bold text-cortex-text-primary">🚀 Feature Flags</h3>
+              <p className="text-sm text-cortex-text-muted">
+                Manage remote configuration for key platform capabilities. Changes persist across sessions for all admins.
+              </p>
+            </div>
+            <div className="flex items-start gap-3 text-xs text-cortex-text-muted">
+              {settingsMetadata && (
+                <div className="text-right">
+                  <div className="uppercase tracking-wide text-cortex-text-secondary">Last synced</div>
+                  <div className="font-mono text-cortex-text-primary">{formatTimestamp(settingsMetadata.updatedAt)}</div>
+                  <div className="mt-1">by {settingsMetadata.updatedBy}</div>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => void loadPlatformSettings(true)}
+                className="btn-modern button-hover-lift cortex-interactive px-3 py-1 rounded bg-cortex-bg-secondary hover:bg-cortex-bg-hover"
+                disabled={settingsLoading || flagSavingKey !== null || environmentSaving}
+              >
+                {settingsLoading ? 'Syncing…' : 'Refresh'}
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {featureFlags.length === 0 && (
+              <div className="text-sm text-cortex-text-muted">No feature flags configured in remote settings.</div>
+            )}
+
+            {featureFlags.map((flag) => (
+              <div
+                key={flag.key}
+                className="cortex-card p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+              >
+                <div>
+                  <div className="text-cortex-text-primary font-medium">
+                    {flag.name}
+                    <span className="ml-2 text-xs uppercase tracking-wide text-cortex-text-muted">{flag.category}</span>
+                  </div>
+                  <div className="text-sm text-cortex-text-muted">{flag.description}</div>
+                  <div className="text-xs text-cortex-text-muted mt-1">
+                    Last updated {formatTimestamp(flag.lastModified)} by {flag.modifiedBy}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {flagSavingKey === flag.key && (
+                    <span className="text-xs text-cortex-warning font-semibold">Saving…</span>
+                  )}
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={flag.enabled}
+                      onChange={(event) => handleFeatureFlagToggle(flag.key, event.target.checked)}
+                      disabled={flagSavingKey === flag.key || settingsLoading}
+                    />
+                    <div className="w-11 h-6 bg-cortex-bg-secondary peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cortex-cyan"></div>
+                  </label>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="glass-card p-6">
+          <h3 className="text-lg font-bold text-cortex-text-primary mb-1">🔧 Environment Configuration</h3>
+          <p className="text-sm text-cortex-text-muted mb-4">
+            Configure API routing, analytics targets, and release cadence for the selected environment.
+          </p>
+          <form onSubmit={handleEnvironmentSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-cortex-text-secondary" htmlFor="environment">
+                  Deployment Environment
+                </label>
+                <select
+                  id="environment"
+                  name="environment"
+                  value={environmentConfig.environment}
+                  onChange={handleEnvironmentChange}
+                  className={`cortex-card p-2 w-full bg-cortex-bg-secondary rounded-md focus:ring-2 transition-colors ${
+                    environmentErrors.environment
+                      ? 'border border-cortex-error/70 focus:ring-cortex-error text-cortex-error'
+                      : 'border border-cortex-border-secondary focus:ring-cortex-accent'
+                  }`}
+                >
+                  <option value="production">Production</option>
+                  <option value="staging">Staging</option>
+                  <option value="qa">QA</option>
+                  <option value="development">Development</option>
+                </select>
+                {environmentErrors.environment && (
+                  <div className="text-xs text-cortex-error mt-1">{environmentErrors.environment}</div>
+                )}
+              </div>
+
+              <div>
+                <label className="text-sm text-cortex-text-secondary" htmlFor="releaseChannel">
+                  Release Channel
+                </label>
+                <select
+                  id="releaseChannel"
+                  name="releaseChannel"
+                  value={environmentConfig.releaseChannel}
+                  onChange={handleEnvironmentChange}
+                  className={`cortex-card p-2 w-full bg-cortex-bg-secondary rounded-md focus:ring-2 transition-colors ${
+                    environmentErrors.releaseChannel
+                      ? 'border border-cortex-error/70 focus:ring-cortex-error text-cortex-error'
+                      : 'border border-cortex-border-secondary focus:ring-cortex-accent'
+                  }`}
+                >
+                  <option value="stable">Stable</option>
+                  <option value="beta">Beta</option>
+                  <option value="canary">Canary</option>
+                </select>
+                {environmentErrors.releaseChannel && (
+                  <div className="text-xs text-cortex-error mt-1">{environmentErrors.releaseChannel}</div>
+                )}
+              </div>
+
+              <div>
+                <label className="text-sm text-cortex-text-secondary" htmlFor="apiBaseUrl">
+                  API Base URL
+                </label>
+                <input
+                  id="apiBaseUrl"
+                  name="apiBaseUrl"
+                  type="url"
+                  value={environmentConfig.apiBaseUrl}
+                  onChange={handleEnvironmentChange}
+                  className={`cortex-card p-2 w-full bg-cortex-bg-secondary rounded-md focus:ring-2 transition-colors ${
+                    environmentErrors.apiBaseUrl
+                      ? 'border border-cortex-error/70 focus:ring-cortex-error text-cortex-error'
+                      : 'border border-cortex-border-secondary focus:ring-cortex-accent'
+                  }`}
+                  placeholder="https://api.henryreed.ai"
+                />
+                {environmentErrors.apiBaseUrl && (
+                  <div className="text-xs text-cortex-error mt-1">{environmentErrors.apiBaseUrl}</div>
+                )}
+              </div>
+
+              <div>
+                <label className="text-sm text-cortex-text-secondary" htmlFor="analyticsDataset">
+                  Analytics Dataset
+                </label>
+                <input
+                  id="analyticsDataset"
+                  name="analyticsDataset"
+                  type="text"
+                  value={environmentConfig.analyticsDataset}
+                  onChange={handleEnvironmentChange}
+                  className={`cortex-card p-2 w-full bg-cortex-bg-secondary rounded-md focus:ring-2 transition-colors ${
+                    environmentErrors.analyticsDataset
+                      ? 'border border-cortex-error/70 focus:ring-cortex-error text-cortex-error'
+                      : 'border border-cortex-border-secondary focus:ring-cortex-accent'
+                  }`}
+                  placeholder="prod_cortex_events"
+                />
+                {environmentErrors.analyticsDataset && (
+                  <div className="text-xs text-cortex-error mt-1">{environmentErrors.analyticsDataset}</div>
+                )}
+              </div>
+
+              <div>
+                <label className="text-sm text-cortex-text-secondary" htmlFor="region">
+                  Primary Region
+                </label>
+                <input
+                  id="region"
+                  name="region"
+                  type="text"
+                  value={environmentConfig.region}
+                  onChange={handleEnvironmentChange}
+                  className={`cortex-card p-2 w-full bg-cortex-bg-secondary rounded-md focus:ring-2 transition-colors ${
+                    environmentErrors.region
+                      ? 'border border-cortex-error/70 focus:ring-cortex-error text-cortex-error'
+                      : 'border border-cortex-border-secondary focus:ring-cortex-accent'
+                  }`}
+                  placeholder="us-central1"
+                />
+                {environmentErrors.region && (
+                  <div className="text-xs text-cortex-error mt-1">{environmentErrors.region}</div>
+                )}
+              </div>
+
+              <div className="md:col-span-2">
+                <div className="cortex-card p-4 flex items-center justify-between">
+                  <div>
+                    <div className="text-cortex-text-primary font-medium">Maintenance Mode</div>
+                    <div className="text-xs text-cortex-text-muted">
+                      Toggle to broadcast planned downtime banners and limit write operations.
+                    </div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="maintenanceMode"
+                      className="sr-only peer"
+                      checked={environmentConfig.maintenanceMode}
+                      onChange={handleEnvironmentChange}
+                    />
+                    <div className="w-11 h-6 bg-cortex-bg-secondary peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cortex-warning"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              <div className="text-xs text-cortex-text-muted">
+                Changes are tracked in the audit log for compliance reviews.
+              </div>
+              <button
+                type="submit"
+                className="btn-modern button-hover-lift cortex-interactive px-4 py-2 rounded bg-cortex-cyan text-white hover:bg-cortex-cyan/80 disabled:opacity-60"
+                disabled={environmentSaving}
+              >
+                {environmentSaving ? 'Saving configuration…' : 'Save configuration'}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div className="glass-card p-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+            <h3 className="text-lg font-bold text-cortex-text-primary">🛡️ Recent Platform Changes</h3>
+            <span className="text-xs text-cortex-text-muted">Audit events retained locally for demo purposes</span>
+          </div>
+          <div className="space-y-3">
+            {auditLog.slice(0, 5).map((entry) => (
+              <div key={entry.id} className="cortex-card p-4">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                  <div>
+                    <div className="text-cortex-text-primary font-medium">{entry.message}</div>
+                    <div className="text-xs text-cortex-text-muted">{formatTimestamp(entry.timestamp)}</div>
+                  </div>
+                  <div className="text-xs text-cortex-text-muted">{entry.actor}</div>
+                </div>
+                {renderMetadataChips(entry.metadata)}
+              </div>
+            ))}
+
+            {auditLog.length === 0 && (
+              <div className="text-sm text-cortex-text-muted">No recent configuration changes recorded.</div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
-    <div className="p-8 space-y-8">
+    <section
+      id="management-control-center"
+      aria-labelledby="management-control-center-heading"
+      className="p-8 space-y-8 scroll-mt-28"
+    >
       <div className="glass-card p-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-cortex-text-primary mb-2">⚙️ Management Dashboard</h1>
+          <h1
+            id="management-control-center-heading"
+            className="text-3xl font-bold text-cortex-text-primary mb-2"
+          >
+            ⚙️ Management Dashboard
+          </h1>
           <p className="text-cortex-text-muted">Comprehensive system oversight and user management</p>
           {isLoading && (
             <div className="mt-2 text-yellow-400 text-sm">🔄 Refreshing data...</div>
@@ -814,6 +1297,6 @@ export const ManagementDashboard: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 };

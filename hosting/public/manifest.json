@@ -1,15 +1,4 @@
-{
-  "name": "Cortex Domain Consultant Platform",
-  "short_name": "Cortex DC",
-  "description": "Professional platform for project management, customer engagement, and technical solutions",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#1a1a1a",
-  "theme_color": "#e97444",
-  "icons": [
-    {
-      "src": "/favicon.svg",
-      "sizes": "any",
+s
       "type": "image/svg+xml"
     },
     {

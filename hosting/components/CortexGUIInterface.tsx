@@ -2,10 +2,11 @@
 // legacy-orange: replaced by green per Cortex rebrand (2025-10-08)
 
 
-import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react';
 import { useActivityTracking } from '../hooks/useActivityTracking';
 import { useCommandExecutor } from '../hooks/useCommandExecutor';
-import { userManagementService } from '../lib/user-management';
+import { useAppState } from '../contexts/AppStateContext';
+import { userManagementService, UserProfile, SystemMetrics } from '../lib/user-management';
 import EnhancedTerminalSidebar from './EnhancedTerminalSidebar';
 import { cn } from '../lib/utils';
 
@@ -30,6 +31,23 @@ const ComponentLoader = React.memo(() => (
 ));
 ComponentLoader.displayName = 'ComponentLoader';
 
+const derivePermissionsFromRole = (role?: string) => {
+  const normalizedRole = role || '';
+  return {
+    canViewUserData: true,
+    canViewAggregatedData: ['admin', 'manager'].includes(normalizedRole),
+    canManageUsers: normalizedRole === 'admin',
+    canAccessAllProjects: ['admin', 'manager'].includes(normalizedRole),
+    canModifySystemSettings: normalizedRole === 'admin',
+    canViewAnalytics: ['admin', 'manager', 'senior_dc'].includes(normalizedRole),
+    canAccessAdmin: normalizedRole === 'admin',
+    canDeployScenarios: ['admin', 'manager', 'senior_dc', 'dc'].includes(normalizedRole),
+    canCreateTRR: ['admin', 'manager', 'senior_dc', 'dc'].includes(normalizedRole),
+    canAccessScenarioEngine: ['admin', 'manager', 'senior_dc', 'dc'].includes(normalizedRole),
+    canViewReports: true,
+  };
+};
+
 interface GUITab {
   id: string;
   name: string;
@@ -38,6 +56,7 @@ interface GUITab {
   description: string;
 }
 
+
 interface QuickAction {
   name: string;
   icon: string;
@@ -45,6 +64,19 @@ interface QuickAction {
   onClick: () => void;
   className: string;
 }
+
+const DEFAULT_TAB_ID = 'dashboard';
+const ANCHOR_TAB_MAP: Record<string, string> = {
+  'dashboard-blueprints': 'dashboard',
+  'pov-planning-hub': 'pov',
+  'notes-workbench': 'trr',
+  'platform-health-monitor': 'xsiam',
+  'ai-advisor-console': 'ai',
+  'data-analytics-panel': 'data',
+  'demo-blueprint-studio': 'creator',
+  'content-intelligence-library': 'scenarios',
+  'management-control-center': 'admin'
+};
 
 const POVDashboard = React.memo(({ terminalExpanded, setTerminalExpanded }: { terminalExpanded: boolean; setTerminalExpanded: (expanded: boolean) => void }) => {
   const { run: executeCommand, isRunning } = useCommandExecutor();
@@ -334,106 +366,118 @@ const POVDashboard = React.memo(({ terminalExpanded, setTerminalExpanded }: { te
           </div>
         
         {/* Quick Actions Card */}
-        <div className="glass-card p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-cortex-text-primary flex items-center">
+        <section
+          id="dashboard-blueprints"
+          aria-labelledby="dashboard-blueprints-heading"
+          className="glass-card p-6 scroll-mt-28"
+        >
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-6">
+            <div>
+              <h3
+                id="dashboard-blueprints-heading"
+                className="text-xl font-semibold text-cortex-text-primary flex items-center"
+              >
                 <span className="text-cortex-accent mr-2">⚡</span>
                 Quick Actions
               </h3>
-              <div className="text-xs bg-cortex-accent/10 text-cortex-accent px-3 py-1 rounded-full border border-cortex-accent/20">
-                7 Available
-              </div>
+              <p className="text-sm text-cortex-text-muted">
+                Launch blueprint automation, exports, and workspace shortcuts without leaving the dashboard.
+              </p>
             </div>
-            
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {quickActions.map((action, idx) => (
-                <button
-                  key={idx}
-                  onClick={action.onClick}
-                  className="btn-modern button-hover-lift cortex-card p-4 text-center"
-                  title={action.description}
-                >
-                  <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">{action.icon}</div>
-                  <div className="text-xs font-medium text-cortex-text-secondary group-hover:text-cortex-text-primary transition-colors">
-                    {action.name}
-                  </div>
-                </button>
-              ))}
-            </div>
-            
-            {/* Advanced Actions */}
-            <div className="border-t border-cortex-border-muted/20 pt-4">
-              <h4 className="text-sm font-medium text-cortex-text-secondary mb-3">Advanced Actions</h4>
-              <div className="space-y-2">
-                <button 
-                  onClick={() => {
-                    const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'xsiam', action: 'sync-platform' } });
-                    window.dispatchEvent(event);
-                  }}
-                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 cortex-interactive"
-                >
-                  <span>🔄</span>
-                  <span>Sync demo environment</span>
-                </button>
-                <button 
-                  onClick={() => {
-                    const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'export-dashboard' } });
-                    window.dispatchEvent(event);
-                  }}
-                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 cortex-interactive"
-                >
-                  <span>📋</span>
-                  <span>Export current dashboard</span>
-                </button>
-                <button 
-                  onClick={() => {
-                    const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'engagement-metrics' } });
-                    window.dispatchEvent(event);
-                  }}
-                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 cortex-interactive"
-                >
-                  <span>📊</span>
-                  <span>View engagement metrics</span>
-                </button>
-                <button 
-                  onClick={() => {
-                    const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'trr', action: 'create-sdw' } });
-                    window.dispatchEvent(event);
-                  }}
-                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-warning/10 transition-colors text-sm text-cortex-warning hover:text-cortex-warning border border-cortex-warning/20 hover:border-cortex-warning/40 mt-3 cortex-interactive"
-                >
-                  <div className="flex items-center space-x-3">
-                    <span>📝</span>
-                    <span>Create Solution Design Workbook</span>
-                  </div>
-                </button>
-                <button 
-                  onClick={async () => {
-                    setTerminalExpanded(!terminalExpanded);
-                    if (!terminalExpanded) {
-                      await executeCommand('whoami', {
-                        openTerminal: true,
-                        focus: true,
-                        trackActivity: {
-                          event: 'terminal-sidebar-open',
-                          source: 'dashboard-advanced-actions',
-                          payload: { action: 'toggle-terminal', expanded: !terminalExpanded }
-                        }
-                      });
-                    }
-                  }}
-                  className="w-full text-left p-3 rounded-lg hover:bg-cortex-success/10 transition-colors text-sm text-cortex-success hover:text-cortex-success border border-cortex-success/20 hover:border-cortex-success/40 cortex-interactive"
-                >
-                  <div className="flex items-center space-x-3">
-                    <span>⌨️</span>
-                    <span>{terminalExpanded ? 'Hide Terminal Sidebar' : 'Show Terminal Sidebar'}</span>
-                  </div>
-                </button>
-              </div>
+            <div className="text-xs bg-cortex-accent/10 text-cortex-accent px-3 py-1 rounded-full border border-cortex-accent/20">
+              7 Available
             </div>
           </div>
-        </div>
+
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {quickActions.map((action, idx) => (
+              <button
+                key={idx}
+                onClick={action.onClick}
+                className="btn-modern button-hover-lift cortex-card p-4 text-center"
+                title={action.description}
+              >
+                <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">{action.icon}</div>
+                <div className="text-xs font-medium text-cortex-text-secondary group-hover:text-cortex-text-primary transition-colors">
+                  {action.name}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Advanced Actions */}
+          <div className="border-t border-cortex-border-muted/20 pt-4">
+            <h4 className="text-sm font-medium text-cortex-text-secondary mb-3">Advanced Actions</h4>
+            <div className="space-y-2">
+              <button
+                onClick={() => {
+                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'xsiam', action: 'sync-platform' } });
+                  window.dispatchEvent(event);
+                }}
+                className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 cortex-interactive"
+              >
+                <span>🔄</span>
+                <span>Sync demo environment</span>
+              </button>
+              <button
+                onClick={() => {
+                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'export-dashboard' } });
+                  window.dispatchEvent(event);
+                }}
+                className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 cortex-interactive"
+              >
+                <span>📋</span>
+                <span>Export current dashboard</span>
+              </button>
+              <button
+                onClick={() => {
+                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'engagement-metrics' } });
+                  window.dispatchEvent(event);
+                }}
+                className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 cortex-interactive"
+              >
+                <span>📊</span>
+                <span>View engagement metrics</span>
+              </button>
+              <button
+                onClick={() => {
+                  const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'trr', action: 'create-sdw' } });
+                  window.dispatchEvent(event);
+                }}
+                className="w-full text-left p-3 rounded-lg hover:bg-cortex-warning/10 transition-colors text-sm text-cortex-warning hover:text-cortex-warning border border-cortex-warning/20 hover:border-cortex-warning/40 mt-3 cortex-interactive"
+              >
+                <div className="flex items-center space-x-3">
+                  <span>📝</span>
+                  <span>Create Solution Design Workbook</span>
+                </div>
+              </button>
+              <button
+                onClick={async () => {
+                  setTerminalExpanded(!terminalExpanded);
+                  if (!terminalExpanded) {
+                    await executeCommand('whoami', {
+                      openTerminal: true,
+                      focus: true,
+                      trackActivity: {
+                        event: 'terminal-sidebar-open',
+                        source: 'dashboard-advanced-actions',
+                        payload: { action: 'toggle-terminal', expanded: !terminalExpanded }
+                      }
+                    });
+                  }
+                }}
+                className="w-full text-left p-3 rounded-lg hover:bg-cortex-success/10 transition-colors text-sm text-cortex-success hover:text-cortex-success border border-cortex-success/20 hover:border-cortex-success/40 cortex-interactive"
+              >
+                <div className="flex items-center space-x-3">
+                  <span>⌨️</span>
+                  <span>{terminalExpanded ? 'Hide Terminal Sidebar' : 'Show Terminal Sidebar'}</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
+    </div>
   );
 });
 POVDashboard.displayName = 'POVDashboard';
@@ -506,49 +550,95 @@ const guiTabs: GUITab[] = [
   }
 ];
 
-export default function CortexGUIInterface() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+interface CortexGUIInterfaceProps {
+  initialTab?: string;
+}
+
+export default function CortexGUIInterface({ initialTab }: CortexGUIInterfaceProps) {
+  const [activeTab, setActiveTab] = useState(() =>
+    initialTab && guiTabs.some(tab => tab.id === initialTab) ? initialTab : DEFAULT_TAB_ID
+  );
   const [currentUser, setCurrentUser] = useState(null);
   const [isManagementMode, setIsManagementMode] = useState(false);
-  const [userPermissions, setUserPermissions] = useState({});
+  const [userPermissions, setUserPermissions] = useState(() => derivePermissionsFromRole());
+  const [aggregateMetrics, setAggregateMetrics] = useState<SystemMetrics | null>(null);
   const [currentDateTime, setCurrentDateTime] = useState('');
   const [terminalExpanded, setTerminalExpanded] = useState(false);
   
   const { trackFeatureUsage, trackPageView } = useActivityTracking();
   const { run: executeCommand, isRunning } = useCommandExecutor();
-  
+
   useEffect(() => {
-    // Initialize user context and permissions
-    const users = userManagementService.getAllUsers();
-    if (users.length > 0) {
-      const user = users[0]; // Use first demo user
-      setCurrentUser(user);
-      
-      // Determine management mode based on role
-      const isManager = ['admin', 'manager'].includes(user?.role || '');
-      setIsManagementMode(isManager);
-      
-      // Set role-based permissions
-      const permissions = {
-        canViewUserData: true,
-        canViewAggregatedData: ['admin', 'manager'].includes(user?.role || ''),
-        canManageUsers: user?.role === 'admin',
-        canAccessAllProjects: ['admin', 'manager'].includes(user?.role || ''),
-        canModifySystemSettings: user?.role === 'admin',
-        canViewAnalytics: ['admin', 'manager', 'senior_dc'].includes(user?.role || ''),
-        canAccessAdmin: user?.role === 'admin',
-        canDeployScenarios: ['admin', 'manager', 'senior_dc', 'dc'].includes(user?.role || ''),
-        canCreateTRR: ['admin', 'manager', 'senior_dc', 'dc'].includes(user?.role || ''),
-        canAccessScenarioEngine: ['admin', 'manager', 'senior_dc', 'dc'].includes(user?.role || ''),
-        canViewReports: true
-      };
-      setUserPermissions(permissions);
-    }
-    
-    // Track GUI initialization
+    let isMounted = true;
+
+    const loadUserContext = async () => {
+      const authUser = state.auth.user;
+
+      if (!authUser) {
+        setCurrentUser(null);
+        setIsManagementMode(false);
+        setUserPermissions(derivePermissionsFromRole());
+        setAggregateMetrics(null);
+        actions.updateData('analytics', null);
+        return;
+      }
+
+      try {
+        const profile = await userManagementService.getUserById(authUser.id, { force: true });
+        if (!isMounted) return;
+
+        if (!profile) {
+          setCurrentUser(null);
+          setIsManagementMode(false);
+          setUserPermissions(derivePermissionsFromRole());
+          setAggregateMetrics(null);
+          actions.updateData('analytics', null);
+          return;
+        }
+
+        userManagementService.setActiveUser(profile.id);
+        setCurrentUser(profile);
+
+        const managementMode = ['admin', 'manager'].includes(profile.role);
+        setIsManagementMode(managementMode);
+        setUserPermissions(derivePermissionsFromRole(profile.role));
+
+        const scope = profile.role === 'admin' ? 'all' : profile.role === 'manager' ? 'team' : 'self';
+        const scopedUsers = await userManagementService.getUsers({
+          scope,
+          managerId: scope === 'team' ? profile.id : undefined,
+          userId: profile.id,
+          includeInactive: true,
+          force: true,
+        });
+        if (!isMounted) return;
+
+        const userIds = scope === 'self' ? [profile.id] : scopedUsers.map((user) => user.id);
+        const metrics = await userManagementService.generateSystemMetrics(userIds, { period: 'daily', force: true });
+        if (!isMounted) return;
+
+        setAggregateMetrics(metrics);
+        actions.updateData('analytics', metrics);
+      } catch (error) {
+        console.error('Failed to load user context:', error);
+        if (isMounted) {
+          setCurrentUser(null);
+          setIsManagementMode(false);
+          setUserPermissions(derivePermissionsFromRole());
+          setAggregateMetrics(null);
+          actions.updateData('analytics', null);
+        }
+      }
+    };
+
+    loadUserContext();
     trackFeatureUsage('gui', 'interface_loaded');
     trackPageView('/gui');
-  }, [trackFeatureUsage, trackPageView]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [state.auth.user, actions, trackFeatureUsage, trackPageView]);
   
   // Update current date/time
   useEffect(() => {
@@ -560,28 +650,73 @@ export default function CortexGUIInterface() {
     return () => clearInterval(interval);
   }, []);
   
-  const handleTabChange = useCallback((tabId: string, action?: string, metadata?: any) => {
-    const previousTab = activeTab;
-    setActiveTab(tabId);
-    
-    // Track tab navigation with action context
-    trackFeatureUsage('navigation', 'tab_change', {
-      component: `${previousTab}_to_${tabId}`,
-      success: true
-    });
-    
-    trackPageView(`/gui/${tabId}`);
-    
-    // Handle specific actions when navigating to tabs
-    if (action) {
-      setTimeout(() => {
-        const event = new CustomEvent(`tab-${tabId}-action`, {
-          detail: { action, metadata }
-        });
-        window.dispatchEvent(event);
-      }, 100); // Allow tab to render first
-    }
-  }, [activeTab, trackFeatureUsage, trackPageView]);
+  const handleTabChange = useCallback(
+    (tabId: string, action?: string, metadata?: any) => {
+      setActiveTab(previousTab => {
+        if (previousTab !== tabId) {
+          trackFeatureUsage('navigation', 'tab_change', {
+            component: `${previousTab}_to_${tabId}`,
+            success: true
+          });
+        }
+
+        return tabId;
+      });
+
+      trackPageView(`/gui/${tabId}`);
+
+      if (action) {
+        setTimeout(() => {
+          const event = new CustomEvent(`tab-${tabId}-action`, {
+            detail: { action, metadata }
+          });
+          window.dispatchEvent(event);
+        }, 100);
+      }
+    },
+    [trackFeatureUsage, trackPageView]
+  );
+
+  const handleTabChangeRef = useRef(handleTabChange);
+
+  useEffect(() => {
+    handleTabChangeRef.current = handleTabChange;
+  }, [handleTabChange]);
+
+  useEffect(() => {
+    const navigateToAnchor = () => {
+      if (typeof window === 'undefined') {
+        return;
+      }
+
+      const hash = window.location.hash.replace('#', '');
+      if (!hash) {
+        return;
+      }
+
+      const targetTab = ANCHOR_TAB_MAP[hash];
+
+      if (targetTab) {
+        handleTabChangeRef.current(targetTab);
+        setTimeout(() => {
+          const element = document.getElementById(hash);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 350);
+      } else {
+        const element = document.getElementById(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    };
+
+    navigateToAnchor();
+
+    window.addEventListener('hashchange', navigateToAnchor);
+    return () => window.removeEventListener('hashchange', navigateToAnchor);
+  }, []);
   
   // Listen for custom navigation events from dashboard buttons
   useEffect(() => {
@@ -617,6 +752,15 @@ export default function CortexGUIInterface() {
   
   const visibleTabs = getVisibleTabs();
   const ActiveComponentClass = visibleTabs.find(tab => tab.id === activeTab)?.component || POVDashboard;
+
+  useEffect(() => {
+    if (!visibleTabs.some(tab => tab.id === activeTab)) {
+      const fallbackTab = visibleTabs[0]?.id ?? DEFAULT_TAB_ID;
+      if (fallbackTab && fallbackTab !== activeTab) {
+        setActiveTab(fallbackTab);
+      }
+    }
+  }, [visibleTabs, activeTab]);
   
   // Create component with props for POVDashboard
   const ActiveComponent = () => {
@@ -658,6 +802,13 @@ export default function CortexGUIInterface() {
                 <div className="text-xs text-cortex-text-muted bg-cortex-bg-secondary/30 px-2 py-1 rounded">
                   {isManagementMode ? 'Aggregated View' : 'Personal View'}
                 </div>
+                {aggregateMetrics && (
+                  <div className="hidden lg:flex items-center space-x-3 text-xs text-cortex-text-muted">
+                    <span>Total Users: <span className="text-cortex-text-primary font-medium">{aggregateMetrics.totalUsers}</span></span>
+                    <span>Active: <span className="text-cortex-success font-medium">{aggregateMetrics.activeUsers}</span></span>
+                    <span>Uptime: <span className="text-cortex-success font-medium">{aggregateMetrics.uptime}%</span></span>
+                  </div>
+                )}
               </div>
             )}
           </div>

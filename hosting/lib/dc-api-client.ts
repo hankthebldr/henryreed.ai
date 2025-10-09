@@ -12,6 +12,19 @@ import {
 } from './dc-context-store';
 import { dcAIClient, DCWorkflowContext } from './dc-ai-client';
 import { SolutionDesignWorkbook, SDWExportConfiguration } from './sdw-models';
+import getFirebaseServices from './firebase/client';
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+  setDoc
+} from 'firebase/firestore';
+import type { QueryConstraint } from 'firebase/firestore';
 
 // API Response Types
 export interface APIResponse<T = any> {
@@ -90,10 +103,11 @@ export interface KnowledgeBaseEntry {
   searchable: boolean;
 }
 
-export interface DCWorkflowSnapshot {
-  customers: CustomerEngagement[];
-  povs: POVRecord[];
-  trrs: TRRRecord[];
+export interface UserScopeContext {
+  userId: string;
+  scope?: 'self' | 'team';
+  teamUserIds?: string[];
+  targetUserId?: string;
 }
 
 /**
@@ -109,17 +123,36 @@ export class DCAPIClient {
     this.apiKey = apiKey;
   }
 
-  private syncContextSnapshot(snapshot: Partial<DCWorkflowSnapshot>) {
-    if (snapshot.customers) {
-      dcContextStore.replaceCustomerEngagements(snapshot.customers);
+  private getFirestore() {
+    try {
+      const { firestore } = getFirebaseServices();
+      return firestore;
+    } catch (error) {
+      console.warn('Firestore unavailable, using context store fallback:', error);
+      return null;
     }
+  }
 
-    if (snapshot.povs) {
-      dcContextStore.replaceActivePOVs(snapshot.povs);
+  private resolveUserIds(context: UserScopeContext): string[] {
+    const ids = new Set<string>();
+    if (context.userId) {
+      ids.add(context.userId);
     }
+    if (context.scope === 'team' && context.teamUserIds) {
+      context.teamUserIds.filter(Boolean).forEach(id => ids.add(id));
+    }
+    return Array.from(ids);
+  }
 
-    if (snapshot.trrs) {
-      dcContextStore.replaceTRRRecords(snapshot.trrs);
+  private ensureTeamScope(context: UserScopeContext, targetUserId: string) {
+    if (targetUserId && targetUserId !== context.userId) {
+      if (context.scope !== 'team') {
+        throw new Error('Insufficient permissions to modify team member records');
+      }
+      const allowed = this.resolveUserIds(context);
+      if (!allowed.includes(targetUserId)) {
+        throw new Error('Target user not within team scope');
+      }
     }
   }
 
@@ -202,67 +235,218 @@ export class DCAPIClient {
   }
 
   // POV Management
-  async getPOVs(customerId?: string): Promise<APIResponse<POVRecord[]>> {
-    const povs = customerId 
-      ? dcContextStore.getAllActivePOVs().filter(p => p.customerId === customerId)
-      : dcContextStore.getAllActivePOVs();
+  async getPOVs(context: UserScopeContext, filters?: { customerId?: string; status?: string }): Promise<APIResponse<POVRecord[]>> {
+    const firestore = this.getFirestore();
+    try {
+      const povs: POVRecord[] = [];
+      const userIds = this.resolveUserIds(context);
 
-    return {
-      success: true,
-      data: povs,
-      timestamp: new Date().toISOString(),
-      requestId: `req_${Date.now()}_local`
-    };
+      if (firestore) {
+        for (const userId of userIds) {
+          let povQuery: any = collection(firestore, 'users', userId, 'povs');
+          const constraints: QueryConstraint[] = [];
+
+          if (filters?.customerId) {
+            constraints.push(where('customerId', '==', filters.customerId));
+          }
+          if (filters?.status) {
+            constraints.push(where('status', '==', filters.status));
+          }
+
+          if (constraints.length > 0) {
+            povQuery = query(povQuery, ...constraints);
+          }
+
+          const snapshot = await getDocs(povQuery);
+          snapshot.forEach(docSnap => {
+            const data = docSnap.data() as POVRecord;
+            povs.push({ ...data, id: docSnap.id, ownerId: data.ownerId || userId });
+            dcContextStore.addActivePOV({ ...data, id: docSnap.id, ownerId: data.ownerId || userId });
+          });
+        }
+      } else {
+        const stored = dcContextStore.getAllActivePOVs();
+        const allowedIds = new Set(userIds);
+        stored
+          .filter(pov => !pov.ownerId || allowedIds.has(pov.ownerId))
+          .filter(pov => {
+            if (filters?.customerId && pov.customerId !== filters.customerId) return false;
+            if (filters?.status && pov.status !== filters.status) return false;
+            return true;
+          })
+          .forEach(pov => povs.push(pov));
+      }
+
+      povs.sort((a, b) => new Date(b.updatedAt || b.createdAt || '').getTime() - new Date(a.updatedAt || a.createdAt || '').getTime());
+
+      return {
+        success: true,
+        data: povs,
+        timestamp: new Date().toISOString(),
+        requestId: `req_${Date.now()}_povs`
+      };
+    } catch (error: any) {
+      console.error('Failed to fetch POVs:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to fetch POVs',
+        timestamp: new Date().toISOString(),
+        requestId: `req_${Date.now()}_povs_error`
+      };
+    }
   }
 
-  async createPOV(pov: Omit<POVRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<APIResponse<POVRecord>> {
-    const newPOV: POVRecord = {
-      ...pov,
-      id: `pov_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      aiInsights: pov.aiInsights || []
-    };
+  async createPOV(context: UserScopeContext, pov: Omit<POVRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<APIResponse<POVRecord>> {
+    try {
+      const ownerId = context.targetUserId || context.userId;
+      this.ensureTeamScope(context, ownerId);
 
-    dcContextStore.addActivePOV(newPOV);
+      const timestamp = new Date().toISOString();
+      const newPOV: POVRecord = {
+        ...pov,
+        ownerId,
+        id: '',
+        createdAt: timestamp,
+        updatedAt: timestamp
+      };
 
-    return {
-      success: true,
-      data: newPOV,
-      timestamp: new Date().toISOString(),
-      requestId: `req_${Date.now()}_local`
-    };
+      const firestore = this.getFirestore();
+      if (firestore) {
+        const docRef = await addDoc(collection(firestore, 'users', ownerId, 'povs'), {
+          ...newPOV,
+          id: undefined
+        });
+        newPOV.id = docRef.id;
+      } else {
+        newPOV.id = `pov_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      }
+
+      dcContextStore.addActivePOV(newPOV);
+
+      if (firestore && newPOV.id) {
+        await updateDoc(doc(firestore, 'users', ownerId, 'povs', newPOV.id), {
+          id: newPOV.id
+        });
+      }
+
+      return {
+        success: true,
+        data: newPOV,
+        timestamp: new Date().toISOString(),
+        requestId: `req_${Date.now()}_pov_create`
+      };
+    } catch (error: any) {
+      console.error('Failed to create POV:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to create POV',
+        timestamp: new Date().toISOString(),
+        requestId: `req_${Date.now()}_pov_create_error`
+      };
+    }
   }
 
-  async updatePOV(id: string, updates: Partial<POVRecord>): Promise<APIResponse<POVRecord>> {
-    dcContextStore.updateActivePOV(id, updates);
-    const updated = dcContextStore.getActivePOV(id);
-    
-    return {
-      success: !!updated,
-      data: updated,
-      error: updated ? undefined : 'POV not found',
-      timestamp: new Date().toISOString(),
-      requestId: `req_${Date.now()}_local`
-    };
+  async updatePOV(context: UserScopeContext, id: string, updates: Partial<POVRecord>, ownerId?: string): Promise<APIResponse<POVRecord>> {
+    try {
+      const targetOwnerId = ownerId || context.targetUserId || context.userId;
+      this.ensureTeamScope(context, targetOwnerId);
+
+      const firestore = this.getFirestore();
+      let updated: POVRecord | undefined;
+
+      if (firestore) {
+        const docRef = doc(firestore, 'users', targetOwnerId, 'povs', id);
+        await updateDoc(docRef, {
+          ...updates,
+          updatedAt: new Date().toISOString()
+        });
+        const snapshot = await getDoc(docRef);
+        if (snapshot.exists()) {
+          updated = { ...(snapshot.data() as POVRecord), id: snapshot.id, ownerId: targetOwnerId };
+          dcContextStore.updateActivePOV(id, updated);
+        }
+      } else {
+        dcContextStore.updateActivePOV(id, { ...updates, ownerId: targetOwnerId });
+        updated = dcContextStore.getActivePOV(id);
+      }
+
+      return {
+        success: !!updated,
+        data: updated,
+        error: updated ? undefined : 'POV not found',
+        timestamp: new Date().toISOString(),
+        requestId: `req_${Date.now()}_pov_update`
+      };
+    } catch (error: any) {
+      console.error('Failed to update POV:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to update POV',
+        timestamp: new Date().toISOString(),
+        requestId: `req_${Date.now()}_pov_update_error`
+      };
+    }
   }
 
   // TRR Management
-  async getTRRs(filters?: { customerId?: string; povId?: string; status?: string }): Promise<APIResponse<TRRRecord[]>> {
-    let trrs = dcContextStore.getAllTRRRecords();
-    
-    if (filters) {
-      if (filters.customerId) trrs = trrs.filter(t => t.customerId === filters.customerId);
-      if (filters.povId) trrs = trrs.filter(t => t.povId === filters.povId);
-      if (filters.status) trrs = trrs.filter(t => t.status === filters.status);
-    }
+  async getTRRs(context: UserScopeContext, filters?: { customerId?: string; povId?: string; status?: string }): Promise<APIResponse<TRRRecord[]>> {
+    const firestore = this.getFirestore();
+    try {
+      const trrs: TRRRecord[] = [];
+      const userIds = this.resolveUserIds(context);
 
-    return {
-      success: true,
-      data: trrs,
-      timestamp: new Date().toISOString(),
-      requestId: `req_${Date.now()}_local`
-    };
+      if (firestore) {
+        for (const userId of userIds) {
+          let trrQuery: any = collection(firestore, 'users', userId, 'trrs');
+          const constraints: QueryConstraint[] = [];
+
+          if (filters?.customerId) constraints.push(where('customerId', '==', filters.customerId));
+          if (filters?.povId) constraints.push(where('povId', '==', filters.povId));
+          if (filters?.status) constraints.push(where('status', '==', filters.status));
+
+          if (constraints.length > 0) {
+            trrQuery = query(trrQuery, ...constraints);
+          }
+
+          const snapshot = await getDocs(trrQuery);
+          snapshot.forEach(docSnap => {
+            const data = docSnap.data() as TRRRecord;
+            const record = { ...data, id: docSnap.id, ownerId: data.ownerId || userId };
+            trrs.push(record);
+            dcContextStore.addTRRRecord(record);
+          });
+        }
+      } else {
+        const stored = dcContextStore.getAllTRRRecords();
+        const allowed = new Set(userIds);
+        stored
+          .filter(trr => !trr.ownerId || allowed.has(trr.ownerId))
+          .filter(trr => {
+            if (filters?.customerId && trr.customerId !== filters.customerId) return false;
+            if (filters?.povId && trr.povId !== filters.povId) return false;
+            if (filters?.status && trr.status !== filters.status) return false;
+            return true;
+          })
+          .forEach(trr => trrs.push(trr));
+      }
+
+      trrs.sort((a, b) => new Date(b.updatedAt || b.createdAt || '').getTime() - new Date(a.updatedAt || a.createdAt || '').getTime());
+
+      return {
+        success: true,
+        data: trrs,
+        timestamp: new Date().toISOString(),
+        requestId: `req_${Date.now()}_trrs`
+      };
+    } catch (error: any) {
+      console.error('Failed to fetch TRRs:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to fetch TRRs',
+        timestamp: new Date().toISOString(),
+        requestId: `req_${Date.now()}_trrs_error`
+      };
+    }
   }
 
   async createTRR(trr: Omit<TRRRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<APIResponse<TRRRecord>> {
@@ -282,50 +466,186 @@ export class DCAPIClient {
       timestamp: new Date().toISOString(),
       requestId: `req_${Date.now()}_local`
     };
-  }
+  async createTRR(context: UserScopeContext, trr: Omit<TRRRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<APIResponse<TRRRecord>> {
+    try {
+      const ownerId = context.targetUserId || context.userId;
+      this.ensureTeamScope(context, ownerId);
+      const timestamp = new Date().toISOString();
 
-  async updateTRR(id: string, updates: Partial<TRRRecord>): Promise<APIResponse<TRRRecord>> {
-    dcContextStore.updateTRRRecord(id, updates);
-    const updated = dcContextStore.getTRRRecord(id);
-    
-    return {
-      success: !!updated,
-      data: updated,
-      error: updated ? undefined : 'TRR not found',
-      timestamp: new Date().toISOString(),
-      requestId: `req_${Date.now()}_local`
-    };
-  }
+      const newTRR: TRRRecord = {
+        ...trr,
+        ownerId,
+        id: '',
+        createdAt: timestamp,
+        updatedAt: timestamp
+      };
 
-  async validateTRR(id: string, evidence?: string[]): Promise<APIResponse<TRRRecord>> {
-    const trr = dcContextStore.getTRRRecord(id);
-    if (!trr) {
+      const firestore = this.getFirestore();
+      if (firestore) {
+        const docRef = await addDoc(collection(firestore, 'users', ownerId, 'trrs'), {
+          ...newTRR,
+          id: undefined
+        });
+        newTRR.id = docRef.id;
+      } else {
+        newTRR.id = `trr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      }
+
+      dcContextStore.addTRRRecord(newTRR);
+
+      if (firestore && newTRR.id) {
+        await updateDoc(doc(firestore, 'users', ownerId, 'trrs', newTRR.id), {
+          id: newTRR.id
+        });
+      }
+
+      return {
+        success: true,
+        data: newTRR,
+        timestamp: new Date().toISOString(),
+        requestId: `req_${Date.now()}_trr_create`
+      };
+    } catch (error: any) {
+      console.error('Failed to create TRR:', error);
       return {
         success: false,
-        error: 'TRR not found',
+        error: error.message || 'Failed to create TRR',
         timestamp: new Date().toISOString(),
-        requestId: `req_${Date.now()}_local`
+        requestId: `req_${Date.now()}_trr_create_error`
       };
     }
+  }
 
-    const updates: Partial<TRRRecord> = {
-      status: 'validated',
-      timeline: {
-        ...trr.timeline,
-        actualValidation: new Date().toISOString()
-      },
-      validationEvidence: evidence || trr.validationEvidence
-    };
+  async updateTRR(context: UserScopeContext, id: string, updates: Partial<TRRRecord>, ownerId?: string): Promise<APIResponse<TRRRecord>> {
+    try {
+      const targetOwnerId = ownerId || context.targetUserId || context.userId;
+      this.ensureTeamScope(context, targetOwnerId);
+      const firestore = this.getFirestore();
+      let updated: TRRRecord | undefined;
 
-    dcContextStore.updateTRRRecord(id, updates);
-    const updated = dcContextStore.getTRRRecord(id);
-    
-    return {
-      success: true,
-      data: updated!,
-      timestamp: new Date().toISOString(),
-      requestId: `req_${Date.now()}_local`
-    };
+      if (firestore) {
+        const docRef = doc(firestore, 'users', targetOwnerId, 'trrs', id);
+        await updateDoc(docRef, {
+          ...updates,
+          updatedAt: new Date().toISOString()
+        });
+        const snapshot = await getDoc(docRef);
+        if (snapshot.exists()) {
+          updated = { ...(snapshot.data() as TRRRecord), id: snapshot.id, ownerId: targetOwnerId };
+          dcContextStore.updateTRRRecord(id, updated);
+        }
+      } else {
+        dcContextStore.updateTRRRecord(id, { ...updates, ownerId: targetOwnerId });
+        updated = dcContextStore.getTRRRecord(id);
+      }
+
+      return {
+        success: !!updated,
+        data: updated,
+        error: updated ? undefined : 'TRR not found',
+        timestamp: new Date().toISOString(),
+        requestId: `req_${Date.now()}_trr_update`
+      };
+    } catch (error: any) {
+      console.error('Failed to update TRR:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to update TRR',
+        timestamp: new Date().toISOString(),
+        requestId: `req_${Date.now()}_trr_update_error`
+      };
+    }
+  }
+
+  async validateTRR(context: UserScopeContext, id: string, evidence?: string[], ownerId?: string): Promise<APIResponse<TRRRecord>> {
+    try {
+      const targetOwnerId = ownerId || context.targetUserId || context.userId;
+      this.ensureTeamScope(context, targetOwnerId);
+      const firestore = this.getFirestore();
+
+      let trr = dcContextStore.getTRRRecord(id);
+      if (!trr && firestore) {
+        const docRef = doc(firestore, 'users', targetOwnerId, 'trrs', id);
+        const snapshot = await getDoc(docRef);
+        if (snapshot.exists()) {
+          trr = { ...(snapshot.data() as TRRRecord), id: snapshot.id, ownerId: targetOwnerId };
+          dcContextStore.addTRRRecord(trr);
+        }
+      }
+
+      if (!trr) {
+        return {
+          success: false,
+          error: 'TRR not found',
+          timestamp: new Date().toISOString(),
+          requestId: `req_${Date.now()}_trr_validate_missing`
+        };
+      }
+
+      const updates: Partial<TRRRecord> = {
+        status: 'validated',
+        timeline: {
+          ...trr.timeline,
+          actualValidation: new Date().toISOString()
+        },
+        validationEvidence: evidence || trr.validationEvidence,
+        updatedAt: new Date().toISOString()
+      };
+
+      const updateResult = await this.updateTRR(context, id, updates, trr.ownerId || targetOwnerId);
+
+      if (!updateResult.success || !updateResult.data) {
+        return updateResult;
+      }
+
+      return {
+        success: true,
+        data: updateResult.data,
+        timestamp: new Date().toISOString(),
+        requestId: `req_${Date.now()}_trr_validate`
+      };
+    } catch (error: any) {
+      console.error('Failed to validate TRR:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to validate TRR',
+        timestamp: new Date().toISOString(),
+        requestId: `req_${Date.now()}_trr_validate_error`
+      };
+    }
+  }
+
+  async ensureStarterDataForUser(context: UserScopeContext, user: UserProfile): Promise<{ seeded: boolean; error?: string }> {
+    try {
+      const firestore = this.getFirestore();
+
+      if (!firestore) {
+        const seeded = dcContextStore.seedStarterDataForUser(user);
+        return { seeded: !!seeded.seeded };
+      }
+
+      const povSnapshot = await getDocs(collection(firestore, 'users', user.id, 'povs'));
+      const trrSnapshot = await getDocs(collection(firestore, 'users', user.id, 'trrs'));
+
+      if (!povSnapshot.empty || !trrSnapshot.empty) {
+        return { seeded: false };
+      }
+
+      const seedResult = dcContextStore.seedStarterDataForUser(user);
+      if (!seedResult.seeded) {
+        return { seeded: false };
+      }
+
+      await setDoc(doc(firestore, 'users', user.id, 'povs', seedResult.pov.id), seedResult.pov);
+      await Promise.all(
+        seedResult.trrs.map(trr => setDoc(doc(firestore, 'users', user.id, 'trrs', trr.id), trr))
+      );
+
+      return { seeded: true };
+    } catch (error: any) {
+      console.error('Failed to seed starter data:', error);
+      return { seeded: false, error: error.message || 'Failed to seed starter data' };
+    }
   }
 
   // Metrics and Analytics
@@ -728,7 +1048,7 @@ export const dcAPIClient = new DCAPIClient();
 
 // Utility functions for common operations
 export const DCOperations = {
-  async initializeCustomerPOV(customerData: Omit<CustomerEngagement, 'id' | 'createdAt' | 'updatedAt'>) {
+  async initializeCustomerPOV(context: UserScopeContext, customerData: Omit<CustomerEngagement, 'id' | 'createdAt' | 'updatedAt'>) {
     const customerResponse = await dcAPIClient.createCustomer(customerData);
     if (!customerResponse.success || !customerResponse.data) {
       throw new Error(customerResponse.error || 'Failed to create customer');
@@ -759,7 +1079,7 @@ export const DCOperations = {
       nextSteps: []
     };
 
-    const povResponse = await dcAPIClient.createPOV(povData);
+    const povResponse = await dcAPIClient.createPOV(context, povData);
     if (!povResponse.success) {
       throw new Error(povResponse.error || 'Failed to create POV');
     }
@@ -770,7 +1090,7 @@ export const DCOperations = {
     };
   },
 
-  async generateTRRSet(customerId: string, povId: string, scenarios: string[]) {
+  async generateTRRSet(context: UserScopeContext, customerId: string, povId: string, scenarios: string[]) {
     const trrPromises = scenarios.map(async (scenario, index) => {
       const trrData: Omit<TRRRecord, 'id' | 'createdAt' | 'updatedAt'> = {
         customerId,
@@ -797,7 +1117,7 @@ export const DCOperations = {
         notes: []
       };
 
-      return dcAPIClient.createTRR(trrData);
+      return dcAPIClient.createTRR(context, trrData);
     });
 
     const results = await Promise.all(trrPromises);

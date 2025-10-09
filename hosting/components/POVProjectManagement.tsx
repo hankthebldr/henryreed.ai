@@ -4,10 +4,10 @@
  * Comprehensive POV lifecycle management with scenario planning, timeline tracking, and outcome reporting
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
-import { dcAPIClient } from '../lib/dc-api-client';
-import { dcContextStore, ActivePOV as POVRecord, CustomerEngagement, AIWorkflowInsight } from '../lib/dc-context-store';
+import { dcAPIClient, UserScopeContext } from '../lib/dc-api-client';
+import { dcContextStore, ActivePOV as POVRecord, CustomerEngagement, UserProfile } from '../lib/dc-context-store';
 import { dcAIClient, DCWorkflowContext } from '../lib/dc-ai-client';
 import { aiInsightsClient } from '../lib/ai-insights-client';
 import type { GeminiFunctionResponse, GeminiResponse } from '../lib/gemini-ai-service';
@@ -91,15 +91,87 @@ export const POVProjectManagement: React.FC = () => {
       milestones: []
     }
   });
+  const [povList, setPovList] = useState<POVRecord[]>([]);
+  const [isSeeding, setIsSeeding] = useState(false);
+
+  const buildUserContext = useCallback((): UserScopeContext | null => {
+    if (!state.auth.user) {
+      return null;
+    }
+
+    const isManager = state.auth.user.role === 'manager' || state.auth.user.role === 'admin';
+
+    return {
+      userId: state.auth.user.id,
+      scope: isManager ? 'team' : 'self',
+      teamUserIds: isManager ? state.auth.user.assignedProjects || [] : undefined
+    };
+  }, [state.auth.user]);
+
+  const onboardingProfile = useMemo<UserProfile | null>(() => {
+    if (!state.auth.user) {
+      return null;
+    }
+
+    const roleMap: Record<string, UserProfile['role']> = {
+      admin: 'manager',
+      manager: 'manager',
+      senior_dc: 'dc',
+      dc: 'dc',
+      analyst: 'dc'
+    };
+
+    return {
+      id: state.auth.user.id,
+      name: state.auth.user.username || state.auth.user.email || 'Team Member',
+      email: state.auth.user.email || `${state.auth.user.username || 'user'}@henryreed.ai`,
+      role: roleMap[state.auth.user.role] || 'dc',
+      region: 'AMER',
+      specializations: state.auth.user.assignedProjects || [],
+      createdAt: state.auth.user.lastLogin || new Date().toISOString(),
+      lastActive: new Date().toISOString()
+    };
+  }, [state.auth.user]);
+
+  const reloadPOVs = useCallback(async (contextOverride?: UserScopeContext) => {
+    const context = contextOverride || buildUserContext();
+    if (!context || !state.auth.user) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      let response = await dcAPIClient.getPOVs(context);
+      let povs = response.success && response.data ? response.data : [];
+
+      if (povs.length === 0 && onboardingProfile) {
+        setIsSeeding(true);
+        await dcAPIClient.ensureStarterDataForUser(context, onboardingProfile);
+        response = await dcAPIClient.getPOVs(context);
+        if (response.success && response.data) {
+          povs = response.data;
+        }
+      }
+
+      setPovList(povs);
+      if (selectedPOV) {
+        const refreshed = povs.find(p => p.id === selectedPOV.id);
+        if (refreshed) {
+          setSelectedPOV(refreshed);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load POVs:', error);
+      actions.notify('error', 'Failed to load POV projects');
+    } finally {
+      setIsLoading(false);
+      setIsSeeding(false);
+    }
+  }, [actions, buildUserContext, onboardingProfile, selectedPOV, state.auth.user]);
 
   useEffect(() => {
-
-    // Initialize sample data if empty
-    if (dcContextStore.getAllCustomerEngagements().length === 0) {
-      dcContextStore.initializeSampleData();
-    }
-    setPovs(dcContextStore.getAllActivePOVs());
-  }, [actions]);
+    reloadPOVs();
+  }, [reloadPOVs]);
 
   const povTemplates: POVTemplate[] = [
     {
@@ -165,10 +237,17 @@ export const POVProjectManagement: React.FC = () => {
   ];
 
   const customers = dcContextStore.getAllCustomerEngagements();
+  const povs = povList.length > 0 ? povList : dcContextStore.getAllActivePOVs();
 
   const handleCreatePOV = async () => {
     if (!formData.name || !formData.customerId) {
       actions.notify('error', 'Please provide POV name and select a customer');
+      return;
+    }
+
+    const context = buildUserContext();
+    if (!context) {
+      actions.notify('error', 'Active user context unavailable');
       return;
     }
 
@@ -203,7 +282,7 @@ export const POVProjectManagement: React.FC = () => {
         nextSteps: []
       };
 
-      const response = await dcAPIClient.createPOV(povData);
+      const response = await dcAPIClient.createPOV(context, povData);
       if (response.success && response.data) {
         actions.notify('success', `POV "${formData.name}" created successfully`);
         setShowCreateForm(false);
@@ -216,7 +295,7 @@ export const POVProjectManagement: React.FC = () => {
           risks: [],
           timeline: { start: '', end: '', milestones: [] }
         });
-        setPovs(dcContextStore.getAllActivePOVs());
+        reloadPOVs(context);
       } else {
         actions.notify('error', response.error || 'Failed to create POV');
       }
@@ -394,6 +473,11 @@ export const POVProjectManagement: React.FC = () => {
     <div className="space-y-8">
       {/* POV Overview */}
       <div className="glass-card p-6">
+        {isLoading && (
+          <div className="mb-3 text-sm text-cortex-text-muted">
+            {isSeeding ? 'Preparing starter POVs for your workspace...' : 'Loading POV data...'}
+          </div>
+        )}
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold text-cortex-text-primary">🎯 POV Portfolio Overview</h3>
           <button
@@ -860,11 +944,20 @@ export const POVProjectManagement: React.FC = () => {
   };
 
   return (
-    <div className="p-8 space-y-8">
+    <section
+      id="pov-planning-hub"
+      aria-labelledby="pov-planning-hub-heading"
+      className="p-8 space-y-8 scroll-mt-28"
+    >
       <div className="glass-card p-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-cortex-text-primary mb-2">POV Project Management</h1>
+            <h1
+              id="pov-planning-hub-heading"
+              className="text-3xl font-bold text-cortex-text-primary mb-2"
+            >
+              POV Project Management
+            </h1>
             <p className="text-cortex-text-muted">Comprehensive POV lifecycle management with AI-powered optimization</p>
           </div>
         </div>
@@ -916,6 +1009,6 @@ export const POVProjectManagement: React.FC = () => {
           {activeTab === 'analytics' && <div className="text-center py-12"><div className="text-cortex-text-muted">Analytics coming soon...</div></div>}
         </div>
       </div>
-    </div>
+    </section>
   );
 };

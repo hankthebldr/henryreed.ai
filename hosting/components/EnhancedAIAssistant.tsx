@@ -114,15 +114,35 @@ export const EnhancedAIAssistant: React.FC = () => {
   };
 
   useEffect(() => {
+    const ensureData = async () => {
+      if (!state.auth.user) {
+        return;
+      }
 
-    // Initialize sample data if empty
-    if (dcContextStore.getAllCustomerEngagements().length === 0) {
-      dcContextStore.initializeSampleData();
-    }
+      const context: UserScopeContext = {
+        userId: state.auth.user.id,
+        scope: state.auth.user.role === 'manager' || state.auth.user.role === 'admin' ? 'team' : 'self',
+        teamUserIds: state.auth.user.assignedProjects || []
+      };
 
+      const profile: UserProfile = {
+        id: state.auth.user.id,
+        name: state.auth.user.username || state.auth.user.email || 'Team Member',
+        email: state.auth.user.email || `${state.auth.user.username || 'user'}@henryreed.ai`,
+        role: (state.auth.user.role === 'manager' || state.auth.user.role === 'admin') ? 'manager' : 'dc',
+        region: 'AMER',
+        specializations: state.auth.user.assignedProjects || [],
+        createdAt: state.auth.user.lastLogin || new Date().toISOString(),
+        lastActive: new Date().toISOString()
+      };
+
+      await dcAPIClient.ensureStarterDataForUser(context, profile);
+    };
+
+    ensureData();
     initializeAssistant();
-    loadUserContext();
-  }, [actions]);
+    loadInsights();
+  }, [actions, state.auth.user]);
 
   useEffect(() => {
     scrollToBottom();
@@ -1114,10 +1134,19 @@ Could you be more specific about what you'd like help with? I can provide detail
   );
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6">
+    <section
+      id="ai-advisor-console"
+      aria-labelledby="ai-advisor-console-heading"
+      className="min-h-screen bg-gray-950 text-white p-6 scroll-mt-28"
+    >
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-blue-400 mb-2">🤖 Enhanced AI Assistant</h1>
+          <h1
+            id="ai-advisor-console-heading"
+            className="text-3xl font-bold text-blue-400 mb-2"
+          >
+            🤖 Enhanced AI Assistant
+          </h1>
           <p className="text-cortex-text-secondary">Your intelligent companion for Cortex DC success - context-aware, workflow-integrated, and action-oriented</p>
         </div>
 
@@ -1152,6 +1181,6 @@ Could you be more specific about what you'd like help with? I can provide detail
           {activeTab === 'history' && <HistoryTab />}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
