@@ -259,7 +259,7 @@ export class UserManagementService {
   private activities: UserActivity[] = [];
   private metrics: UserMetrics[] = [];
   private systemMetrics: SystemMetrics[] = [];
-  
+
   constructor() {
     this.initializeDefaultUsers();
     this.initializeDemoData();
@@ -574,6 +574,22 @@ export class UserManagementService {
       team_collaboration: true,
       mobile_app: false
     };
+  }
+
+  getGlobalFeatureFlagSnapshot(): Record<string, boolean> {
+    const [firstUser] = Object.values(this.users);
+    return firstUser ? { ...firstUser.featureFlags } : this.getDefaultFeatureFlags();
+  }
+
+  applyFeatureFlagSnapshot(snapshot: Record<string, boolean>): void {
+    const timestamp = new Date().toISOString();
+    Object.values(this.users).forEach(user => {
+      user.featureFlags = {
+        ...user.featureFlags,
+        ...snapshot
+      };
+      user.updatedAt = timestamp;
+    });
   }
   
   private initializeDefaultUsers(): void {
