@@ -28,6 +28,7 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
   const { state, actions } = useAppState();
   const [sidebarSize, setSidebarSize] = useState<SidebarSize>(defaultExpanded ? 'standard' : 'minimized');
   const [isResizing, setIsResizing] = useState(false);
+  const [customWidth, setCustomWidth] = useState<number | null>(null);
   const [quickCommands] = useState([
     { name: 'POV Status', command: 'pov status --current', icon: '📊', color: 'text-cortex-primary' },
     { name: 'List Scenarios', command: 'scenario list', icon: '📋', color: 'text-status-info' },
@@ -40,6 +41,12 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
   const resizeHandleRef = useRef<HTMLDivElement>(null);
 
   // Handle resizing functionality
+  const clearInlineWidth = useCallback(() => {
+    if (sidebarRef.current) {
+      sidebarRef.current.style.removeProperty('width');
+    }
+  }, []);
+
   const startResize = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     setIsResizing(true);
@@ -55,9 +62,10 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
     const newWidth = window.innerWidth - e.clientX;
     const minWidth = 200;
     const maxWidth = window.innerWidth * 0.6;
-    
+
     if (newWidth >= minWidth && newWidth <= maxWidth) {
       sidebarRef.current.style.width = `${newWidth}px`;
+      setCustomWidth(newWidth);
     }
   }, [isResizing]);
 
@@ -75,19 +83,29 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
   const toggleSidebar = () => {
     const newSize = sidebarSize === 'minimized' ? 'standard' : 'minimized';
     setSidebarSize(newSize);
+    if (newSize === 'minimized') {
+      clearInlineWidth();
+    }
     onToggle?.(newSize !== 'minimized');
   };
 
   const setSizeMode = (size: SidebarSize) => {
     setSidebarSize(size);
+    if (size === 'minimized') {
+      clearInlineWidth();
+    } else {
+      setCustomWidth(null);
+      clearInlineWidth();
+    }
     onToggle?.(size !== 'minimized');
   };
 
   const executeQuickCommand = async (command: string) => {
     if (sidebarSize === 'minimized') {
       setSidebarSize('standard');
+      onToggle?.(true);
     }
-    
+
     // Focus terminal and execute command
     if (terminalRef.current) {
       await terminalRef.current.executeCommand(command);
@@ -99,6 +117,24 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
   };
 
   const isVisible = sidebarSize !== 'minimized';
+
+  useEffect(() => {
+    if (!sidebarRef.current) {
+      return;
+    }
+
+    if (!isVisible) {
+      clearInlineWidth();
+      return;
+    }
+
+    if (customWidth === null) {
+      clearInlineWidth();
+      return;
+    }
+
+    sidebarRef.current.style.width = `${customWidth}px`;
+  }, [customWidth, isVisible, clearInlineWidth]);
 
   return (
     <div
@@ -120,17 +156,41 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
       )}
 
       {/* Header Bar */}
-      <div className="flex items-center justify-between p-3 border-b border-cortex-border/50 bg-cortex-bg-tertiary/60">
+      <div
+        className={cn(
+          'p-3 border-b border-cortex-border/50 bg-cortex-bg-tertiary/60',
+          sidebarSize === 'minimized'
+            ? 'flex flex-col items-center justify-center space-y-2'
+            : 'flex items-center justify-between'
+        )}
+      >
         {sidebarSize === 'minimized' ? (
-          <button
-            onClick={toggleSidebar}
-            className="w-8 h-8 flex items-center justify-center text-cortex-text-secondary hover:text-cortex-primary transition-colors rounded-md hover:bg-cortex-bg-hover/80"
-            title="Open Terminal"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3" />
-            </svg>
-          </button>
+          <>
+            <button
+              onClick={toggleSidebar}
+              className="w-8 h-8 flex items-center justify-center text-cortex-text-secondary hover:text-cortex-primary transition-colors rounded-md hover:bg-cortex-bg-hover/80"
+              title="Open Terminal"
+              aria-label="Expand terminal sidebar"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3" />
+              </svg>
+            </button>
+            <button
+              onClick={() => {
+                clearInlineWidth();
+                actions.closeTerminal();
+                onToggle?.(false);
+              }}
+              className="w-8 h-8 flex items-center justify-center text-cortex-text-secondary hover:text-status-error transition-colors rounded-md hover:bg-cortex-bg-hover/80"
+              title="Close Terminal"
+              aria-label="Close terminal sidebar"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </>
         ) : (
           <>
             <div className="flex items-center space-x-2">
@@ -182,6 +242,7 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
                 onClick={toggleSidebar}
                 className="w-7 h-7 flex items-center justify-center text-cortex-text-secondary hover:text-status-warning transition-colors rounded-md hover:bg-cortex-bg-hover/80"
                 title="Minimize Terminal"
+                aria-label="Minimize terminal sidebar"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -192,10 +253,12 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
               <button
                 onClick={() => {
                   setSidebarSize('minimized');
+                  clearInlineWidth();
                   actions.closeTerminal();
                 }}
                 className="w-7 h-7 flex items-center justify-center text-cortex-text-secondary hover:text-status-error transition-colors rounded-md hover:bg-cortex-bg-hover/80"
                 title="Close Terminal"
+                aria-label="Close terminal sidebar"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

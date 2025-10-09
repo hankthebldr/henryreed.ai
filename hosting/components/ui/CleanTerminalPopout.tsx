@@ -25,7 +25,11 @@ export function CleanTerminalPopout({
   // Calculate centered position if not provided
   const getInitialPosition = () => {
     if (initialPosition) return initialPosition;
-    
+
+    if (typeof window === 'undefined') {
+      return { x: 50, y: 50 };
+    }
+
     const centerX = (window.innerWidth - initialSize.width) / 2;
     const centerY = (window.innerHeight - initialSize.height) / 2;
     
