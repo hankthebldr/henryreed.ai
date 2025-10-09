@@ -1,6 +1,7 @@
 // Cloud Functions API Integration for POV-CLI Scenarios
 
 import { ScenarioConfig, ScenarioDeployment, ScenarioCommand, ScenarioType } from './scenario-types';
+import type { BlueprintRecordSelection } from './badass-blueprint-service';
 
 export class CloudFunctionsAPI {
   private baseUrl: string;
