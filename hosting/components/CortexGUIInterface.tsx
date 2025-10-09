@@ -109,6 +109,7 @@ const POVDashboard = React.memo(({
   getActivityStatus: (entry: WorkflowHistory) => 'success' | 'warning' | 'error' | 'info';
   formatRelativeTime: (timestamp: string) => string;
 }) => {
+  const { actions } = useAppState();
   const { run: executeCommand, isRunning } = useCommandExecutor();
   
   // Optimized Blueprint PDF creation with better error handling
@@ -151,10 +152,10 @@ const POVDashboard = React.memo(({
       });
       doc.save(`POV_Blueprint_${customer}.pdf`);
     } catch (e) {
-      console.error('PDF generation failed:', e);
-      alert('Failed to generate PDF. Please try again.');
+  actions.notify && actions.notify('error', 'PDF generation failed. Please try again.');
+  alert('Failed to generate PDF. Please try again.');
     }
-  }, []);
+  }, [actions]);
 
   // Enhanced quick actions with proper terminal command integration
   const quickActions: QuickAction[] = useMemo(() => [
@@ -572,7 +573,7 @@ const guiTabs: GUITab[] = [
   },
   {
     id: 'data',
-    name: 'Customer Analytics',
+  name: 'Data Integration hub',
     icon: '📈',
     component: BigQueryExplorer,
     description: 'Customer data analysis and engagement metrics platform'
@@ -699,7 +700,7 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
       setRecentActivity(workflowContext?.recentActivity ?? []);
       setLastOperationalRefresh(new Date().toISOString());
     } catch (error) {
-      console.warn('Failed to refresh dashboard data:', error);
+  actions.notify && actions.notify('warning', 'Failed to refresh dashboard data');
     }
   }, []);
   
@@ -758,7 +759,7 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
         setAggregateMetrics(metrics);
         actions.updateData('analytics', metrics);
       } catch (error) {
-        console.error('Failed to load user context:', error);
+  actions.notify && actions.notify('error', 'Failed to load user context');
         if (isMounted) {
           setCurrentUser(null);
           setIsManagementMode(false);

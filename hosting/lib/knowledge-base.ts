@@ -620,7 +620,7 @@ export class KnowledgeBase {
       {
         id: 'kb_export_001',
         title: 'Data Export and Analytics Guide',
-        content: `Comprehensive guide for data export capabilities and customer analytics:
+  content: `Comprehensive guide for data export capabilities and Data Integration hub:
 
 **Export Scope Options:**
 1. **Complete Data Dump**

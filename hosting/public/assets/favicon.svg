@@ -1,0 +1,30 @@
+===
++  <defs>
++    <linearGradient id='cortex-core' x1='32' y1='20' x2='32' y2='44' gradientUnits='userSpaceOnUse'>
++      <stop offset='0%' stop-color='#FF6B35'/>
++      <stop offset='100%' stop-color='#E97444'/>
++    </linearGradient>
++  </defs>
++  <rect x='8' y='8' width='48' height='48' rx='14' fill='#1A1A1A'/>
++  <path
++    d='M22 22L32 32L42 22M22 42L32 32L42 42M16 32L32 32L48 32'
++    fill='none'
++    stroke='#4A90E2'
++    stroke-width='2.5'
++    stroke-linecap='round'
++    stroke-linejoin='round'
++  />
++  <circle cx='32' cy='32' r='11' fill='url(#cortex-core)'/>
++  <circle cx='32' cy='32' r='6' fill='#FF8B4C' opacity='0.85'/>
++  <circle cx='32' cy='32' r='3' fill='#FFFFFF'/>
++  <circle cx='22' cy='22' r='4' fill='#4A90E2'/>
++  <circle cx='42' cy='22' r='4' fill='#4A90E2'/>
++  <circle cx='22' cy='42' r='4' fill='#4A90E2'/>
++  <circle cx='42' cy='42' r='4' fill='#4A90E2'/>
++  <circle cx='16' cy='32' r='3' fill='#4A90E2'/>
++  <circle cx='48' cy='32' r='3' fill='#4A90E2'/>
++  <circle cx='18' cy='18' r='2.5' fill='#E97444'/>
++  <circle cx='46' cy='18' r='2.5' fill='#E97444'/>
++  <circle cx='18' cy='46' r='2.5' fill='#FF6B35'/>
++  <circle cx='46' cy='46' r='2.5' fill='#FF6B35'/>
++</svg>

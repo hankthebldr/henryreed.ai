@@ -124,7 +124,7 @@ graph TD
     C --> D[POV Management]
     C --> E[TRR & Requirements]
     C --> F[Platform Health]
-    C --> G[Customer Analytics]
+  C --> G[Customer Analytics]
     C --> H[Demo Builder]
     C --> I[Content Library]
     C --> J[AI Assistant]
