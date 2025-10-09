@@ -15,20 +15,29 @@ export interface TerminalHostRef {
 export default function TerminalHost() {
   const { state, actions } = useAppState();
   const terminalRef = useRef<ImprovedTerminalRef>(null);
+  const isOverlayHost = state.terminal.hostType !== 'sidebar';
 
   // Register terminal ref with AppState - simplified approach
   useEffect(() => {
+    if (!isOverlayHost) {
+      return;
+    }
+
     // Directly pass the terminal ref to AppState
     actions.setTerminalRef(terminalRef);
-    
+
     // Cleanup function to clear ref when component unmounts
     return () => {
       actions.setTerminalRef({ current: null });
     };
-  }, [actions]); // Remove terminalRef from dependencies to prevent infinite re-renders
+  }, [actions, isOverlayHost]); // Remove terminalRef from dependencies to prevent infinite re-renders
 
   // Handle command execution from GUI
   useEffect(() => {
+    if (!isOverlayHost) {
+      return;
+    }
+
     const bridge = state.commandBridge;
     if (bridge.pendingExecution && bridge.lastExecutedCommand && terminalRef.current) {
       // Actually execute the command in the terminal
@@ -44,9 +53,9 @@ export default function TerminalHost() {
           actions.clearPendingExecution();
         });
     }
-  }, [state.commandBridge.pendingExecution, state.commandBridge.lastExecutedCommand, actions]);
+  }, [state.commandBridge.pendingExecution, state.commandBridge.lastExecutedCommand, actions, isOverlayHost]);
 
-  if (!state.terminal.isVisible) {
+  if (!isOverlayHost || !state.terminal.isVisible) {
     return null;
   }
 

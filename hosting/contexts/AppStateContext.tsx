@@ -88,6 +88,7 @@ export interface AppState {
   terminal: {
     isVisible: boolean;
     ref: React.RefObject<any> | null;
+    hostType: 'overlay' | 'sidebar';
     cloudConfig?: CloudEnvironmentConfig;
     integrationSettings: IntegrationSettings;
     connectionStatus: 'disconnected' | 'connecting' | 'connected' | 'error';
@@ -141,6 +142,7 @@ type AppAction =
   | { type: 'SET_VIEW_MODE'; payload: 'admin' | 'user' }
   | { type: 'SET_TERMINAL_VISIBLE'; payload: boolean }
   | { type: 'SET_TERMINAL_REF'; payload: React.RefObject<any> }
+  | { type: 'SET_TERMINAL_HOST_TYPE'; payload: 'overlay' | 'sidebar' }
   | { type: 'SET_ACTIVE_GUI_TAB'; payload: string }
   | { type: 'ADD_TERMINAL_COMMAND'; payload: string }
   | { type: 'UPDATE_BREADCRUMBS'; payload: Array<{ label: string; path: string }> }
@@ -170,6 +172,7 @@ const initialState: AppState = {
   terminal: {
     isVisible: false,
     ref: null,
+    hostType: 'overlay',
     integrationSettings: {
       contentHubIntegration: true,
       detectionEngineIntegration: true,
@@ -259,6 +262,12 @@ function appStateReducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         terminal: { ...state.terminal, ref: action.payload },
+      };
+
+    case 'SET_TERMINAL_HOST_TYPE':
+      return {
+        ...state,
+        terminal: { ...state.terminal, hostType: action.payload },
       };
       
     case 'SET_ACTIVE_GUI_TAB':
@@ -433,6 +442,7 @@ const AppStateContext = createContext<{
     closeTerminal: () => void;
     focusTerminal: () => void;
     setTerminalRef: (ref: React.RefObject<any>) => void;
+    setTerminalHostType: (hostType: 'overlay' | 'sidebar') => void;
     
     // Data management actions
     updateData: (key: keyof AppState['data'], data: any) => void;
@@ -537,6 +547,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 
   const setTerminalRef = useCallback((ref: React.RefObject<any>) => {
     dispatch({ type: 'SET_TERMINAL_REF', payload: ref });
+  }, [dispatch]);
+
+  const setTerminalHostType = useCallback((hostType: 'overlay' | 'sidebar') => {
+    dispatch({ type: 'SET_TERMINAL_HOST_TYPE', payload: hostType });
   }, [dispatch]);
 
   const updateData = useCallback((key: keyof AppState['data'], data: any) => {
@@ -676,6 +690,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     closeTerminal,
     focusTerminal,
     setTerminalRef,
+    setTerminalHostType,
     updateData,
     notify,
     setLoading,
@@ -702,6 +717,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     closeTerminal,
     focusTerminal,
     setTerminalRef,
+    setTerminalHostType,
     updateData,
     notify,
     setLoading,
