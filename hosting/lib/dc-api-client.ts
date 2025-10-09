@@ -23,9 +23,9 @@ import {
   query,
   updateDoc,
   where,
-  setDoc
+  setDoc,
+  type QueryConstraint,
 } from 'firebase/firestore';
-import type { QueryConstraint } from 'firebase/firestore';
 
 // API Response Types
 export interface APIResponse<T = any> {
