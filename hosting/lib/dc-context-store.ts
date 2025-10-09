@@ -356,8 +356,6 @@ class DCContextStore {
     };
   }
 
-  }
-
   // Onboarding starter data generation scoped to authenticated user
   seedStarterDataForUser(user: UserProfile) {
     if (!user?.id) {
