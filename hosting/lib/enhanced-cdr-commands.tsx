@@ -135,7 +135,7 @@ export const enhancedCdrCommands: CommandConfig[] = [
             <div className="text-red-400">
               Unknown command: {command}
               <br />
-              <span className="text-gray-400">Run 'cdrlab' for help</span>
+              <span className="text-cortex-text-secondary">Run 'cdrlab' for help</span>
             </div>
           );
       }
@@ -151,7 +151,7 @@ const SimpleDeployDisplay = ({ args }: { args: string[] }) => {
       <div className="text-red-400">
         Error: Scenario ID required
         <br />
-        <span className="text-gray-400">Usage: cdrlab deploy &lt;scenario-id&gt; [options]</span>
+        <span className="text-cortex-text-secondary">Usage: cdrlab deploy &lt;scenario-id&gt; [options]</span>
       </div>
     );
   }
@@ -162,7 +162,7 @@ const SimpleDeployDisplay = ({ args }: { args: string[] }) => {
       <div className="text-red-400">
         Error: Scenario not found: {scenarioId}
         <br />
-        <span className="text-gray-400">Run 'cdrlab list' to see available scenarios</span>
+        <span className="text-cortex-text-secondary">Run 'cdrlab list' to see available scenarios</span>
       </div>
     );
   }
@@ -174,7 +174,7 @@ const SimpleDeployDisplay = ({ args }: { args: string[] }) => {
         <div className="text-white">Scenario: {scenario.title}</div>
         <div className="text-blue-300">Category: {scenario.category}</div>
         <div className="text-yellow-300">Difficulty: {scenario.difficulty}</div>
-        <div className="text-gray-400 text-sm mt-3">
+        <div className="text-cortex-text-secondary text-sm mt-3">
           This is a simulation. In a real environment, this would deploy the scenario to your lab infrastructure.
         </div>
       </div>
@@ -189,7 +189,7 @@ const SimpleCleanupDisplay = ({ args }: { args: string[] }) => {
       <div className="text-red-400">
         Error: Scenario ID required
         <br />
-        <span className="text-gray-400">Usage: cdrlab cleanup &lt;scenario-id&gt; [options]</span>
+        <span className="text-cortex-text-secondary">Usage: cdrlab cleanup &lt;scenario-id&gt; [options]</span>
       </div>
     );
   }
@@ -204,7 +204,7 @@ const SimpleCleanupDisplay = ({ args }: { args: string[] }) => {
           <div className="text-yellow-300">• Deployed pods and services</div>
           <div className="text-yellow-300">• Associated cloud resources</div>
         </div>
-        <div className="text-gray-400 text-sm mt-3">
+        <div className="text-cortex-text-secondary text-sm mt-3">
           This is a simulation. In a real environment, this would clean up all scenario resources.
         </div>
       </div>
@@ -299,7 +299,7 @@ const CdrLabHelp = () => (
       <div><span className="text-yellow-300">cdrlab policy show</span> - Display safety policies</div>
       <div><span className="text-yellow-300">cdrlab sweep</span> - Clean up orphaned resources</div>
     </div>
-    <div className="text-gray-400 text-sm mt-3">
+    <div className="text-cortex-text-secondary text-sm mt-3">
       Use --dry-run with deploy/destroy for safe previews
     </div>
   </div>
@@ -313,7 +313,7 @@ const ScenarioList = () => (
         <div key={scenario.id} className="flex items-center space-x-4 text-sm">
           <span className="text-yellow-300 w-20">{scenario.id}</span>
           <span className="text-white flex-1">{scenario.title}</span>
-          <span className="text-gray-400">{scenario.category}</span>
+          <span className="text-cortex-text-secondary">{scenario.category}</span>
           <span className={`px-2 py-1 rounded text-xs ${
             scenario.difficulty === 'beginner' ? 'bg-green-900 text-green-300' :
             scenario.difficulty === 'intermediate' ? 'bg-yellow-900 text-yellow-300' :
@@ -334,7 +334,7 @@ const PolicyViolationDisplay = ({ validation }: { validation: PolicyValidationRe
       <div key={index} className="ml-4 space-y-1">
         <div className="text-red-300">{violation.message}</div>
         {violation.suggestions && (
-          <div className="ml-4 text-gray-400 text-sm space-y-1">
+          <div className="ml-4 text-cortex-text-secondary text-sm space-y-1">
             {violation.suggestions.map((suggestion, i) => (
               <div key={i}>• {suggestion}</div>
             ))}
@@ -342,7 +342,7 @@ const PolicyViolationDisplay = ({ validation }: { validation: PolicyValidationRe
         )}
       </div>
     ))}
-    <div className="text-gray-400 text-sm mt-3">
+    <div className="text-cortex-text-secondary text-sm mt-3">
       Use --force to override (unsafe mode)
     </div>
   </div>
@@ -380,7 +380,7 @@ const DeploymentPreview = ({ request, validation }: {
       </div>
     )}
 
-    <div className="text-gray-400 text-sm">
+    <div className="text-cortex-text-secondary text-sm">
       Run without --dry-run to execute deployment
     </div>
   </div>
@@ -400,7 +400,7 @@ const DeploymentResult = ({ summary }: { summary: DeploymentSummary }) => (
       </div>
       
       {summary.ttl && (
-        <div className="text-gray-400 text-sm">
+        <div className="text-cortex-text-secondary text-sm">
           Auto-cleanup at: {summary.ttl.toLocaleString()}
         </div>
       )}
@@ -415,7 +415,7 @@ const DeploymentResult = ({ summary }: { summary: DeploymentSummary }) => (
       </div>
     </div>
 
-    <div className="text-gray-400 text-sm">
+    <div className="text-cortex-text-secondary text-sm">
       Use 'cdrlab status {summary.scenarioId}' to monitor progress
     </div>
   </div>
@@ -461,7 +461,7 @@ const CleanupPlanDisplay = ({ plan }: { plan: CleanupPlan }) => (
         {plan.deletionWaves.map((wave, i) => (
           <div key={i} className="ml-4">
             <div className="text-blue-300">Wave {wave.order}: {wave.description}</div>
-            <div className="ml-4 text-gray-400 text-sm">
+            <div className="ml-4 text-cortex-text-secondary text-sm">
               {wave.resourceKeys.length} resources
             </div>
           </div>
@@ -469,7 +469,7 @@ const CleanupPlanDisplay = ({ plan }: { plan: CleanupPlan }) => (
       </div>
     </div>
 
-    <div className="text-gray-400 text-sm">
+    <div className="text-cortex-text-secondary text-sm">
       Run without --dry-run to execute cleanup
     </div>
   </div>
@@ -494,7 +494,7 @@ const CleanupConfirmation = ({ plan }: { plan: CleanupPlan }) => (
       )}
     </div>
 
-    <div className="text-gray-400 text-sm">
+    <div className="text-cortex-text-secondary text-sm">
       Add --force flag to proceed with cleanup
     </div>
   </div>
@@ -526,7 +526,7 @@ const CleanupResult = ({ result }: { result: any }) => (
         </div>
       )}
       
-      <div className="text-gray-400 text-sm">
+      <div className="text-cortex-text-secondary text-sm">
         Duration: {result.completedAt ? 
           Math.round((result.completedAt - result.startedAt) / 1000) + 's' : 
           'In progress'
@@ -588,7 +588,7 @@ const OverallStatus = ({ scenarios }: { scenarios: DeploymentSummary[] }) => (
     <div className="text-blue-300 font-semibold">📊 Overall Cloud Detection and Response Lab Status</div>
     
     {scenarios.length === 0 ? (
-      <div className="text-gray-400">No active scenarios</div>
+      <div className="text-cortex-text-secondary">No active scenarios</div>
     ) : (
       <div className="ml-4 space-y-2">
         <div className="text-white">Active Scenarios: {scenarios.length}</div>
@@ -607,7 +607,7 @@ const OverallStatus = ({ scenarios }: { scenarios: DeploymentSummary[] }) => (
           ))}
         </div>
         
-        <div className="text-gray-400 text-sm pt-2">
+        <div className="text-cortex-text-secondary text-sm pt-2">
           Total cost: ${scenarios.reduce((sum, s) => sum + s.estimatedCostPerHour, 0).toFixed(2)}/hour
         </div>
       </div>
@@ -651,7 +651,7 @@ const PolicyCheck = ({ scenarioId }: { scenarioId?: string }) => (
       <div className="text-yellow-400">⚠️ Cloud resource tagging incomplete</div>
     </div>
     
-    <div className="text-gray-400 text-sm">
+    <div className="text-cortex-text-secondary text-sm">
       Overall compliance: <span className="text-green-400">92%</span>
     </div>
   </div>
@@ -662,7 +662,7 @@ const LedgerDisplay = ({ scenarioId }: { scenarioId?: string }) => (
     <div className="text-blue-300 font-semibold">📋 Resource Ledger - {scenarioId || 'All'}</div>
     
     <div className="ml-4 space-y-2 text-sm">
-      <div className="grid grid-cols-4 gap-4 text-gray-400">
+      <div className="grid grid-cols-4 gap-4 text-cortex-text-secondary">
         <div>Resource</div>
         <div>Provider</div>
         <div>Status</div>
@@ -734,13 +734,13 @@ const ExpiredScenariosCleanup = ({ scenarios }: { scenarios: ScenarioLedger[] })
       {scenarios.map(scenario => (
         <div key={scenario.scenarioId} className="flex items-center space-x-4 text-sm">
           <span className="text-red-300">{scenario.scenarioId}</span>
-          <span className="text-gray-400">TTL: {scenario.ttl?.toLocaleString()}</span>
+          <span className="text-cortex-text-secondary">TTL: {scenario.ttl?.toLocaleString()}</span>
           <span className="text-blue-300">{scenario.resources.length} resources</span>
         </div>
       ))}
     </div>
     
-    <div className="text-gray-400 text-sm">
+    <div className="text-cortex-text-secondary text-sm">
       Run 'cdrlab destroy --expired --force' to clean up all expired scenarios
     </div>
   </div>
@@ -760,7 +760,7 @@ const OrphanSweepResults = ({ scope, orphans }: { scope: string; orphans: any[] 
             <div key={i} className="flex items-center space-x-4">
               <span className="text-red-300">{orphan.type}</span>
               <span className="text-white">{orphan.name}</span>
-              <span className="text-gray-400">Age: {orphan.age}</span>
+              <span className="text-cortex-text-secondary">Age: {orphan.age}</span>
             </div>
           ))}
         </div>

@@ -63,7 +63,7 @@ export const downloadCommands: CommandConfig[] = [
                   <div className="text-gray-300 text-sm mb-3">
                     Infrastructure as Code templates for AI deployments
                   </div>
-                  <div className="text-xs text-gray-400 mb-2">Available flags:</div>
+                  <div className="text-xs text-cortex-text-secondary mb-2">Available flags:</div>
                   <div className="space-y-1 text-xs">
                     <div className="text-green-400">--aws</div>
                     <div className="text-blue-400">--gcp</div>
@@ -80,7 +80,7 @@ export const downloadCommands: CommandConfig[] = [
                   <div className="text-gray-300 text-sm mb-3">
                     Security detection and monitoring scripts
                   </div>
-                  <div className="text-xs text-gray-400 mb-2">Available flags:</div>
+                  <div className="text-xs text-cortex-text-secondary mb-2">Available flags:</div>
                   <div className="space-y-1 text-xs">
                     <div className="text-red-400">--malware</div>
                     <div className="text-orange-400">--network</div>
@@ -97,7 +97,7 @@ export const downloadCommands: CommandConfig[] = [
                   <div className="text-gray-300 text-sm mb-3">
                     Complete cloud detection and response platform
                   </div>
-                  <div className="text-xs text-gray-400 mb-2">Available flags:</div>
+                  <div className="text-xs text-cortex-text-secondary mb-2">Available flags:</div>
                   <div className="space-y-1 text-xs">
                     <div className="text-cyan-400">--full</div>
                     <div className="text-blue-400">--lite</div>

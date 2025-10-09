@@ -46,7 +46,7 @@ function Notification({ id, type, message, timestamp, onRemove, showTerminalLink
       case 'error': return 'border-red-500 bg-red-900/20 text-red-400';
       case 'warning': return 'border-yellow-500 bg-yellow-900/20 text-yellow-400';
       case 'info': return 'border-blue-500 bg-blue-900/20 text-blue-400';
-      default: return 'border-gray-500 bg-gray-900/20 text-gray-400';
+      default: return 'border-gray-500 bg-gray-900/20 text-cortex-text-secondary';
     }
   };
 

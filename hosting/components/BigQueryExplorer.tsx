@@ -1,3 +1,4 @@
+// legacy-orange: replaced by green per Cortex rebrand (2025-10-08)
 /**
  * BigQuery Data Explorer
  * Comprehensive data export and analytics platform for DC workflows
@@ -43,11 +44,6 @@ export const BigQueryExplorer: React.FC = () => {
   });
 
   useEffect(() => {
-    actions.updateBreadcrumbs([
-      { label: 'Home', path: '/gui' },
-      { label: 'BigQuery Explorer', path: '/gui/bigquery' },
-    ]);
-    
     // Initialize sample data if empty
     if (dcContextStore.getAllCustomerEngagements().length === 0) {
       dcContextStore.initializeSampleData();
@@ -211,7 +207,7 @@ ORDER BY success_rate DESC, times_used DESC`,
             <select
               value={exportConfig.scope}
               onChange={(e) => setExportConfig(prev => ({ ...prev, scope: e.target.value as DataExportConfig['scope'] }))}
-              className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange w-full"
+              className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent w-full"
             >
               <option value="all">All Data</option>
               <option value="customer">Customer-Specific</option>
@@ -225,7 +221,7 @@ ORDER BY success_rate DESC, times_used DESC`,
             <select
               value={exportConfig.format}
               onChange={(e) => setExportConfig(prev => ({ ...prev, format: e.target.value as DataExportConfig['format'] }))}
-              className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange w-full"
+              className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent w-full"
             >
               <option value="json">JSON</option>
               <option value="csv">CSV</option>
@@ -241,7 +237,7 @@ ORDER BY success_rate DESC, times_used DESC`,
             <select
               value={exportConfig.filters.customerId || ''}
               onChange={(e) => setExportConfig(prev => ({ ...prev, filters: { ...prev.filters, customerId: e.target.value } }))}
-              className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange w-full"
+              className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent w-full"
             >
               <option value="">Select a customer...</option>
               {dcContextStore.getAllCustomerEngagements().map(customer => (
@@ -259,7 +255,7 @@ ORDER BY success_rate DESC, times_used DESC`,
                 type="date"
                 value={exportConfig.filters.startDate?.split('T')[0] || ''}
                 onChange={(e) => setExportConfig(prev => ({ ...prev, filters: { ...prev.filters, startDate: new Date(e.target.value).toISOString() } }))}
-                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange w-full"
+                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent w-full"
               />
             </div>
             <div>
@@ -268,7 +264,7 @@ ORDER BY success_rate DESC, times_used DESC`,
                 type="date"
                 value={exportConfig.filters.endDate?.split('T')[0] || ''}
                 onChange={(e) => setExportConfig(prev => ({ ...prev, filters: { ...prev.filters, endDate: new Date(e.target.value).toISOString() } }))}
-                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange w-full"
+                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent w-full"
               />
             </div>
           </div>

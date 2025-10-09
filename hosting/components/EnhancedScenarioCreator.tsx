@@ -282,7 +282,7 @@ const EnhancedScenarioCreator: React.FC<ScenarioCreatorProps> = ({
                 </option>
               ))}
             </select>
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-sm text-cortex-text-secondary mt-1">
               {SCENARIO_TYPES.find(t => t.value === formData.scenarioType)?.description}
             </p>
           </div>
@@ -460,14 +460,14 @@ const EnhancedScenarioCreator: React.FC<ScenarioCreatorProps> = ({
       <div className="text-center py-12">
         <div className="text-6xl mb-4">📚</div>
         <h3 className="text-xl font-bold text-gray-300 mb-2">Scenario Library</h3>
-        <p className="text-gray-400 mb-6">Browse pre-built scenario templates and examples</p>
+        <p className="text-cortex-text-secondary mb-6">Browse pre-built scenario templates and examples</p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
           {SCENARIO_TYPES.slice(0, 6).map(type => (
             <div key={type.value} className="bg-gray-800 border border-gray-600 rounded-lg p-4 hover:border-blue-500 transition-colors cursor-pointer">
               <div className="text-3xl mb-2">{type.icon}</div>
               <h4 className="font-bold text-white mb-1">{type.label}</h4>
-              <p className="text-sm text-gray-400 mb-3">{type.description}</p>
+              <p className="text-sm text-cortex-text-secondary mb-3">{type.description}</p>
               <button
                 onClick={() => {
                   handleInputChange('scenarioType', type.value);
@@ -556,7 +556,7 @@ const EnhancedScenarioCreator: React.FC<ScenarioCreatorProps> = ({
             <div className="text-3xl">🚀</div>
             <div>
               <h3 className="text-xl font-bold text-white">Scenario Deployment</h3>
-              <p className="text-gray-400">ID: {deploymentStatus.deploymentId}</p>
+              <p className="text-cortex-text-secondary">ID: {deploymentStatus.deploymentId}</p>
             </div>
           </div>
 
@@ -576,25 +576,25 @@ const EnhancedScenarioCreator: React.FC<ScenarioCreatorProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <div className="text-sm">
-                <span className="text-gray-400">Type:</span> 
+                <span className="text-cortex-text-secondary">Type:</span> 
                 <span className="ml-2 text-white">{formData.scenarioType}</span>
               </div>
               <div className="text-sm">
-                <span className="text-gray-400">Provider:</span> 
+                <span className="text-cortex-text-secondary">Provider:</span> 
                 <span className="ml-2 text-white">{formData.provider}</span>
               </div>
               <div className="text-sm">
-                <span className="text-gray-400">Difficulty:</span> 
+                <span className="text-cortex-text-secondary">Difficulty:</span> 
                 <span className="ml-2 text-white">{formData.difficulty}</span>
               </div>
             </div>
             <div className="space-y-2">
               <div className="text-sm">
-                <span className="text-gray-400">Duration:</span> 
+                <span className="text-cortex-text-secondary">Duration:</span> 
                 <span className="ml-2 text-white">{formData.estimatedDuration}</span>
               </div>
               <div className="text-sm">
-                <span className="text-gray-400">Objectives:</span> 
+                <span className="text-cortex-text-secondary">Objectives:</span> 
                 <span className="ml-2 text-white">{formData.objectives.filter(o => o).length}</span>
               </div>
             </div>
@@ -659,7 +659,7 @@ const EnhancedScenarioCreator: React.FC<ScenarioCreatorProps> = ({
         <div className="text-center py-12">
           <div className="text-6xl mb-4">🚀</div>
           <h3 className="text-xl font-bold text-gray-300 mb-2">No Active Deployments</h3>
-          <p className="text-gray-400 mb-6">Create and generate a scenario to see deployment status here.</p>
+          <p className="text-cortex-text-secondary mb-6">Create and generate a scenario to see deployment status here.</p>
           <CortexButton
             variant="primary"
             icon="🔬"
@@ -681,7 +681,7 @@ const EnhancedScenarioCreator: React.FC<ScenarioCreatorProps> = ({
             <div className="text-3xl">🔬</div>
             <div>
               <h2 className="text-2xl font-bold text-white">Enhanced Scenario Creator</h2>
-              <p className="text-gray-400">Create, deploy, and manage security testing scenarios</p>
+              <p className="text-cortex-text-secondary">Create, deploy, and manage security testing scenarios</p>
             </div>
           </div>
 

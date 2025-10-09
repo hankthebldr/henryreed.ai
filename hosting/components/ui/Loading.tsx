@@ -1,4 +1,6 @@
 'use client';
+// legacy-orange: replaced by green per Cortex rebrand (2025-10-08)
+
 
 import React from 'react';
 import { cn } from '../../lib/utils';
@@ -34,7 +36,7 @@ export function Loading({
 
   const renderSpinner = () => (
     <div className={cn(
-      'animate-spin rounded-full border-4 border-cortex-border-muted border-t-cortex-orange',
+      'animate-spin rounded-full border-4 border-cortex-border-muted border-t-cortex-accent',
       sizes[size]
     )} />
   );
@@ -45,7 +47,7 @@ export function Loading({
         <div
           key={i}
           className={cn(
-            'animate-bounce rounded-full bg-cortex-orange',
+            'animate-bounce rounded-full bg-cortex-accent',
             size === 'sm' && 'h-1 w-1',
             size === 'md' && 'h-2 w-2',
             size === 'lg' && 'h-3 w-3',
@@ -59,7 +61,7 @@ export function Loading({
 
   const renderPulse = () => (
     <div className={cn(
-      'animate-pulse bg-gradient-to-r from-cortex-orange to-cortex-green rounded-full',
+      'animate-pulse bg-gradient-to-r from-cortex-accent to-cortex-green rounded-full',
       sizes[size]
     )} />
   );

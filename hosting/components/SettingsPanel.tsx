@@ -128,7 +128,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                   ? 'bg-blue-500/20 text-blue-400'
                                   : user?.role === 'dc'
                                     ? 'bg-green-500/20 text-green-400'
-                                    : 'bg-gray-500/20 text-gray-400'
+                                    : 'bg-gray-500/20 text-cortex-text-secondary'
                           }`}>
                             {user?.role?.toUpperCase() || 'UNKNOWN'}
                           </span>

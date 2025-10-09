@@ -235,7 +235,7 @@ const EnhancedGUIInterface: React.FC = () => {
                 <h1 className="text-2xl font-bold text-white">
                   Cortex Domain Consultant Platform
                 </h1>
-                <p className="text-gray-400 mt-1">
+                <p className="text-cortex-text-secondary mt-1">
                   Enhanced security scenario deployment and POV management
                 </p>
               </div>
@@ -281,7 +281,7 @@ const EnhancedGUIInterface: React.FC = () => {
                     'flex items-center space-x-2 px-4 py-3 text-sm font-medium rounded-t-lg transition-colors whitespace-nowrap',
                     activeSection === section.id
                       ? 'bg-gray-800 text-white border-b-2 border-cortex-green'
-                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                      : 'text-cortex-text-secondary hover:text-gray-200 hover:bg-gray-800/50'
                   )}
                 >
                   <span>{section.icon}</span>
@@ -303,7 +303,7 @@ const EnhancedGUIInterface: React.FC = () => {
                   {currentSection.title}
                 </h2>
               </div>
-              <p className="text-gray-400">{currentSection.description}</p>
+              <p className="text-cortex-text-secondary">{currentSection.description}</p>
             </div>
 
             {/* Command Grid */}
@@ -320,7 +320,7 @@ const EnhancedGUIInterface: React.FC = () => {
                     </div>
                   </div>
                   
-                  <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+                  <p className="text-cortex-text-secondary text-sm mb-4 leading-relaxed">
                     {cmd.description}
                   </p>
                   
@@ -336,7 +336,7 @@ const EnhancedGUIInterface: React.FC = () => {
                       {cmd.disabled ? 'Not Available' : 'Execute'}
                     </CortexButton>
                     
-                    <div className="text-xs text-gray-500 font-mono bg-gray-900/50 px-3 py-2 rounded border">
+                    <div className="text-xs text-cortex-text-muted font-mono bg-gray-900/50 px-3 py-2 rounded border">
                       {cmd.command}
                     </div>
                   </div>
@@ -354,15 +354,15 @@ const EnhancedGUIInterface: React.FC = () => {
                   </h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Active Sessions</span>
+                      <span className="text-cortex-text-secondary">Active Sessions</span>
                       <span className="text-cortex-green font-mono">1</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Commands Available</span>
+                      <span className="text-cortex-text-secondary">Commands Available</span>
                       <span className="text-cortex-info font-mono">45+</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Scenario Templates</span>
+                      <span className="text-cortex-text-secondary">Scenario Templates</span>
                       <span className="text-cortex-warning font-mono">12</span>
                     </div>
                   </div>

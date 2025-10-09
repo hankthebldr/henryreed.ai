@@ -176,7 +176,7 @@ export default function XSIAMIntegrationPanel() {
       case 'connected': return 'text-green-400 border-green-500';
       case 'connecting': return 'text-yellow-400 border-yellow-500';
       case 'error': return 'text-red-400 border-red-500';
-      default: return 'text-gray-400 border-gray-500';
+      default: return 'text-cortex-text-secondary border-gray-500';
     }
   };
 
@@ -185,7 +185,7 @@ export default function XSIAMIntegrationPanel() {
       case 'healthy': return 'text-green-400';
       case 'degraded': return 'text-yellow-400';
       case 'unhealthy': return 'text-red-400';
-      default: return 'text-gray-400';
+      default: return 'text-cortex-text-secondary';
     }
   };
 
@@ -195,7 +195,7 @@ export default function XSIAMIntegrationPanel() {
       case 'high': return 'text-orange-400';
       case 'medium': return 'text-yellow-400';
       case 'low': return 'text-green-400';
-      default: return 'text-gray-400';
+      default: return 'text-cortex-text-secondary';
     }
   };
 
@@ -242,7 +242,7 @@ export default function XSIAMIntegrationPanel() {
               activeTab === tab.id 
                 ? 'bg-blue-600 text-white shadow-lg' 
                 : tab.disabled 
-                  ? 'text-gray-500 cursor-not-allowed opacity-50' 
+                  ? 'text-cortex-text-muted cursor-not-allowed opacity-50' 
                   : 'text-gray-300 hover:text-white hover:bg-gray-700 hover:shadow-md'
             }`}
           >
@@ -304,7 +304,7 @@ export default function XSIAMIntegrationPanel() {
                     <button
                       type="button"
                       onClick={() => setShowCredentials(!showCredentials)}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-cortex-text-secondary hover:text-white"
                     >
                       {showCredentials ? '🙈' : '👁️'}
                     </button>
@@ -347,7 +347,7 @@ export default function XSIAMIntegrationPanel() {
                 
                 <div className="pt-4">
                   {connectionStatus.lastTested && (
-                    <div className="text-xs text-gray-400 mb-3">
+                    <div className="text-xs text-cortex-text-secondary mb-3">
                       Last tested: {new Date(connectionStatus.lastTested).toLocaleString()}
                     </div>
                   )}
@@ -394,7 +394,7 @@ onClick={async () => { await xsiamApiService.testConnection(); }}
                         </CortexButton>
                         
                         {/* Connection guidance */}
-                        <div className="text-xs text-gray-400 text-center">
+                        <div className="text-xs text-cortex-text-secondary text-center">
                           <div>💡 Need help? Check the Security Notice below</div>
                         </div>
                       </div>
@@ -502,7 +502,7 @@ onClick={async () => { await xsiamApiService.testConnection(); }}
                     <div>
                       <div className="text-white font-medium">{component.name}</div>
                       {component.responseTime && (
-                        <div className="text-xs text-gray-400">{component.responseTime}ms</div>
+                        <div className="text-xs text-cortex-text-secondary">{component.responseTime}ms</div>
                       )}
                     </div>
                     <div className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -545,13 +545,13 @@ onClick={async () => { await xsiamApiService.testConnection(); }}
             <div className="bg-gray-800 rounded-lg p-8 text-center">
               <div className="text-4xl mb-4">⏳</div>
               <div className="text-lg font-bold text-white mb-2">Loading Health Data</div>
-              <div className="text-sm text-gray-400">Fetching tenant health information...</div>
+              <div className="text-sm text-cortex-text-secondary">Fetching tenant health information...</div>
             </div>
           ) : (
             <div className="bg-gray-800 rounded-lg p-8 text-center">
               <div className="text-4xl mb-4">📊</div>
               <div className="text-lg font-bold text-white mb-2">Health Monitoring</div>
-              <div className="text-sm text-gray-400 mb-4">Monitor your XSIAM tenant's system health and performance metrics</div>
+              <div className="text-sm text-cortex-text-secondary mb-4">Monitor your XSIAM tenant's system health and performance metrics</div>
               <CortexButton
                 variant="primary"
                 size="md"
@@ -633,7 +633,7 @@ onClick={async () => { await xsiamApiService.testConnection(); }}
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-700 rounded-lg">
                     <div className="flex-1">
                       <div className="text-white font-medium">{threat.name}</div>
-                      <div className="text-xs text-gray-400">{threat.count} occurrences</div>
+                      <div className="text-xs text-cortex-text-secondary">{threat.count} occurrences</div>
                     </div>
                     <div className={`px-2 py-1 rounded-full text-xs font-medium ${
                       threat.severity === 'critical' ? 'bg-red-900 text-red-300' :
@@ -664,7 +664,7 @@ onClick={async () => { await xsiamApiService.testConnection(); }}
                         style={{ width: `${detection.coverage}%` }}
                       ></div>
                     </div>
-                    <div className="text-xs text-gray-400 mt-1">
+                    <div className="text-xs text-cortex-text-secondary mt-1">
                       Last seen: {new Date(detection.lastSeen).toLocaleDateString()}
                     </div>
                   </div>
@@ -677,13 +677,13 @@ onClick={async () => { await xsiamApiService.testConnection(); }}
             <div className="bg-gray-800 rounded-lg p-8 text-center">
               <div className="text-4xl mb-4">⏳</div>
               <div className="text-lg font-bold text-white mb-2">Loading Analytics Data</div>
-              <div className="text-sm text-gray-400">Fetching security analytics and metrics...</div>
+              <div className="text-sm text-cortex-text-secondary">Fetching security analytics and metrics...</div>
             </div>
           ) : (
             <div className="bg-gray-800 rounded-lg p-8 text-center">
               <div className="text-4xl mb-4">📊</div>
               <div className="text-lg font-bold text-white mb-2">Security Analytics</div>
-              <div className="text-sm text-gray-400 mb-4">View comprehensive security metrics, threat analysis, and MITRE ATT&CK coverage</div>
+              <div className="text-sm text-cortex-text-secondary mb-4">View comprehensive security metrics, threat analysis, and MITRE ATT&CK coverage</div>
               <CortexButton
                 variant="primary"
                 size="md"
@@ -779,7 +779,7 @@ onClick={async () => { await xsiamApiService.testConnection(); }}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
             <div>
               <div className="text-sm font-medium text-gray-300">Quick Actions</div>
-              <div className="text-xs text-gray-500">Refresh data and test connectivity</div>
+              <div className="text-xs text-cortex-text-muted">Refresh data and test connectivity</div>
             </div>
             <div className="flex flex-wrap gap-2">
               <CortexButton
@@ -815,12 +815,12 @@ onClick={async () => { await xsiamApiService.testConnection(); }}
           {/* Connection Quality Indicator */}
           <div className="mt-3 pt-3 border-t border-gray-700">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-400">Connection Status:</span>
+              <span className="text-cortex-text-secondary">Connection Status:</span>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
                 <span className="text-green-400">Active</span>
                 {connectionStatus.lastTested && (
-                  <span className="text-gray-500">• Last tested {new Date(connectionStatus.lastTested).toLocaleString()}</span>
+                  <span className="text-cortex-text-muted">• Last tested {new Date(connectionStatus.lastTested).toLocaleString()}</span>
                 )}
               </div>
             </div>

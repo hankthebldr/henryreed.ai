@@ -1,3 +1,4 @@
+// legacy-orange: replaced by green per Cortex rebrand (2025-10-08)
 /**
  * Management Dashboard
  * Comprehensive admin interface for user oversight, analytics, and system management
@@ -253,7 +254,7 @@ export const ManagementDashboard: React.FC = () => {
               <select
                 value={userFilter}
                 onChange={(e) => setUserFilter(e.target.value as UserRole | 'all')}
-                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange text-sm"
+                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent text-sm"
               >
                 <option value="all">All Roles</option>
                 <option value="admin">Admin</option>
@@ -270,7 +271,7 @@ export const ManagementDashboard: React.FC = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange text-sm"
+                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent text-sm"
               >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
@@ -323,7 +324,7 @@ export const ManagementDashboard: React.FC = () => {
                         <select
                           value={user.role}
                           onChange={(e) => handleUpdateUserRole(user.id, e.target.value as UserRole)}
-                          className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange text-sm"
+                          className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent text-sm"
                         >
                           <option value="admin">Admin</option>
                           <option value="manager">Manager</option>

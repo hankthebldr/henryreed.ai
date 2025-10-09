@@ -469,17 +469,21 @@ export const api = onRequest(
   app
 );
 
-// Integrate Genkit AI callable functions (migrated from henryreedai)
-export { menuSuggestion } from './ai/henry-genkit-sample';
-export { 
-  aiPovAnalysis,
-  aiTrrRecommendations,
-  aiDetectionGeneration,
-  aiScenarioOptimization,
-  aiChatAssistant,
-  aiCompetitiveAnalysis,
-  aiRiskAssessment
-} from './ai/henry-ai-functions';
+// ============================================================================
+// USER AUTHENTICATION AND PROFILE MANAGEMENT
+// ============================================================================
+
+// Import user creation event handlers
+export {
+  beforeUserCreation,
+  beforeUserSignIn,
+  onUserDocumentCreated,
+  createUserProfile,
+  updateUserProfile
+} from './auth/user-creation-handler';
+
+// Note: AI functions are handled by the separate genkit codebase
+// to avoid duplication and maintain clean separation of concerns
 
 // Export the express app for testing
 export { app };

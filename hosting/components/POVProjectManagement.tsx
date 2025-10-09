@@ -1,3 +1,4 @@
+// legacy-orange: replaced by green per Cortex rebrand (2025-10-08)
 /**
  * POV Project Management System
  * Comprehensive POV lifecycle management with scenario planning, timeline tracking, and outcome reporting
@@ -88,10 +89,6 @@ export const POVProjectManagement: React.FC = () => {
   });
 
   useEffect(() => {
-    actions.updateBreadcrumbs([
-      { label: 'Home', path: '/gui' },
-      { label: 'POV Management', path: '/gui/pov' },
-    ]);
     
     // Initialize sample data if empty
     if (dcContextStore.getAllCustomerEngagements().length === 0) {
@@ -523,7 +520,7 @@ export const POVProjectManagement: React.FC = () => {
                 type="text"
                 value={formData.name || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
                 placeholder="Enter POV name"
               />
             </div>
@@ -533,7 +530,7 @@ export const POVProjectManagement: React.FC = () => {
               <select
                 value={formData.customerId || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, customerId: e.target.value }))}
-                className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
               >
                 <option value="">Select a customer</option>
                 {customers.map(customer => (
@@ -553,7 +550,7 @@ export const POVProjectManagement: React.FC = () => {
                   ...prev, 
                   timeline: { ...prev.timeline, start: e.target.value, end: prev.timeline?.end || '', milestones: prev.timeline?.milestones || [] }
                 }))}
-                className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
               />
             </div>
             
@@ -566,7 +563,7 @@ export const POVProjectManagement: React.FC = () => {
                   ...prev, 
                   timeline: { ...prev.timeline, start: prev.timeline?.start || '', end: e.target.value, milestones: prev.timeline?.milestones || [] }
                 }))}
-                className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
               />
             </div>
           </div>
@@ -584,7 +581,7 @@ export const POVProjectManagement: React.FC = () => {
                       newObjectives[index] = e.target.value;
                       setFormData(prev => ({ ...prev, objectives: newObjectives }));
                     }}
-                    className="flex-1 cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                    className="flex-1 cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
                     placeholder="Enter objective"
                   />
                   <button

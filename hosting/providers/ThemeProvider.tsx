@@ -1,4 +1,6 @@
 'use client';
+// legacy-orange: replaced by green per Cortex rebrand (2025-10-08)
+
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
@@ -86,7 +88,7 @@ export const THEME_CONFIG = {
   colors: {
     // Palo Alto Networks official brand colors
     brand: {
-      primary: '#FA582D', // Palo Alto Networks Orange
+      primary: '#22c55e', // Palo Alto Networks Orange
       secondary: '#8ad3de', // Cortex Teal
       tertiary: '#00c0e8', // Cortex Blue
       dark: '#141414', // Palo Alto Dark
@@ -97,9 +99,9 @@ export const THEME_CONFIG = {
       primary: '#00CC66', // Cortex Primary Green
       primaryLight: '#33D580',
       primaryDark: '#00B359',
-      secondary: '#FF6900', // Cortex Secondary Orange
-      secondaryLight: '#FF8533',
-      secondaryDark: '#E55A00',
+      secondary: '#22c55e', // Cortex Secondary Orange
+      secondaryLight: '#bbf7d0',
+      secondaryDark: '#15803d',
       accent: '#58A6FF', // Cortex Accent Blue
       accentLight: '#79B8FF',
       accentDark: '#388BFD',

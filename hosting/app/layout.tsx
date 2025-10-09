@@ -73,7 +73,7 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#e97444', // Orange theme color
+  themeColor: '#00CC66', // Cortex green theme color
 };
 
 export default function RootLayout({
@@ -88,8 +88,8 @@ export default function RootLayout({
         <link rel="alternate icon" href="/assets/branding/icons/cortex-32x32.png" />
         <link rel="apple-touch-icon" href="/assets/branding/icons/cortex-192x192.png" />
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#e97444" />
-        <meta name="msapplication-TileColor" content="#e97444" />
+        <meta name="theme-color" content="#00CC66" />
+        <meta name="msapplication-TileColor" content="#00CC66" />
       </head>
       <body className="bg-cortex-bg-primary text-cortex-text-primary">
         <AuthProvider>

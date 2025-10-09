@@ -29,7 +29,7 @@ export function CleanScenarioCard({
       case 'intermediate': return 'text-yellow-400';
       case 'advanced': return 'text-orange-400';
       case 'expert': return 'text-red-400';
-      default: return 'text-gray-400';
+      default: return 'text-cortex-text-secondary';
     }
   };
 
@@ -44,7 +44,7 @@ export function CleanScenarioCard({
             <h3 className="text-sm font-medium text-white truncate group-hover:text-blue-300 transition-colors">
               {scenario.name}
             </h3>
-            <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+            <p className="text-xs text-cortex-text-secondary mt-1 line-clamp-2">
               {scenario.description}
             </p>
           </div>
@@ -73,7 +73,7 @@ export function CleanScenarioCard({
               <h3 className="text-base font-semibold text-white group-hover:text-blue-300 transition-colors">
                 {scenario.name}
               </h3>
-              <span className="text-xs text-gray-500 bg-gray-700 px-1.5 py-0.5 rounded">
+              <span className="text-xs text-cortex-text-muted bg-gray-700 px-1.5 py-0.5 rounded">
                 v{scenario.version}
               </span>
             </div>
@@ -90,17 +90,17 @@ export function CleanScenarioCard({
 
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center space-x-3">
-            <span className="text-gray-400">
+            <span className="text-cortex-text-secondary">
               <span className="text-blue-400">{scenario.panwProducts.length}</span> products
             </span>
-            <span className="text-gray-400">
+            <span className="text-cortex-text-secondary">
               <span className="text-purple-400">{scenario.mitreTechniques.length}</span> techniques
             </span>
             <span className={`${getComplexityColor(scenario.complexity)} font-medium`}>
               {scenario.complexity}
             </span>
           </div>
-          <div className="text-gray-500">
+          <div className="text-cortex-text-muted">
             {scenario.estimatedDuration.setup + scenario.estimatedDuration.execution}m
           </div>
         </div>
@@ -132,7 +132,7 @@ export function CleanScenarioCard({
             <h3 className="text-lg font-semibold text-white group-hover:text-blue-300 transition-colors">
               {scenario.name}
             </h3>
-            <span className="text-xs text-gray-400 bg-gray-700/50 px-2 py-1 rounded">
+            <span className="text-xs text-cortex-text-secondary bg-gray-700/50 px-2 py-1 rounded">
               v{scenario.version}
             </span>
             <span className={`text-xs px-2 py-1 rounded font-medium ${getBusinessValueColor(scenario.businessValue.businessImpact)}`}>
@@ -152,10 +152,10 @@ export function CleanScenarioCard({
             <div className="text-sm text-green-400 font-medium">
               {scenario.businessValue.primaryValue.replace('-', ' ')}
             </div>
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-cortex-text-secondary">
               ROI: {scenario.businessValue.roiTimeframe}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-cortex-text-muted">
               {scenario.businessValue.quantifiableMetrics.slice(0, 1).map((metric, i) => (
                 <div key={i}>• {metric}</div>
               ))}
@@ -172,7 +172,7 @@ export function CleanScenarioCard({
                 <span className={`text-xs px-2 py-0.5 rounded ${
                   product.role === 'primary' ? 'bg-green-600/20 text-green-400' :
                   product.role === 'secondary' ? 'bg-blue-600/20 text-blue-400' :
-                  'bg-gray-600/20 text-gray-400'
+                  'bg-gray-600/20 text-cortex-text-secondary'
                 }`}>
                   {product.role}
                 </span>
@@ -196,17 +196,17 @@ export function CleanScenarioCard({
 
       <div className="flex items-center justify-between text-xs">
         <div className="flex items-center space-x-4">
-          <span className="text-gray-400">
+          <span className="text-cortex-text-secondary">
             <span className={`${getComplexityColor(scenario.complexity)} font-medium`}>{scenario.complexity}</span> complexity
           </span>
-          <span className="text-gray-400">
+          <span className="text-cortex-text-secondary">
             <span className="text-blue-400">{scenario.estimatedDuration.setup + scenario.estimatedDuration.execution}</span> minutes
           </span>
-          <span className="text-gray-400">
+          <span className="text-cortex-text-secondary">
             <span className="text-green-400">{scenario.providers.length}</span> providers
           </span>
         </div>
-        <div className="text-gray-500">
+        <div className="text-cortex-text-muted">
           Updated {new Date(scenario.lastUpdated).toLocaleDateString()}
         </div>
       </div>
@@ -252,8 +252,8 @@ export function ScenarioGrid({
   if (scenarios.length === 0) {
     return emptyState || (
       <div className="text-center py-12">
-        <div className="text-gray-400 text-lg mb-2">No scenarios found</div>
-        <div className="text-gray-500 text-sm">Try adjusting your filters or search criteria</div>
+        <div className="text-cortex-text-secondary text-lg mb-2">No scenarios found</div>
+        <div className="text-cortex-text-muted text-sm">Try adjusting your filters or search criteria</div>
       </div>
     );
   }

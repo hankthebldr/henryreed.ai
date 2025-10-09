@@ -10,7 +10,7 @@ exports.aiRouter.post('/pov-analysis', async (req, res) => {
         res.json({ success: true, data });
     }
     catch (error) {
-        res.status(400).json({ success: false, error: (error === null || error === void 0 ? void 0 : error.message) || 'Invalid input' });
+        res.status(400).json({ success: false, error: error?.message || 'Invalid input' });
     }
 });
 exports.aiRouter.post('/trr-recommendations', async (req, res) => {
@@ -19,7 +19,7 @@ exports.aiRouter.post('/trr-recommendations', async (req, res) => {
         res.json({ success: true, data });
     }
     catch (error) {
-        res.status(400).json({ success: false, error: (error === null || error === void 0 ? void 0 : error.message) || 'Invalid input' });
+        res.status(400).json({ success: false, error: error?.message || 'Invalid input' });
     }
 });
 exports.aiRouter.post('/detection-generation', async (req, res) => {
@@ -28,7 +28,7 @@ exports.aiRouter.post('/detection-generation', async (req, res) => {
         res.json({ success: true, data });
     }
     catch (error) {
-        res.status(400).json({ success: false, error: (error === null || error === void 0 ? void 0 : error.message) || 'Invalid input' });
+        res.status(400).json({ success: false, error: error?.message || 'Invalid input' });
     }
 });
 //# sourceMappingURL=ai.js.map

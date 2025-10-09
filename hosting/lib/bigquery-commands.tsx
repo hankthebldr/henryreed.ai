@@ -161,7 +161,7 @@ export const bigQueryCommands: CommandConfig[] = [
                   </div>
                 </div>
               </div>
-              <div className="mt-3 text-xs text-gray-400">
+              <div className="mt-3 text-xs text-cortex-text-secondary">
                 Run without --preview to execute the actual export.
               </div>
             </div>
@@ -176,9 +176,9 @@ export const bigQueryCommands: CommandConfig[] = [
               <div className="font-bold mb-3 text-xl">📊 Exporting to BigQuery...</div>
               <div className="space-y-2 text-sm">
                 <div>🔄 Preparing data...</div>
-                <div className="text-gray-400">Configuration: {isQuick ? 'Quick Export' : 'Custom Export'}</div>
-                <div className="text-gray-400">Time Range: {timeRange}</div>
-                <div className="text-gray-400">Export Type: {exportType}</div>
+                <div className="text-cortex-text-secondary">Configuration: {isQuick ? 'Quick Export' : 'Custom Export'}</div>
+                <div className="text-cortex-text-secondary">Time Range: {timeRange}</div>
+                <div className="text-cortex-text-secondary">Export Type: {exportType}</div>
               </div>
             </div>
           );
@@ -222,7 +222,7 @@ export const bigQueryCommands: CommandConfig[] = [
                   </div>
                   
                   {result.success && (
-                    <div className="mt-3 text-xs text-gray-400">
+                    <div className="mt-3 text-xs text-cortex-text-secondary">
                       💡 Data is now available in BigQuery dataset: <span className="font-mono text-cyan-400">{bigQueryService.getConfig().dataset}</span>
                     </div>
                   )}
@@ -241,7 +241,7 @@ export const bigQueryCommands: CommandConfig[] = [
                     <div className="text-red-400">Error:</div>
                     <div className="mt-1">{error instanceof Error ? error.message : 'Unknown error occurred'}</div>
                   </div>
-                  <div className="mt-3 text-xs text-gray-400">
+                  <div className="mt-3 text-xs text-cortex-text-secondary">
                     Check your BigQuery configuration and cloud function deployment.
                   </div>
                 </div>
@@ -286,7 +286,7 @@ export const bigQueryCommands: CommandConfig[] = [
           <div className="text-yellow-300">
             <div className="font-bold mb-2">Usage:</div>
             <div className="font-mono text-sm">bq-track &lt;event-type&gt; &lt;component&gt; [--data "json-data"]</div>
-            <div className="mt-2 text-xs text-gray-400">
+            <div className="mt-2 text-xs text-cortex-text-secondary">
               Event types: gui_interaction, command_execution, pov_action, trr_update, scenario_deployment
             </div>
           </div>
@@ -339,7 +339,7 @@ export const bigQueryCommands: CommandConfig[] = [
               <div><span className="text-yellow-400">Data:</span> <span className="font-mono text-gray-300">{JSON.stringify(eventData)}</span></div>
               <div><span className="text-yellow-400">Queue Size:</span> {status.queueSize} items</div>
             </div>
-            <div className="mt-2 text-xs text-gray-400">
+            <div className="mt-2 text-xs text-cortex-text-secondary">
               Event added to export queue. Use <span className="font-mono">bq-export</span> to export to BigQuery.
             </div>
           </div>

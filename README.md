@@ -70,7 +70,7 @@ The application supports simple username/password authentication with two pre-co
 - Customer presentations with real data
 - Template management and version control
 
-#### 7. **BigQuery Analytics**
+#### 7. **Data Export**
 *Advanced data export and analysis*
 - Configurable data exports
 - Multiple format support (JSON, CSV, Excel)

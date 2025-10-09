@@ -384,15 +384,15 @@ export const guideCommands: CommandConfig[] = [
               <div className="space-y-2 text-sm">
                 <div>
                   <span className="font-mono text-green-400">guide pov-kickoff</span>
-                  <span className="text-gray-400"> - Master POV planning and kickoff meetings</span>
+                  <span className="text-cortex-text-secondary"> - Master POV planning and kickoff meetings</span>
                 </div>
                 <div>
                   <span className="font-mono text-blue-400">guide technical-demo-prep</span>
-                  <span className="text-gray-400"> - Deliver compelling technical demonstrations</span>
+                  <span className="text-cortex-text-secondary"> - Deliver compelling technical demonstrations</span>
                 </div>
                 <div>
                   <span className="font-mono text-purple-400">guide objection-handling</span>
-                  <span className="text-gray-400"> - Handle customer objections professionally</span>
+                  <span className="text-cortex-text-secondary"> - Handle customer objections professionally</span>
                 </div>
               </div>
             </div>
@@ -468,7 +468,7 @@ const handleGuideList = (args: string[]) => {
             <div className="text-sm text-gray-300 mb-3">{guide.description}</div>
             
             <div className="flex justify-between items-center">
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-cortex-text-muted">
                 {guide.steps.length} steps • {guide.category}
               </div>
               <div className="text-green-400 font-mono text-sm">
@@ -571,7 +571,7 @@ const handleGuideShow = (guide: Guide, args: string[]) => {
               <div key={idx} className="border border-gray-600 p-2 rounded flex justify-between items-center">
                 <div>
                   <div className="font-bold text-sm">{resource.title}</div>
-                  <div className="text-xs text-gray-400">{resource.description}</div>
+                  <div className="text-xs text-cortex-text-secondary">{resource.description}</div>
                 </div>
                 <div className="text-xs bg-orange-800 text-orange-200 px-2 py-1 rounded">
                   {resource.type}
@@ -663,7 +663,7 @@ const handleGuideStep = (guide: Guide, step: GuideStep, stepNumber: number) => {
           )}
         </div>
         <div className="text-center">
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-cortex-text-secondary">
             Step {stepNumber} of {guide.steps.length}
           </div>
         </div>

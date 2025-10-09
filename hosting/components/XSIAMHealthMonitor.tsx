@@ -1,3 +1,4 @@
+// legacy-orange: replaced by green per Cortex rebrand (2025-10-08)
 /**
  * XSIAM Health Monitor
  * Real-time XSIAM system health and performance monitoring with intelligent alerting
@@ -51,10 +52,6 @@ export const XSIAMHealthMonitor: React.FC = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<string>('');
 
   useEffect(() => {
-    actions.updateBreadcrumbs([
-      { label: 'Home', path: '/gui' },
-      { label: 'XSIAM Health', path: '/gui/xsiam' },
-    ]);
     
     // Initialize sample data if empty
     if (dcContextStore.getAllCustomerEngagements().length === 0) {
@@ -654,7 +651,7 @@ export const XSIAMHealthMonitor: React.FC = () => {
               <select
                 value={selectedCustomer}
                 onChange={(e) => setSelectedCustomer(e.target.value)}
-                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange w-full"
+                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent w-full"
               >
                 <option value="">All Customers</option>
                 {customers.map(customer => (
@@ -698,7 +695,7 @@ export const XSIAMHealthMonitor: React.FC = () => {
             <select
               value={selectedCustomer}
               onChange={(e) => setSelectedCustomer(e.target.value)}
-              className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+              className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
             >
               <option value="">All Customers</option>
               {customers.map(customer => (
@@ -743,7 +740,7 @@ export const XSIAMHealthMonitor: React.FC = () => {
               onClick={() => setActiveTab(tab.id as typeof activeTab)}
               className={`flex-1 px-4 py-2 text-center transition-colors rounded-md cortex-interactive ${
                 activeTab === tab.id
-                  ? 'bg-cortex-orange text-white'
+                  ? 'bg-cortex-accent text-white'
                   : 'text-cortex-text-muted hover:text-white hover:bg-cortex-bg-hover'
               }`}
             >

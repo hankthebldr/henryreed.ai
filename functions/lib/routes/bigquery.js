@@ -39,7 +39,7 @@ const admin = __importStar(require("firebase-admin"));
 exports.exportRouter = (0, express_1.Router)();
 exports.exportRouter.post('/bigquery', async (req, res) => {
     const payload = req.body;
-    if (!(payload === null || payload === void 0 ? void 0 : payload.dataset) || !(payload === null || payload === void 0 ? void 0 : payload.table) || !Array.isArray(payload === null || payload === void 0 ? void 0 : payload.rows)) {
+    if (!payload?.dataset || !payload?.table || !Array.isArray(payload?.rows)) {
         res.status(400).json({ success: false, error: 'dataset, table, and rows are required' });
         return;
     }
@@ -63,7 +63,7 @@ exports.exportRouter.post('/bigquery', async (req, res) => {
             const [url] = await file.getSignedUrl({ action: 'read', expires: Date.now() + 15 * 60 * 1000 });
             signedUrl = url;
         }
-        catch (_a) { }
+        catch { }
         // Log export
         try {
             await admin.firestore().collection('exports').add({
@@ -76,12 +76,12 @@ exports.exportRouter.post('/bigquery', async (req, res) => {
                 timestamp: admin.firestore.FieldValue.serverTimestamp(),
             });
         }
-        catch (_b) { }
+        catch { }
         res.json({ success: true, recordsExported: Array.isArray(payload.rows) ? payload.rows.length : 0, downloadUrl: signedUrl, storagePath: path });
         return;
     }
     catch (error) {
-        res.status(500).json({ success: false, error: (error === null || error === void 0 ? void 0 : error.message) || 'Export failed' });
+        res.status(500).json({ success: false, error: error?.message || 'Export failed' });
         return;
     }
 });

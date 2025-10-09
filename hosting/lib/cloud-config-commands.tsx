@@ -252,7 +252,7 @@ const handleCloudList = (args: string[]) => {
               </div>
               <div className="space-y-1 text-sm">
                 <div><strong>Resources:</strong> <span className="text-blue-400">{profile.resourceCount} active</span></div>
-                <div><strong>Created:</strong> <span className="text-gray-400">{profile.credentials.metadata.createdAt.toLocaleDateString()}</span></div>
+                <div><strong>Created:</strong> <span className="text-cortex-text-secondary">{profile.credentials.metadata.createdAt.toLocaleDateString()}</span></div>
                 {profile.lastUsed && (
                   <div><strong>Last Used:</strong> <span className="text-green-400">{profile.lastUsed.toLocaleDateString()}</span></div>
                 )}
@@ -275,7 +275,7 @@ const handleCloudList = (args: string[]) => {
             )}
 
             {profile.credentials.metadata.description && (
-              <div className="mt-2 text-xs text-gray-400 italic">
+              <div className="mt-2 text-xs text-cortex-text-secondary italic">
                 "{profile.credentials.metadata.description}"
               </div>
             )}
@@ -503,7 +503,7 @@ const handleCloudTest = async (args: string[]) => {
           <div key={index} className="flex justify-between items-center p-3 border border-gray-600 rounded">
             <div className="text-gray-300">{test.test}</div>
             <div className="flex items-center gap-3">
-              <span className="text-gray-500 text-sm">{test.latency}</span>
+              <span className="text-cortex-text-muted text-sm">{test.latency}</span>
               <span className={`text-xs px-2 py-1 rounded ${
                 test.status === 'passed' ? 'bg-green-800 text-green-200' : 'bg-red-800 text-red-200'
               }`}>
@@ -621,7 +621,7 @@ const handleCloudUsage = (args: string[]) => {
             </div>
           </div>
           <div>
-            <div className="text-xs text-gray-400 mb-1">Recent Scenarios:</div>
+            <div className="text-xs text-cortex-text-secondary mb-1">Recent Scenarios:</div>
             <div className="space-y-1">
               {usageData.scenarios.recent.map(scenario => (
                 <div key={scenario} className="text-xs bg-gray-800 px-2 py-1 rounded font-mono">
@@ -638,7 +638,7 @@ const handleCloudUsage = (args: string[]) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
             <div><strong>This Month:</strong> <span className="text-green-400">$63.90</span></div>
-            <div><strong>Last Month:</strong> <span className="text-gray-400">$48.23</span></div>
+            <div><strong>Last Month:</strong> <span className="text-cortex-text-secondary">$48.23</span></div>
           </div>
           <div>
             <div><strong>Projected:</strong> <span className="text-yellow-400">$85.20</span></div>

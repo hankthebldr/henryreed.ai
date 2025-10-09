@@ -63,7 +63,7 @@ const extendedCommands: CommandConfig[] = [
         <div className="text-blue-300">
           <div className="text-xl font-bold">Henry Reed</div>
           <div className="text-gray-300">AI Engineer & Consultant</div>
-          <div className="text-xs text-gray-500 mt-2">Use <span className="font-mono">whoami --detailed</span> for more info</div>
+          <div className="text-xs text-cortex-text-muted mt-2">Use <span className="font-mono">whoami --detailed</span> for more info</div>
         </div>
       );
     }
@@ -202,7 +202,7 @@ const extendedCommands: CommandConfig[] = [
         <div className="text-blue-300">
           <div className="font-bold mb-2">📎 Detection Stub</div>
           <pre className="text-xs bg-black p-3 rounded border border-gray-700 whitespace-pre-wrap">{JSON.stringify(event, null, 2)}</pre>
-          <div className="text-gray-400 text-xs mt-2">Informational only. No actions executed.</div>
+          <div className="text-cortex-text-secondary text-xs mt-2">Informational only. No actions executed.</div>
         </div>
       );
     }
@@ -321,7 +321,7 @@ const extendedCommands: CommandConfig[] = [
           <div className="bg-gray-900 p-4 rounded border border-cyan-600 mb-4">
             <div className="text-green-400 font-bold mb-2">📝 Question Saved:</div>
             <div className="text-gray-300 text-sm mb-2">"{question}"</div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-cortex-text-muted">
               ID: {questionId} | Timestamp: {timestamp}
             </div>
           </div>
@@ -450,7 +450,7 @@ const extendedCommands: CommandConfig[] = [
             <div className="text-green-400">• AI services active</div>
             <div className="text-purple-400">• Commands ready</div>
           </div>
-          <div className="mt-3 text-xs text-gray-500">
+          <div className="mt-3 text-xs text-cortex-text-muted">
             Use --detailed, --analytics, or --performance for more info
           </div>
         </div>
@@ -512,7 +512,7 @@ const extendedCommands: CommandConfig[] = [
                 {results.docs.map((item, idx) => (
                   <div key={idx} className="border-l-2 border-blue-400 pl-3 py-1">
                     <div className="text-white font-mono text-sm">{item.title}</div>
-                    <div className="text-xs text-gray-400">{item.type} • {item.relevance} match</div>
+                    <div className="text-xs text-cortex-text-secondary">{item.type} • {item.relevance} match</div>
                   </div>
                 ))}
               </div>
@@ -526,7 +526,7 @@ const extendedCommands: CommandConfig[] = [
                 {results.projects.map((item, idx) => (
                   <div key={idx} className="border-l-2 border-green-400 pl-3 py-1">
                     <div className="text-white font-mono text-sm">{item.title}</div>
-                    <div className="text-xs text-gray-400">{item.type} • {item.relevance} match</div>
+                    <div className="text-xs text-cortex-text-secondary">{item.type} • {item.relevance} match</div>
                   </div>
                 ))}
               </div>
@@ -540,7 +540,7 @@ const extendedCommands: CommandConfig[] = [
                 {results.insights.map((item, idx) => (
                   <div key={idx} className="border-l-2 border-purple-400 pl-3 py-1">
                     <div className="text-white font-mono text-sm">{item.title}</div>
-                    <div className="text-xs text-gray-400">{item.type} • {item.relevance} match</div>
+                    <div className="text-xs text-cortex-text-secondary">{item.type} • {item.relevance} match</div>
                   </div>
                 ))}
               </div>
@@ -700,7 +700,7 @@ const extendedCommands: CommandConfig[] = [
       return (
         <div className="text-blue-300">
           <div className="font-bold mb-2 text-xl text-cyan-400">📊 JY2K - DC Analytics Dashboard</div>
-          <div className="text-sm text-gray-400 mb-4">Region: <span className="text-white">{region}</span> • Theatre: <span className="text-white">{theatre}</span> • User: <span className="text-white">{userFilter}</span> • Since: <span className="text-white">{sinceDays}d</span></div>
+          <div className="text-sm text-cortex-text-secondary mb-4">Region: <span className="text-white">{region}</span> • Theatre: <span className="text-white">{theatre}</span> • User: <span className="text-white">{userFilter}</span> • Since: <span className="text-white">{sinceDays}d</span></div>
 
           {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
@@ -711,7 +711,7 @@ const extendedCommands: CommandConfig[] = [
             <div className="p-4 rounded border border-blue-500/40 bg-blue-900/10">
               <div className="text-blue-400 text-xs">POVs Completed</div>
               <div className="text-2xl font-mono text-white">{totals.completed}</div>
-              <div className="text-xs text-gray-400">Completion Rate: {(completionRate*100).toFixed(0)}%</div>
+              <div className="text-xs text-cortex-text-secondary">Completion Rate: {(completionRate*100).toFixed(0)}%</div>
             </div>
             <div className="p-4 rounded border border-yellow-500/40 bg-yellow-900/10">
               <div className="text-yellow-400 text-xs">TRR Win Rate</div>
@@ -731,9 +731,9 @@ const extendedCommands: CommandConfig[] = [
                 <div key={u.user} className="p-3 rounded bg-gray-800/50 border border-gray-600">
                   <div className="flex justify-between">
                     <div className="text-white font-mono">{u.user}</div>
-                    <div className="text-xs text-gray-400">Win: {(u.winRate*100).toFixed(0)}% • Cycle: {u.avgCycle}d</div>
+                    <div className="text-xs text-cortex-text-secondary">Win: {(u.winRate*100).toFixed(0)}% • Cycle: {u.avgCycle}d</div>
                   </div>
-                  <div className="text-xs text-gray-400 mt-1">Eng: {u.engagements} • Init: {u.initiated} • Comp: {u.completed}</div>
+                  <div className="text-xs text-cortex-text-secondary mt-1">Eng: {u.engagements} • Init: {u.initiated} • Comp: {u.completed}</div>
                 </div>
               ))}
             </div>
@@ -747,9 +747,9 @@ const extendedCommands: CommandConfig[] = [
                 <div key={l.location} className="p-3 rounded bg-gray-800/50 border border-gray-600">
                   <div className="flex justify-between">
                     <div className="text-white font-mono">{l.location}</div>
-                    <div className="text-xs text-gray-400">Win: {(l.winRate*100).toFixed(0)}%</div>
+                    <div className="text-xs text-cortex-text-secondary">Win: {(l.winRate*100).toFixed(0)}%</div>
                   </div>
-                  <div className="text-xs text-gray-400 mt-1">Eng: {l.engagements} • Comp: {l.completed}</div>
+                  <div className="text-xs text-cortex-text-secondary mt-1">Eng: {l.engagements} • Comp: {l.completed}</div>
                 </div>
               ))}
             </div>
@@ -763,7 +763,7 @@ const extendedCommands: CommandConfig[] = [
                 <div key={o.id} className="p-3 rounded bg-gray-800/50 border border-gray-600">
                   <div className="flex justify-between mb-1">
                     <div className="text-white font-mono">{o.id}</div>
-                    <div className="text-xs text-gray-400">{Math.round(o.progress*100)}%</div>
+                    <div className="text-xs text-cortex-text-secondary">{Math.round(o.progress*100)}%</div>
                   </div>
                   <div className="text-xs text-gray-300">{o.name}</div>
                   <div className="mt-2 h-2 bg-gray-700 rounded">
@@ -775,7 +775,7 @@ const extendedCommands: CommandConfig[] = [
           </div>
 
           {/* Tips */}
-          <div className="mt-4 p-3 bg-gray-800/50 rounded border border-gray-600 text-xs text-gray-400">
+          <div className="mt-4 p-3 bg-gray-800/50 rounded border border-gray-600 text-xs text-cortex-text-secondary">
             <div className="text-yellow-400 font-bold mb-1">ℹ️ Tips</div>
             <div>Filter examples:</div>
             <div className="font-mono text-gray-300 mt-1">jy2k --region AMER --theatre "North America" --since 180d</div>
@@ -1011,22 +1011,22 @@ const extendedCommands: CommandConfig[] = [
             
             <div className="space-y-2 text-sm">
               <div className="text-cyan-400 font-mono">ctxpov --cloud --c1</div>
-              <div className="text-gray-400 ml-4">→ Executive cloud strategy resources</div>
+              <div className="text-cortex-text-secondary ml-4">→ Executive cloud strategy resources</div>
               
               <div className="text-blue-400 font-mono">ctxpov --cloud</div>
-              <div className="text-gray-400 ml-4">→ General cloud AI resources</div>
+              <div className="text-cortex-text-secondary ml-4">→ General cloud AI resources</div>
               
               <div className="text-purple-400 font-mono">ctxpov --c1</div>
-              <div className="text-gray-400 ml-4">→ C-level executive resources</div>
+              <div className="text-cortex-text-secondary ml-4">→ C-level executive resources</div>
               
               <div className="text-green-400 font-mono">ctxpov --enterprise</div>
-              <div className="text-gray-400 ml-4">→ Enterprise-focused solutions</div>
+              <div className="text-cortex-text-secondary ml-4">→ Enterprise-focused solutions</div>
               
               <div className="text-orange-400 font-mono">ctxpov --startups</div>
-              <div className="text-gray-400 ml-4">→ Startup and scale-up resources</div>
+              <div className="text-cortex-text-secondary ml-4">→ Startup and scale-up resources</div>
               
               <div className="text-white font-mono">ctxpov --all</div>
-              <div className="text-gray-400 ml-4">→ All available context URLs</div>
+              <div className="text-cortex-text-secondary ml-4">→ All available context URLs</div>
             </div>
             
             <div className="mt-4 p-3 bg-gray-800 rounded border border-cyan-600">

@@ -56,7 +56,7 @@ export const CortexCloudFrame: React.FC<CortexCloudFrameProps> = ({
             <div className="text-2xl">📚</div>
             <div>
               <h3 className="text-lg font-bold text-blue-400">{title}</h3>
-              <p className="text-sm text-gray-400">Interactive Cortex Cloud Documentation</p>
+              <p className="text-sm text-cortex-text-secondary">Interactive Cortex Cloud Documentation</p>
             </div>
           </div>
           
@@ -146,7 +146,7 @@ export const CortexCloudFrame: React.FC<CortexCloudFrameProps> = ({
         </div>
 
         {/* Current URL Display */}
-        <div className="text-xs text-gray-400 truncate font-mono">
+        <div className="text-xs text-cortex-text-secondary truncate font-mono">
           📍 {currentUrl}
         </div>
       </div>
@@ -158,7 +158,7 @@ export const CortexCloudFrame: React.FC<CortexCloudFrameProps> = ({
             <div className="text-center">
               <div className="text-4xl mb-4">⏳</div>
               <div className="text-blue-400 font-semibold">Loading Documentation...</div>
-              <div className="text-sm text-gray-400 mt-2">Please wait while we fetch the content</div>
+              <div className="text-sm text-cortex-text-secondary mt-2">Please wait while we fetch the content</div>
             </div>
           </div>
         )}
@@ -168,7 +168,7 @@ export const CortexCloudFrame: React.FC<CortexCloudFrameProps> = ({
             <div className="text-center max-w-md">
               <div className="text-4xl mb-4">⚠️</div>
               <div className="text-red-400 font-semibold mb-2">Documentation Access Issue</div>
-              <div className="text-sm text-gray-400 mb-4">{error}</div>
+              <div className="text-sm text-cortex-text-secondary mb-4">{error}</div>
               
               <div className="bg-gray-800 p-4 rounded border border-gray-600">
                 <div className="text-yellow-400 font-bold mb-2">💡 Alternative Access</div>
@@ -219,7 +219,7 @@ export const CortexCloudFrame: React.FC<CortexCloudFrameProps> = ({
 
       {/* Footer with accessibility info */}
       <div className="bg-gray-800 rounded-b-lg border-t border-gray-700 px-4 py-2">
-        <div className="flex items-center justify-between text-xs text-gray-500">
+        <div className="flex items-center justify-between text-xs text-cortex-text-muted">
           <div className="flex items-center space-x-4">
             <span>🎯 Accessibility: High contrast and text scaling available</span>
             <span>⌨️ Keyboard navigation supported</span>

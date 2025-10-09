@@ -182,6 +182,34 @@
       ]
     },
 
+    // Scenario Executions collection indexes
+    {
+      "collectionGroup": "scenarioExecutions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "endTime", "order": "ASCENDING" },
+        { "fieldPath": "__name__", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scenarioExecutions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "startTime", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scenarioExecutions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "organizationId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "startTime", "order": "DESCENDING" }
+      ]
+    },
+
     // Content Items collection indexes (from our content system)
     {
       "collectionGroup": "content_items",
@@ -225,13 +253,6 @@
       "fields": [
         { "fieldPath": "severity", "order": "DESCENDING" },
         { "fieldPath": "publishedAt", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "unit42_articles",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "ingestionDate", "order": "DESCENDING" }
       ]
     },
 

@@ -73,7 +73,7 @@ exports.trrRouter.post('/export', async (req, res) => {
                 const [url] = await file.getSignedUrl({ action: 'read', expires: Date.now() + 15 * 60 * 1000 });
                 signedUrl = url;
             }
-            catch (_a) { }
+            catch { }
             await admin.firestore().collection('trr_exports').add({ trrId, format, path, timestamp: admin.firestore.FieldValue.serverTimestamp() });
             res.json({ success: true, format, downloadUrl: signedUrl, storagePath: path });
             return;
@@ -103,13 +103,13 @@ exports.trrRouter.post('/export', async (req, res) => {
             const [url] = await file.getSignedUrl({ action: 'read', expires: Date.now() + 15 * 60 * 1000 });
             signedUrl = url;
         }
-        catch (_b) { }
+        catch { }
         await admin.firestore().collection('trr_exports').add({ trrId, format: 'pdf', path, timestamp: admin.firestore.FieldValue.serverTimestamp() });
         res.json({ success: true, format: 'pdf', downloadUrl: signedUrl, storagePath: path });
         return;
     }
     catch (error) {
-        res.status(500).json({ success: false, error: (error === null || error === void 0 ? void 0 : error.message) || 'TRR export failed' });
+        res.status(500).json({ success: false, error: error?.message || 'TRR export failed' });
         return;
     }
 });
@@ -134,7 +134,7 @@ exports.trrRouter.post('/signoff', async (req, res) => {
         return;
     }
     catch (error) {
-        res.status(500).json({ success: false, error: (error === null || error === void 0 ? void 0 : error.message) || 'TRR signoff failed' });
+        res.status(500).json({ success: false, error: error?.message || 'TRR signoff failed' });
         return;
     }
 });

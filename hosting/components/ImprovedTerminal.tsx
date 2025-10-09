@@ -1,4 +1,6 @@
 'use client';
+// legacy-orange: replaced by green per Cortex rebrand (2025-10-08)
+
 
 import React, { useState, useRef, useEffect, useImperativeHandle } from 'react';
 import { useRouter } from 'next/navigation';
@@ -147,7 +149,7 @@ const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) 
           </pre>
           <div className="text-sm">
             <div className="mb-2">🛡️ <strong>Cortex DC Engagement Portal</strong></div>
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-cortex-text-secondary">
               Domain Consultant Hub for XSIAM Proof-of-Value Excellence
             </div>
             <div className="mt-3 text-sm">
@@ -184,7 +186,7 @@ const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) 
                   <strong>Usage:</strong> <span className="font-mono text-white">{cmd.usage}</span>
                 </div>
                 {cmd.aliases && (
-                  <div className="text-gray-500 mt-2 text-sm">
+                  <div className="text-cortex-text-muted mt-2 text-sm">
                     <strong>Aliases:</strong> {cmd.aliases.join(', ')}
                   </div>
                 )}
@@ -207,7 +209,7 @@ const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) 
                   <div className="text-green-400 font-bold">{cmd.name}</div>
                   <div className="text-sm text-gray-300 mt-1">{cmd.description}</div>
                   {cmd.aliases && (
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="text-xs text-cortex-text-muted mt-1">
                       Aliases: {cmd.aliases.join(', ')}
                     </div>
                   )}
@@ -265,7 +267,7 @@ const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) 
                 </div>
               </div>
               
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-cortex-text-secondary">
                 Ready to get started? Try <span className="text-green-400 font-mono">proof-of-value start</span> or <span className="text-blue-400 font-mono">help</span> to explore all commands.
               </div>
             </div>
@@ -330,11 +332,11 @@ const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) 
                         <span>Baseline Detection Setup</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-gray-400 mr-2">○</span>
+                        <span className="text-cortex-text-secondary mr-2">○</span>
                         <span>Custom Rule Development</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-gray-400 mr-2">○</span>
+                        <span className="text-cortex-text-secondary mr-2">○</span>
                         <span>Performance Evaluation</span>
                       </div>
                     </div>
@@ -357,29 +359,29 @@ const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) 
                     <div className="bg-red-900/20 p-4 rounded border border-red-500/30">
                       <div className="text-red-400 font-bold mb-2">🛡️ Threat Detection</div>
                       <div className="text-sm text-gray-300">Advanced threat hunting and anomaly detection</div>
-                      <div className="text-xs text-gray-500 mt-2">Duration: 2-3 weeks</div>
+                      <div className="text-xs text-cortex-text-muted mt-2">Duration: 2-3 weeks</div>
                     </div>
                     
                     <div className="bg-blue-900/20 p-4 rounded border border-blue-500/30">
                       <div className="text-blue-400 font-bold mb-2">📊 Log Analytics</div>
                       <div className="text-sm text-gray-300">Real-time log processing and correlation</div>
-                      <div className="text-xs text-gray-500 mt-2">Duration: 1-2 weeks</div>
+                      <div className="text-xs text-cortex-text-muted mt-2">Duration: 1-2 weeks</div>
                     </div>
                     
                     <div className="bg-purple-900/20 p-4 rounded border border-purple-500/30">
                       <div className="text-purple-400 font-bold mb-2">🔍 Behavioral Analysis</div>
                       <div className="text-sm text-gray-300">User and entity behavior monitoring</div>
-                      <div className="text-xs text-gray-500 mt-2">Duration: 3-4 weeks</div>
+                      <div className="text-xs text-cortex-text-muted mt-2">Duration: 3-4 weeks</div>
                     </div>
                     
                     <div className="bg-green-900/20 p-4 rounded border border-green-500/30">
                       <div className="text-green-400 font-bold mb-2">⚡ Performance Optimization</div>
                       <div className="text-sm text-gray-300">Detection rule performance tuning</div>
-                      <div className="text-xs text-gray-500 mt-2">Duration: 1 week</div>
+                      <div className="text-xs text-cortex-text-muted mt-2">Duration: 1 week</div>
                     </div>
                   </div>
                   
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-cortex-text-secondary">
                     Use <span className="text-green-400 font-mono">pov deploy [template-name]</span> to start a specific assessment
                   </div>
                 </div>
@@ -414,7 +416,7 @@ const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) 
                     </div>
                   </div>
                   
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-cortex-text-secondary">
                     Estimated completion: 5 days | Next milestone: Custom rule deployment
                   </div>
                 </div>
@@ -444,7 +446,7 @@ const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) 
                         <span>Configuring data sources...</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-gray-400 mr-2">○</span>
+                        <span className="text-cortex-text-secondary mr-2">○</span>
                         <span>Initializing monitoring dashboards</span>
                       </div>
                     </div>
@@ -511,7 +513,7 @@ const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) 
                           <div className="text-red-400 font-bold">Lateral Movement Detection</div>
                           <div className="text-sm text-gray-300">Detects suspicious network traversal patterns</div>
                         </div>
-                        <div className="text-xs text-gray-500">SIGMA | HIGH</div>
+                        <div className="text-xs text-cortex-text-muted">SIGMA | HIGH</div>
                       </div>
                     </div>
                     
@@ -521,7 +523,7 @@ const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) 
                           <div className="text-yellow-400 font-bold">Credential Stuffing</div>
                           <div className="text-sm text-gray-300">Identifies brute force authentication attempts</div>
                         </div>
-                        <div className="text-xs text-gray-500">KQL | MEDIUM</div>
+                        <div className="text-xs text-cortex-text-muted">KQL | MEDIUM</div>
                       </div>
                     </div>
                     
@@ -531,7 +533,7 @@ const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) 
                           <div className="text-blue-400 font-bold">Data Exfiltration</div>
                           <div className="text-sm text-gray-300">Monitors for unusual data transfer volumes</div>
                         </div>
-                        <div className="text-xs text-gray-500">SPL | HIGH</div>
+                        <div className="text-xs text-cortex-text-muted">SPL | HIGH</div>
                       </div>
                     </div>
                     
@@ -541,12 +543,12 @@ const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) 
                           <div className="text-purple-400 font-bold">Process Injection</div>
                           <div className="text-sm text-gray-300">Detects malicious process manipulation</div>
                         </div>
-                        <div className="text-xs text-gray-500">YARA | CRITICAL</div>
+                        <div className="text-xs text-cortex-text-muted">YARA | CRITICAL</div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-cortex-text-secondary">
                     Use <span className="text-blue-400 font-mono">template deploy [name]</span> to activate a template
                   </div>
                 </div>
@@ -562,10 +564,10 @@ const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) 
                   <div className="bg-green-900/20 p-4 rounded border border-green-500/30">
                     <div className="text-green-400 font-bold mb-3">Step 1: Template Configuration</div>
                     <div className="text-sm space-y-2">
-                      <div><span className="text-gray-400">Name:</span> <span className="text-white">Custom_Threat_Detection_v1</span></div>
-                      <div><span className="text-gray-400">Type:</span> <span className="text-blue-400">Behavioral Analysis</span></div>
-                      <div><span className="text-gray-400">Language:</span> <span className="text-purple-400">KQL (Kusto Query Language)</span></div>
-                      <div><span className="text-gray-400">Severity:</span> <span className="text-yellow-400">Medium</span></div>
+                      <div><span className="text-cortex-text-secondary">Name:</span> <span className="text-white">Custom_Threat_Detection_v1</span></div>
+                      <div><span className="text-cortex-text-secondary">Type:</span> <span className="text-blue-400">Behavioral Analysis</span></div>
+                      <div><span className="text-cortex-text-secondary">Language:</span> <span className="text-purple-400">KQL (Kusto Query Language)</span></div>
+                      <div><span className="text-cortex-text-secondary">Severity:</span> <span className="text-yellow-400">Medium</span></div>
                     </div>
                   </div>
                   
@@ -611,7 +613,7 @@ const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) 
                         <span>Deploying detection rules...</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-gray-400 mr-2">○</span>
+                        <span className="text-cortex-text-secondary mr-2">○</span>
                         <span>Setting up alerting workflows</span>
                       </div>
                     </div>
@@ -681,10 +683,10 @@ const ImprovedTerminal = React.forwardRef<ImprovedTerminalRef, {}>((props, ref) 
                   <div className="bg-green-900/20 p-4 rounded border border-green-500/30">
                     <div className="text-green-400 font-bold mb-3">Rule Configuration:</div>
                     <div className="text-sm space-y-2">
-                      <div><span className="text-gray-400">Attack Technique:</span> <span className="text-red-400">T1055 - Process Injection</span></div>
-                      <div><span className="text-gray-400">Data Source:</span> <span className="text-blue-400">Windows Security Logs</span></div>
-                      <div><span className="text-gray-400">Detection Logic:</span> <span className="text-purple-400">Behavioral + Signature</span></div>
-                      <div><span className="text-gray-400">Confidence:</span> <span className="text-yellow-400">High (85%)</span></div>
+                      <div><span className="text-cortex-text-secondary">Attack Technique:</span> <span className="text-red-400">T1055 - Process Injection</span></div>
+                      <div><span className="text-cortex-text-secondary">Data Source:</span> <span className="text-blue-400">Windows Security Logs</span></div>
+                      <div><span className="text-cortex-text-secondary">Detection Logic:</span> <span className="text-purple-400">Behavioral + Signature</span></div>
+                      <div><span className="text-cortex-text-secondary">Confidence:</span> <span className="text-yellow-400">High (85%)</span></div>
                     </div>
                   </div>
                   
@@ -780,7 +782,7 @@ level: high`}
                   <div className="text-sm text-gray-300 mt-1">
                     Email: {user.email}
                   </div>
-                  <div className="text-sm text-gray-400 mt-2">
+                  <div className="text-sm text-cortex-text-secondary mt-2">
                     Use <span className="text-red-400 font-mono">logout</span> to sign out
                   </div>
                 </div>
@@ -885,7 +887,7 @@ level: high`}
                     : 'Opening complete documentation in new tab'
                   }
                 </div>
-                <div className="text-sm text-gray-400 mt-2">
+                <div className="text-sm text-cortex-text-secondary mt-2">
                   Available sections: commands, api, tutorials, examples
                 </div>
               </div>
@@ -981,7 +983,7 @@ level: high`}
                     ✓ Signed in as {user?.email}
                   </div>
                 )}
-                <div className="text-xs text-gray-500 mt-2">
+                <div className="text-xs text-cortex-text-muted mt-2">
                   Use <span className="text-cyan-400 font-mono">whoami --detailed</span> for more info or <span className="text-green-400 font-mono">whoami --linux</span> for username
                 </div>
               </div>
@@ -995,7 +997,7 @@ level: high`}
       description: 'Enhanced security scenario management with PANW integration',
       usage: 'scenario <command> [options]',
       aliases: ['scenarios', 'sec-scenario'],
-      handler: async (args) => {
+      handler: (args) => {
         // Check if user wants enhanced features by using specific commands or flags
         const useEnhanced = args.includes('--enhanced') || 
                           args.includes('--product') || 
@@ -1022,19 +1024,19 @@ level: high`}
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-blue-300 font-mono text-sm">scenario list</span>
-                        <span className="text-gray-400 text-xs">Browse scenarios</span>
+                        <span className="text-cortex-text-secondary text-xs">Browse scenarios</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-green-300 font-mono text-sm">scenario generate</span>
-                        <span className="text-gray-400 text-xs">Deploy scenario</span>
+                        <span className="text-cortex-text-secondary text-xs">Deploy scenario</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-yellow-300 font-mono text-sm">scenario status</span>
-                        <span className="text-gray-400 text-xs">Monitor progress</span>
+                        <span className="text-cortex-text-secondary text-xs">Monitor progress</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-purple-300 font-mono text-sm">scenario validate</span>
-                        <span className="text-gray-400 text-xs">Run tests</span>
+                        <span className="text-cortex-text-secondary text-xs">Run tests</span>
                       </div>
                     </div>
                   </div>
@@ -1044,19 +1046,19 @@ level: high`}
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-cyan-300 font-mono text-sm">scenario registry</span>
-                        <span className="text-gray-400 text-xs">View analytics</span>
+                        <span className="text-cortex-text-secondary text-xs">View analytics</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-orange-300 font-mono text-sm">scenario export</span>
-                        <span className="text-gray-400 text-xs">Generate reports</span>
+                        <span className="text-cortex-text-secondary text-xs">Generate reports</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-red-300 font-mono text-sm">scenario destroy</span>
-                        <span className="text-gray-400 text-xs">Cleanup resources</span>
+                        <span className="text-cortex-text-secondary text-xs">Cleanup resources</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-pink-300 font-mono text-sm">scenario stats</span>
-                        <span className="text-gray-400 text-xs">Engine metrics</span>
+                        <span className="text-cortex-text-secondary text-xs">Engine metrics</span>
                       </div>
                     </div>
                   </div>
@@ -1067,19 +1069,19 @@ level: high`}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                     <div>
                       <div className="text-blue-300 font-mono">scenario list --product prisma-cloud</div>
-                      <div className="text-gray-400 ml-2">Filter by PANW product</div>
+                      <div className="text-cortex-text-secondary ml-2">Filter by PANW product</div>
                     </div>
                     <div>
                       <div className="text-green-300 font-mono">scenario list --business-value risk-mitigation</div>
-                      <div className="text-gray-400 ml-2">Filter by business value</div>
+                      <div className="text-cortex-text-secondary ml-2">Filter by business value</div>
                     </div>
                     <div>
                       <div className="text-purple-300 font-mono">scenario generate --id cloud-posture-s3</div>
-                      <div className="text-gray-400 ml-2">Deploy specific scenario</div>
+                      <div className="text-cortex-text-secondary ml-2">Deploy specific scenario</div>
                     </div>
                     <div>
                       <div className="text-yellow-300 font-mono">scenario list --detailed</div>
-                      <div className="text-gray-400 ml-2">Comprehensive view</div>
+                      <div className="text-cortex-text-secondary ml-2">Comprehensive view</div>
                     </div>
                   </div>
                 </div>
@@ -1109,25 +1111,25 @@ level: high`}
         try {
           switch (subcommand) {
             case 'list':
-              return await scenarioCommands.list(subArgs);
+              return scenarioCommands.list(subArgs);
             
             case 'generate':
-              return await scenarioCommands.generate(['generate', ...subArgs]);
+              return scenarioCommands.generate(['generate', ...subArgs]);
             
             case 'status':
-              return await scenarioCommands.status(subArgs);
+              return scenarioCommands.status(subArgs);
             
             case 'validate':
-              return await scenarioCommands.validate(subArgs);
+              return scenarioCommands.validate(subArgs);
             
             case 'export':
-              return await scenarioCommands.export(subArgs);
+              return scenarioCommands.export(subArgs);
             
             case 'mitre':
-              return await scenarioCommands.mitre(subArgs);
+              return scenarioCommands.mitre(subArgs);
             
             case 'destroy':
-              return await scenarioCommands.destroy(subArgs);
+              return scenarioCommands.destroy(subArgs);
             
             default:
               return (
@@ -1224,29 +1226,29 @@ level: high`}
                   <div className="bg-green-900/20 p-4 rounded border border-green-500/30">
                     <div className="text-green-400 font-bold mb-3">Active Monitoring:</div>
                     <div className="text-sm space-y-2">
-                      <div><span className="text-gray-400">Target:</span> <span className="text-cyan-400">{scenarioArg || 'All Scenarios'}</span></div>
-                      <div><span className="text-gray-400">Alerts:</span> <span className={hasAlerts ? 'text-green-400' : 'text-gray-400'}>{hasAlerts ? 'Enabled' : 'Disabled'}</span></div>
-                      <div><span className="text-gray-400">Mode:</span> <span className={realTime ? 'text-yellow-400' : 'text-blue-400'}>{realTime ? 'Real-time' : 'Standard'}</span></div>
-                      <div><span className="text-gray-400">Started:</span> <span className="text-white">{new Date().toLocaleTimeString()}</span></div>
+                      <div><span className="text-cortex-text-secondary">Target:</span> <span className="text-cyan-400">{scenarioArg || 'All Scenarios'}</span></div>
+                      <div><span className="text-cortex-text-secondary">Alerts:</span> <span className={hasAlerts ? 'text-green-400' : 'text-cortex-text-secondary'}>{hasAlerts ? 'Enabled' : 'Disabled'}</span></div>
+                      <div><span className="text-cortex-text-secondary">Mode:</span> <span className={realTime ? 'text-yellow-400' : 'text-blue-400'}>{realTime ? 'Real-time' : 'Standard'}</span></div>
+                      <div><span className="text-cortex-text-secondary">Started:</span> <span className="text-white">{new Date().toLocaleTimeString()}</span></div>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div className="bg-blue-900/20 p-3 rounded border border-blue-500/30 text-center">
                       <div className="text-2xl font-bold text-blue-400">0</div>
-                      <div className="text-xs text-gray-400">Active Threats</div>
+                      <div className="text-xs text-cortex-text-secondary">Active Threats</div>
                     </div>
                     <div className="bg-green-900/20 p-3 rounded border border-green-500/30 text-center">
                       <div className="text-2xl font-bold text-green-400">97.2%</div>
-                      <div className="text-xs text-gray-400">System Health</div>
+                      <div className="text-xs text-cortex-text-secondary">System Health</div>
                     </div>
                     <div className="bg-purple-900/20 p-3 rounded border border-purple-500/30 text-center">
                       <div className="text-2xl font-bold text-purple-400">1.4K</div>
-                      <div className="text-xs text-gray-400">Events/min</div>
+                      <div className="text-xs text-cortex-text-secondary">Events/min</div>
                     </div>
                     <div className="bg-yellow-900/20 p-3 rounded border border-yellow-500/30 text-center">
                       <div className="text-2xl font-bold text-yellow-400">2</div>
-                      <div className="text-xs text-gray-400">Scenarios</div>
+                      <div className="text-xs text-cortex-text-secondary">Scenarios</div>
                     </div>
                   </div>
                   
@@ -1266,10 +1268,10 @@ level: high`}
                   <div className="bg-yellow-900/20 p-4 rounded border border-yellow-500/30">
                     <div className="text-yellow-400 font-bold mb-3">Session Summary:</div>
                     <div className="text-sm space-y-2">
-                      <div><span className="text-gray-400">Duration:</span> <span className="text-white">47 minutes</span></div>
-                      <div><span className="text-gray-400">Events Processed:</span> <span className="text-cyan-400">67,890</span></div>
-                      <div><span className="text-gray-400">Alerts Generated:</span> <span className="text-green-400">0</span></div>
-                      <div><span className="text-gray-400">Peak Events/min:</span> <span className="text-purple-400">2,340</span></div>
+                      <div><span className="text-cortex-text-secondary">Duration:</span> <span className="text-white">47 minutes</span></div>
+                      <div><span className="text-cortex-text-secondary">Events Processed:</span> <span className="text-cyan-400">67,890</span></div>
+                      <div><span className="text-cortex-text-secondary">Alerts Generated:</span> <span className="text-green-400">0</span></div>
+                      <div><span className="text-cortex-text-secondary">Peak Events/min:</span> <span className="text-purple-400">2,340</span></div>
                     </div>
                   </div>
                   
@@ -1291,10 +1293,10 @@ level: high`}
                   <div className="bg-blue-900/20 p-4 rounded border border-blue-500/30">
                     <div className="text-blue-400 font-bold mb-3">System Status: <span className="text-green-400">ACTIVE</span></div>
                     <div className="text-sm space-y-2">
-                      <div><span className="text-gray-400">Uptime:</span> <span className="text-green-400">23h 14m</span></div>
-                      <div><span className="text-gray-400">CPU Usage:</span> <span className="text-yellow-400">34%</span></div>
-                      <div><span className="text-gray-400">Memory Usage:</span> <span className="text-blue-400">2.1GB / 8GB</span></div>
-                      <div><span className="text-gray-400">Network I/O:</span> <span className="text-purple-400">142 MB/s</span></div>
+                      <div><span className="text-cortex-text-secondary">Uptime:</span> <span className="text-green-400">23h 14m</span></div>
+                      <div><span className="text-cortex-text-secondary">CPU Usage:</span> <span className="text-yellow-400">34%</span></div>
+                      <div><span className="text-cortex-text-secondary">Memory Usage:</span> <span className="text-blue-400">2.1GB / 8GB</span></div>
+                      <div><span className="text-cortex-text-secondary">Network I/O:</span> <span className="text-purple-400">142 MB/s</span></div>
                     </div>
                   </div>
                   
@@ -1304,19 +1306,19 @@ level: high`}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="bg-gray-800 p-3 rounded border border-gray-600">
                           <div className="text-green-400 font-bold">Scenario Monitor</div>
-                          <div className="text-xs text-gray-400 mt-1">2 active scenarios • 1,400 events/min</div>
+                          <div className="text-xs text-cortex-text-secondary mt-1">2 active scenarios • 1,400 events/min</div>
                         </div>
                         <div className="bg-gray-800 p-3 rounded border border-gray-600">
                           <div className="text-blue-400 font-bold">System Health</div>
-                          <div className="text-xs text-gray-400 mt-1">All systems nominal • 97.2% uptime</div>
+                          <div className="text-xs text-cortex-text-secondary mt-1">All systems nominal • 97.2% uptime</div>
                         </div>
                         <div className="bg-gray-800 p-3 rounded border border-gray-600">
                           <div className="text-purple-400 font-bold">Alert Manager</div>
-                          <div className="text-xs text-gray-400 mt-1">0 active alerts • 3 resolved today</div>
+                          <div className="text-xs text-cortex-text-secondary mt-1">0 active alerts • 3 resolved today</div>
                         </div>
                         <div className="bg-gray-800 p-3 rounded border border-gray-600">
                           <div className="text-yellow-400 font-bold">Performance Metrics</div>
-                          <div className="text-xs text-gray-400 mt-1">Low latency • 99.9% success rate</div>
+                          <div className="text-xs text-cortex-text-secondary mt-1">Low latency • 99.9% success rate</div>
                         </div>
                       </div>
                     </div>
@@ -1654,7 +1656,7 @@ level: high`}
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-cortex-green to-cortex-orange rounded-lg flex items-center justify-center shadow-lg shadow-cortex-green/25">
+              <div className="w-10 h-10 bg-gradient-to-r from-cortex-green to-cortex-accent rounded-lg flex items-center justify-center shadow-lg shadow-cortex-green/25">
                 <span className="text-cortex-text-primary font-bold text-sm">🖥️</span>
               </div>
               <div>
@@ -1767,7 +1769,7 @@ level: high`}
             </button>
             <button 
               onClick={() => executeCommand('project')}
-              className="text-cortex-orange hover:text-cortex-orange-light px-2 py-1 rounded border border-cortex-orange/20 hover:border-cortex-orange/40 transition-colors font-mono text-xs"
+              className="text-cortex-accent hover:text-cortex-accent-3 px-2 py-1 rounded border border-cortex-accent/20 hover:border-cortex-accent/40 transition-colors font-mono text-xs"
             >
               project
             </button>

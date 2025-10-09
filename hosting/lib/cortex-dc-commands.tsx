@@ -319,7 +319,7 @@ export const cortexDCCommands: CommandConfig[] = [
                 {xsiamScenarios.slice(0, 3).map(scenario => (
                   <div key={scenario.id} className="border border-gray-600 p-2 rounded">
                     <div className="font-mono text-blue-300">{scenario.name}</div>
-                    <div className="text-xs text-gray-400">{scenario.duration} • {scenario.audience}</div>
+                    <div className="text-xs text-cortex-text-secondary">{scenario.duration} • {scenario.audience}</div>
                   </div>
                 ))}
               </div>
@@ -419,7 +419,7 @@ const handlePovList = (args: string[]) => {
               <div><strong>Stakeholders:</strong> {pov.stakeholders.map(s => s.name).join(', ')}</div>
             </div>
             {pov.notes.length > 0 && (
-              <div className="mt-2 text-xs text-gray-400">
+              <div className="mt-2 text-xs text-cortex-text-secondary">
                 <strong>Latest:</strong> {pov.notes[pov.notes.length - 1]}
               </div>
             )}
@@ -453,7 +453,7 @@ const handlePovStatus = (args: string[]) => {
             {pov.stakeholders.map((stakeholder, idx) => (
               <div key={idx} className="flex justify-between">
                 <span>{stakeholder.name}</span>
-                <span className="text-gray-400">{stakeholder.role}</span>
+                <span className="text-cortex-text-secondary">{stakeholder.role}</span>
               </div>
             ))}
           </div>
@@ -467,7 +467,7 @@ const handlePovStatus = (args: string[]) => {
             {pov.activities.slice(-3).map(activity => (
               <div key={activity.id} className="border-l-2 border-blue-400 pl-3 py-1">
                 <div className="text-white font-mono text-sm">{activity.description}</div>
-                <div className="text-xs text-gray-400">
+                <div className="text-xs text-cortex-text-secondary">
                   {activity.date.toLocaleDateString()} • {activity.type} • {activity.attendees.length} attendees
                 </div>
                 <div className="text-xs text-blue-300 mt-1">{activity.outcome}</div>
@@ -576,7 +576,7 @@ const handleCustomerProfile = (args: string[]) => {
             <div key={idx} className="flex justify-between items-center border border-gray-700 p-2 rounded">
               <div>
                 <div className="font-bold">{contact.name}</div>
-                <div className="text-sm text-gray-400">{contact.role}</div>
+                <div className="text-sm text-cortex-text-secondary">{contact.role}</div>
               </div>
               <div className="text-right text-sm">
                 <div className="text-blue-300">{contact.email}</div>

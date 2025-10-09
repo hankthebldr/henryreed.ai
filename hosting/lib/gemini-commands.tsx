@@ -66,7 +66,7 @@ const GeminiChatInterface: React.FC<{
       {/* Chat Messages */}
       <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
         {messages.length === 0 && !isLoading && (
-          <div className="text-center text-gray-400 py-8">
+          <div className="text-center text-cortex-text-secondary py-8">
             <div className="text-4xl mb-2">💬</div>
             <p>Ask me anything about POV management, TRR validation, or Cloud Detection and Response scenarios!</p>
           </div>
@@ -142,7 +142,7 @@ const AIInsightDisplay: React.FC<{ insight: AIInsight }> = ({ insight }) => {
       case 'detection_rule': return 'text-blue-400';
       case 'scenario_optimization': return 'text-yellow-400';
       case 'trr_analysis': return 'text-purple-400';
-      default: return 'text-gray-400';
+      default: return 'text-cortex-text-secondary';
     }
   };
 
@@ -152,7 +152,7 @@ const AIInsightDisplay: React.FC<{ insight: AIInsight }> = ({ insight }) => {
         <div className="text-2xl mr-3">{getTypeIcon(insight.type)}</div>
         <div className="flex-1">
           <h3 className={`text-lg font-bold ${getTypeColor(insight.type)}`}>{insight.title}</h3>
-          <div className="flex items-center space-x-3 text-sm text-gray-400">
+          <div className="flex items-center space-x-3 text-sm text-cortex-text-secondary">
             <span>Confidence: {Math.round(insight.confidence * 100)}%</span>
             <span>•</span>
             <span>Type: {insight.type.replace('_', ' ').toUpperCase()}</span>
@@ -273,7 +273,7 @@ export const geminiCommands: CommandConfig[] = [
               <div className="text-center py-8">
                 <div className="text-4xl mb-4">🔄</div>
                 <div className="text-purple-400 font-semibold">Analyzing POV with Gemini AI...</div>
-                <div className="text-sm text-gray-400 mt-2">This may take a few moments</div>
+                <div className="text-sm text-cortex-text-secondary mt-2">This may take a few moments</div>
               </div>
             );
           }
@@ -471,7 +471,7 @@ export const geminiCommands: CommandConfig[] = [
                   <div>• Resource allocation insights</div>
                   <div>• Success factor identification</div>
                 </div>
-                <div className="mt-4 font-mono text-xs text-gray-400">
+                <div className="mt-4 font-mono text-xs text-cortex-text-secondary">
                   gemini analyze-pov POV-2024-001
                 </div>
               </div>
@@ -484,7 +484,7 @@ export const geminiCommands: CommandConfig[] = [
                   <div>• Success metrics definition</div>
                   <div>• Testing recommendations</div>
                 </div>
-                <div className="mt-4 font-mono text-xs text-gray-400">
+                <div className="mt-4 font-mono text-xs text-cortex-text-secondary">
                   gemini analyze-trr TRR-001
                 </div>
               </div>
@@ -497,7 +497,7 @@ export const geminiCommands: CommandConfig[] = [
                   <div>• MITRE ATT&CK mapping</div>
                   <div>• Tuning recommendations</div>
                 </div>
-                <div className="mt-4 font-mono text-xs text-gray-400">
+                <div className="mt-4 font-mono text-xs text-cortex-text-secondary">
                   gemini generate-rule ransomware
                 </div>
               </div>
@@ -510,7 +510,7 @@ export const geminiCommands: CommandConfig[] = [
                   <div>• Best practice guidance</div>
                   <div>• Real-time Q&A</div>
                 </div>
-                <div className="mt-4 font-mono text-xs text-gray-400">
+                <div className="mt-4 font-mono text-xs text-cortex-text-secondary">
                   gemini chat
                 </div>
               </div>
