@@ -8,75 +8,53 @@
 /* CSS Custom Properties for Cortex Theme */
 @layer base {
   :root {
-    /* LEGACY Cortex Color System (preserved for compatibility) */
-    --cortex-orange: #FF6900;
-    --cortex-orange-light: #FF8533;
-    --cortex-orange-dark: #E55A00;
-    --cortex-green: #00CC66;
-    --cortex-green-light: #33D580;
-    --cortex-green-dark: #00B359;
-    
-    /* MODERN Cortex XSIAM Brand Colors (Official) */
-    /* RGB space for opacity utilities */
-    --cortex-primary: 0 204 102;     /* #00CC66 - Cortex green */
-    --cortex-primary-light: 51 213 128; /* #33D580 - Light green */
-    --cortex-primary-dark: 0 179 89;    /* #00B359 - Dark green */
-    --cortex-accent: 250 88 45;      /* #FA582D - PANW orange accent */
-    --cortex-blue: 0 192 232;        /* #00C0E8 - Interactive blue */
-    --cortex-gray: 107 114 128;      /* #6B7280 - UI gray */
-    --cortex-dark: 20 20 20;         /* #141414 */
-    
-    /* Surface Tokens (Dark Theme Optimized) */
-    --cortex-canvas: 0 0 0;          /* #000000 - App background */
-    --cortex-surface: 20 20 20;      /* #141414 - Card/panel background */
-    --cortex-elevated: 26 26 26;     /* #1A1A1A - Elevated surfaces */
-    --cortex-border: 48 48 48;       /* #303030 - Default borders */
-    
-  /* Text Tokens (Enhanced Visibility & Contrast) */
-    --cortex-text-primary: 255 255 255;   /* #FFFFFF - Headings (bright white) */
-    --cortex-text-secondary: 245 245 245; /* #F5F5F5 - Body text (off-white) */
-    --cortex-text-muted: 200 200 200;     /* #C8C8C8 - Meta text (light gray) */
-    
-    /* Status Colors (WCAG AA Compliant) */
-    --status-success: 0 204 102;     /* #00CC66 - Cortex green */
-    --status-warning: 245 158 11;    /* #F59E0B */
-    --status-error: 239 68 68;       /* #EF4444 */
-    --status-info: 0 192 232;        /* #00C0E8 */
-    
+    /* Cortex Brand Palette (2025 refresh) */
+    --cortex-primary: 0 204 102;        /* #00CC66 */
+    --cortex-primary-light: 54 231 149; /* #36E795 */
+    --cortex-primary-dark: 0 156 78;    /* #009C4E */
+    --cortex-green: 0 204 102;          /* Alias for legacy usage */
+    --cortex-teal: 21 189 178;          /* #15BDB2 */
+    --cortex-blue: 0 192 232;           /* #00C0E8 */
+    --cortex-cyan: 0 214 255;           /* #00D6FF */
+    --cortex-purple: 130 125 255;       /* #827DFF */
+    --cortex-accent: 120 220 255;       /* Soft cyan glow */
+    --cortex-dark: 8 17 24;             /* #081118 */
+
+    /* Surface Tokens */
+    --cortex-canvas: 6 12 16;           /* #060C10 */
+    --cortex-surface: 10 20 27;         /* #0A141B */
+    --cortex-elevated: 14 26 34;        /* #0E1A22 */
+    --cortex-border: 28 44 54;          /* #1C2C36 */
+    --cortex-border-strong: 36 56 68;   /* #243844 */
+    --cortex-border-secondary: 46 70 82;/* #2E4652 */
+    --cortex-border-muted: 64 88 100;   /* #405864 */
+
+    /* Text tokens */
+    --cortex-text-primary: 224 244 239;   /* #E0F4EF */
+    --cortex-text-secondary: 188 214 207; /* #BCD6CF */
+    --cortex-text-muted: 148 173 168;     /* #94ADA8 */
+    --cortex-text-disabled: 110 130 126;  /* #6E827E */
+
+    /* Background aliases (legacy token compatibility) */
+    --cortex-bg-primary: #050C11;
+    --cortex-bg-secondary: #081118;
+    --cortex-bg-tertiary: #0E1A22;
+    --cortex-bg-quaternary: #13232D;
+    --cortex-bg-hover: #1A303C;
+
+    /* Status Colors */
+    --status-success: 0 204 140;       /* Slightly brighter success */
+    --status-warning: 255 171 38;      /* Vibrant amber */
+    --status-error: 239 83 80;         /* Alert red */
+    --status-info: 32 196 255;         /* Electric blue */
+
     /* Focus & Ring Colors */
-    --ring-brand: 0 204 102;         /* Cortex green for focus */
-    --ring-focus: 0 204 102;         /* Cortex green for outline */
-    
-    /* Glass & Effects */
-    --glass-tint: 255 255 255;       /* White tint for glassmorphism */
-    
-    /* LEGACY Background Hierarchy (preserved) */
-    --cortex-bg-primary: #000000;
-    --cortex-bg-secondary: #0D1117;
-    --cortex-bg-tertiary: #161B22;
-    --cortex-bg-quaternary: #21262D;
-    --cortex-bg-hover: #30363D;
-    
-    /* LEGACY Text Hierarchy (enhanced visibility) */
-    --cortex-text-primary: #FFFFFF;
-    --cortex-text-secondary: #E6E6E6;
-    --cortex-text-muted: #BEBEBE;
-    --cortex-text-disabled: #9B9B9B;
-    
-    /* LEGACY Border System (preserved) */
-    --cortex-border-primary: #FF6900;
-    --cortex-border-secondary: #30363D;
-    --cortex-border-muted: #21262D;
-    
-    /* LEGACY Status Colors (preserved) */
-    --cortex-success: #00CC66;
-    --cortex-error: #F85149;
-    --cortex-warning: #F1C40F;
-    --cortex-info: #58A6FF;
-    
-    /* LEGACY Shadows (preserved) */
-    --cortex-shadow-glow: 0 0 20px rgba(255, 105, 0, 0.4);
-    --cortex-shadow-terminal: 0 0 50px rgba(0, 204, 102, 0.3);
+    --ring-brand: 0 204 140;
+    --ring-focus: 0 192 232;
+
+    /* Glass & Glow */
+    --glass-tint: 255 255 255;
+    --cortex-shadow-terminal: 0 0 45px rgba(0, 204, 140, 0.25);
   }
 }
 
@@ -88,8 +66,8 @@ html {
 }
 
 body {
-  background-color: #000000;
-  color: #F5F5F5; /* Slightly off-white for better eye comfort */
+  background-color: #050C11;
+  color: rgb(var(--cortex-text-secondary));
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   margin: 0;
   padding: 0;
@@ -103,77 +81,80 @@ body {
 
 /* Button styles */
 .btn-primary {
-  background-color: #e97444;
-  color: #ffffff;
+  background-image: linear-gradient(135deg, rgb(var(--cortex-primary)) 0%, rgb(var(--cortex-blue)) 100%);
+  color: rgb(var(--cortex-text-primary));
   font-weight: 600;
   padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid #e97444;
-  transition: all 200ms;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(var(--cortex-primary) / 0.5);
+  box-shadow: 0 10px 30px rgba(0, 192, 232, 0.2);
+  transition: transform 200ms ease, box-shadow 200ms ease, filter 200ms ease;
   cursor: pointer;
 }
 
 .btn-primary:hover {
-  background-color: #f19968;
-  border-color: #f19968;
-  box-shadow: 0 0 20px rgba(233, 116, 68, 0.4);
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 40px rgba(0, 192, 232, 0.28);
 }
 
 .btn-primary:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(233, 116, 68, 0.5);
+  box-shadow: 0 0 0 3px rgba(0, 192, 232, 0.3);
 }
 
 /* Input styles */
 input {
   width: 100%;
   padding: 0.75rem 1rem;
-  background-color: #161B22;
-  border: 1px solid #30363D;
+  background-color: rgb(var(--cortex-surface) / 0.85);
+  border: 1px solid rgb(var(--cortex-border) / 0.8);
   border-radius: 0.5rem;
-  color: #F5F5F5; /* Match body text color */
+  color: rgb(var(--cortex-text-primary));
   font-family: 'JetBrains Mono', Consolas, Monaco, 'Courier New', monospace;
   font-size: 0.875rem; /* For better readability */
 }
 
 input::placeholder {
-  color: #999999; /* Darker placeholder for better readability */
+  color: rgb(var(--cortex-text-muted) / 0.65);
 }
 
 input:focus {
   outline: none;
-  border-color: #e97444;
-  box-shadow: 0 0 0 2px rgba(233, 116, 68, 0.2);
+  border-color: rgb(var(--cortex-primary) / 0.6);
+  box-shadow: 0 0 0 2px rgb(var(--cortex-blue) / 0.25);
 }
 
 /* Glass card effect */
 .glass-card {
-  background: rgba(33, 38, 45, 0.9);
+  background: rgb(var(--cortex-surface) / 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(233, 116, 68, 0.2);
-  border-radius: 0.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transition: all 500ms;
+  border: 1px solid rgb(var(--cortex-border) / 0.45);
+  border-radius: 0.75rem;
+  box-shadow: 0 16px 48px rgba(5, 12, 17, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: border-color 300ms ease, box-shadow 300ms ease, transform 300ms ease;
 }
 
 .glass-card:hover {
-  border-color: rgba(233, 116, 68, 0.4);
+  border-color: rgb(var(--cortex-blue) / 0.5);
+  box-shadow: 0 20px 60px rgba(0, 192, 232, 0.18);
+  transform: translateY(-2px);
 }
 
 /* Status messages */
 .status-error {
-  color: #F85149;
-  background-color: #2D0F0F;
-  border: 1px solid #F85149;
+  color: rgb(var(--status-error));
+  background-color: rgb(var(--status-error) / 0.12);
+  border: 1px solid rgb(var(--status-error) / 0.4);
   padding: 0.75rem;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
 }
 
 /* Loading spinner - Enhanced */
 .spinner {
-  border: 3px solid var(--cortex-border-muted);
-  border-top: 3px solid var(--cortex-orange);
+  border: 3px solid rgb(var(--cortex-border) / 0.35);
+  border-top: 3px solid rgb(var(--cortex-primary));
   border-radius: 50%;
   width: 20px;
   height: 20px;
@@ -248,11 +229,13 @@ input:focus {
 
 @keyframes glowPulse {
   0%, 100% {
-    box-shadow: 0 0 20px var(--cortex-orange), 0 0 40px var(--cortex-orange);
-    opacity: 0.8;
+    box-shadow: 0 0 22px rgb(var(--cortex-primary) / 0.55),
+      0 0 48px rgb(var(--cortex-cyan) / 0.4);
+    opacity: 0.9;
   }
   50% {
-    box-shadow: 0 0 30px var(--cortex-orange), 0 0 60px var(--cortex-orange);
+    box-shadow: 0 0 36px rgb(var(--cortex-blue) / 0.65),
+      0 0 80px rgb(var(--cortex-purple) / 0.45);
     opacity: 1;
   }
 }
@@ -295,13 +278,13 @@ input:focus {
 
 /* Default text selection for better readability */
 *::selection {
-  background-color: #FF6900;
-  color: #000000;
+  background-color: rgba(0, 192, 232, 0.35);
+  color: #071018;
 }
 
 *::-moz-selection {
-  background-color: #FF6900;
-  color: #000000;
+  background-color: rgba(0, 192, 232, 0.35);
+  color: #071018;
 }
 
 /* Ensure text is properly styled in all contexts */
@@ -310,18 +293,18 @@ input:focus {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: #FFFFFF; /* Bright white for headings */
+  color: rgb(var(--cortex-text-primary));
   font-weight: 600;
 }
 
 p, span, div {
-  color: #F5F5F5; /* Consistent body text */
+  color: rgb(var(--cortex-text-secondary));
 }
 
 /* PANW Cortex Terminal Scrollbar */
 .terminal-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #FF6900 #161B22;
+  scrollbar-color: rgba(0, 192, 232, 0.7) rgba(10, 20, 27, 0.8);
 }
 
 .terminal-scrollbar::-webkit-scrollbar {
@@ -329,138 +312,138 @@ p, span, div {
 }
 
 .terminal-scrollbar::-webkit-scrollbar-track {
-  background: #161B22;
+  background: rgba(10, 20, 27, 0.85);
   border-radius: 4px;
 }
 
 .terminal-scrollbar::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #FF6900 0%, #E55A00 100%);
+  background: linear-gradient(180deg, rgba(0, 192, 232, 0.9) 0%, rgba(0, 204, 140, 0.9) 100%);
   border-radius: 4px;
-  border: 1px solid #21262D;
+  border: 1px solid rgba(28, 44, 54, 0.8);
 }
 
 .terminal-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #FF8533 0%, #FF6900 100%);
+  background: linear-gradient(180deg, rgba(0, 192, 232, 1) 0%, rgba(0, 204, 140, 1) 100%);
 }
 
-/* PANW Cortex Text Selection */
+/* Cortex Text Selection */
 ::selection {
-  background-color: #FF6900;
-  color: #000000;
+  background-color: rgba(0, 192, 232, 0.35);
+  color: #071018;
 }
 
 ::-moz-selection {
-  background-color: #FF6900;
-  color: #000000;
+  background-color: rgba(0, 192, 232, 0.35);
+  color: #071018;
 }
 
-/* PANW Cortex Component Styles - Pure CSS */
-/* Terminal prompt with Cortex orange */
+/* Cortex Component Styles - Pure CSS */
+/* Terminal prompt with Cortex neon accent */
 .cortex-prompt {
-  color: #FF6900;
+  color: #00C0E8;
   font-family: 'JetBrains Mono', Consolas, Monaco, 'Courier New', monospace;
 }
 
 /* PANW Cortex button variants */
 .btn-cortex-secondary {
-  background-color: #21262D;
-  color: #FFFFFF;
+  background-color: rgba(var(--cortex-surface), 0.9);
+  color: rgb(var(--cortex-text-primary));
   font-weight: 600;
   padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid #30363D;
-  transition: all 200ms;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(var(--cortex-border) / 0.6);
+  transition: all 200ms ease;
 }
 
 .btn-cortex-secondary:hover {
-  background-color: #30363D;
-  border-color: #00CC66;
+  background-color: rgba(var(--cortex-elevated), 0.95);
+  border-color: rgb(var(--cortex-primary));
 }
 
 .btn-cortex-secondary:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 204, 102, 0.5);
+  box-shadow: 0 0 0 2px rgba(0, 192, 232, 0.35);
 }
 
 .btn-cortex-outline {
   background-color: transparent;
-  color: #00CC66;
+  color: rgb(var(--cortex-primary));
   font-weight: 600;
   padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid #00CC66;
-  transition: all 200ms;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(var(--cortex-primary));
+  transition: all 200ms ease;
 }
 
 .btn-cortex-outline:hover {
-  background-color: #00CC66;
-  color: #000000;
+  background-image: linear-gradient(135deg, rgb(var(--cortex-primary)) 0%, rgb(var(--cortex-blue)) 100%);
+  color: rgb(var(--cortex-dark));
 }
 
 .btn-cortex-outline:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 204, 102, 0.5);
+  box-shadow: 0 0 0 2px rgba(0, 192, 232, 0.35);
 }
 
 .btn-cortex-success {
-  background-color: #00CC66;
-  color: #000000;
+  background-image: linear-gradient(135deg, rgb(var(--cortex-primary)) 0%, rgb(var(--cortex-teal)) 100%);
+  color: rgb(var(--cortex-dark));
   font-weight: 600;
   padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid #00CC66;
-  transition: all 200ms;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(var(--cortex-primary));
+  transition: all 200ms ease;
 }
 
 .btn-cortex-success:hover {
-  background-color: #33D580;
-  border-color: #33D580;
+  filter: brightness(1.05);
+  border-color: rgb(var(--cortex-teal));
 }
 
 .btn-cortex-success:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 204, 102, 0.5);
+  box-shadow: 0 0 0 2px rgba(0, 204, 140, 0.35);
 }
 
 /* PANW Cortex card styles */
 .cortex-card {
-  background-color: #161B22;
-  border: 1px solid #30363D;
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(4px);
-  transition: all 200ms;
+  background-color: rgb(var(--cortex-surface) / 0.95);
+  border: 1px solid rgb(var(--cortex-border) / 0.45);
+  border-radius: 0.75rem;
+  box-shadow: 0 16px 40px rgba(5, 12, 17, 0.45);
+  backdrop-filter: blur(8px);
+  transition: all 200ms ease;
 }
 
 .cortex-card:hover {
-  border-color: #00CC66;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: rgb(var(--cortex-primary));
+  box-shadow: 0 22px 50px rgba(0, 192, 232, 0.18);
 }
 
 .cortex-card-elevated {
-  background-color: #21262D;
-  border: 1px solid #30363D;
-  border-radius: 0.5rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(4px);
-  transition: all 200ms;
+  background-color: rgb(var(--cortex-elevated) / 0.95);
+  border: 1px solid rgb(var(--cortex-border) / 0.4);
+  border-radius: 1rem;
+  box-shadow: 0 28px 60px rgba(7, 16, 24, 0.55);
+  backdrop-filter: blur(12px);
+  transition: all 200ms ease;
 }
 
 .cortex-card-elevated:hover {
-  border-color: #00CC66;
+  border-color: rgb(var(--cortex-blue));
 }
 
 .cortex-card-primary {
-  background-color: #21262D;
-  border: 1px solid #00CC66;
-  border-radius: 0.5rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(4px);
-  transition: all 200ms;
+  background-image: linear-gradient(135deg, rgba(0, 192, 232, 0.15) 0%, rgba(0, 204, 140, 0.15) 100%);
+  border: 1px solid rgb(var(--cortex-primary));
+  border-radius: 1rem;
+  box-shadow: 0 28px 60px rgba(0, 192, 232, 0.18);
+  backdrop-filter: blur(12px);
+  transition: all 200ms ease;
 }
 
 .cortex-card-primary:hover {
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 32px 72px rgba(0, 204, 140, 0.22);
 }
 
 /* Status indicators - Updated to use actual values */
@@ -732,14 +715,14 @@ input:focus, textarea:focus, select:focus {
 
 /* Advanced Gradient Backgrounds */
 .gradient-mesh {
-  background: 
+  background:
     radial-gradient(circle at 20% 80%, rgba(0, 204, 102, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 105, 0, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(88, 166, 255, 0.1) 0%, transparent 50%);
+    radial-gradient(circle at 80% 20%, rgba(0, 192, 232, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(120, 220, 255, 0.12) 0%, transparent 50%);
 }
 
 .gradient-border {
-  background: linear-gradient(45deg, #FF6900, #00CC66, #58A6FF);
+  background: linear-gradient(45deg, #00C0E8, #00CC8C, #74F0D4);
   padding: 2px;
   border-radius: 8px;
 }

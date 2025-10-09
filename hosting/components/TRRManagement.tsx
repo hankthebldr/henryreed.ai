@@ -235,12 +235,12 @@ const TRRCreationForm: React.FC<{
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-green/50 ${
-                errors.title ? 'border-cortex-error' : 'border-cortex-border-secondary'
+              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-primary/50 ${
+                errors.title ? 'border-status-error' : 'border-cortex-border/40'
               }`}
               placeholder="Enter TRR title"
             />
-            {errors.title && <p className="text-cortex-error text-sm mt-1">{errors.title}</p>}
+            {errors.title && <p className="text-status-error text-sm mt-1">{errors.title}</p>}
           </div>
 
           <div className="lg:col-span-2">
@@ -251,12 +251,12 @@ const TRRCreationForm: React.FC<{
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={4}
-              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-green/50 resize-none ${
-                errors.description ? 'border-cortex-error' : 'border-cortex-border-secondary'
+              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-primary/50 resize-none ${
+                errors.description ? 'border-status-error' : 'border-cortex-border/40'
               }`}
               placeholder="Detailed description of the technical requirement"
             />
-            {errors.description && <p className="text-cortex-error text-sm mt-1">{errors.description}</p>}
+            {errors.description && <p className="text-status-error text-sm mt-1">{errors.description}</p>}
           </div>
         </div>
 
@@ -269,7 +269,7 @@ const TRRCreationForm: React.FC<{
             <select
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value as TRRCategory })}
-              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary focus:outline-none focus:ring-2 focus:ring-cortex-green/50"
+              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border/40 rounded-lg text-cortex-text-primary focus:outline-none focus:ring-2 focus:ring-cortex-primary/50"
             >
               <option value="security">Security</option>
               <option value="performance">Performance</option>
@@ -288,7 +288,7 @@ const TRRCreationForm: React.FC<{
             <select
               value={formData.priority}
               onChange={(e) => setFormData({ ...formData, priority: e.target.value as TRRPriority })}
-              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary focus:outline-none focus:ring-2 focus:ring-cortex-green/50"
+              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border/40 rounded-lg text-cortex-text-primary focus:outline-none focus:ring-2 focus:ring-cortex-primary/50"
             >
               <option value="low">Low</option>
               <option value="medium">Medium</option>
@@ -304,7 +304,7 @@ const TRRCreationForm: React.FC<{
             <select
               value={formData.riskLevel}
               onChange={(e) => setFormData({ ...formData, riskLevel: e.target.value as RiskLevel })}
-              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary focus:outline-none focus:ring-2 focus:ring-cortex-green/50"
+              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border/40 rounded-lg text-cortex-text-primary focus:outline-none focus:ring-2 focus:ring-cortex-primary/50"
             >
               <option value="low">Low Risk</option>
               <option value="medium">Medium Risk</option>
@@ -324,12 +324,12 @@ const TRRCreationForm: React.FC<{
               type="text"
               value={formData.assignedTo}
               onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
-              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-green/50 ${
-                errors.assignedTo ? 'border-cortex-error' : 'border-cortex-border-secondary'
+              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-primary/50 ${
+                errors.assignedTo ? 'border-status-error' : 'border-cortex-border/40'
               }`}
               placeholder="Full name"
             />
-            {errors.assignedTo && <p className="text-cortex-error text-sm mt-1">{errors.assignedTo}</p>}
+            {errors.assignedTo && <p className="text-status-error text-sm mt-1">{errors.assignedTo}</p>}
           </div>
 
           <div>
@@ -340,12 +340,12 @@ const TRRCreationForm: React.FC<{
               type="email"
               value={formData.assignedToEmail}
               onChange={(e) => setFormData({ ...formData, assignedToEmail: e.target.value })}
-              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-green/50 ${
-                errors.assignedToEmail ? 'border-cortex-error' : 'border-cortex-border-secondary'
+              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-primary/50 ${
+                errors.assignedToEmail ? 'border-status-error' : 'border-cortex-border/40'
               }`}
               placeholder="email@company.com"
             />
-            {errors.assignedToEmail && <p className="text-cortex-error text-sm mt-1">{errors.assignedToEmail}</p>}
+            {errors.assignedToEmail && <p className="text-status-error text-sm mt-1">{errors.assignedToEmail}</p>}
           </div>
         </div>
 
@@ -359,12 +359,12 @@ const TRRCreationForm: React.FC<{
               type="text"
               value={formData.customer}
               onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
-              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-green/50 ${
-                errors.customer ? 'border-cortex-error' : 'border-cortex-border-secondary'
+              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-primary/50 ${
+                errors.customer ? 'border-status-error' : 'border-cortex-border/40'
               }`}
               placeholder="Customer name"
             />
-            {errors.customer && <p className="text-cortex-error text-sm mt-1">{errors.customer}</p>}
+            {errors.customer && <p className="text-status-error text-sm mt-1">{errors.customer}</p>}
           </div>
 
           <div>
@@ -375,12 +375,12 @@ const TRRCreationForm: React.FC<{
               type="email"
               value={formData.customerContact}
               onChange={(e) => setFormData({ ...formData, customerContact: e.target.value })}
-              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-green/50 ${
-                errors.customerContact ? 'border-cortex-error' : 'border-cortex-border-secondary'
+              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-primary/50 ${
+                errors.customerContact ? 'border-status-error' : 'border-cortex-border/40'
               }`}
               placeholder="contact@customer.com"
             />
-            {errors.customerContact && <p className="text-cortex-error text-sm mt-1">{errors.customerContact}</p>}
+            {errors.customerContact && <p className="text-status-error text-sm mt-1">{errors.customerContact}</p>}
           </div>
 
           <div>
@@ -391,7 +391,7 @@ const TRRCreationForm: React.FC<{
               type="text"
               value={formData.project}
               onChange={(e) => setFormData({ ...formData, project: e.target.value })}
-              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-green/50"
+              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border/40 rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-primary/50"
               placeholder="Project code/name"
             />
           </div>
@@ -404,7 +404,7 @@ const TRRCreationForm: React.FC<{
               type="text"
               value={formData.scenario}
               onChange={(e) => setFormData({ ...formData, scenario: e.target.value })}
-              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-green/50"
+              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border/40 rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-primary/50"
               placeholder="Related scenario"
             />
           </div>
@@ -419,7 +419,7 @@ const TRRCreationForm: React.FC<{
             <select
               value={formData.validationMethod}
               onChange={(e) => setFormData({ ...formData, validationMethod: e.target.value as ValidationMethod })}
-              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary focus:outline-none focus:ring-2 focus:ring-cortex-green/50"
+              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border/40 rounded-lg text-cortex-text-primary focus:outline-none focus:ring-2 focus:ring-cortex-primary/50"
             >
               <option value="manual">Manual Testing</option>
               <option value="automated">Automated Testing</option>
@@ -436,7 +436,7 @@ const TRRCreationForm: React.FC<{
             <select
               value={formData.complexity}
               onChange={(e) => setFormData({ ...formData, complexity: e.target.value as CreateTRRFormData['complexity'] })}
-              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary focus:outline-none focus:ring-2 focus:ring-cortex-green/50"
+              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border/40 rounded-lg text-cortex-text-primary focus:outline-none focus:ring-2 focus:ring-cortex-primary/50"
             >
               <option value="simple">Simple</option>
               <option value="moderate">Moderate</option>
@@ -456,7 +456,7 @@ const TRRCreationForm: React.FC<{
               type="date"
               value={formData.dueDate}
               onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary focus:outline-none focus:ring-2 focus:ring-cortex-green/50"
+              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border/40 rounded-lg text-cortex-text-primary focus:outline-none focus:ring-2 focus:ring-cortex-primary/50"
             />
           </div>
 
@@ -468,7 +468,7 @@ const TRRCreationForm: React.FC<{
               type="number"
               value={formData.estimatedHours || ''}
               onChange={(e) => setFormData({ ...formData, estimatedHours: e.target.value ? parseInt(e.target.value) : undefined })}
-              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-green/50"
+              className="w-full px-4 py-3 bg-cortex-bg-tertiary border border-cortex-border/40 rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-primary/50"
               placeholder="Hours"
               min="0"
             />
@@ -485,12 +485,12 @@ const TRRCreationForm: React.FC<{
               value={formData.expectedOutcome}
               onChange={(e) => setFormData({ ...formData, expectedOutcome: e.target.value })}
               rows={3}
-              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-green/50 resize-none ${
-                errors.expectedOutcome ? 'border-cortex-error' : 'border-cortex-border-secondary'
+              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-primary/50 resize-none ${
+                errors.expectedOutcome ? 'border-status-error' : 'border-cortex-border/40'
               }`}
               placeholder="Describe what success looks like"
             />
-            {errors.expectedOutcome && <p className="text-cortex-error text-sm mt-1">{errors.expectedOutcome}</p>}
+            {errors.expectedOutcome && <p className="text-status-error text-sm mt-1">{errors.expectedOutcome}</p>}
           </div>
 
           <div>
@@ -501,12 +501,12 @@ const TRRCreationForm: React.FC<{
               value={formData.businessImpact}
               onChange={(e) => setFormData({ ...formData, businessImpact: e.target.value })}
               rows={3}
-              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-green/50 resize-none ${
-                errors.businessImpact ? 'border-cortex-error' : 'border-cortex-border-secondary'
+              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-primary/50 resize-none ${
+                errors.businessImpact ? 'border-status-error' : 'border-cortex-border/40'
               }`}
               placeholder="Explain the business impact and importance"
             />
-            {errors.businessImpact && <p className="text-cortex-error text-sm mt-1">{errors.businessImpact}</p>}
+            {errors.businessImpact && <p className="text-status-error text-sm mt-1">{errors.businessImpact}</p>}
           </div>
 
           <div>
@@ -517,12 +517,12 @@ const TRRCreationForm: React.FC<{
               value={formData.technicalRisk}
               onChange={(e) => setFormData({ ...formData, technicalRisk: e.target.value })}
               rows={3}
-              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-green/50 resize-none ${
-                errors.technicalRisk ? 'border-cortex-error' : 'border-cortex-border-secondary'
+              className={`w-full px-4 py-3 bg-cortex-bg-tertiary border rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-primary/50 resize-none ${
+                errors.technicalRisk ? 'border-status-error' : 'border-cortex-border/40'
               }`}
               placeholder="Identify potential technical risks and challenges"
             />
-            {errors.technicalRisk && <p className="text-cortex-error text-sm mt-1">{errors.technicalRisk}</p>}
+            {errors.technicalRisk && <p className="text-status-error text-sm mt-1">{errors.technicalRisk}</p>}
           </div>
         </div>
 
@@ -539,7 +539,7 @@ const TRRCreationForm: React.FC<{
                   type="text"
                   value={criteria}
                   onChange={(e) => updateAcceptanceCriteria(index, e.target.value)}
-                  className="flex-1 px-4 py-2 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-green/50"
+                  className="flex-1 px-4 py-2 bg-cortex-bg-tertiary border border-cortex-border/40 rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-primary/50"
                   placeholder={`Acceptance criteria ${index + 1}`}
                 />
                 {formData.acceptanceCriteria.length > 1 && (
@@ -574,7 +574,7 @@ const TRRCreationForm: React.FC<{
             {formData.tags.map((tag, index) => (
               <span
                 key={index}
-                className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-cortex-bg-hover text-cortex-text-primary border border-cortex-border-secondary"
+                className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-cortex-bg-hover text-cortex-text-primary border border-cortex-border/40"
               >
                 {tag}
                 <button
@@ -591,7 +591,7 @@ const TRRCreationForm: React.FC<{
           <input
             type="text"
             placeholder="Add tag and press Enter"
-            className="w-full px-4 py-2 bg-cortex-bg-tertiary border border-cortex-border-secondary rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-green/50"
+            className="w-full px-4 py-2 bg-cortex-bg-tertiary border border-cortex-border/40 rounded-lg text-cortex-text-primary placeholder-cortex-text-muted focus:outline-none focus:ring-2 focus:ring-cortex-primary/50"
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ',') {
                 e.preventDefault();
@@ -606,7 +606,7 @@ const TRRCreationForm: React.FC<{
         </div>
 
         {/* Submit Buttons */}
-        <div className="flex justify-end space-x-4 pt-6 border-t border-cortex-border-secondary">
+        <div className="flex justify-end space-x-4 pt-6 border-t border-cortex-border/40">
           <CortexButton onClick={onCancel} variant="outline">
             Cancel
           </CortexButton>
@@ -632,12 +632,12 @@ const TRRList: React.FC<{
   const getStatusColor = (status: TRRStatus): string => {
     const colors = {
       'draft': 'text-cortex-text-muted bg-cortex-bg-hover',
-      'pending': 'text-cortex-warning bg-cortex-warning/10',
-      'in-progress': 'text-cortex-info bg-cortex-info/10',
-      'validated': 'text-cortex-green bg-cortex-green/10',
-      'failed': 'text-cortex-error bg-cortex-error/10',
+      'pending': 'text-status-warning bg-status-warning/10',
+      'in-progress': 'text-status-info bg-status-info/10',
+      'validated': 'text-cortex-primary bg-cortex-primary/10',
+      'failed': 'text-status-error bg-status-error/10',
       'not-applicable': 'text-cortex-text-muted bg-cortex-bg-hover',
-      'completed': 'text-cortex-green bg-cortex-green/10'
+      'completed': 'text-cortex-primary bg-cortex-primary/10'
     };
     return colors[status] || 'text-cortex-text-muted bg-cortex-bg-hover';
   };
@@ -645,9 +645,9 @@ const TRRList: React.FC<{
   const getPriorityColor = (priority: TRRPriority): string => {
     const colors = {
       'low': 'text-cortex-text-muted bg-cortex-bg-hover',
-      'medium': 'text-cortex-info bg-cortex-info/10',
-      'high': 'text-cortex-warning bg-cortex-warning/10',
-      'critical': 'text-cortex-error bg-cortex-error/10'
+      'medium': 'text-status-info bg-status-info/10',
+      'high': 'text-status-warning bg-status-warning/10',
+      'critical': 'text-status-error bg-status-error/10'
     };
     return colors[priority] || 'text-cortex-text-muted bg-cortex-bg-hover';
   };
@@ -655,14 +655,14 @@ const TRRList: React.FC<{
   return (
     <div className="cortex-card">
       {/* Header */}
-      <div className="p-6 border-b border-cortex-border-secondary">
+      <div className="p-6 border-b border-cortex-border/40">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <input
               type="checkbox"
               checked={selectedTRRs.length === trrs.length && trrs.length > 0}
               onChange={(e) => onSelectAll(e.target.checked)}
-              className="rounded border-cortex-border-secondary focus:ring-cortex-green"
+              className="rounded border-cortex-border/40 focus:ring-cortex-primary"
             />
             <h3 className="text-lg font-bold text-cortex-text-primary">
               TRR List ({trrs.length})
@@ -685,7 +685,7 @@ const TRRList: React.FC<{
       </div>
 
       {/* TRR List */}
-      <div className="divide-y divide-cortex-border-secondary">
+      <div className="divide-y divide-cortex-border/40">
         {trrs.map((trr) => (
           <div key={trr.id} className="p-6 hover:bg-cortex-bg-hover/50 transition-colors">
             <div className="flex items-start space-x-4">
@@ -693,17 +693,17 @@ const TRRList: React.FC<{
                 type="checkbox"
                 checked={selectedTRRs.includes(trr.id)}
                 onChange={(e) => onSelectTRR(trr.id, e.target.checked)}
-                className="mt-1 rounded border-cortex-border-secondary focus:ring-cortex-green"
+                className="mt-1 rounded border-cortex-border/40 focus:ring-cortex-primary"
               />
               
               <div className="flex-1 min-w-0">
                 {/* Header Row */}
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center space-x-3">
-                    <h4 className="text-lg font-semibold text-cortex-text-primary cursor-pointer hover:text-cortex-green" onClick={() => onView(trr)}>
+                    <h4 className="text-lg font-semibold text-cortex-text-primary cursor-pointer hover:text-cortex-primary" onClick={() => onView(trr)}>
                       {trr.title}
                     </h4>
-                    <span className="font-mono text-sm text-cortex-text-accent">
+                    <span className="font-mono text-sm text-cortex-accent">
                       {trr.id}
                     </span>
                   </div>
@@ -745,7 +745,7 @@ const TRRList: React.FC<{
                     {trr.tags.slice(0, 3).map((tag, index) => (
                       <span
                         key={index}
-                        className="px-2 py-1 text-xs bg-cortex-bg-tertiary text-cortex-text-muted rounded border border-cortex-border-secondary"
+                        className="px-2 py-1 text-xs bg-cortex-bg-tertiary text-cortex-text-muted rounded border border-cortex-border/40"
                       >
                         {tag}
                       </span>
@@ -792,9 +792,9 @@ const TRRList: React.FC<{
                   <div className="flex items-center space-x-2">
                     {trr.riskLevel !== 'low' && (
                       <span className={`px-2 py-1 text-xs font-medium rounded ${
-                        trr.riskLevel === 'critical' ? 'bg-cortex-error/10 text-cortex-error' :
-                        trr.riskLevel === 'high' ? 'bg-cortex-warning/10 text-cortex-warning' :
-                        'bg-cortex-info/10 text-cortex-info'
+                        trr.riskLevel === 'critical' ? 'bg-status-error/10 text-status-error' :
+                        trr.riskLevel === 'high' ? 'bg-status-warning/10 text-status-warning' :
+                        'bg-status-info/10 text-status-info'
                       }`}>
                         {trr.riskLevel.toUpperCase()} RISK
                       </span>
@@ -810,7 +810,7 @@ const TRRList: React.FC<{
                       size="sm"
                       icon="🗑️"
                       ariaLabel={`Delete TRR ${trr.id}`}
-                      className="text-cortex-error hover:text-cortex-error"
+                      className="text-status-error hover:text-status-error"
                     >
                       Delete
                     </CortexButton>
@@ -968,23 +968,23 @@ export const TRRManagement: React.FC = () => {
             <div className="text-sm text-cortex-text-secondary">Draft</div>
           </div>
           <div className="cortex-card p-4 text-center">
-            <div className="text-2xl font-bold text-cortex-info">{stats.inProgress}</div>
+            <div className="text-2xl font-bold text-status-info">{stats.inProgress}</div>
             <div className="text-sm text-cortex-text-secondary">In Progress</div>
           </div>
           <div className="cortex-card p-4 text-center">
-            <div className="text-2xl font-bold text-cortex-green">{stats.validated}</div>
+            <div className="text-2xl font-bold text-cortex-primary">{stats.validated}</div>
             <div className="text-sm text-cortex-text-secondary">Validated</div>
           </div>
           <div className="cortex-card p-4 text-center">
-            <div className="text-2xl font-bold text-cortex-green">{stats.completed}</div>
+            <div className="text-2xl font-bold text-cortex-primary">{stats.completed}</div>
             <div className="text-sm text-cortex-text-secondary">Completed</div>
           </div>
           <div className="cortex-card p-4 text-center">
-            <div className="text-2xl font-bold text-cortex-warning">{stats.overdue}</div>
+            <div className="text-2xl font-bold text-status-warning">{stats.overdue}</div>
             <div className="text-sm text-cortex-text-secondary">Overdue</div>
           </div>
           <div className="cortex-card p-4 text-center">
-            <div className="text-2xl font-bold text-cortex-error">{stats.critical}</div>
+            <div className="text-2xl font-bold text-status-error">{stats.critical}</div>
             <div className="text-sm text-cortex-text-secondary">Critical</div>
           </div>
         </div>

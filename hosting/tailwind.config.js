@@ -16,104 +16,155 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // MODERN: Official Cortex Brand Colors (Token-based)
         cortex: {
           primary: withOpacity('--cortex-primary'),
+          'primary-dark': withOpacity('--cortex-primary-dark'),
+          'primary-light': withOpacity('--cortex-primary-light'),
+          green: withOpacity('--cortex-green'),
           teal: withOpacity('--cortex-teal'),
           blue: withOpacity('--cortex-blue'),
-          dark: withOpacity('--cortex-dark'),
-          // Text tokens
-          'text-primary': withOpacity('--cortex-text-primary'),
-          'text-secondary': withOpacity('--cortex-text-secondary'),
-          'text-muted': withOpacity('--cortex-text-muted'),
-          // Surfaces
+          cyan: withOpacity('--cortex-cyan'),
+          purple: withOpacity('--cortex-purple'),
+          accent: withOpacity('--cortex-accent'),
           canvas: withOpacity('--cortex-canvas'),
           surface: withOpacity('--cortex-surface'),
           elevated: withOpacity('--cortex-elevated'),
           border: withOpacity('--cortex-border'),
+          'border-strong': withOpacity('--cortex-border-strong'),
+          'border-secondary': withOpacity('--cortex-border-secondary'),
+          'border-muted': withOpacity('--cortex-border-muted'),
+          dark: withOpacity('--cortex-dark'),
+          'text-primary': withOpacity('--cortex-text-primary'),
+          'text-secondary': withOpacity('--cortex-text-secondary'),
+          'text-muted': withOpacity('--cortex-text-muted'),
+          'text-disabled': withOpacity('--cortex-text-disabled'),
+          'bg-primary': withOpacity('--cortex-bg-primary'),
+          'bg-secondary': withOpacity('--cortex-bg-secondary'),
+          'bg-tertiary': withOpacity('--cortex-bg-tertiary'),
+          'bg-quaternary': withOpacity('--cortex-bg-quaternary'),
+          'bg-hover': withOpacity('--cortex-bg-hover'),
         },
-        
-        // Status Colors (WCAG Compliant)
         status: {
           success: withOpacity('--status-success'),
           warning: withOpacity('--status-warning'),
           error: withOpacity('--status-error'),
           info: withOpacity('--status-info'),
         },
-        
-        // Focus & Ring Colors
         ring: {
           brand: withOpacity('--ring-brand'),
           focus: withOpacity('--ring-focus'),
         },
-        
-        // LEGACY: Brand Colors (preserved for compatibility)
-        'pan-orange': '#FA582D',           // Primary Palo Alto Networks orange
-        'pan-orange-dark': '#da532c',      // Darker orange variant
-        'pan-gray': '#141414',             // Primary text color
-        'cortex-primary': '#FA582D',       // Cortex primary (matches Palo Alto)
-        'cortex-teal': '#8ad3de',         // Cortex accent teal
-        'cortex-blue': '#00c0e8',         // Cortex interactive blue
-        'cortex-dark': '#141414',         // Cortex dark text
-        
-        // Official Cortex XSIAM Brand Colors
-        'cortex-primary': '#00CC66',     // Primary Cortex green
-        'cortex-primary-light': '#33D580', // Light green
-        'cortex-primary-dark': '#00B359',  // Dark green
-        'cortex-gray': '#6B7280',        // UI gray
-        'cortex-gray-dark': '#374151',   // Dark gray
-        'cortex-gray-light': '#F3F4F6',  // Light gray
-        'cortex-accent': '#FA582D',      // PANW orange accent
-        
-        // Legacy compatibility
-        'cortex-green': '#00CC66',
-        'cortex-green-light': '#33D580',
-        'cortex-green-dark': '#00B359',
-        
-        // LEGACY: Dark theme backgrounds - PRESERVED
-        'cortex-bg-primary': '#000000',
-        'cortex-bg-secondary': '#0D1117',
-        'cortex-bg-tertiary': '#161B22',
-        'cortex-bg-quaternary': '#21262D',
-        'cortex-bg-hover': '#30363D',
-        
-        // LEGACY: Text hierarchy - ENHANCED VISIBILITY & CONTRAST
-        'cortex-text-primary': '#FFFFFF',
-        'cortex-text-secondary': '#F5F5F5',
-        'cortex-text-muted': '#C8C8C8',
-        'cortex-text-disabled': '#A0A0A0',
-        'cortex-text-accent': '#58A6FF',
-        
-        // LEGACY: Border system - PRESERVED
-        'cortex-border-primary': '#FF6900',
-        'cortex-border-secondary': '#30363D',
-        'cortex-border-muted': '#21262D',
-        'cortex-border-accent': '#00CC66',
-        
-        // LEGACY: Status colors - PRESERVED
-        'cortex-success': '#00CC66',
-        'cortex-success-light': '#33D580',
-        'cortex-success-dark': '#00B359',
-        'cortex-success-bg': '#0D2818',
-        'cortex-success-border': '#00CC66',
-        
-        'cortex-warning': '#FF6900',
-        'cortex-warning-light': '#FF8533',
-        'cortex-warning-dark': '#E55A00',
-        'cortex-warning-bg': '#2B1A00',
-        'cortex-warning-border': '#FF6900',
-        
-        'cortex-error': '#F85149',
-        'cortex-error-light': '#FF7B72',
-        'cortex-error-dark': '#DA3633',
-        'cortex-error-bg': '#2D0F0F',
-        'cortex-error-border': '#F85149',
-        
-        'cortex-info': '#58A6FF',
-        'cortex-info-light': '#79B8FF',
-        'cortex-info-dark': '#388BFD',
-        'cortex-info-bg': '#0C1D2E',
-        'cortex-info-border': '#58A6FF',
+        semantic: {
+          success: withOpacity('--status-success'),
+          warning: withOpacity('--status-warning'),
+          danger: withOpacity('--status-error'),
+          info: withOpacity('--status-info'),
+        },
+        neutral: {
+          900: '#071018',
+          800: '#0b1620',
+          700: '#10202b',
+          600: '#1a2f3c',
+          500: '#2a3f4f',
+          400: '#3c5668',
+          300: '#567186',
+          200: '#7f9ab0',
+          100: '#b3ccd9',
+          50: '#e5f2f7',
+        },
+        white: '#ffffff',
+        black: '#000000',
+        gray: {
+          950: '#020508',
+          900: '#050C11',
+          800: '#081118',
+          700: '#0E1A22',
+          600: '#16242D',
+          500: '#1F303A',
+          400: '#2C3D49',
+          300: '#405564',
+          200: '#5C7383',
+          100: '#7F9AA7',
+          50: '#AFC5CE',
+        },
+        blue: {
+          950: '#011E28',
+          900: '#023546',
+          800: '#034C63',
+          700: '#04637F',
+          600: '#058AAB',
+          500: '#00C0E8',
+          400: '#33D6F1',
+          300: '#66E3F7',
+          200: '#99F0FB',
+          100: '#CCF9FD',
+          50: '#EAFDFF',
+        },
+        cyan: {
+          950: '#021E26',
+          900: '#02343F',
+          800: '#044C59',
+          700: '#066372',
+          600: '#088A9B',
+          500: '#00D6FF',
+          400: '#33E0FF',
+          300: '#66EBFF',
+          200: '#99F4FF',
+          100: '#CCFAFF',
+          50: '#E6FDFF',
+        },
+        green: {
+          950: '#02170D',
+          900: '#032612',
+          800: '#05361A',
+          700: '#074D26',
+          600: '#0A6432',
+          500: '#00CC66',
+          400: '#2EDF88',
+          300: '#63EAA8',
+          200: '#97F3C7',
+          100: '#C7FADF',
+          50: '#E8FDF1',
+        },
+        purple: {
+          950: '#1A1334',
+          900: '#241948',
+          800: '#2F1F5D',
+          700: '#3C2677',
+          600: '#4A3196',
+          500: '#827DFF',
+          400: '#9B95FF',
+          300: '#B6B0FF',
+          200: '#D0CBFF',
+          100: '#E6E3FF',
+          50: '#F4F2FF',
+        },
+        red: {
+          950: '#2A0608',
+          900: '#3F0B0F',
+          800: '#5A1116',
+          700: '#7A191E',
+          600: '#A0242A',
+          500: '#EF5350',
+          400: '#F7706D',
+          300: '#FA9A99',
+          200: '#FDC5C4',
+          100: '#FFE2E1',
+          50: '#FFF4F3',
+        },
+        yellow: {
+          950: '#1F1400',
+          900: '#2C1E02',
+          800: '#3E2B05',
+          700: '#563A09',
+          600: '#714C0F',
+          500: '#FFAB26',
+          400: '#FFBF59',
+          300: '#FFD58C',
+          200: '#FFE5B5',
+          100: '#FFF2D8',
+          50: '#FFF9ED',
+        },
       },
       
       // Default border colors using modern tokens  
@@ -136,15 +187,15 @@ module.exports = {
         'glass-lg': '0 8px 32px rgb(0 0 0 / 0.3), 0 16px 64px rgb(0 0 0 / 0.15)',
         
         // Brand shadows
-        'cortex-sm': '0 1px 2px 0 rgba(250, 88, 45, 0.1)',
-        'cortex-md': '0 4px 6px -1px rgba(250, 88, 45, 0.15), 0 2px 4px -1px rgba(250, 88, 45, 0.1)',
-        'cortex-lg': '0 10px 15px -3px rgba(250, 88, 45, 0.15), 0 4px 6px -2px rgba(250, 88, 45, 0.1)',
-        'cortex-xl': '0 20px 25px -5px rgba(250, 88, 45, 0.15), 0 10px 10px -5px rgba(250, 88, 45, 0.1)',
-        
+        'cortex-sm': '0 2px 4px rgba(0, 204, 140, 0.12)',
+        'cortex-md': '0 6px 14px rgba(0, 204, 140, 0.18), 0 3px 8px rgba(0, 192, 232, 0.12)',
+        'cortex-lg': '0 14px 28px rgba(0, 192, 232, 0.2), 0 6px 16px rgba(0, 204, 140, 0.18)',
+        'cortex-xl': '0 24px 48px rgba(0, 192, 232, 0.25), 0 12px 24px rgba(0, 204, 140, 0.2)',
+
         // Glow effects
-        'glow-brand': '0 0 20px rgba(250, 88, 45, 0.4), 0 0 40px rgba(250, 88, 45, 0.2)',
-        'glow-success': '0 0 20px rgba(22, 163, 74, 0.4), 0 0 40px rgba(22, 163, 74, 0.2)',
-        'glow-blue': '0 0 20px rgba(0, 192, 232, 0.4), 0 0 40px rgba(0, 192, 232, 0.2)',
+        'glow-brand': '0 0 22px rgba(0, 204, 140, 0.35), 0 0 48px rgba(0, 192, 232, 0.25)',
+        'glow-success': '0 0 20px rgba(0, 204, 140, 0.35), 0 0 45px rgba(0, 204, 140, 0.2)',
+        'glow-blue': '0 0 22px rgba(0, 192, 232, 0.35), 0 0 48px rgba(0, 192, 232, 0.2)',
       },
       
       // Modern Animation System  
@@ -212,12 +263,12 @@ module.exports = {
           '70%': { transform: 'translateY(-2px)' },
         },
         glowPulse: {
-          '0%, 100%': { 
-            boxShadow: '0 0 20px rgba(250, 88, 45, 0.4), 0 0 40px rgba(250, 88, 45, 0.1)',
+          '0%, 100%': {
+            boxShadow: '0 0 24px rgba(0, 204, 140, 0.35), 0 0 54px rgba(0, 214, 255, 0.2)',
             transform: 'scale(1)'
           },
-          '50%': { 
-            boxShadow: '0 0 30px rgba(250, 88, 45, 0.6), 0 0 60px rgba(250, 88, 45, 0.2)',
+          '50%': {
+            boxShadow: '0 0 38px rgba(0, 192, 232, 0.35), 0 0 80px rgba(130, 125, 255, 0.25)',
             transform: 'scale(1.02)'
           },
         },
@@ -252,9 +303,9 @@ module.exports = {
       // Brand gradients
       backgroundImage: {
         // Legacy gradients (preserved)
-        'pan-gradient': 'linear-gradient(135deg, #FA582D 0%, #8ad3de 100%)',
-        'pan-gradient-reverse': 'linear-gradient(135deg, #8ad3de 0%, #FA582D 100%)',
-        'cortex-gradient': 'linear-gradient(135deg, #00c0e8 0%, #8ad3de 100%)',
+        'pan-gradient': 'linear-gradient(135deg, rgb(var(--cortex-primary)) 0%, rgb(var(--cortex-blue)) 100%)',
+        'pan-gradient-reverse': 'linear-gradient(135deg, rgb(var(--cortex-blue)) 0%, rgb(var(--cortex-primary)) 100%)',
+        'cortex-gradient': 'linear-gradient(135deg, rgb(var(--cortex-blue)) 0%, rgb(var(--cortex-teal)) 100%)',
         
         // Modern gradients using tokens
         'cortex-brand': 'linear-gradient(135deg, rgb(var(--cortex-primary)) 0%, rgb(var(--cortex-teal)) 100%)',
@@ -303,21 +354,21 @@ module.exports = {
           colorScheme: 'dark',
         },
         'body': {
-          color: '#F5F5F5',
-          backgroundColor: '#000000',
+          color: `rgb(var(--cortex-text-secondary))`,
+          backgroundColor: 'var(--cortex-bg-primary)',
         },
         'h1, h2, h3, h4, h5, h6': {
-          color: '#FFFFFF',
+          color: `rgb(var(--cortex-text-primary))`,
           fontWeight: '600',
         },
         'p, span, div': {
-          color: '#F5F5F5',
+          color: `rgb(var(--cortex-text-secondary))`,
         },
         'input, textarea': {
-          color: '#F5F5F5 !important',
+          color: `rgb(var(--cortex-text-primary)) !important`,
         },
         'input::placeholder, textarea::placeholder': {
-          color: '#999999 !important',
+          color: `rgb(var(--cortex-text-muted)) !important`,
         },
       });
       
@@ -338,24 +389,23 @@ module.exports = {
         },
         
         /* DEPRECATED: Brand aliasing - use cortex.primary instead */
-        '.text-cortex-accent': { color: theme('colors.cortex.primary') },
-        '.bg-cortex-accent': { backgroundColor: theme('colors.cortex.primary') },
-        '.border-cortex-accent': { borderColor: theme('colors.cortex.primary') },
+        '.text-cortex-accent': { color: theme('colors.cortex.accent') },
+        '.bg-cortex-accent': { backgroundColor: theme('colors.cortex.accent') },
+        '.border-cortex-accent': { borderColor: theme('colors.cortex.accent') },
         
         /* DEPRECATED: Status aliasing - use status.* instead */
-        '.text-cortex-success': { color: theme('colors.status.success') },
-        '.bg-cortex-success': { backgroundColor: theme('colors.status.success') },
-        '.text-cortex-warning': { color: theme('colors.status.warning') },
-        '.bg-cortex-warning': { backgroundColor: theme('colors.status.warning') },
-        '.text-cortex-error': { color: theme('colors.status.error') },
-        '.bg-cortex-error': { backgroundColor: theme('colors.status.error') },
-        '.text-cortex-info': { color: theme('colors.cortex.blue') },
-        '.bg-cortex-info': { backgroundColor: theme('colors.cortex.blue') },
+        '.text-status-success': { color: theme('colors.status.success') },
+        '.bg-status-success': { backgroundColor: theme('colors.status.success') },
+        '.text-status-warning': { color: theme('colors.status.warning') },
+        '.bg-status-warning': { backgroundColor: theme('colors.status.warning') },
+        '.text-status-error': { color: theme('colors.status.error') },
+        '.bg-status-error': { backgroundColor: theme('colors.status.error') },
+        '.text-status-info': { color: theme('colors.status.info') },
+        '.bg-status-info': { backgroundColor: theme('colors.status.info') },
         
         /* DEPRECATED: Surface aliasing - use cortex.* instead */
-        '.bg-cortex-bg-hover': { backgroundColor: theme('colors.cortex.elevated') },
-        '.bg-cortex-bg-tertiary': { backgroundColor: theme('colors.cortex.surface') },
-        '.border-cortex-border-secondary': { borderColor: theme('colors.cortex.border') },
+        '.bg-cortex-bg-hover': { backgroundColor: theme('colors.cortex.bg-hover') },
+        '.bg-cortex-bg-tertiary': { backgroundColor: theme('colors.cortex.bg-tertiary') },
         
         /* DEPRECATED: Text aliasing - use cortex.text-* instead */
         '.text-cortex-text-primary': { color: theme('colors.cortex.text-primary') },

@@ -27,21 +27,21 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({ items, className = 
       {/* Key Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="cortex-card p-6 text-center">
-          <div className="text-3xl font-bold text-cortex-green mb-2">{analytics.totalItems}</div>
+          <div className="text-3xl font-bold text-cortex-primary mb-2">{analytics.totalItems}</div>
           <div className="text-sm text-cortex-text-secondary">Total Items</div>
         </div>
         <div className="cortex-card p-6 text-center">
-          <div className="text-3xl font-bold text-cortex-info mb-2">
+          <div className="text-3xl font-bold text-status-info mb-2">
             {Math.round(analytics.avgRating * 10) / 10}
           </div>
           <div className="text-sm text-cortex-text-secondary">Avg Rating</div>
         </div>
         <div className="cortex-card p-6 text-center">
-          <div className="text-3xl font-bold text-cortex-warning mb-2">{analytics.totalUsage}</div>
+          <div className="text-3xl font-bold text-status-warning mb-2">{analytics.totalUsage}</div>
           <div className="text-sm text-cortex-text-secondary">Total Usage</div>
         </div>
         <div className="cortex-card p-6 text-center">
-          <div className="text-3xl font-bold text-cortex-text-accent mb-2">
+          <div className="text-3xl font-bold text-cortex-accent mb-2">
             {Object.keys(analytics.categoryCounts).length}
           </div>
           <div className="text-sm text-cortex-text-secondary">Categories</div>
@@ -63,7 +63,7 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({ items, className = 
                   </div>
                   <div className="flex-1 bg-cortex-bg-tertiary rounded-full h-3">
                     <div
-                      className="bg-cortex-warning h-3 rounded-full transition-all duration-300"
+                      className="bg-status-warning h-3 rounded-full transition-all duration-300"
                       style={{ width: `${percentage}%` }}
                     ></div>
                   </div>
@@ -83,10 +83,10 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({ items, className = 
           {Object.entries(analytics.topTags).map(([tag, count]) => (
             <div
               key={tag}
-              className="flex items-center space-x-2 bg-cortex-info/10 text-cortex-info px-3 py-2 rounded-full border border-cortex-info/30"
+              className="flex items-center space-x-2 bg-status-info/10 text-status-info px-3 py-2 rounded-full border border-status-info/30"
             >
               <span className="font-medium">{tag}</span>
-              <span className="bg-cortex-info/20 text-cortex-info text-xs px-2 py-1 rounded-full">
+              <span className="bg-status-info/20 text-status-info text-xs px-2 py-1 rounded-full">
                 {count}
               </span>
             </div>
@@ -127,7 +127,7 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({ items, className = 
                 </div>
                 <div className="bg-cortex-bg-tertiary rounded-full h-2">
                   <div
-                    className="bg-cortex-green h-2 rounded-full transition-all duration-300"
+                    className="bg-cortex-primary h-2 rounded-full transition-all duration-300"
                     style={{ width: `${percentage}%` }}
                   ></div>
                 </div>
@@ -143,10 +143,10 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({ items, className = 
           {Object.entries(analytics.difficultyCounts).map(([difficulty, count]) => {
             const percentage = (count / analytics.totalItems) * 100;
             const difficultyColor = {
-              'beginner': 'text-cortex-success bg-cortex-success/10 border-cortex-success/30',
-              'intermediate': 'text-cortex-info bg-cortex-info/10 border-cortex-info/30',
-              'advanced': 'text-cortex-warning bg-cortex-warning/10 border-cortex-warning/30',
-              'expert': 'text-cortex-error bg-cortex-error/10 border-cortex-error/30'
+              'beginner': 'text-status-success bg-status-success/10 border-status-success/30',
+              'intermediate': 'text-status-info bg-status-info/10 border-status-info/30',
+              'advanced': 'text-status-warning bg-status-warning/10 border-status-warning/30',
+              'expert': 'text-status-error bg-status-error/10 border-status-error/30'
             }[difficulty] || 'text-cortex-text-muted bg-cortex-bg-tertiary';
 
             return (
@@ -208,7 +208,7 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({ items, className = 
                     <span className="text-cortex-text-secondary">
                       {category.replace('-', ' ')}
                     </span>
-                    <span className="font-bold text-cortex-green">{count}</span>
+                    <span className="font-bold text-cortex-primary">{count}</span>
                   </div>
                 ))}
             </div>
@@ -219,15 +219,15 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({ items, className = 
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-cortex-text-secondary">This month</span>
-                <span className="font-bold text-cortex-info">+3 items</span>
+                <span className="font-bold text-status-info">+3 items</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-cortex-text-secondary">Last month</span>
-                <span className="font-bold text-cortex-info">+5 items</span>
+                <span className="font-bold text-status-info">+5 items</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-cortex-text-secondary">Total growth</span>
-                <span className="font-bold text-cortex-green">+8 items</span>
+                <span className="font-bold text-cortex-primary">+8 items</span>
               </div>
             </div>
           </div>
@@ -297,7 +297,7 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({ items, className = 
             Import content from a JSON export file to expand your library.
           </p>
           <div className="space-y-4">
-            <div className="p-4 bg-cortex-bg-tertiary rounded-lg border-2 border-dashed border-cortex-border-secondary">
+            <div className="p-4 bg-cortex-bg-tertiary rounded-lg border-2 border-dashed border-cortex-border/40">
               <input
                 type="file"
                 accept=".json"
@@ -322,17 +322,17 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({ items, className = 
           <h3 className="text-xl font-bold text-cortex-text-primary mb-4">📊 Export Summary</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-cortex-green mb-1">{analytics.totalItems}</div>
+              <div className="text-2xl font-bold text-cortex-primary mb-1">{analytics.totalItems}</div>
               <div className="text-sm text-cortex-text-secondary">Items to Export</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-cortex-info mb-1">
+              <div className="text-2xl font-bold text-status-info mb-1">
                 {Object.keys(analytics.categoryCounts).length}
               </div>
               <div className="text-sm text-cortex-text-secondary">Categories</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-cortex-warning mb-1">
+              <div className="text-2xl font-bold text-status-warning mb-1">
                 {Math.round(analytics.avgRating * 10) / 10}
               </div>
               <div className="text-sm text-cortex-text-secondary">Avg Rating</div>
@@ -376,7 +376,7 @@ const ContentAnalytics: React.FC<ContentAnalyticsProps> = ({ items, className = 
               onClick={() => setActiveView(view.id as any)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 activeView === view.id
-                  ? 'bg-cortex-green text-black'
+                  ? 'bg-cortex-primary text-black'
                   : 'text-cortex-text-secondary hover:text-cortex-text-primary hover:bg-cortex-bg-hover'
               }`}
             >

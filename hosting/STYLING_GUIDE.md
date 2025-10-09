@@ -6,19 +6,21 @@ The Cortex Domain Consultant Portal uses a comprehensive styling system built on
 ## Color System
 
 ### Primary Cortex Colors
-- `cortex-orange`: #FF6900 (Primary accent)
-- `cortex-orange-light`: #FF8533 (Hover states)
-- `cortex-orange-dark`: #E55A00 (Active states)
-- `cortex-green`: #00CC66 (Success states)
-- `cortex-green-light`: #33D580 (Success hover)
-- `cortex-green-dark`: #00B359 (Success active)
+- `cortex-primary`: #00CC66 (Cortex primary green)
+- `cortex-primary-light`: #36E795 (Hover states)
+- `cortex-primary-dark`: #009C4E (Active states)
+- `cortex-teal`: #15BDB2 (Teal accent)
+- `cortex-blue`: #00C0E8 (Neon blue accent)
+- `cortex-cyan`: #00D6FF (Electric cyan highlight)
+- `cortex-purple`: #827DFF (Signal purple accent)
+- `cortex-accent`: #78DCFF (Soft glow overlay)
 
 ### Background Hierarchy
-- `cortex-bg-primary`: #000000 (Main background)
-- `cortex-bg-secondary`: #0D1117 (Content areas)
-- `cortex-bg-tertiary`: #161B22 (Cards/modals)
-- `cortex-bg-quaternary`: #21262D (Elevated elements)
-- `cortex-bg-hover`: #30363D (Interactive states)
+- `cortex-bg-primary`: #050C11 (Main background)
+- `cortex-bg-secondary`: #081118 (Content areas)
+- `cortex-bg-tertiary`: #0E1A22 (Cards & modals)
+- `cortex-bg-quaternary`: #13232D (Elevated elements)
+- `cortex-bg-hover`: #1A303C (Interactive states)
 
 ### Text Hierarchy
 - `cortex-text-primary`: #F0F6FC (Main text)
@@ -27,10 +29,10 @@ The Cortex Domain Consultant Portal uses a comprehensive styling system built on
 - `cortex-text-disabled`: #6E7681 (Disabled states)
 
 ### Status Colors
-- `cortex-success`: #00CC66 (Success states)
-- `cortex-error`: #F85149 (Error states)
-- `cortex-warning`: #F1C40F (Warning states)
-- `cortex-info`: #58A6FF (Information states)
+- `status-success`: #00CC8C (Success states)
+- `status-error`: #EF5350 (Error states)
+- `status-warning`: #FFAB26 (Warning states)
+- `status-info`: #20C4FF (Information states)
 
 ## Component Classes
 
@@ -53,10 +55,10 @@ The Cortex Domain Consultant Portal uses a comprehensive styling system built on
 - `.cortex-glow-pulse` - Pulsing glow effect
 
 ### Button Variants
-- Primary: `bg-gradient-to-r from-cortex-orange to-cortex-green`
-- Secondary: `bg-cortex-bg-quaternary hover:bg-cortex-bg-hover`
-- Success: `bg-cortex-success hover:bg-cortex-success-light`
-- Error: `bg-cortex-error hover:bg-cortex-error-light`
+- Primary: `bg-gradient-to-r from-cortex-primary to-cortex-blue`
+- Secondary: `bg-cortex-bg-quaternary/80 hover:bg-cortex-bg-hover border border-cortex-border`
+- Success: `bg-gradient-to-r from-cortex-primary to-cortex-teal`
+- Error: `bg-status-error hover:bg-status-error/90`
 
 ## Usage Examples
 
@@ -64,7 +66,7 @@ The Cortex Domain Consultant Portal uses a comprehensive styling system built on
 ```jsx
 <div className="bg-cortex-bg-tertiary/80 backdrop-blur-xl border border-cortex-border-secondary rounded-2xl">
   <input className="bg-cortex-bg-primary/50 border border-cortex-border-muted text-cortex-text-primary" />
-  <button className="bg-gradient-to-r from-cortex-orange to-cortex-green text-cortex-text-primary">
+  <button className="bg-gradient-to-r from-cortex-primary to-cortex-blue text-white">
     Submit
   </button>
 </div>
@@ -73,23 +75,23 @@ The Cortex Domain Consultant Portal uses a comprehensive styling system built on
 ### Status Indicators
 ```jsx
 <div className="flex items-center space-x-2">
-  <div className="w-2 h-2 bg-cortex-success rounded-full animate-pulse"></div>
+  <div className="w-2 h-2 bg-status-success rounded-full animate-pulse"></div>
   <span className="text-cortex-text-muted">System Online</span>
 </div>
 ```
 
 ### Loading States
 ```jsx
-<div className="animate-spin border-4 border-cortex-border-muted border-t-cortex-orange"></div>
+<div className="animate-spin border-4 border-cortex-border-muted border-t-cortex-primary"></div>
 ```
 
 ## CSS Custom Properties
 All colors are also available as CSS custom properties:
-- `--cortex-orange`
-- `--cortex-green`
-- `--cortex-bg-primary`
-- `--cortex-text-primary`
-- etc.
+- `--cortex-primary`, `--cortex-primary-light`, `--cortex-primary-dark`
+- `--cortex-teal`, `--cortex-blue`, `--cortex-cyan`, `--cortex-purple`
+- `--cortex-border`, `--cortex-border-secondary`, `--cortex-border-muted`
+- `--cortex-bg-primary`, `--cortex-bg-secondary`, `--cortex-bg-tertiary`, `--cortex-bg-hover`
+- `--cortex-text-primary`, `--cortex-text-secondary`, `--cortex-text-muted`, `--cortex-text-disabled`
 
 ## Development Commands
 
