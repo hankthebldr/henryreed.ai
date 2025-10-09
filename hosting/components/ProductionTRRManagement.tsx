@@ -14,6 +14,23 @@ import { aiInsightsClient } from '../lib/ai-insights-client';
 import type { GeminiFunctionResponse, GeminiResponse } from '../lib/gemini-ai-service';
 import { SolutionDesignWorkbook } from '../lib/sdw-models';
 import { SDWWorkflow } from './SDWWorkflow';
+import {
+  rapidQuestions,
+  createEmptyRapidResponses,
+  RapidResponses,
+  RapidSavedReport,
+  listRapidReports,
+  saveRapidReport,
+  loadRapidReport,
+  deleteRapidReport,
+  generateRapidIdentifier,
+  generateRapidMarkdown,
+  parseRapidCsvFile,
+  RapidCsvItem,
+  RapidCsvImportResult,
+  buildRapidSummaryNotes,
+  inferRiskLevelFromResponses,
+} from '../lib/rapid-trr-tools';
 
 interface TRRFormData {
   title: string;
@@ -78,6 +95,104 @@ export const ProductionTRRManagement: React.FC = () => {
   const [sdwList, setSDWList] = useState<Record<string, SolutionDesignWorkbook>>({});
   const [povList, setPovList] = useState<ActivePOV[]>([]);
   const [isSeeding, setIsSeeding] = useState(false);
+  const [rapidResponses, setRapidResponses] = useState<RapidResponses>(() => createEmptyRapidResponses());
+  const [savedReports, setSavedReports] = useState<RapidSavedReport[]>([]);
+  const [csvImportResult, setCsvImportResult] = useState<RapidCsvImportResult | null>(null);
+  const [isCsvProcessing, setIsCsvProcessing] = useState(false);
+  const [csvError, setCsvError] = useState<string | null>(null);
+  const [csvFileName, setCsvFileName] = useState<string | null>(null);
+
+  const getRapidValueAsString = (value: RapidResponses[string]) => {
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    }
+    return value || '';
+  };
+
+  const getRapidValueAsArray = (value: RapidResponses[string]): string[] => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (!value) {
+      return [];
+    }
+    return value
+      .split(/[,;]+/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  };
+
+  const mapStatusToPriority = (status: string): 'low' | 'medium' | 'high' | 'critical' => {
+    if (!status) {
+      return 'medium';
+    }
+    if (status.includes('🔴')) {
+      return 'critical';
+    }
+    if (status.includes('🟡')) {
+      return 'high';
+    }
+    if (status.includes('🟤')) {
+      return 'low';
+    }
+    return 'medium';
+  };
+
+  const buildRapidResponsesFromTRR = (trr: TRRRecord | null): RapidResponses => {
+    const responses = createEmptyRapidResponses();
+    if (!trr) {
+      return responses;
+    }
+
+    const customer = dcContextStore.getCustomerEngagement(trr.customerId);
+    responses.trr = trr.title || trr.id;
+    responses.date = trr.timeline.created ? trr.timeline.created.slice(0, 10) : new Date().toISOString().slice(0, 10);
+    responses.account_name = customer?.name || '';
+    responses.overall_status = mapStatusToPriority(trr.status) === 'critical'
+      ? '🔴 Delayed'
+      : mapStatusToPriority(trr.status) === 'high'
+        ? '🟡 At Risk'
+        : trr.status === 'validated'
+          ? '🟢 On Track'
+          : '🟡 At Risk';
+    responses.accomplishments = trr.description || '';
+    responses.current_focus = trr.acceptanceCriteria?.join('\n') || '';
+    responses.next_steps = trr.notes?.join('\n') || '';
+    responses.blockers = trr.dependencies?.join(', ') || '';
+    responses.risk_areas = trr.dependencies && trr.dependencies.length > 0 ? trr.dependencies : [];
+    responses.help_needed = trr.reviewers?.join(', ') || '';
+    responses.key_metrics = trr.businessImpact || '';
+    responses.salesforce_trr_url = customer?.notes?.find((note) => note.startsWith('https://')) || '';
+    responses.additional_notes = trr.notes?.join('\n') || '';
+    return responses;
+  };
+
+  const refreshSavedReports = () => {
+    setSavedReports(listRapidReports());
+  };
+
+  const applyRapidResponsesToForm = (responses: RapidResponses, inferredCustomerId?: string) => {
+    const markdown = generateRapidMarkdown(responses);
+    const statusString = getRapidValueAsString(responses.overall_status);
+    const blockers = getRapidValueAsArray(responses.blockers);
+    const dateString = getRapidValueAsString(responses.date);
+    const notes = buildRapidSummaryNotes(responses);
+    setFormData((prev) => ({
+      ...prev,
+      title: getRapidValueAsString(responses.trr) || prev.title || generateRapidIdentifier(dateString),
+      description: markdown,
+      businessImpact: getRapidValueAsString(responses.key_metrics),
+      dependencies: blockers,
+      notes,
+      targetDate: dateString || prev.targetDate,
+      priority: mapStatusToPriority(statusString),
+      riskLevel: inferRiskLevelFromResponses(responses),
+      customerId: prev.customerId || inferredCustomerId || prev.customerId || selectedTRR?.customerId || '',
+    }));
+  };
+
+  const customers = dcContextStore.getAllCustomerEngagements();
+  const povs = povList.length > 0 ? povList : dcContextStore.getAllActivePOVs();
 
   const buildUserContext = useCallback((): UserScopeContext | null => {
     if (!state.auth.user) {
@@ -168,6 +283,16 @@ export const ProductionTRRManagement: React.FC = () => {
   useEffect(() => {
     reloadData();
   }, [reloadData]);
+
+  useEffect(() => {
+    setSavedReports(listRapidReports());
+  }, []);
+
+  useEffect(() => {
+    if (selectedTRR) {
+      setRapidResponses(buildRapidResponsesFromTRR(selectedTRR));
+    }
+  }, [selectedTRR]);
 
   const initializeWorkflowTemplates = () => {
     const defaultSteps: TRRWorkflowStep[] = [
@@ -465,8 +590,137 @@ export const ProductionTRRManagement: React.FC = () => {
     setSelectedTRRForSDW(null);
   };
 
-  const customers = dcContextStore.getAllCustomerEngagements();
-  const povs = povList.length > 0 ? povList : dcContextStore.getAllActivePOVs();
+  const handleRapidFieldChange = (id: string, value: RapidResponses[string]) => {
+    setRapidResponses((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  const handleRapidMultiToggle = (id: string, option: string) => {
+    setRapidResponses((prev) => {
+      const current = getRapidValueAsArray(prev[id] as RapidResponses[string]);
+      const exists = current.includes(option);
+      const next = exists ? current.filter((item) => item !== option) : [...current, option];
+      return {
+        ...prev,
+        [id]: next,
+      };
+    });
+  };
+
+  const handleGenerateRapidId = () => {
+    const newId = generateRapidIdentifier(getRapidValueAsString(rapidResponses.date));
+    handleRapidFieldChange('trr', newId);
+    actions.notify('success', `Generated TRR identifier ${newId}`);
+  };
+
+  const handleCopyRapidMarkdown = async (responses?: RapidResponses) => {
+    try {
+      const markdown = generateRapidMarkdown(responses || rapidResponses);
+      await navigator.clipboard.writeText(markdown);
+      actions.notify('success', 'RAPID markdown copied to clipboard');
+    } catch (error) {
+      actions.notify('error', error instanceof Error ? error.message : 'Failed to copy markdown');
+    }
+  };
+
+  const handleDownloadRapidJson = () => {
+    try {
+      const content = JSON.stringify(rapidResponses, null, 2);
+      const blob = new Blob([content], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${getRapidValueAsString(rapidResponses.trr) || 'rapid-report'}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      actions.notify('error', error instanceof Error ? error.message : 'Failed to download JSON');
+    }
+  };
+
+  const handleDownloadRapidMarkdown = () => {
+    try {
+      const markdown = generateRapidMarkdown(rapidResponses);
+      const blob = new Blob([markdown], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${getRapidValueAsString(rapidResponses.trr) || 'rapid-report'}.md`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      actions.notify('error', error instanceof Error ? error.message : 'Failed to download markdown');
+    }
+  };
+
+  const handleSaveRapidReport = () => {
+    const result = saveRapidReport(rapidResponses);
+    if (result.success && result.item) {
+      actions.notify('success', `Saved RAPID snapshot as "${result.item.name}"`);
+      refreshSavedReports();
+    } else if (result.error) {
+      actions.notify('error', result.error);
+    }
+  };
+
+  const handleLoadRapidReport = (id: string) => {
+    const report = loadRapidReport(id);
+    if (!report) {
+      actions.notify('error', 'Unable to load saved report');
+      return;
+    }
+    setRapidResponses(report.responses);
+    actions.notify('success', `Loaded RAPID snapshot "${report.name}"`);
+  };
+
+  const handleDeleteRapidReport = (id: string) => {
+    deleteRapidReport(id);
+    refreshSavedReports();
+    actions.notify('success', 'Saved RAPID snapshot deleted');
+  };
+
+  const handleCsvUpload: React.ChangeEventHandler<HTMLInputElement> = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    setIsCsvProcessing(true);
+    setCsvError(null);
+    setCsvFileName(file.name);
+
+    try {
+      const existingIds = new Set(
+        trrList.map((trr) => (trr.title || trr.id).toLowerCase()),
+      );
+      const result = await parseRapidCsvFile(file, existingIds);
+      setCsvImportResult(result);
+      if (result.errors.length > 0) {
+        result.errors.forEach((message) => actions.notify('warning', message));
+      }
+      actions.notify('success', `Processed ${result.items.length} TRR rows from ${file.name}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to process CSV file';
+      setCsvError(message);
+      actions.notify('error', message);
+    } finally {
+      setIsCsvProcessing(false);
+      event.target.value = '';
+    }
+  };
+
+  const handleApplyCsvItem = (item: RapidCsvItem) => {
+    setRapidResponses(item.responses);
+    const customerId = customers.find((customer) => customer.name === item.accountName)?.id;
+    applyRapidResponsesToForm(item.responses, customerId);
+    actions.notify('success', `Applied data for ${item.trrId} to the RAPID builder`);
+  };
 
   // Filter and search logic
   const filteredTRRs = trrList.filter(trr => {
@@ -491,6 +745,351 @@ export const ProductionTRRManagement: React.FC = () => {
       const dueDate = new Date(t.timeline.targetValidation);
       return dueDate < new Date() && t.status !== 'validated';
     }).length
+  };
+
+  const ReportsTab = () => {
+    const groupedQuestions = useMemo(() => {
+      const groups: Record<string, typeof rapidQuestions[number][]> = {};
+      rapidQuestions.forEach((question) => {
+        if (!groups[question.category]) {
+          groups[question.category] = [];
+        }
+        groups[question.category].push(question);
+      });
+      return groups;
+    }, []);
+
+    const renderRapidField = (question: typeof rapidQuestions[number]) => {
+      const value = rapidResponses[question.id];
+      const label = (
+        <label className="block text-sm font-medium text-cortex-text-secondary mb-2">
+          {question.label}
+        </label>
+      );
+
+      if (question.type === 'textarea') {
+        return (
+          <div key={question.id}>
+            {label}
+            <textarea
+              value={getRapidValueAsString(value)}
+              onChange={(event) => handleRapidFieldChange(question.id, event.target.value)}
+              rows={4}
+              className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
+            />
+          </div>
+        );
+      }
+
+      if (question.type === 'select') {
+        return (
+          <div key={question.id}>
+            {label}
+            <select
+              value={getRapidValueAsString(value)}
+              onChange={(event) => handleRapidFieldChange(question.id, event.target.value)}
+              className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
+            >
+              <option value="">Select...</option>
+              {(question.options || []).map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
+        );
+      }
+
+      if (question.type === 'multiselect') {
+        const selected = getRapidValueAsArray(value);
+        return (
+          <div key={question.id}>
+            {label}
+            <div className="flex flex-wrap gap-2">
+              {(question.options || []).map((option) => {
+                const checked = selected.includes(option);
+                return (
+                  <label key={option} className="inline-flex items-center gap-2 text-xs font-medium bg-gray-800/40 px-3 py-2 rounded border border-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => handleRapidMultiToggle(question.id, option)}
+                      className="form-checkbox text-cyan-500"
+                    />
+                    {option}
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        );
+      }
+
+      if (question.type === 'date') {
+        const currentValue = getRapidValueAsString(value) ? getRapidValueAsString(value).slice(0, 10) : '';
+        return (
+          <div key={question.id}>
+            {label}
+            <input
+              type="date"
+              value={currentValue}
+              onChange={(event) => handleRapidFieldChange(question.id, event.target.value)}
+              className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
+            />
+          </div>
+        );
+      }
+
+      if (question.type === 'url') {
+        return (
+          <div key={question.id}>
+            {label}
+            <input
+              type="url"
+              value={getRapidValueAsString(value)}
+              onChange={(event) => handleRapidFieldChange(question.id, event.target.value)}
+              className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
+              placeholder="https://"
+            />
+          </div>
+        );
+      }
+
+      return (
+        <div key={question.id}>
+          {label}
+          <input
+            type="text"
+            value={getRapidValueAsString(value)}
+            onChange={(event) => handleRapidFieldChange(question.id, event.target.value)}
+            className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
+          />
+        </div>
+      );
+    };
+
+    return (
+      <div className="space-y-8">
+        <section className="glass-card p-6 space-y-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h3 className="text-xl font-bold text-white mb-1">🧠 RAPID Daily Report Builder</h3>
+              <p className="text-sm text-cortex-text-secondary max-w-2xl">
+                Capture daily technical requirement updates with the RAPID workflow and sync them directly into TRR drafts.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={handleGenerateRapidId}
+                className="px-3 py-2 bg-cyan-700 hover:bg-cyan-600 text-white rounded text-sm transition-colors"
+              >
+                🔧 Generate TRR ID
+              </button>
+              <button
+                onClick={() => { applyRapidResponsesToForm(rapidResponses); setActiveTab('create'); }}
+                className="px-3 py-2 bg-green-700 hover:bg-green-600 text-white rounded text-sm transition-colors"
+              >
+                📄 Sync to TRR Form
+              </button>
+              <button
+                onClick={() => handleCopyRapidMarkdown()}
+                className="px-3 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded text-sm transition-colors"
+              >
+                📋 Copy Markdown
+              </button>
+              <button
+                onClick={handleDownloadRapidMarkdown}
+                className="px-3 py-2 bg-purple-700 hover:bg-purple-600 text-white rounded text-sm transition-colors"
+              >
+                ⬇️ Markdown
+              </button>
+              <button
+                onClick={handleDownloadRapidJson}
+                className="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm transition-colors"
+              >
+                💾 Export JSON
+              </button>
+              <button
+                onClick={handleSaveRapidReport}
+                className="px-3 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded text-sm transition-colors"
+              >
+                💠 Save Snapshot
+              </button>
+            </div>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            {Object.entries(groupedQuestions).map(([category, questions]) => (
+              <div key={category} className="space-y-4 bg-gray-900/30 border border-gray-700 rounded-lg p-4">
+                <h4 className="text-lg font-semibold text-cortex-text-primary">{category}</h4>
+                {questions.map((question) => (
+                  <div key={question.id} className="space-y-2">
+                    {renderRapidField(question)}
+                    {question.helpText && (
+                      <p className="text-xs text-cortex-text-muted">{question.helpText}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="glass-card p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-white">💾 Saved RAPID Snapshots</h3>
+              <p className="text-sm text-cortex-text-secondary">Local-only storage for personal drafts and offline work.</p>
+            </div>
+            <button
+              onClick={refreshSavedReports}
+              className="px-3 py-2 text-sm bg-gray-800 hover:bg-gray-700 text-cortex-text-secondary rounded"
+            >
+              Refresh
+            </button>
+          </div>
+
+          {savedReports.length === 0 ? (
+            <div className="text-sm text-cortex-text-muted">
+              No saved snapshots yet. Use <strong>Save Snapshot</strong> to store a local version of your RAPID update.
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-72 overflow-y-auto terminal-scrollbar">
+              {savedReports.map((report) => (
+                <div key={report.id} className="flex flex-wrap items-center justify-between gap-3 bg-gray-900/40 border border-gray-700 rounded-lg p-3">
+                  <div>
+                    <div className="text-white font-medium">{report.name}</div>
+                    <div className="text-xs text-cortex-text-muted">Saved {new Date(report.savedAt).toLocaleString()}</div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => handleLoadRapidReport(report.id)}
+                      className="px-3 py-2 text-xs bg-blue-700 hover:bg-blue-600 text-white rounded transition-colors"
+                    >
+                      Load
+                    </button>
+                    <button
+                      onClick={() => handleCopyRapidMarkdown(report.responses)}
+                      className="px-3 py-2 text-xs bg-purple-700 hover:bg-purple-600 text-white rounded transition-colors"
+                    >
+                      Copy Markdown
+                    </button>
+                    <button
+                      onClick={() => applyRapidResponsesToForm(report.responses)}
+                      className="px-3 py-2 text-xs bg-green-700 hover:bg-green-600 text-white rounded transition-colors"
+                    >
+                      Sync to Form
+                    </button>
+                    <button
+                      onClick={() => handleDeleteRapidReport(report.id)}
+                      className="px-3 py-2 text-xs bg-red-700 hover:bg-red-600 text-white rounded transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="glass-card p-6 space-y-4">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-semibold text-white">📥 Tableau CSV Import</h3>
+              <p className="text-sm text-cortex-text-secondary max-w-2xl">
+                Load TRR records from Tableau &ldquo;DC Summary Details&rdquo; exports. Duplicate TRRs are automatically detected and flagged.
+              </p>
+            </div>
+            <label className="px-3 py-2 bg-cyan-700 hover:bg-cyan-600 text-white text-sm rounded cursor-pointer transition-colors">
+              {isCsvProcessing ? 'Processing…' : 'Select CSV'}
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                onChange={handleCsvUpload}
+                className="hidden"
+                disabled={isCsvProcessing}
+              />
+            </label>
+          </div>
+
+          {csvError && (
+            <div className="text-sm text-red-400 bg-red-900/30 border border-red-700 rounded px-3 py-2">
+              {csvError}
+            </div>
+          )}
+
+          {csvImportResult && (
+            <div className="space-y-4">
+              <div className="text-sm text-cortex-text-secondary">
+                Parsed <strong>{csvImportResult.items.length}</strong> new records from {csvFileName}. {csvImportResult.duplicates.length} duplicate rows were skipped.
+              </div>
+
+              {csvImportResult.warnings.length > 0 && (
+                <div className="space-y-1 text-xs text-amber-300 bg-amber-900/30 border border-amber-700 rounded px-3 py-2">
+                  {csvImportResult.warnings.map((warning, index) => (
+                    <div key={index}>⚠️ {warning}</div>
+                  ))}
+                </div>
+              )}
+
+              {csvImportResult.items.length > 0 && (
+                <div className="space-y-3 max-h-80 overflow-y-auto terminal-scrollbar">
+                  {csvImportResult.items.map((item) => (
+                    <div key={item.trrId} className="bg-gray-900/30 border border-gray-700 rounded-lg p-3">
+                      <div className="flex justify-between items-start gap-4">
+                        <div>
+                          <div className="text-white font-medium">{item.trrId}</div>
+                          <div className="text-xs text-cortex-text-muted">{item.accountName || 'Unknown Account'}</div>
+                          <div className="text-xs text-cortex-text-secondary">Status: {item.status || 'Unknown'}</div>
+                          <div className="text-xs text-cortex-text-secondary">Created: {item.createdDate}</div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {item.link && (
+                            <a
+                              href={item.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-2 text-xs bg-gray-800 hover:bg-gray-700 text-cortex-text-secondary rounded"
+                            >
+                              View TRR
+                            </a>
+                          )}
+                          <button
+                            onClick={() => handleApplyCsvItem(item)}
+                            className="px-3 py-2 text-xs bg-green-700 hover:bg-green-600 text-white rounded transition-colors"
+                          >
+                            Use in Builder
+                          </button>
+                          <button
+                            onClick={() => handleCopyRapidMarkdown(item.responses)}
+                            className="px-3 py-2 text-xs bg-blue-700 hover:bg-blue-600 text-white rounded transition-colors"
+                          >
+                            Copy Markdown
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {csvImportResult.duplicates.length > 0 && (
+                <details className="bg-gray-900/30 border border-gray-700 rounded-lg p-3">
+                  <summary className="cursor-pointer text-sm text-cortex-text-secondary">
+                    {csvImportResult.duplicates.length} duplicate rows detected
+                  </summary>
+                  <div className="mt-2 space-y-1 text-xs text-cortex-text-muted">
+                    {csvImportResult.duplicates.map((item) => (
+                      <div key={`${item.trrId}-${item.duplicateReason || 'duplicate'}`}>• {item.trrId} ({item.duplicateReason || 'duplicate'})</div>
+                    ))}
+                  </div>
+                </details>
+              )}
+            </div>
+          )}
+        </section>
+      </div>
+    );
   };
 
   const DashboardTab = () => (
@@ -1100,13 +1699,7 @@ export const ProductionTRRManagement: React.FC = () => {
               <div className="text-cortex-text-secondary">Evidence collection and approval workflow coming soon</div>
             </div>
           )}
-          {activeTab === 'reports' && (
-            <div className="text-center py-12">
-              <div className="text-4xl mb-4">📈</div>
-              <div className="text-xl text-white mb-2">Reports & Analytics</div>
-              <div className="text-cortex-text-secondary">Advanced reporting and analytics dashboard coming soon</div>
-            </div>
-          )}
+          {activeTab === 'reports' && <ReportsTab />}
           {activeTab === 'templates' && (
             <div className="text-center py-12">
               <div className="text-4xl mb-4">📋</div>

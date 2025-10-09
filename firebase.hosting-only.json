@@ -7,6 +7,12 @@
       "**/node_modules/**"
     ],
     "rewrites": [
+      { "source": "/api/**", "function": "api" },
+      { "source": "/health", "function": "api" },
+      { "source": "/genkit/**", "function": {
+        "functionId": "healthCheck",
+        "region": "us-central1"
+      }},
       { "source": "**", "destination": "/index.html" }
     ],
     "headers": [
