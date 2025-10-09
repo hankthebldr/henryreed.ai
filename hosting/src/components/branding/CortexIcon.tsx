@@ -66,25 +66,50 @@ export const CortexIcon: React.FC<CortexIconProps> = ({
   const hoverClasses = (clickable || onClick) ? 'hover:opacity-80 hover:scale-105 cursor-pointer' : '';
   const combinedClasses = [baseClasses, hoverClasses, className].filter(Boolean).join(' ');
 
-  // For now, we use the 32x32 icon for smaller sizes and 192x192 for larger sizes
-  const iconSrc = size === 'xs' || size === 'sm' ? 
-    brandAssets.icons.cortex32 : 
-    brandAssets.icons.cortex192;
-
+  // Use inline SVG Cortex XSIAM shield icon
   return (
-    <Image
-      src={iconSrc}
-      alt={getAltText()}
-      width={iconSizes.width}
-      height={iconSizes.height}
+    <div 
       className={combinedClasses}
       onClick={onClick}
-      priority={priority}
       style={{
-        maxWidth: '100%',
-        height: 'auto',
+        width: iconSizes.width,
+        height: iconSizes.height,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
-    />
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+    >
+      <svg
+        width={iconSizes.width}
+        height={iconSizes.height}
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-label={getAltText()}
+      >
+        {/* Cortex XSIAM Shield Icon */}
+        <path
+          d="M12 2L3 6v6c0 5.5 4 10 9 12 5-2 9-6.5 9-12V6l-9-4z"
+          fill="#00CC66"
+          stroke="#00B359"
+          strokeWidth="0.5"
+        />
+        {/* Inner security symbol */}
+        <circle cx="12" cy="10" r="3" fill="#ffffff" opacity="0.9" />
+        <path
+          d="M10.5 10l1.5 1.5L15 8.5"
+          stroke="#00CC66"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+        {/* Bottom accent */}
+        <rect x="8" y="15" width="8" height="1" rx="0.5" fill="#ffffff" opacity="0.7" />
+      </svg>
+    </div>
   );
 };
 

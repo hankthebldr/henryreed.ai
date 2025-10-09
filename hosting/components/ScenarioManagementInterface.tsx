@@ -11,7 +11,9 @@ import {
   PANWProduct, 
   BusinessValueTag 
 } from '../lib/scenario/registry';
-import { ImprovedTerminal } from './ImprovedTerminal';
+// HOTFIX: ImprovedTerminal exports as default, not named export
+// import { ImprovedTerminal } from './ImprovedTerminal';
+import ImprovedTerminal from './ImprovedTerminal';
 
 interface FilterState {
   search: string;
@@ -115,7 +117,7 @@ export function ScenarioManagementInterface() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-white">Scenario Management</h1>
-              <p className="text-sm text-gray-400 mt-1">
+              <p className="text-sm text-cortex-text-secondary mt-1">
                 Enterprise security scenario orchestration with PANW integration
               </p>
             </div>
@@ -155,21 +157,21 @@ export function ScenarioManagementInterface() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
             <div className="text-2xl font-bold text-blue-400">{scenarios.length}</div>
-            <div className="text-sm text-gray-400">Total Scenarios</div>
+            <div className="text-sm text-cortex-text-secondary">Total Scenarios</div>
           </div>
           <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
             <div className="text-2xl font-bold text-green-400">{stats.highImpact}</div>
-            <div className="text-sm text-gray-400">High Impact</div>
+            <div className="text-sm text-cortex-text-secondary">High Impact</div>
           </div>
           <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
             <div className="text-2xl font-bold text-purple-400">
               {new Set(scenarios.flatMap(s => s.panwProducts.map(p => p.product))).size}
             </div>
-            <div className="text-sm text-gray-400">PANW Products</div>
+            <div className="text-sm text-cortex-text-secondary">PANW Products</div>
           </div>
           <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
             <div className="text-2xl font-bold text-orange-400">{filteredScenarios.length}</div>
-            <div className="text-sm text-gray-400">Filtered Results</div>
+            <div className="text-sm text-cortex-text-secondary">Filtered Results</div>
           </div>
         </div>
 
@@ -177,7 +179,7 @@ export function ScenarioManagementInterface() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
             <div className="relative">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+              <Search className="w-4 h-4 text-cortex-text-secondary absolute left-3 top-1/2 transform -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search scenarios..."
@@ -190,7 +192,7 @@ export function ScenarioManagementInterface() {
             {activeFiltersCount > 0 && (
               <button
                 onClick={clearFilters}
-                className="text-xs text-gray-400 hover:text-white transition-colors"
+                className="text-xs text-cortex-text-secondary hover:text-white transition-colors"
               >
                 Clear filters
               </button>
@@ -198,7 +200,7 @@ export function ScenarioManagementInterface() {
           </div>
 
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-400">View:</span>
+            <span className="text-sm text-cortex-text-secondary">View:</span>
             <div className="flex rounded-lg overflow-hidden border border-gray-700">
               {(['minimal', 'compact', 'detailed'] as const).map(mode => (
                 <button
@@ -309,8 +311,8 @@ export function ScenarioManagementInterface() {
           showActions={true}
           emptyState={
             <div className="text-center py-16">
-              <div className="text-gray-400 text-xl mb-4">No scenarios match your criteria</div>
-              <div className="text-gray-500 mb-6">
+              <div className="text-cortex-text-secondary text-xl mb-4">No scenarios match your criteria</div>
+              <div className="text-cortex-text-muted mb-6">
                 Try adjusting your filters or search terms
               </div>
               <button

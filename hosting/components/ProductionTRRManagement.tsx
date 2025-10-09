@@ -1,3 +1,4 @@
+// legacy-orange: replaced by green per Cortex rebrand (2025-10-08)
 /**
  * Production TRR Management System
  * Complete TRR workflow with data entry, validation, assignment, evidence collection,
@@ -74,10 +75,6 @@ export const ProductionTRRManagement: React.FC = () => {
   const [sdwList, setSDWList] = useState<Record<string, SolutionDesignWorkbook>>({});
 
   useEffect(() => {
-    actions.updateBreadcrumbs([
-      { label: 'Home', path: '/gui' },
-      { label: 'TRR Management', path: '/gui/trr' },
-    ]);
     
     // Initialize sample data if empty
     if (dcContextStore.getAllCustomerEngagements().length === 0) {
@@ -343,7 +340,7 @@ export const ProductionTRRManagement: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-2xl font-bold text-cyan-400">📋 TRR Management Dashboard</h2>
-            <p className="text-gray-400 text-sm mt-1">
+            <p className="text-cortex-text-secondary text-sm mt-1">
               Production-quality Technical Requirements Review system
             </p>
           </div>
@@ -366,19 +363,19 @@ export const ProductionTRRManagement: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-gray-800/50 p-4 rounded border border-gray-600 text-center">
             <div className="text-3xl font-mono text-cyan-400">{trrStats.total}</div>
-            <div className="text-sm text-gray-400">Total TRRs</div>
+            <div className="text-sm text-cortex-text-secondary">Total TRRs</div>
           </div>
           <div className="bg-gray-800/50 p-4 rounded border border-green-500/20 text-center">
             <div className="text-3xl font-mono text-green-400">{trrStats.validated}</div>
-            <div className="text-sm text-gray-400">Validated</div>
+            <div className="text-sm text-cortex-text-secondary">Validated</div>
           </div>
           <div className="bg-gray-800/50 p-4 rounded border border-yellow-500/20 text-center">
             <div className="text-3xl font-mono text-yellow-400">{trrStats.pending + trrStats.inReview}</div>
-            <div className="text-sm text-gray-400">In Progress</div>
+            <div className="text-sm text-cortex-text-secondary">In Progress</div>
           </div>
           <div className="bg-gray-800/50 p-4 rounded border border-red-500/20 text-center">
             <div className="text-3xl font-mono text-red-400">{trrStats.overdue}</div>
-            <div className="text-sm text-gray-400">Overdue</div>
+            <div className="text-sm text-cortex-text-secondary">Overdue</div>
           </div>
         </div>
       </div>
@@ -409,9 +406,9 @@ export const ProductionTRRManagement: React.FC = () => {
                         </span>
                         {isOverdue && <span className="px-2 py-1 bg-red-900/20 text-red-400 text-xs rounded">OVERDUE</span>}
                       </div>
-                      <div className="text-sm text-gray-400">{trr.category}</div>
+                      <div className="text-sm text-cortex-text-secondary">{trr.category}</div>
                       {customer && <div className="text-xs text-blue-400">{customer.name}</div>}
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="text-xs text-cortex-text-muted mt-1">
                         Assigned: {trr.assignedTo} • Due: {new Date(trr.timeline.targetValidation).toLocaleDateString()}
                       </div>
                     </div>
@@ -452,11 +449,11 @@ export const ProductionTRRManagement: React.FC = () => {
                 }`}></div>
                 <div className="flex-1">
                   <div className="text-white font-medium">{step.name}</div>
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-cortex-text-secondary">
                     {step.assignee} • Due: {new Date(step.dueDate).toLocaleDateString()}
                   </div>
                   {step.dependencies.length > 0 && (
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-cortex-text-muted">
                       Depends on: {step.dependencies.length} step{step.dependencies.length > 1 ? 's' : ''}
                     </div>
                   )}
@@ -465,7 +462,7 @@ export const ProductionTRRManagement: React.FC = () => {
                   step.status === 'completed' ? 'bg-green-900/20 text-green-400' :
                   step.status === 'in-progress' ? 'bg-blue-900/20 text-blue-400' :
                   step.status === 'blocked' ? 'bg-red-900/20 text-red-400' :
-                  'bg-gray-900/20 text-gray-400'
+                  'bg-gray-900/20 text-cortex-text-secondary'
                 }`}>
                   {step.status.replace('-', ' ')}
                 </div>
@@ -483,7 +480,7 @@ export const ProductionTRRManagement: React.FC = () => {
       <div className="bg-gray-900/50 p-4 rounded border border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-400">Status:</span>
+            <span className="text-sm text-cortex-text-secondary">Status:</span>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
@@ -533,12 +530,12 @@ export const ProductionTRRManagement: React.FC = () => {
         {isLoading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-2"></div>
-            <div className="text-gray-400">Loading TRRs...</div>
+            <div className="text-cortex-text-secondary">Loading TRRs...</div>
           </div>
         ) : filteredTRRs.length === 0 ? (
           <div className="text-center py-8">
-            <div className="text-gray-500 text-lg mb-2">📋 No TRRs Found</div>
-            <div className="text-gray-400 text-sm mb-4">
+            <div className="text-cortex-text-muted text-lg mb-2">📋 No TRRs Found</div>
+            <div className="text-cortex-text-secondary text-sm mb-4">
               {trrList.length === 0 ? 'Create your first TRR to get started' : 'Try adjusting your filters'}
             </div>
             {trrList.length === 0 && (
@@ -555,13 +552,13 @@ export const ProductionTRRManagement: React.FC = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-600">
-                  <th className="text-left p-3 text-gray-400 font-medium">TRR</th>
-                  <th className="text-left p-3 text-gray-400 font-medium">Customer</th>
-                  <th className="text-left p-3 text-gray-400 font-medium">Priority</th>
-                  <th className="text-left p-3 text-gray-400 font-medium">Status</th>
-                  <th className="text-left p-3 text-gray-400 font-medium">Assigned</th>
-                  <th className="text-left p-3 text-gray-400 font-medium">Due Date</th>
-                  <th className="text-left p-3 text-gray-400 font-medium">Actions</th>
+                  <th className="text-left p-3 text-cortex-text-secondary font-medium">TRR</th>
+                  <th className="text-left p-3 text-cortex-text-secondary font-medium">Customer</th>
+                  <th className="text-left p-3 text-cortex-text-secondary font-medium">Priority</th>
+                  <th className="text-left p-3 text-cortex-text-secondary font-medium">Status</th>
+                  <th className="text-left p-3 text-cortex-text-secondary font-medium">Assigned</th>
+                  <th className="text-left p-3 text-cortex-text-secondary font-medium">Due Date</th>
+                  <th className="text-left p-3 text-cortex-text-secondary font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -574,7 +571,7 @@ export const ProductionTRRManagement: React.FC = () => {
                       <td className="p-3">
                         <div>
                           <div className="text-white font-medium">{trr.title}</div>
-                          <div className="text-sm text-gray-400">{trr.category}</div>
+                          <div className="text-sm text-cortex-text-secondary">{trr.category}</div>
                         </div>
                       </td>
                       <td className="p-3">
@@ -676,7 +673,7 @@ export const ProductionTRRManagement: React.FC = () => {
                   type="text"
                   value={formData.title || ''}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
                   placeholder="Enter TRR title"
                   required
                 />
@@ -689,7 +686,7 @@ export const ProductionTRRManagement: React.FC = () => {
                 <select
                   value={formData.category || ''}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
                   required
                 >
                   <option value="">Select category...</option>
@@ -710,7 +707,7 @@ export const ProductionTRRManagement: React.FC = () => {
                 <select
                   value={formData.customerId || ''}
                   onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
-                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
                   required
                 >
                   <option value="">Select customer...</option>
@@ -727,7 +724,7 @@ export const ProductionTRRManagement: React.FC = () => {
                 <select
                   value={formData.povId || ''}
                   onChange={(e) => setFormData({ ...formData, povId: e.target.value })}
-                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
                 >
                   <option value="">Select POV...</option>
                   {povs.map(pov => (
@@ -743,7 +740,7 @@ export const ProductionTRRManagement: React.FC = () => {
                 <select
                   value={formData.priority || 'medium'}
                   onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
-                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -765,7 +762,7 @@ export const ProductionTRRManagement: React.FC = () => {
                   type="text"
                   value={formData.assignedTo || ''}
                   onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
-                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
                   placeholder="Domain Consultant"
                 />
               </div>
@@ -778,7 +775,7 @@ export const ProductionTRRManagement: React.FC = () => {
                   type="date"
                   value={formData.targetDate || ''}
                   onChange={(e) => setFormData({ ...formData, targetDate: e.target.value })}
-                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
                 />
               </div>
 
@@ -789,7 +786,7 @@ export const ProductionTRRManagement: React.FC = () => {
                 <select
                   value={formData.riskLevel || 'low'}
                   onChange={(e) => setFormData({ ...formData, riskLevel: e.target.value as any })}
-                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -805,7 +802,7 @@ export const ProductionTRRManagement: React.FC = () => {
                   type="text"
                   value={formData.customerStakeholder || ''}
                   onChange={(e) => setFormData({ ...formData, customerStakeholder: e.target.value })}
-                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
                   placeholder="Customer contact person"
                 />
               </div>
@@ -818,7 +815,7 @@ export const ProductionTRRManagement: React.FC = () => {
                   type="text"
                   value={formData.validationMethod || ''}
                   onChange={(e) => setFormData({ ...formData, validationMethod: e.target.value })}
-                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                  className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
                   placeholder="Technical review and testing"
                 />
               </div>
@@ -837,7 +834,7 @@ export const ProductionTRRManagement: React.FC = () => {
                 value={formData.description || ''}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
                 placeholder="Detailed description of the technical requirement"
               />
             </div>
@@ -850,7 +847,7 @@ export const ProductionTRRManagement: React.FC = () => {
                 value={formData.businessImpact || ''}
                 onChange={(e) => setFormData({ ...formData, businessImpact: e.target.value })}
                 rows={2}
-                className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-orange"
+                className="w-full cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
                 placeholder="How this TRR impacts the customer's business objectives"
               />
             </div>
@@ -883,7 +880,7 @@ export const ProductionTRRManagement: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-cyan-400 mb-2">🔍 Production TRR Management</h1>
-          <p className="text-gray-400">Comprehensive Technical Requirements Review system with full workflow automation</p>
+          <p className="text-cortex-text-secondary">Comprehensive Technical Requirements Review system with full workflow automation</p>
         </div>
 
         {/* Navigation Tabs */}
@@ -902,7 +899,7 @@ export const ProductionTRRManagement: React.FC = () => {
               className={`flex-1 px-4 py-3 text-center transition-colors rounded-lg whitespace-nowrap min-w-fit ${
                 activeTab === tab.id
                   ? 'bg-cyan-600 text-white'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                  : 'text-cortex-text-secondary hover:text-white hover:bg-gray-700/50'
               }`}
             >
               <div className="font-medium">{tab.label}</div>
@@ -920,21 +917,21 @@ export const ProductionTRRManagement: React.FC = () => {
             <div className="text-center py-12">
               <div className="text-4xl mb-4">✅</div>
               <div className="text-xl text-white mb-2">Validation Workflow</div>
-              <div className="text-gray-400">Evidence collection and approval workflow coming soon</div>
+              <div className="text-cortex-text-secondary">Evidence collection and approval workflow coming soon</div>
             </div>
           )}
           {activeTab === 'reports' && (
             <div className="text-center py-12">
               <div className="text-4xl mb-4">📈</div>
               <div className="text-xl text-white mb-2">Reports & Analytics</div>
-              <div className="text-gray-400">Advanced reporting and analytics dashboard coming soon</div>
+              <div className="text-cortex-text-secondary">Advanced reporting and analytics dashboard coming soon</div>
             </div>
           )}
           {activeTab === 'templates' && (
             <div className="text-center py-12">
               <div className="text-4xl mb-4">📋</div>
               <div className="text-xl text-white mb-2">TRR Templates</div>
-              <div className="text-gray-400">Pre-built TRR templates for common scenarios coming soon</div>
+              <div className="text-cortex-text-secondary">Pre-built TRR templates for common scenarios coming soon</div>
             </div>
           )}
         </div>
@@ -956,7 +953,7 @@ export const ProductionTRRManagement: React.FC = () => {
                 <h3 className="text-xl font-bold text-white">📋 TRR Details</h3>
                 <button
                   onClick={() => setSelectedTRR(null)}
-                  className="text-gray-400 hover:text-white"
+                  className="text-cortex-text-secondary hover:text-white"
                 >
                   ✕
                 </button>
@@ -964,17 +961,17 @@ export const ProductionTRRManagement: React.FC = () => {
               
               <div className="space-y-4">
                 <div>
-                  <div className="text-sm text-gray-400">Title</div>
+                  <div className="text-sm text-cortex-text-secondary">Title</div>
                   <div className="text-white font-medium">{selectedTRR.title}</div>
                 </div>
                 
                 <div>
-                  <div className="text-sm text-gray-400">Category</div>
+                  <div className="text-sm text-cortex-text-secondary">Category</div>
                   <div className="text-white">{selectedTRR.category}</div>
                 </div>
                 
                 <div>
-                  <div className="text-sm text-gray-400">Status</div>
+                  <div className="text-sm text-cortex-text-secondary">Status</div>
                   <span className={`px-2 py-1 rounded text-sm ${
                     selectedTRR.status === 'validated' ? 'bg-green-900/20 text-green-400' :
                     selectedTRR.status === 'in-review' ? 'bg-blue-900/20 text-blue-400' :
@@ -986,7 +983,7 @@ export const ProductionTRRManagement: React.FC = () => {
                 
                 {selectedTRR.description && (
                   <div>
-                    <div className="text-sm text-gray-400">Description</div>
+                    <div className="text-sm text-cortex-text-secondary">Description</div>
                     <div className="text-white">{selectedTRR.description}</div>
                   </div>
                 )}

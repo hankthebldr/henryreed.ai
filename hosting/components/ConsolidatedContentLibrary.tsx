@@ -389,7 +389,7 @@ const ConsolidatedContentLibrary: React.FC<ConsolidatedContentLibraryProps> = ({
             <div className="text-3xl">📚</div>
             <div>
               <h2 className="text-2xl font-bold text-white">Content Library</h2>
-              <p className="text-gray-400">Unified content management and creation</p>
+              <p className="text-cortex-text-secondary">Unified content management and creation</p>
             </div>
           </div>
 
@@ -431,7 +431,7 @@ const ConsolidatedContentLibrary: React.FC<ConsolidatedContentLibraryProps> = ({
               <button
                 onClick={() => setViewMode('grid')}
                 className={`px-3 py-1 rounded text-sm transition-colors ${
-                  viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'
+                  viewMode === 'grid' ? 'bg-blue-600 text-white' : 'text-cortex-text-secondary hover:text-white'
                 }`}
               >
                 ⊞ Grid
@@ -439,7 +439,7 @@ const ConsolidatedContentLibrary: React.FC<ConsolidatedContentLibraryProps> = ({
               <button
                 onClick={() => setViewMode('list')}
                 className={`px-3 py-1 rounded text-sm transition-colors ${
-                  viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'
+                  viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-cortex-text-secondary hover:text-white'
                 }`}
               >
                 ☰ List
@@ -508,7 +508,7 @@ const ConsolidatedContentLibrary: React.FC<ConsolidatedContentLibraryProps> = ({
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 pl-10 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
             />
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-cortex-text-secondary">
               🔍
             </div>
           </div>
@@ -521,7 +521,7 @@ const ConsolidatedContentLibrary: React.FC<ConsolidatedContentLibraryProps> = ({
           <div className="text-center py-12">
             <div className="text-6xl mb-4">📚</div>
             <h3 className="text-xl font-bold text-gray-300 mb-2">No content found</h3>
-            <p className="text-gray-400 mb-6">
+            <p className="text-cortex-text-secondary mb-6">
               {searchTerm || selectedType !== 'all' || selectedCategory !== 'all' 
                 ? 'Try adjusting your filters or search terms.'
                 : 'Start by creating your first content item.'
@@ -552,31 +552,31 @@ const ConsolidatedContentLibrary: React.FC<ConsolidatedContentLibraryProps> = ({
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
               <div className="bg-blue-900/20 border border-blue-600/30 rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-blue-400">{filteredItems.length}</div>
-                <div className="text-xs text-gray-400">Total Items</div>
+                <div className="text-xs text-cortex-text-secondary">Total Items</div>
               </div>
               <div className="bg-green-900/20 border border-green-600/30 rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-green-400">
                   {filteredItems.filter(i => i.metadata.status === 'active').length}
                 </div>
-                <div className="text-xs text-gray-400">Active</div>
+                <div className="text-xs text-cortex-text-secondary">Active</div>
               </div>
               <div className="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-yellow-400">
                   {filteredItems.filter(i => i.metadata.favorited).length}
                 </div>
-                <div className="text-xs text-gray-400">Favorites</div>
+                <div className="text-xs text-cortex-text-secondary">Favorites</div>
               </div>
               <div className="bg-purple-900/20 border border-purple-600/30 rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-purple-400">
                   {Math.round(filteredItems.reduce((sum, item) => sum + item.metadata.usageCount, 0) / filteredItems.length) || 0}
                 </div>
-                <div className="text-xs text-gray-400">Avg Usage</div>
+                <div className="text-xs text-cortex-text-secondary">Avg Usage</div>
               </div>
               <div className="bg-cyan-900/20 border border-cyan-600/30 rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-cyan-400">
                   {new Set(filteredItems.map(i => i.type)).size}
                 </div>
-                <div className="text-xs text-gray-400">Types</div>
+                <div className="text-xs text-cortex-text-secondary">Types</div>
               </div>
             </div>
 
@@ -598,7 +598,7 @@ const ConsolidatedContentLibrary: React.FC<ConsolidatedContentLibraryProps> = ({
                       <div className="text-2xl">{getTypeIcon(item.type)}</div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-white text-sm truncate">{item.title}</h3>
-                        <p className="text-xs text-gray-400 capitalize">{item.type.replace('-', ' ')}</p>
+                        <p className="text-xs text-cortex-text-secondary capitalize">{item.type.replace('-', ' ')}</p>
                       </div>
                     </div>
                     
@@ -609,7 +609,7 @@ const ConsolidatedContentLibrary: React.FC<ConsolidatedContentLibraryProps> = ({
                           toggleFavorite(item);
                         }}
                         className={`text-lg hover:scale-110 transition-transform ${
-                          item.metadata.favorited ? 'text-yellow-400' : 'text-gray-500 hover:text-yellow-400'
+                          item.metadata.favorited ? 'text-yellow-400' : 'text-cortex-text-muted hover:text-yellow-400'
                         }`}
                       >
                         ⭐
@@ -636,7 +636,7 @@ const ConsolidatedContentLibrary: React.FC<ConsolidatedContentLibraryProps> = ({
                         </span>
                       ))}
                       {item.metadata.tags.length > 3 && (
-                        <span className="px-2 py-0.5 bg-gray-700 text-gray-400 text-xs rounded">
+                        <span className="px-2 py-0.5 bg-gray-700 text-cortex-text-secondary text-xs rounded">
                           +{item.metadata.tags.length - 3}
                         </span>
                       )}
@@ -644,7 +644,7 @@ const ConsolidatedContentLibrary: React.FC<ConsolidatedContentLibraryProps> = ({
                   )}
 
                   {/* Footer */}
-                  <div className="flex items-center justify-between text-xs text-gray-400">
+                  <div className="flex items-center justify-between text-xs text-cortex-text-secondary">
                     <div className="flex items-center space-x-2">
                       <span className={`w-2 h-2 rounded-full ${
                         item.metadata.status === 'active' ? 'bg-green-400' :
@@ -676,7 +676,7 @@ const ConsolidatedContentLibrary: React.FC<ConsolidatedContentLibraryProps> = ({
                   <div className="text-3xl">{getTypeIcon(selectedItem.type)}</div>
                   <div>
                     <h2 className="text-2xl font-bold text-white">{selectedItem.title}</h2>
-                    <p className="text-gray-400 capitalize">{selectedItem.type.replace('-', ' ')}</p>
+                    <p className="text-cortex-text-secondary capitalize">{selectedItem.type.replace('-', ' ')}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">

@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.app = exports.aiRiskAssessment = exports.aiCompetitiveAnalysis = exports.aiChatAssistant = exports.aiScenarioOptimization = exports.aiDetectionGeneration = exports.aiTrrRecommendations = exports.aiPovAnalysis = exports.menuSuggestion = exports.api = exports.cleanupOldExecutions = exports.monitorExecutionStatusChanges = exports.processScenarioExecution = exports.generateDetectionQueriesFunction = exports.controlScenarioExecutionFunction = exports.executeScenarioFunction = exports.generateThreatActorScenarioFunction = exports.aiTrrSuggest = void 0;
+exports.app = exports.updateUserProfile = exports.createUserProfile = exports.onUserDocumentCreated = exports.beforeUserSignIn = exports.beforeUserCreation = exports.api = exports.cleanupOldExecutions = exports.monitorExecutionStatusChanges = exports.processScenarioExecution = exports.generateDetectionQueriesFunction = exports.controlScenarioExecutionFunction = exports.executeScenarioFunction = exports.generateThreatActorScenarioFunction = exports.aiTrrSuggest = void 0;
 // Cloud Functions for TRR Management System
 const https_1 = require("firebase-functions/v2/https");
 const admin = __importStar(require("firebase-admin"));
@@ -112,7 +112,7 @@ app.use(async (req, res, next) => {
         next();
     }
     catch (rejRes) {
-        const secs = Math.round(((rejRes === null || rejRes === void 0 ? void 0 : rejRes.msBeforeNext) || 0) / 1000) || 1;
+        const secs = Math.round((rejRes?.msBeforeNext || 0) / 1000) || 1;
         res.set('Retry-After', String(secs));
         res.status(429).json({
             error: 'Too many requests',
@@ -144,14 +144,14 @@ app.get('/health/full', async (_req, res) => {
         serviceStatus.firestore = true;
     }
     catch (e) {
-        serviceStatus.firestore = { error: (e === null || e === void 0 ? void 0 : e.message) || String(e) };
+        serviceStatus.firestore = { error: e?.message || String(e) };
     }
     try {
         await admin.storage().bucket().getMetadata();
         serviceStatus.storage = true;
     }
     catch (e) {
-        serviceStatus.storage = { error: (e === null || e === void 0 ? void 0 : e.message) || String(e) };
+        serviceStatus.storage = { error: e?.message || String(e) };
     }
     res.json({ status: 'healthy', services: serviceStatus, timestamp: new Date().toISOString() });
 });
@@ -161,8 +161,7 @@ app.post('/gemini', (req, res) => (0, gemini_1.geminiHttpHandler)(req, res));
 // Simple auth gate for protected routes
 const allowUnauth = process.env.ALLOW_UNAUTH === 'true';
 function requireAuth(req, res, next) {
-    var _a;
-    if (((_a = req === null || req === void 0 ? void 0 : req.user) === null || _a === void 0 ? void 0 : _a.uid) || allowUnauth)
+    if (req?.user?.uid || allowUnauth)
         return next();
     return res.status(401).json({ error: 'unauthenticated' });
 }
@@ -179,19 +178,18 @@ app.use('/trr', requireAuth, trr_1.trrRouter);
 const scenario_orchestration_2 = require("./handlers/scenario-orchestration");
 // Deploy scenario (expects { blueprintId, options, context? })
 app.post('/scenario-deploy', async (req, res) => {
-    var _a;
     try {
         const { blueprintId, options, context } = req.body || {};
         if (!blueprintId) {
             return res.status(400).json({ success: false, message: 'Missing blueprintId' });
         }
-        const userId = ((_a = req.user) === null || _a === void 0 ? void 0 : _a.uid) || (context === null || context === void 0 ? void 0 : context.userId) || 'demo';
-        const organizationId = (context === null || context === void 0 ? void 0 : context.organizationId) || 'default-org';
+        const userId = req.user?.uid || context?.userId || 'demo';
+        const organizationId = context?.organizationId || 'default-org';
         const result = await (0, scenario_orchestration_2.executeScenario)({ blueprintId, options: options || {}, context: { organizationId, userId } }, { auth: userId ? { uid: userId } : undefined });
         return res.json({ success: true, ...result });
     }
     catch (error) {
-        return res.status(500).json({ success: false, message: (error === null || error === void 0 ? void 0 : error.message) || 'Deployment failed' });
+        return res.status(500).json({ success: false, message: error?.message || 'Deployment failed' });
     }
 });
 // Scenario status
@@ -205,7 +203,7 @@ app.get('/scenario-status/:id', async (req, res) => {
         return res.json({ success: true, deployment: doc.data(), message: 'Status retrieved successfully' });
     }
     catch (error) {
-        return res.status(500).json({ success: false, message: (error === null || error === void 0 ? void 0 : error.message) || 'Status retrieval failed' });
+        return res.status(500).json({ success: false, message: error?.message || 'Status retrieval failed' });
     }
 });
 // Scenario list
@@ -217,7 +215,7 @@ app.get('/scenario-list', async (_req, res) => {
         return res.json({ success: true, deployments, message: 'Deployments retrieved successfully' });
     }
     catch (error) {
-        return res.status(500).json({ success: false, message: (error === null || error === void 0 ? void 0 : error.message) || 'List failed' });
+        return res.status(500).json({ success: false, message: error?.message || 'List failed' });
     }
 });
 // Scenario validate (placeholder)
@@ -234,7 +232,7 @@ app.post('/scenario-validate', async (req, res) => {
         return res.json({ success: true, results: { queued: true }, message: 'Validation queued' });
     }
     catch (error) {
-        return res.status(500).json({ success: false, message: (error === null || error === void 0 ? void 0 : error.message) || 'Validation failed' });
+        return res.status(500).json({ success: false, message: error?.message || 'Validation failed' });
     }
 });
 // Scenario destroy (placeholder)
@@ -252,7 +250,7 @@ app.post('/scenario-destroy', async (req, res) => {
         return res.json({ success: true, message: 'Destroy completed' });
     }
     catch (error) {
-        return res.status(500).json({ success: false, message: (error === null || error === void 0 ? void 0 : error.message) || 'Destroy failed' });
+        return res.status(500).json({ success: false, message: error?.message || 'Destroy failed' });
     }
 });
 // Scenario export (placeholder download URL)
@@ -267,7 +265,7 @@ app.post('/scenario-export', async (req, res) => {
         return res.json({ success: true, downloadUrl, message: 'Export generated successfully' });
     }
     catch (error) {
-        return res.status(500).json({ success: false, message: (error === null || error === void 0 ? void 0 : error.message) || 'Export failed' });
+        return res.status(500).json({ success: false, message: error?.message || 'Export failed' });
     }
 });
 // ============================================================================
@@ -427,17 +425,16 @@ exports.api = (0, https_1.onRequest)({
     memory: '1GiB',
     timeoutSeconds: 60
 }, app);
-// Integrate Genkit AI callable functions (migrated from henryreedai)
-var henry_genkit_sample_1 = require("./ai/henry-genkit-sample");
-Object.defineProperty(exports, "menuSuggestion", { enumerable: true, get: function () { return henry_genkit_sample_1.menuSuggestion; } });
-var henry_ai_functions_1 = require("./ai/henry-ai-functions");
-Object.defineProperty(exports, "aiPovAnalysis", { enumerable: true, get: function () { return henry_ai_functions_1.aiPovAnalysis; } });
-Object.defineProperty(exports, "aiTrrRecommendations", { enumerable: true, get: function () { return henry_ai_functions_1.aiTrrRecommendations; } });
-Object.defineProperty(exports, "aiDetectionGeneration", { enumerable: true, get: function () { return henry_ai_functions_1.aiDetectionGeneration; } });
-Object.defineProperty(exports, "aiScenarioOptimization", { enumerable: true, get: function () { return henry_ai_functions_1.aiScenarioOptimization; } });
-Object.defineProperty(exports, "aiChatAssistant", { enumerable: true, get: function () { return henry_ai_functions_1.aiChatAssistant; } });
-Object.defineProperty(exports, "aiCompetitiveAnalysis", { enumerable: true, get: function () { return henry_ai_functions_1.aiCompetitiveAnalysis; } });
-Object.defineProperty(exports, "aiRiskAssessment", { enumerable: true, get: function () { return henry_ai_functions_1.aiRiskAssessment; } });
+// ============================================================================
+// USER AUTHENTICATION AND PROFILE MANAGEMENT
+// ============================================================================
+// Import user creation event handlers
+var user_creation_handler_1 = require("./auth/user-creation-handler");
+Object.defineProperty(exports, "beforeUserCreation", { enumerable: true, get: function () { return user_creation_handler_1.beforeUserCreation; } });
+Object.defineProperty(exports, "beforeUserSignIn", { enumerable: true, get: function () { return user_creation_handler_1.beforeUserSignIn; } });
+Object.defineProperty(exports, "onUserDocumentCreated", { enumerable: true, get: function () { return user_creation_handler_1.onUserDocumentCreated; } });
+Object.defineProperty(exports, "createUserProfile", { enumerable: true, get: function () { return user_creation_handler_1.createUserProfile; } });
+Object.defineProperty(exports, "updateUserProfile", { enumerable: true, get: function () { return user_creation_handler_1.updateUserProfile; } });
 // Log successful initialization
 logger_1.logger.info('TRR Management Cloud Functions initialized successfully');
 //# sourceMappingURL=index.js.map

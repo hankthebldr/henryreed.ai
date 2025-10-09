@@ -307,10 +307,10 @@ const handleCdrDestroy = async (args: string[]) => {
                   <div key={index} className="border border-gray-600 p-2 rounded">
                     <div className="flex justify-between">
                       <span className="text-green-400">{resource.type}</span>
-                      <span className="text-gray-400">{resource.provider}</span>
+                      <span className="text-cortex-text-secondary">{resource.provider}</span>
                     </div>
                     <div className="text-gray-300 font-mono text-xs">{resource.identity}</div>
-                    <div className="text-xs text-gray-500">{resource.location}</div>
+                    <div className="text-xs text-cortex-text-muted">{resource.location}</div>
                   </div>
                 ))}
               </div>
@@ -501,7 +501,7 @@ const handleCdrStatus = async (args: string[]) => {
             </div>
             <div className="flex justify-between">
               <span>Destroyed:</span>
-              <span className="text-gray-400">{ledger.resources.filter(r => r.status === 'destroyed').length}</span>
+              <span className="text-cortex-text-secondary">{ledger.resources.filter(r => r.status === 'destroyed').length}</span>
             </div>
           </div>
         </div>
@@ -594,8 +594,8 @@ const handleCdrDetect = async (args: string[]) => {
                 </div>
               </div>
               <div className="mt-2 flex justify-between items-center text-xs">
-                <span className="text-gray-500">Severity: {detection.severity}</span>
-                <span className="text-gray-500">Scenario: {detection.scenarioId}</span>
+                <span className="text-cortex-text-muted">Severity: {detection.severity}</span>
+                <span className="text-cortex-text-muted">Scenario: {detection.scenarioId}</span>
               </div>
             </div>
           ))}
@@ -620,18 +620,18 @@ const handleCdrDetect = async (args: string[]) => {
           <div className="text-green-400 font-bold mb-2">🎯 Generation</div>
           <div className="space-y-1 text-sm">
             <div className="font-mono text-green-300">cdrlab detect gen --scenario SCEN --pack xsiam</div>
-            <div className="text-gray-500 ml-4">→ Generate XSIAM detection rules</div>
+            <div className="text-cortex-text-muted ml-4">→ Generate XSIAM detection rules</div>
             <div className="font-mono text-blue-300">cdrlab detect gen --scenario SCEN --pack splunk</div>
-            <div className="text-gray-500 ml-4">→ Generate Splunk searches</div>
+            <div className="text-cortex-text-muted ml-4">→ Generate Splunk searches</div>
           </div>
         </div>
         <div className="border border-blue-600 p-3 rounded">
           <div className="text-blue-400 font-bold mb-2">📊 Analysis</div>
           <div className="space-y-1 text-sm">
             <div className="font-mono text-cyan-300">cdrlab detect diff --scenario SCEN --against legacy/</div>
-            <div className="text-gray-500 ml-4">→ Compare with existing rules</div>
+            <div className="text-cortex-text-muted ml-4">→ Compare with existing rules</div>
             <div className="font-mono text-purple-300">cdrlab detect validate --scenario SCEN</div>
-            <div className="text-gray-500 ml-4">→ Test detection coverage</div>
+            <div className="text-cortex-text-muted ml-4">→ Test detection coverage</div>
           </div>
         </div>
       </div>
@@ -686,12 +686,12 @@ const handleCdrList = (args: string[]) => {
           <div className="border border-blue-600 p-3 rounded">
             <div className="text-blue-400 font-bold">full-attack-chain</div>
             <div className="text-gray-300 text-sm mt-1">Initial Access → Persistence → Lateral Movement → Exfiltration</div>
-            <div className="text-xs text-gray-500 mt-1">Duration: ~45 minutes | Scenarios: 4</div>
+            <div className="text-xs text-cortex-text-muted mt-1">Duration: ~45 minutes | Scenarios: 4</div>
           </div>
           <div className="border border-green-600 p-3 rounded">
             <div className="text-green-400 font-bold">cloud-compromise</div>
             <div className="text-gray-300 text-sm mt-1">Misconfig → Privilege Escalation → Data Access</div>
-            <div className="text-xs text-gray-500 mt-1">Duration: ~30 minutes | Scenarios: 3</div>
+            <div className="text-xs text-cortex-text-muted mt-1">Duration: ~30 minutes | Scenarios: 3</div>
           </div>
         </div>
       </div>
@@ -706,12 +706,12 @@ const handleCdrList = (args: string[]) => {
           <div className="border border-cyan-600 p-3 rounded">
             <div className="text-cyan-400 font-bold">xsiam</div>
             <div className="text-gray-300 text-sm mt-1">Cortex XSIAM detection rules and analytics</div>
-            <div className="text-xs text-gray-500 mt-1">Templates: 15 | Techniques: 12</div>
+            <div className="text-xs text-cortex-text-muted mt-1">Templates: 15 | Techniques: 12</div>
           </div>
           <div className="border border-orange-600 p-3 rounded">
             <div className="text-orange-400 font-bold">splunk</div>
             <div className="text-gray-300 text-sm mt-1">Splunk SPL searches and correlations</div>
-            <div className="text-xs text-gray-500 mt-1">Templates: 10 | Techniques: 8</div>
+            <div className="text-xs text-cortex-text-muted mt-1">Templates: 10 | Techniques: 8</div>
           </div>
         </div>
       </div>
@@ -887,9 +887,9 @@ const handleCdrDeploy = async (args: string[]) => {
           </div>
           <div className="mt-2 space-y-1">
             <div className="font-mono text-green-400">cloud list</div>
-            <div className="text-gray-500 ml-4">→ View all configured profiles</div>
+            <div className="text-cortex-text-muted ml-4">→ View all configured profiles</div>
             <div className="font-mono text-blue-400">cloud add --provider aws --interactive</div>
-            <div className="text-gray-500 ml-4">→ Add new cloud profile</div>
+            <div className="text-cortex-text-muted ml-4">→ Add new cloud profile</div>
           </div>
         </div>
       );
@@ -914,14 +914,14 @@ const handleCdrDeploy = async (args: string[]) => {
               <div className="border border-gray-600 p-2 rounded">
                 <div className="flex justify-between">
                   <span className="text-green-400">Kubernetes Namespace</span>
-                  <span className="text-gray-400">K8s</span>
+                  <span className="text-cortex-text-secondary">K8s</span>
                 </div>
                 <div className="text-gray-300 font-mono text-xs">cdr-lab-{scenario}</div>
               </div>
               <div className="border border-gray-600 p-2 rounded">
                 <div className="flex justify-between">
                   <span className="text-green-400">Job</span>
-                  <span className="text-gray-400">K8s</span>
+                  <span className="text-cortex-text-secondary">K8s</span>
                 </div>
                 <div className="text-gray-300 font-mono text-xs">{scenario}-job</div>
               </div>
@@ -930,14 +930,14 @@ const handleCdrDeploy = async (args: string[]) => {
                   <div className="border border-gray-600 p-2 rounded">
                     <div className="flex justify-between">
                       <span className="text-green-400">VM Instance</span>
-                      <span className="text-gray-400">{profile.includes('aws') ? 'AWS' : profile.includes('gcp') ? 'GCP' : 'Azure'}</span>
+                      <span className="text-cortex-text-secondary">{profile.includes('aws') ? 'AWS' : profile.includes('gcp') ? 'GCP' : 'Azure'}</span>
                     </div>
                     <div className="text-gray-300 font-mono text-xs">cdr-{scenario}-vm-001</div>
                   </div>
                   <div className="border border-gray-600 p-2 rounded">
                     <div className="flex justify-between">
                       <span className="text-green-400">Storage Bucket</span>
-                      <span className="text-gray-400">{profile.includes('aws') ? 'AWS' : profile.includes('gcp') ? 'GCP' : 'Azure'}</span>
+                      <span className="text-cortex-text-secondary">{profile.includes('aws') ? 'AWS' : profile.includes('gcp') ? 'GCP' : 'Azure'}</span>
                     </div>
                     <div className="text-gray-300 font-mono text-xs">cdr-{scenario}-storage</div>
                   </div>
@@ -1072,7 +1072,7 @@ const handleCdrDeploy = async (args: string[]) => {
             {deploymentLedger.resources.map((resource, index) => (
               <div key={index} className="flex justify-between items-center p-2 border border-gray-700 rounded">
                 <span className="text-green-400">{resource.type}</span>
-                <span className="text-gray-400">{resource.provider.toUpperCase()}</span>
+                <span className="text-cortex-text-secondary">{resource.provider.toUpperCase()}</span>
               </div>
             ))}
           </div>
@@ -1090,13 +1090,13 @@ const handleCdrDeploy = async (args: string[]) => {
           <div className="text-cyan-400 font-bold mb-2">📊 Next Steps</div>
           <div className="space-y-1 text-sm">
             <div className="font-mono text-green-400">cdrlab status --scenario {deploymentId}</div>
-            <div className="text-gray-500 ml-4">→ Check deployment status and resources</div>
+            <div className="text-cortex-text-muted ml-4">→ Check deployment status and resources</div>
             <div className="font-mono text-blue-400">cdrlab detect gen --scenario {scenario} --pack xsiam</div>
-            <div className="text-gray-500 ml-4">→ Generate detection rules for this scenario</div>
+            <div className="text-cortex-text-muted ml-4">→ Generate detection rules for this scenario</div>
             <div className="font-mono text-purple-400">cdrlab validate --scenario {deploymentId}</div>
-            <div className="text-gray-500 ml-4">→ Run validation tests</div>
+            <div className="text-cortex-text-muted ml-4">→ Run validation tests</div>
             <div className="font-mono text-red-400">cdrlab destroy --scenario {deploymentId} --dry-run</div>
-            <div className="text-gray-500 ml-4">→ Preview cleanup (when finished)</div>
+            <div className="text-cortex-text-muted ml-4">→ Preview cleanup (when finished)</div>
           </div>
         </div>
       </div>

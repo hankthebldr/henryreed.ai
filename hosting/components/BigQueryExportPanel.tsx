@@ -1,4 +1,6 @@
 'use client';
+// legacy-orange: replaced by green per Cortex rebrand (2025-10-08)
+
 
 import React, { useState, useEffect } from 'react';
 import { bigQueryService, ExportResult, trackGUIAction } from '../lib/bigquery-service';
@@ -131,7 +133,7 @@ export default function BigQueryExportPanel() {
   return (
     <div className="cortex-card p-6">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-bold text-cortex-orange">📊 BigQuery Data Export</h3>
+        <h3 className="text-xl font-bold text-cortex-accent">📊 BigQuery Data Export</h3>
         <div className="flex items-center space-x-2 text-sm">
           <div className={`w-2 h-2 rounded-full ${isExporting ? 'bg-cortex-warning animate-pulse' : 'bg-cortex-success'}`}></div>
           <span className="text-cortex-text-secondary">
@@ -255,7 +257,7 @@ export default function BigQueryExportPanel() {
         </div>
 
         {/* Export Type Description */}
-        <div className="mt-3 p-3 bg-gray-700 bg-opacity-50 rounded text-sm text-gray-400">
+        <div className="mt-3 p-3 bg-gray-700 bg-opacity-50 rounded text-sm text-cortex-text-secondary">
           {getExportTypeDescription(exportConfig.exportType)}
         </div>
       </div>
@@ -263,20 +265,20 @@ export default function BigQueryExportPanel() {
       {/* Queue Status */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-gray-800 bg-opacity-30 p-3 rounded border border-gray-600">
-          <div className="text-sm text-gray-400">Queue Size</div>
+          <div className="text-sm text-cortex-text-secondary">Queue Size</div>
           <div className="text-xl font-mono text-cyan-400">{queueStatus.queueSize}</div>
-          <div className="text-xs text-gray-500">Pending export items</div>
+          <div className="text-xs text-cortex-text-muted">Pending export items</div>
         </div>
 
         <div className="bg-gray-800 bg-opacity-30 p-3 rounded border border-gray-600">
-          <div className="text-sm text-gray-400">Oldest Item</div>
+          <div className="text-sm text-cortex-text-secondary">Oldest Item</div>
           <div className="text-sm font-mono text-gray-300">
             {queueStatus.oldestItem ? formatTimestamp(queueStatus.oldestItem) : 'None'}
           </div>
         </div>
 
         <div className="bg-gray-800 bg-opacity-30 p-3 rounded border border-gray-600">
-          <div className="text-sm text-gray-400">Newest Item</div>
+          <div className="text-sm text-cortex-text-secondary">Newest Item</div>
           <div className="text-sm font-mono text-gray-300">
             {queueStatus.newestItem ? formatTimestamp(queueStatus.newestItem) : 'None'}
           </div>
@@ -294,27 +296,27 @@ export default function BigQueryExportPanel() {
             <h5 className={`font-bold ${lastExportResult.success ? 'text-green-400' : 'text-red-400'}`}>
               {lastExportResult.success ? '✅ Export Successful' : '❌ Export Failed'}
             </h5>
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-cortex-text-secondary">
               {formatTimestamp(lastExportResult.timestamp)}
             </div>
           </div>
           
           <div className="space-y-1 text-sm">
             <div>
-              <span className="text-gray-400">Records Exported:</span>
+              <span className="text-cortex-text-secondary">Records Exported:</span>
               <span className="ml-2 font-mono text-white">{lastExportResult.recordsExported}</span>
             </div>
             
             {lastExportResult.bigqueryJobId && (
               <div>
-                <span className="text-gray-400">BigQuery Job ID:</span>
+                <span className="text-cortex-text-secondary">BigQuery Job ID:</span>
                 <span className="ml-2 font-mono text-cyan-400">{lastExportResult.bigqueryJobId}</span>
               </div>
             )}
             
             {lastExportResult.error && (
               <div>
-                <span className="text-gray-400">Error:</span>
+                <span className="text-cortex-text-secondary">Error:</span>
                 <span className="ml-2 text-red-300">{lastExportResult.error}</span>
               </div>
             )}
@@ -327,19 +329,19 @@ export default function BigQueryExportPanel() {
         <h5 className="font-bold text-gray-300 mb-3">BigQuery Configuration</h5>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
-            <span className="text-gray-400">Dataset:</span>
+            <span className="text-cortex-text-secondary">Dataset:</span>
             <span className="ml-2 font-mono text-gray-300">{bigQueryService.getConfig().dataset}</span>
           </div>
           <div>
-            <span className="text-gray-400">Table:</span>
+            <span className="text-cortex-text-secondary">Table:</span>
             <span className="ml-2 font-mono text-gray-300">{bigQueryService.getConfig().table}</span>
           </div>
           <div>
-            <span className="text-gray-400">Project ID:</span>
+            <span className="text-cortex-text-secondary">Project ID:</span>
             <span className="ml-2 font-mono text-gray-300">{bigQueryService.getConfig().projectId}</span>
           </div>
           <div>
-            <span className="text-gray-400">Function URL:</span>
+            <span className="text-cortex-text-secondary">Function URL:</span>
             <span className="ml-2 font-mono text-gray-300 truncate">
               {bigQueryService.getConfig().cloudFunctionUrl.substring(0, 40)}...
             </span>

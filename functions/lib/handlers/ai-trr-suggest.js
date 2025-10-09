@@ -301,10 +301,9 @@ const logAIPrediction = async (organizationId, trrId, suggestionType, prediction
 };
 // Main handler function
 const aiTRRSuggestHandler = async (data, context) => {
-    var _a, _b, _c, _d, _e, _f, _g;
     // Validate input
     const request = AITRRSuggestRequest.parse(data);
-    const userId = (_a = context.auth) === null || _a === void 0 ? void 0 : _a.uid;
+    const userId = context.auth?.uid;
     if (!userId) {
         throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
     }
@@ -344,7 +343,7 @@ const aiTRRSuggestHandler = async (data, context) => {
             max_tokens: 2000,
             response_format: { type: 'json_object' }
         });
-        const aiResponse = (_c = (_b = completion.choices[0]) === null || _b === void 0 ? void 0 : _b.message) === null || _c === void 0 ? void 0 : _c.content;
+        const aiResponse = completion.choices[0]?.message?.content;
         if (!aiResponse) {
             throw new functions.https.HttpsError('internal', 'No response from AI service');
         }
@@ -373,9 +372,9 @@ const aiTRRSuggestHandler = async (data, context) => {
             ...parsedResponse,
             modelUsed: 'gpt-4-turbo-preview',
             tokens: {
-                prompt: ((_d = completion.usage) === null || _d === void 0 ? void 0 : _d.prompt_tokens) || 0,
-                completion: ((_e = completion.usage) === null || _e === void 0 ? void 0 : _e.completion_tokens) || 0,
-                total: ((_f = completion.usage) === null || _f === void 0 ? void 0 : _f.total_tokens) || 0,
+                prompt: completion.usage?.prompt_tokens || 0,
+                completion: completion.usage?.completion_tokens || 0,
+                total: completion.usage?.total_tokens || 0,
             },
         };
         logger_1.logger.info('AI TRR Suggest completed', {
@@ -383,7 +382,7 @@ const aiTRRSuggestHandler = async (data, context) => {
             trrId: request.trrId,
             suggestionType: request.suggestionType,
             confidence: response.confidence,
-            tokens: (_g = response.tokens) === null || _g === void 0 ? void 0 : _g.total,
+            tokens: response.tokens?.total,
         });
         return AITRRSuggestResponse.parse(response);
     }

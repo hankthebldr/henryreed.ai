@@ -201,7 +201,7 @@ const BlockchainSignoffForm: React.FC<{
         <div className="space-y-4">
           <div className={`flex items-center space-x-3 ${
             signingStep === 'blockchain' ? 'text-yellow-400' : 
-            signingStep === 'ipfs' || signingStep === 'complete' ? 'text-green-400' : 'text-gray-500'
+            signingStep === 'ipfs' || signingStep === 'complete' ? 'text-green-400' : 'text-cortex-text-muted'
           }`}>
             <div className="text-xl">
               {signingStep === 'blockchain' ? '⏳' : 
@@ -215,7 +215,7 @@ const BlockchainSignoffForm: React.FC<{
 
           <div className={`flex items-center space-x-3 ${
             signingStep === 'ipfs' ? 'text-yellow-400' : 
-            signingStep === 'complete' ? 'text-green-400' : 'text-gray-500'
+            signingStep === 'complete' ? 'text-green-400' : 'text-cortex-text-muted'
           }`}>
             <div className="text-xl">
               {signingStep === 'ipfs' ? '⏳' : 
@@ -228,7 +228,7 @@ const BlockchainSignoffForm: React.FC<{
           </div>
 
           <div className={`flex items-center space-x-3 ${
-            signingStep === 'complete' ? 'text-green-400' : 'text-gray-500'
+            signingStep === 'complete' ? 'text-green-400' : 'text-cortex-text-muted'
           }`}>
             <div className="text-xl">
               {signingStep === 'complete' ? '✅' : '⚪'}
@@ -244,10 +244,10 @@ const BlockchainSignoffForm: React.FC<{
           <div className="mt-6 bg-gray-900 p-4 rounded border border-gray-600">
             <div className="text-green-400 font-bold mb-2">🔗 Blockchain Details</div>
             <div className="space-y-1 text-xs font-mono">
-              <div><span className="text-gray-400">Transaction:</span> {blockchainResult.transactionId}</div>
-              <div><span className="text-gray-400">Block:</span> #{blockchainResult.blockNumber}</div>
-              <div><span className="text-gray-400">Network:</span> {blockchainResult.networkId}</div>
-              <div><span className="text-gray-400">Gas Used:</span> {blockchainResult.gasUsed}</div>
+              <div><span className="text-cortex-text-secondary">Transaction:</span> {blockchainResult.transactionId}</div>
+              <div><span className="text-cortex-text-secondary">Block:</span> #{blockchainResult.blockNumber}</div>
+              <div><span className="text-cortex-text-secondary">Network:</span> {blockchainResult.networkId}</div>
+              <div><span className="text-cortex-text-secondary">Gas Used:</span> {blockchainResult.gasUsed}</div>
             </div>
           </div>
         )}
@@ -432,7 +432,7 @@ export const trrBlockchainSignoffCommands: CommandConfig[] = [
                   </div>
                 </div>
                 
-                <div className="mt-4 text-xs text-gray-400">
+                <div className="mt-4 text-xs text-cortex-text-secondary">
                   💡 Use individual signoff commands for detailed approval workflows
                 </div>
               </div>
@@ -500,13 +500,13 @@ export const trrBlockchainSignoffCommands: CommandConfig[] = [
                   <div>
                     <h3 className="text-lg font-bold text-green-400 mb-4">📋 Signoff Details</h3>
                     <div className="space-y-2 text-sm">
-                      <div><span className="text-gray-400">TRR ID:</span> {signoff.trrId}</div>
-                      <div><span className="text-gray-400">Type:</span> {signoff.signoffType}</div>
-                      <div><span className="text-gray-400">Signer:</span> {signoff.signerName}</div>
-                      <div><span className="text-gray-400">Role:</span> {signoff.signerRole}</div>
-                      <div><span className="text-gray-400">Date:</span> {new Date(signoff.signoffDate).toLocaleString()}</div>
+                      <div><span className="text-cortex-text-secondary">TRR ID:</span> {signoff.trrId}</div>
+                      <div><span className="text-cortex-text-secondary">Type:</span> {signoff.signoffType}</div>
+                      <div><span className="text-cortex-text-secondary">Signer:</span> {signoff.signerName}</div>
+                      <div><span className="text-cortex-text-secondary">Role:</span> {signoff.signerRole}</div>
+                      <div><span className="text-cortex-text-secondary">Date:</span> {new Date(signoff.signoffDate).toLocaleString()}</div>
                       <div className={`flex items-center space-x-2`}>
-                        <span className="text-gray-400">Status:</span>
+                        <span className="text-cortex-text-secondary">Status:</span>
                         <span className={`px-2 py-1 rounded text-xs font-bold ${
                           signoff.verificationStatus === 'verified' ? 'bg-green-800 text-green-200' :
                           signoff.verificationStatus === 'pending' ? 'bg-yellow-800 text-yellow-200' :
@@ -522,12 +522,12 @@ export const trrBlockchainSignoffCommands: CommandConfig[] = [
                     <h3 className="text-lg font-bold text-blue-400 mb-4">🔗 Blockchain Info</h3>
                     {signoff.blockchainSignature && (
                       <div className="space-y-2 text-xs font-mono">
-                        <div><span className="text-gray-400">Hash:</span> {signoff.blockchainSignature.hash.substring(0, 20)}...</div>
-                        <div><span className="text-gray-400">Block:</span> #{signoff.blockchainSignature.blockNumber}</div>
-                        <div><span className="text-gray-400">Transaction:</span> {signoff.blockchainSignature.transactionId.substring(0, 20)}...</div>
-                        <div><span className="text-gray-400">Network:</span> {signoff.blockchainSignature.networkId}</div>
+                        <div><span className="text-cortex-text-secondary">Hash:</span> {signoff.blockchainSignature.hash.substring(0, 20)}...</div>
+                        <div><span className="text-cortex-text-secondary">Block:</span> #{signoff.blockchainSignature.blockNumber}</div>
+                        <div><span className="text-cortex-text-secondary">Transaction:</span> {signoff.blockchainSignature.transactionId.substring(0, 20)}...</div>
+                        <div><span className="text-cortex-text-secondary">Network:</span> {signoff.blockchainSignature.networkId}</div>
                         {signoff.ipfsHash && (
-                          <div><span className="text-gray-400">IPFS:</span> {signoff.ipfsHash.substring(0, 20)}...</div>
+                          <div><span className="text-cortex-text-secondary">IPFS:</span> {signoff.ipfsHash.substring(0, 20)}...</div>
                         )}
                       </div>
                     )}
@@ -537,7 +537,7 @@ export const trrBlockchainSignoffCommands: CommandConfig[] = [
                 {signoff.comments && (
                   <div className="mt-6 pt-4 border-t border-gray-700">
                     <h4 className="font-bold text-gray-300 mb-2">Comments:</h4>
-                    <p className="text-gray-400 text-sm">{signoff.comments}</p>
+                    <p className="text-cortex-text-secondary text-sm">{signoff.comments}</p>
                   </div>
                 )}
                 
@@ -587,23 +587,23 @@ export const trrBlockchainSignoffCommands: CommandConfig[] = [
                           {signoff.signoffType}
                         </div>
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-cortex-text-muted">
                         {new Date(signoff.signoffDate).toLocaleDateString()}
                       </div>
                     </div>
                     
                     <div className="mb-2">
                       <div className="font-medium text-white">{signoff.signerName}</div>
-                      <div className="text-sm text-gray-400">{signoff.signerRole}</div>
+                      <div className="text-sm text-cortex-text-secondary">{signoff.signerRole}</div>
                     </div>
                     
-                    <div className="text-xs text-gray-400 grid grid-cols-2 gap-4">
+                    <div className="text-xs text-cortex-text-secondary grid grid-cols-2 gap-4">
                       <div>
-                        <span className="text-gray-500">Email:</span> {signoff.signerEmail}
+                        <span className="text-cortex-text-muted">Email:</span> {signoff.signerEmail}
                       </div>
                       {signoff.blockchainSignature && (
                         <div>
-                          <span className="text-gray-500">Block:</span> #{signoff.blockchainSignature.blockNumber}
+                          <span className="text-cortex-text-muted">Block:</span> #{signoff.blockchainSignature.blockNumber}
                         </div>
                       )}
                     </div>
@@ -635,19 +635,19 @@ export const trrBlockchainSignoffCommands: CommandConfig[] = [
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-gray-800 p-4 rounded-lg border border-gray-600 text-center">
                 <div className="text-2xl font-bold text-white">{totalSignoffs}</div>
-                <div className="text-sm text-gray-400">Total Signoffs</div>
+                <div className="text-sm text-cortex-text-secondary">Total Signoffs</div>
               </div>
               <div className="bg-green-900/20 p-4 rounded-lg border border-green-500/30 text-center">
                 <div className="text-2xl font-bold text-green-400">{verifiedSignoffs}</div>
-                <div className="text-sm text-gray-400">Verified</div>
+                <div className="text-sm text-cortex-text-secondary">Verified</div>
               </div>
               <div className="bg-yellow-900/20 p-4 rounded-lg border border-yellow-500/30 text-center">
                 <div className="text-2xl font-bold text-yellow-400">{pendingSignoffs}</div>
-                <div className="text-sm text-gray-400">Pending</div>
+                <div className="text-sm text-cortex-text-secondary">Pending</div>
               </div>
               <div className="bg-blue-900/20 p-4 rounded-lg border border-blue-500/30 text-center">
                 <div className="text-2xl font-bold text-blue-400">100%</div>
-                <div className="text-sm text-gray-400">Immutable</div>
+                <div className="text-sm text-cortex-text-secondary">Immutable</div>
               </div>
             </div>
 

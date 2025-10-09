@@ -166,31 +166,31 @@
 }
 
 /* Cortex Orange Theme Colors */
-.text-cortex-orange {
+.text-cortex-accent {
   color: #f97316;
 }
 
-.text-cortex-orange-light {
+.text-cortex-accent-3 {
   color: #fb923c;
 }
 
-.text-cortex-orange-dark {
+.text-cortex-primary-dark {
   color: #ea580c;
 }
 
-.bg-cortex-orange {
+.bg-cortex-accent {
   background-color: #f97316;
 }
 
-.bg-cortex-orange-light {
+.bg-cortex-accent-3 {
   background-color: #fb923c;
 }
 
-.bg-cortex-orange-dark {
+.bg-cortex-primary-dark {
   background-color: #ea580c;
 }
 
-.border-cortex-orange {
+.border-cortex-accent {
   border-color: #f97316;
 }
 

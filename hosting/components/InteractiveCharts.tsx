@@ -33,7 +33,7 @@ export const BarChart: React.FC<{
           
           return (
             <div key={item.label} className="flex items-center space-x-3">
-              <div className="text-xs text-gray-400 w-20 truncate" title={item.label}>
+              <div className="text-xs text-cortex-text-secondary w-20 truncate" title={item.label}>
                 {item.label}
               </div>
               <div className="flex-1 relative">
@@ -228,7 +228,7 @@ export const LineChart: React.FC<{
         )}
         
         {/* Y-axis labels */}
-        <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-500 -ml-8">
+        <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-cortex-text-muted -ml-8">
           <div>{maxValue}</div>
           <div>{Math.round((maxValue + minValue) / 2)}</div>
           <div>{minValue}</div>
@@ -283,7 +283,7 @@ export const KPICard: React.FC<{
       </div>
       {change !== undefined && (
         <div className={`text-xs flex items-center ${
-          change > 0 ? 'text-green-400' : change < 0 ? 'text-red-400' : 'text-gray-400'
+          change > 0 ? 'text-green-400' : change < 0 ? 'text-red-400' : 'text-cortex-text-secondary'
         }`}>
           {change > 0 ? '↗' : change < 0 ? '↘' : '→'} {Math.abs(change).toFixed(1)}%
         </div>

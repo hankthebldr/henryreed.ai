@@ -1,3 +1,4 @@
+// legacy-orange: replaced by green per Cortex rebrand (2025-10-08)
 /**
  * Palo Alto Networks & Cortex Brand Configuration
  * 
@@ -10,25 +11,29 @@
 // Brand Colors Configuration
 export const brandColors = {
   paloAlto: {
-    // Primary brand colors from official logo and guidelines
+    // Primary brand colors from official Palo Alto Networks guidelines
     orange: '#FA582D',        // Primary Palo Alto Networks orange
     darkOrange: '#da532c',    // Darker variant for hover/active states
     darkGray: '#141414',      // Primary text color from logo
   },
   cortex: {
-    // Cortex product-specific colors
-    primary: '#FA582D',       // Consistent with Palo Alto primary
-    teal: '#8ad3de',         // Theme accent color from meta tags
-    lightBlue: '#00c0e8',    // Interactive elements color
-    darkGray: '#141414',     // Text color consistency
+    // Official Cortex XSIAM product colors
+    primary: '#00CC66',       // Cortex signature green
+    primaryDark: '#00B359',   // Darker green for interactions
+    primaryLight: '#33D580',  // Lighter green for highlights
+    gray: '#6B7280',         // Cortex UI gray
+    darkGray: '#374151',     // Darker gray for backgrounds
+    lightGray: '#F3F4F6',    // Light gray for surfaces
+    accent: '#8ad3de',       // Theme accent color from meta tags
+    blue: '#00c0e8',         // Interactive elements color
   },
   // Semantic color mapping
   semantic: {
-    primary: '#FA582D',       // Primary CTA and emphasis
-    success: '#10B981',       // Success states (complementary green)
-    warning: '#F59E0B',       // Warning states (complementary amber)
-    danger: '#EF4444',        // Error/danger states (complementary red)
-    info: '#8ad3de',         // Info messages (brand teal)
+    primary: '#00CC66',       // Cortex green for primary actions
+    success: '#00CC66',       // Success states using Cortex green
+    warning: '#F59E0B',       // Warning states (amber)
+    danger: '#EF4444',        // Error/danger states (red)
+    info: '#00c0e8',          // Info messages (Cortex blue)
   },
   // Neutral colors for UI elements
   neutral: {
@@ -49,10 +54,12 @@ export const brandColors = {
 
 // Gradient Definitions
 export const brandGradients = {
-  primary: 'linear-gradient(135deg, #FA582D 0%, #8ad3de 100%)',
-  primaryReverse: 'linear-gradient(135deg, #8ad3de 0%, #FA582D 100%)',
-  subtle: 'linear-gradient(135deg, #FA582D 0%, #da532c 100%)',
-  cortexTheme: 'linear-gradient(135deg, #00c0e8 0%, #8ad3de 100%)',
+  primary: 'linear-gradient(135deg, #00CC66 0%, #8ad3de 100%)',
+  primaryReverse: 'linear-gradient(135deg, #8ad3de 0%, #00CC66 100%)',
+  subtle: 'linear-gradient(135deg, #00CC66 0%, #00B359 100%)',
+  cortexTheme: 'linear-gradient(135deg, #00c0e8 0%, #00CC66 100%)',
+  success: 'linear-gradient(135deg, #00CC66 0%, #33D580 100%)',
+  accent: 'linear-gradient(135deg, #00CC66 0%, #FA582D 100%)',
 } as const;
 
 // Typography Configuration

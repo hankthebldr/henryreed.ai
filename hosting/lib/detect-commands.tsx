@@ -96,19 +96,19 @@ const handleDetectTest = async (args: string[]) => {
             <div className="grid grid-cols-4 gap-4 text-center">
               <div>
                 <div className="text-2xl font-bold text-blue-400">{testedRules.length}</div>
-                <div className="text-xs text-gray-400">Rules Tested</div>
+                <div className="text-xs text-cortex-text-secondary">Rules Tested</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-green-400">{triggeredCount}</div>
-                <div className="text-xs text-gray-400">Successful Detections</div>
+                <div className="text-xs text-cortex-text-secondary">Successful Detections</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-yellow-400">{avgResponseTime}ms</div>
-                <div className="text-xs text-gray-400">Avg Response Time</div>
+                <div className="text-xs text-cortex-text-secondary">Avg Response Time</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-cyan-400">{Math.round((triggeredCount / testedRules.length) * 100)}%</div>
-                <div className="text-xs text-gray-400">Detection Rate</div>
+                <div className="text-xs text-cortex-text-secondary">Detection Rate</div>
               </div>
             </div>
           </div>
@@ -124,7 +124,7 @@ const handleDetectTest = async (args: string[]) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-medium">{rule.name}</div>
-                    <div className="text-sm text-gray-400">ID: {rule.id}</div>
+                    <div className="text-sm text-cortex-text-secondary">ID: {rule.id}</div>
                   </div>
                   <div className="text-right">
                     <div className={`px-2 py-1 rounded text-xs ${
@@ -146,12 +146,12 @@ const handleDetectTest = async (args: string[]) => {
                       </div>
                     )}
                     {!rule.tested && (
-                      <div className="mt-1 text-xs text-gray-500">Not Tested</div>
+                      <div className="mt-1 text-xs text-cortex-text-muted">Not Tested</div>
                     )}
                   </div>
                 </div>
                 {verbose && rule.tested && (
-                  <div className="mt-2 text-xs text-gray-400 bg-black p-2 rounded font-mono">
+                  <div className="mt-2 text-xs text-cortex-text-secondary bg-black p-2 rounded font-mono">
                     XSIAM Query: index=main scenario="{scenario}" rule_id="{rule.id}" | stats count by _time
                   </div>
                 )}
@@ -176,7 +176,7 @@ const handleDetectTest = async (args: string[]) => {
             </ul>
           </div>
 
-          <div className="mt-4 text-xs text-gray-400">
+          <div className="mt-4 text-xs text-cortex-text-secondary">
             <strong>Next Steps:</strong> monitor start --scenario {scenario}, scenario validate --detections
           </div>
         </div>
@@ -211,7 +211,7 @@ const handleDetectRules = async (args: string[]) => {
                     <div key={rule.id} className="flex items-center justify-between bg-gray-800 p-2 rounded">
                       <div>
                         <div className="font-medium text-sm">{rule.name}</div>
-                        <div className="text-xs text-gray-400">ID: {rule.id}</div>
+                        <div className="text-xs text-cortex-text-secondary">ID: {rule.id}</div>
                       </div>
                       <div className={`px-2 py-1 rounded text-xs ${
                         rule.severity === 'critical' ? 'bg-red-600 text-red-200' :
@@ -227,7 +227,7 @@ const handleDetectRules = async (args: string[]) => {
               </div>
             ))}
           </div>
-          <div className="mt-4 text-sm text-gray-400">
+          <div className="mt-4 text-sm text-cortex-text-secondary">
             Use <span className="font-mono">detect rules --scenario [type]</span> to filter by scenario
           </div>
         </div>
@@ -254,14 +254,14 @@ const handleDetectRules = async (args: string[]) => {
           📚 Detection Rules {scenario && `(${scenario})`} {severity && `(${severity} severity)`}
         </div>
         {filteredRules.length === 0 ? (
-          <div className="text-gray-500">No matching detection rules found</div>
+          <div className="text-cortex-text-muted">No matching detection rules found</div>
         ) : (
           <div className="space-y-2">
             {filteredRules.map(({ scenario: scenarioType, rule }) => (
               <div key={`${scenarioType}-${rule.id}`} className="flex items-center justify-between bg-gray-800 p-3 rounded">
                 <div>
                   <div className="font-medium">{rule.name}</div>
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-cortex-text-secondary">
                     {rule.id} • Scenario: {scenarioType}
                   </div>
                 </div>
@@ -277,7 +277,7 @@ const handleDetectRules = async (args: string[]) => {
             ))}
           </div>
         )}
-        <div className="mt-4 text-sm text-gray-400">
+        <div className="mt-4 text-sm text-cortex-text-secondary">
           Use <span className="font-mono">detect test --scenario {scenario || 'SCENARIO'}</span> to test these rules
         </div>
       </div>
@@ -313,7 +313,7 @@ const handleDetectTune = async (args: string[]) => {
               <div><strong>Last Modified:</strong> {new Date().toLocaleString()}</div>
             </div>
           </div>
-          <div className="mt-3 text-xs text-gray-400">
+          <div className="mt-3 text-xs text-cortex-text-secondary">
             Changes applied to XSIAM detection rules. Test with <span className="font-mono">detect test</span>
           </div>
         </div>

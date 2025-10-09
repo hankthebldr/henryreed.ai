@@ -60,7 +60,6 @@ function getOpenAI() {
     return new openai_1.default({ apiKey });
 }
 async function geminiHttpHandler(req, res) {
-    var _a, _b, _c;
     // CORS headers
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -83,8 +82,8 @@ async function geminiHttpHandler(req, res) {
         let tokensUsed = 0;
         switch (request.action) {
             case 'chat':
-                result = await handleChat((_a = request.data) === null || _a === void 0 ? void 0 : _a.message, (_b = request.data) === null || _b === void 0 ? void 0 : _b.context);
-                tokensUsed = estimateTokens(String(((_c = request.data) === null || _c === void 0 ? void 0 : _c.message) || '') + JSON.stringify(result));
+                result = await handleChat(request.data?.message, request.data?.context);
+                tokensUsed = estimateTokens(String(request.data?.message || '') + JSON.stringify(result));
                 break;
             case 'analyze_pov':
                 result = await analyzePOV(request.data);
@@ -136,7 +135,6 @@ async function geminiHttpHandler(req, res) {
 }
 exports.gemini = functions.https.onRequest(geminiHttpHandler);
 async function handleChat(message, context) {
-    var _a, _b, _c;
     const systemPrompt = `You are an expert Domain Consultant for Palo Alto Networks XSIAM and Cortex platforms. You help with:
 - POV (Proof of Value) optimization and strategy
 - TRR (Technical Requirements Review) analysis
@@ -155,12 +153,11 @@ Provide practical, actionable advice based on security operations best practices
         temperature: 0.7
     });
     return {
-        content: ((_b = (_a = completion.choices[0]) === null || _a === void 0 ? void 0 : _a.message) === null || _b === void 0 ? void 0 : _b.content) || 'No response generated',
-        tokensUsed: ((_c = completion.usage) === null || _c === void 0 ? void 0 : _c.total_tokens) || 0
+        content: completion.choices[0]?.message?.content || 'No response generated',
+        tokensUsed: completion.usage?.total_tokens || 0
     };
 }
 async function analyzePOV(pov) {
-    var _a, _b, _c;
     const prompt = `Analyze this POV and provide strategic insights:
 
 POV Data: ${JSON.stringify(pov, null, 2)}
@@ -181,13 +178,12 @@ Format your response as structured insights.`;
     });
     return {
         type: 'pov_analysis',
-        content: ((_b = (_a = completion.choices[0]) === null || _a === void 0 ? void 0 : _a.message) === null || _b === void 0 ? void 0 : _b.content) || 'Analysis not available',
+        content: completion.choices[0]?.message?.content || 'Analysis not available',
         confidence: 0.85,
-        tokensUsed: ((_c = completion.usage) === null || _c === void 0 ? void 0 : _c.total_tokens) || 0
+        tokensUsed: completion.usage?.total_tokens || 0
     };
 }
 async function analyzeTRR(trr) {
-    var _a, _b, _c;
     const prompt = `Analyze this TRR (Technical Requirements Review) data:
 
 TRR Data: ${JSON.stringify(trr, null, 2)}
@@ -208,13 +204,12 @@ Focus on technical validation and practical implementation.`;
     });
     return {
         type: 'trr_analysis',
-        content: ((_b = (_a = completion.choices[0]) === null || _a === void 0 ? void 0 : _a.message) === null || _b === void 0 ? void 0 : _b.content) || 'Analysis not available',
+        content: completion.choices[0]?.message?.content || 'Analysis not available',
         confidence: 0.82,
-        tokensUsed: ((_c = completion.usage) === null || _c === void 0 ? void 0 : _c.total_tokens) || 0
+        tokensUsed: completion.usage?.total_tokens || 0
     };
 }
 async function generateDetection(scenario) {
-    var _a, _b, _c;
     const prompt = `Generate detection content for this security scenario:
 
 Scenario: ${JSON.stringify(scenario, null, 2)}
@@ -235,9 +230,9 @@ Focus on practical, production-ready detection logic.`;
     });
     return {
         type: 'detection_rule',
-        content: ((_b = (_a = completion.choices[0]) === null || _a === void 0 ? void 0 : _a.message) === null || _b === void 0 ? void 0 : _b.content) || 'Detection not generated',
+        content: completion.choices[0]?.message?.content || 'Detection not generated',
         confidence: 0.91,
-        tokensUsed: ((_c = completion.usage) === null || _c === void 0 ? void 0 : _c.total_tokens) || 0
+        tokensUsed: completion.usage?.total_tokens || 0
     };
 }
 function estimateTokens(text) {

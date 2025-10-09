@@ -158,7 +158,7 @@ export const ManualCreationGUI: React.FC = () => {
         </div>
         <button
           onClick={() => setActiveMode('none')}
-          className="text-gray-400 hover:text-white transition-colors"
+          className="text-cortex-text-secondary hover:text-white transition-colors"
         >
           ✕
         </button>
@@ -345,7 +345,7 @@ export const ManualCreationGUI: React.FC = () => {
         </div>
         <button
           onClick={() => setActiveMode('none')}
-          className="text-gray-400 hover:text-white transition-colors"
+          className="text-cortex-text-secondary hover:text-white transition-colors"
         >
           ✕
         </button>
@@ -503,7 +503,7 @@ export const ManualCreationGUI: React.FC = () => {
         </div>
         <button
           onClick={() => setActiveMode('none')}
-          className="text-gray-400 hover:text-white transition-colors"
+          className="text-cortex-text-secondary hover:text-white transition-colors"
         >
           ✕
         </button>
@@ -687,7 +687,7 @@ export const ManualCreationGUI: React.FC = () => {
             <div className="text-3xl">🛠️</div>
             <div>
               <h2 className="text-2xl font-bold text-white">Manual Creation Interface</h2>
-              <p className="text-gray-400">Create POVs, Templates, and Detection Scenarios with guided forms</p>
+              <p className="text-cortex-text-secondary">Create POVs, Templates, and Detection Scenarios with guided forms</p>
             </div>
           </div>
           
@@ -734,15 +734,15 @@ export const ManualCreationGUI: React.FC = () => {
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold text-blue-400">12</div>
-              <div className="text-sm text-gray-400">Active POVs</div>
+              <div className="text-sm text-cortex-text-secondary">Active POVs</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-green-400">8</div>
-              <div className="text-sm text-gray-400">Templates</div>
+              <div className="text-sm text-cortex-text-secondary">Templates</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-purple-400">24</div>
-              <div className="text-sm text-gray-400">Scenarios</div>
+              <div className="text-sm text-cortex-text-secondary">Scenarios</div>
             </div>
           </div>
         </div>

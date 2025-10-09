@@ -61,7 +61,7 @@ const TerminalWindow: React.FC<TerminalWindowProps> = ({
       newContent.push(
         <div key={`output-${Date.now()}`} className="text-gray-300 mb-2 ml-4">
           {command.startsWith('#') ? (
-            <span className="text-gray-500 italic">{command}</span>
+            <span className="text-cortex-text-muted italic">{command}</span>
           ) : (
             <span className="font-mono">{command}</span>
           )}
@@ -97,7 +97,7 @@ const TerminalWindow: React.FC<TerminalWindowProps> = ({
         </div>,
         <div key={`demo-output-${index}`} className="text-gray-300 mb-2 ml-4">
           {command.startsWith('#') ? (
-            <span className="text-gray-500 italic">Comment: {command.substring(1).trim()}</span>
+            <span className="text-cortex-text-muted italic">Comment: {command.substring(1).trim()}</span>
           ) : (
             <span className="text-blue-400">Executing: {command}</span>
           )}
@@ -137,7 +137,7 @@ const TerminalWindow: React.FC<TerminalWindowProps> = ({
         className={`bg-black p-4 font-mono text-sm overflow-y-auto ${height}`}
       >
         {terminalContent.length === 0 && !initialOutput && (
-          <div className="text-gray-500">
+          <div className="text-cortex-text-muted">
             {readOnly ? 'Terminal output will appear here...' : 'Type commands to interact with the terminal...'}
           </div>
         )}

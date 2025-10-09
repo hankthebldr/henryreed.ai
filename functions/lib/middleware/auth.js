@@ -83,7 +83,7 @@ const getUserOrganizations = async (userId) => {
             return {};
         }
         const userData = userDoc.data();
-        return (userData === null || userData === void 0 ? void 0 : userData.organizations) || {};
+        return userData?.organizations || {};
     }
     catch (error) {
         logger_1.logger.error('Failed to get user organizations:', error, { userId });

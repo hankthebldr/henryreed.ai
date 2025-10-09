@@ -91,7 +91,7 @@ export const xsiamCommands: CommandConfig[] = [
               <div className="text-yellow-300">
                 <div className="font-bold mb-2">⚠️ No XSIAM Connection</div>
                 <div className="text-sm">No XSIAM tenant is currently configured.</div>
-                <div className="text-xs text-gray-400 mt-2">
+                <div className="text-xs text-cortex-text-secondary mt-2">
                   Use <span className="font-mono">xsiam-connect --help</span> for setup instructions.
                 </div>
               </div>
@@ -140,7 +140,7 @@ export const xsiamCommands: CommandConfig[] = [
                     : 'Failed to connect to XSIAM tenant. Please check your credentials.'
                   }
                 </div>
-                <div className="mt-2 text-xs text-gray-400">
+                <div className="mt-2 text-xs text-cortex-text-secondary">
                   Tested at: {new Date().toLocaleString()}
                 </div>
               </div>
@@ -193,7 +193,7 @@ export const xsiamCommands: CommandConfig[] = [
                 <div className="text-sm space-y-1">
                   <div>Required fields: --api-address, --api-id, --api-key</div>
                   <div className="mt-2">Current values:</div>
-                  <div className="ml-4 text-xs text-gray-400">
+                  <div className="ml-4 text-xs text-cortex-text-secondary">
                     <div>API Address: {newCredentials.apiAddress || 'NOT SET'}</div>
                     <div>API ID: {newCredentials.apiId || 'NOT SET'}</div>
                     <div>API Key: {newCredentials.apiKey ? '***SET***' : 'NOT SET'}</div>
@@ -227,12 +227,12 @@ export const xsiamCommands: CommandConfig[] = [
                 </div>
                 
                 {!isValid && (
-                  <div className="mt-3 text-xs text-gray-400">
+                  <div className="mt-3 text-xs text-cortex-text-secondary">
                     💡 Connection could not be verified. Check your credentials and network connectivity.
                   </div>
                 )}
                 
-                <div className="mt-3 text-xs text-gray-400">
+                <div className="mt-3 text-xs text-cortex-text-secondary">
                   Next steps: Use <span className="font-mono text-cyan-400">xsiam-health</span> or <span className="font-mono text-cyan-400">xsiam-analytics</span> to query your tenant.
                 </div>
               </div>
@@ -258,7 +258,7 @@ export const xsiamCommands: CommandConfig[] = [
                 : 'No XSIAM tenant configured.'
               }
             </div>
-            <div className="text-xs text-gray-400 mt-2">
+            <div className="text-xs text-cortex-text-secondary mt-2">
               Use <span className="font-mono">xsiam-connect --help</span> for configuration options.
             </div>
           </div>
@@ -296,7 +296,7 @@ export const xsiamCommands: CommandConfig[] = [
             <div className="text-yellow-300">
               <div className="font-bold mb-2">⚠️ Not Connected</div>
               <div className="text-sm">Please configure XSIAM connection first.</div>
-              <div className="text-xs text-gray-400 mt-2">
+              <div className="text-xs text-cortex-text-secondary mt-2">
                 Use <span className="font-mono text-cyan-400">xsiam-connect</span> to set up your connection.
               </div>
             </div>
@@ -331,7 +331,7 @@ export const xsiamCommands: CommandConfig[] = [
             case 'healthy': return 'text-green-400';
             case 'degraded': return 'text-yellow-400';
             case 'unhealthy': return 'text-red-400';
-            default: return 'text-gray-400';
+            default: return 'text-cortex-text-secondary';
           }
         };
 
@@ -345,19 +345,19 @@ export const xsiamCommands: CommandConfig[] = [
                 <div className={`text-lg font-bold ${getHealthStatusColor(healthData.status)}`}>
                   {healthData.status.toUpperCase()}
                 </div>
-                <div className="text-xs text-gray-400">System Status</div>
+                <div className="text-xs text-cortex-text-secondary">System Status</div>
               </div>
               <div className="p-3 rounded border border-gray-600 bg-gray-800">
                 <div className="text-lg font-bold text-white">{healthData.uptime}%</div>
-                <div className="text-xs text-gray-400">Uptime</div>
+                <div className="text-xs text-cortex-text-secondary">Uptime</div>
               </div>
               <div className="p-3 rounded border border-gray-600 bg-gray-800">
                 <div className="text-lg font-bold text-blue-400">{healthData.metrics.activeUsers}</div>
-                <div className="text-xs text-gray-400">Active Users</div>
+                <div className="text-xs text-cortex-text-secondary">Active Users</div>
               </div>
               <div className="p-3 rounded border border-gray-600 bg-gray-800">
                 <div className="text-lg font-bold text-purple-400">{healthData.metrics.storageUsed}%</div>
-                <div className="text-xs text-gray-400">Storage Used</div>
+                <div className="text-xs text-cortex-text-secondary">Storage Used</div>
               </div>
             </div>
 
@@ -389,7 +389,7 @@ export const xsiamCommands: CommandConfig[] = [
                     <div className="flex items-center space-x-2">
                       <div className="text-white text-sm">{component.name}</div>
                       {component.responseTime && (
-                        <div className="text-xs text-gray-400">({component.responseTime}ms)</div>
+                        <div className="text-xs text-cortex-text-secondary">({component.responseTime}ms)</div>
                       )}
                     </div>
                     <div className={`px-2 py-1 rounded text-xs font-medium ${
@@ -404,7 +404,7 @@ export const xsiamCommands: CommandConfig[] = [
               </div>
             </div>
 
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-cortex-text-secondary">
               Last updated: {new Date(healthData.lastUpdate).toLocaleString()} • Query time: {executionTime}ms
             </div>
           </div>
@@ -443,7 +443,7 @@ export const xsiamCommands: CommandConfig[] = [
             <div className="text-yellow-300">
               <div className="font-bold mb-2">⚠️ Not Connected</div>
               <div className="text-sm">Please configure XSIAM connection first.</div>
-              <div className="text-xs text-gray-400 mt-2">
+              <div className="text-xs text-cortex-text-secondary mt-2">
                 Use <span className="font-mono text-cyan-400">xsiam-connect</span> to set up your connection.
               </div>
             </div>
@@ -497,7 +497,7 @@ export const xsiamCommands: CommandConfig[] = [
             case 'high': return 'text-orange-400';
             case 'medium': return 'text-yellow-400';
             case 'low': return 'text-green-400';
-            default: return 'text-gray-400';
+            default: return 'text-cortex-text-secondary';
           }
         };
 
@@ -509,23 +509,23 @@ export const xsiamCommands: CommandConfig[] = [
             <div className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-4">
               <div className="p-3 rounded border border-gray-600 bg-gray-800">
                 <div className="text-lg font-bold text-blue-400">{analyticsData.summary.totalIncidents}</div>
-                <div className="text-xs text-gray-400">Total Incidents</div>
+                <div className="text-xs text-cortex-text-secondary">Total Incidents</div>
               </div>
               <div className="p-3 rounded border border-gray-600 bg-gray-800">
                 <div className="text-lg font-bold text-green-400">{analyticsData.summary.resolvedIncidents}</div>
-                <div className="text-xs text-gray-400">Resolved</div>
+                <div className="text-xs text-cortex-text-secondary">Resolved</div>
               </div>
               <div className="p-3 rounded border border-gray-600 bg-gray-800">
                 <div className="text-lg font-bold text-yellow-400">{analyticsData.summary.averageResolutionTime}h</div>
-                <div className="text-xs text-gray-400">Avg Resolution</div>
+                <div className="text-xs text-cortex-text-secondary">Avg Resolution</div>
               </div>
               <div className="p-3 rounded border border-gray-600 bg-gray-800">
                 <div className="text-lg font-bold text-purple-400">{analyticsData.summary.falsePositiveRate}%</div>
-                <div className="text-xs text-gray-400">False Positive</div>
+                <div className="text-xs text-cortex-text-secondary">False Positive</div>
               </div>
               <div className="p-3 rounded border border-gray-600 bg-gray-800">
                 <div className="text-lg font-bold text-red-400">{analyticsData.summary.criticalAlerts}</div>
-                <div className="text-xs text-gray-400">Critical Alerts</div>
+                <div className="text-xs text-cortex-text-secondary">Critical Alerts</div>
               </div>
             </div>
 
@@ -537,7 +537,7 @@ export const xsiamCommands: CommandConfig[] = [
                   <div key={index} className="flex items-center justify-between p-2 bg-gray-800 rounded text-sm">
                     <div className="flex items-center space-x-2">
                       <div className="text-white">{threat.name}</div>
-                      <div className="text-xs text-gray-400">({threat.count}x)</div>
+                      <div className="text-xs text-cortex-text-secondary">({threat.count}x)</div>
                     </div>
                     <div className={`px-2 py-1 rounded text-xs font-medium ${
                       threat.severity === 'critical' ? 'bg-red-900 text-red-300' :
@@ -573,7 +573,7 @@ export const xsiamCommands: CommandConfig[] = [
               </div>
             </div>
 
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-cortex-text-secondary">
               Time range: {timeRange} • Query time: {executionTime}ms • Last updated: {new Date().toLocaleString()}
             </div>
           </div>
@@ -611,7 +611,7 @@ export const xsiamCommands: CommandConfig[] = [
             <div className="text-yellow-300">
               <div className="font-bold mb-2">⚠️ Not Connected</div>
               <div className="text-sm">Please configure XSIAM connection first.</div>
-              <div className="text-xs text-gray-400 mt-2">
+              <div className="text-xs text-cortex-text-secondary mt-2">
                 Use <span className="font-mono text-cyan-400">xsiam-connect</span> to set up your connection.
               </div>
             </div>
@@ -702,7 +702,7 @@ export const xsiamCommands: CommandConfig[] = [
             <div className="mb-4 bg-gray-800 p-3 rounded border border-gray-600">
               <div className="text-yellow-400 font-bold mb-2">Query:</div>
               <div className="font-mono text-xs text-gray-300 break-all">{query}</div>
-              <div className="mt-2 text-xs text-gray-500">
+              <div className="mt-2 text-xs text-cortex-text-muted">
                 Time range: {timeRange} • Execution time: {executionTime}ms
               </div>
             </div>
@@ -716,7 +716,7 @@ export const xsiamCommands: CommandConfig[] = [
               </div>
             </div>
 
-            <div className="text-xs text-gray-400">
+            <div className="text-xs text-cortex-text-secondary">
               💡 Use <span className="font-mono text-cyan-400">--json</span> flag for structured output
             </div>
           </div>
@@ -727,7 +727,7 @@ export const xsiamCommands: CommandConfig[] = [
           <div className="text-red-300">
             <div className="font-bold mb-2">❌ Query Execution Failed</div>
             <div className="text-sm">{error instanceof Error ? error.message : 'Unknown error occurred'}</div>
-            <div className="text-xs text-gray-400 mt-2">
+            <div className="text-xs text-cortex-text-secondary mt-2">
               Check your query syntax and XSIAM connection status.
             </div>
           </div>

@@ -363,14 +363,14 @@ const handleResourceSearch = (args: string[]) => {
               
               <div className="flex justify-between items-center text-xs">
                 <div className="space-x-4">
-                  <span className="text-gray-500">
+                  <span className="text-cortex-text-muted">
                     Downloads: <span className="text-blue-400">{resource.downloadCount}</span>
                   </span>
-                  <span className="text-gray-500">
+                  <span className="text-cortex-text-muted">
                     Rating: <span className="text-yellow-400">{resource.rating}/5</span>
                   </span>
                   {resource.fileSize && (
-                    <span className="text-gray-500">
+                    <span className="text-cortex-text-muted">
                       Size: <span className="text-purple-400">{resource.fileSize}</span>
                     </span>
                   )}
@@ -420,7 +420,7 @@ const handleResourceList = (args: string[]) => {
                 {resource.category}
               </div>
             </div>
-            <div className="text-sm text-gray-400 mb-2">{resource.description}</div>
+            <div className="text-sm text-cortex-text-secondary mb-2">{resource.description}</div>
             <div className="flex justify-between items-center text-xs">
               <div className="flex gap-1">
                 {resource.tags.slice(0, 3).map(tag => (
@@ -429,7 +429,7 @@ const handleResourceList = (args: string[]) => {
                   </span>
                 ))}
               </div>
-              <div className="text-gray-500">
+              <div className="text-cortex-text-muted">
                 {resource.downloadCount} downloads • {resource.rating}/5 ⭐
               </div>
             </div>
@@ -702,7 +702,7 @@ const handleDemoStatus = (args: string[]) => {
           <div><strong>Status:</strong> 
             <span className={`ml-2 ${
               environment.status === 'active' ? 'text-green-400' :
-              environment.status === 'stopped' ? 'text-gray-400' :
+              environment.status === 'stopped' ? 'text-cortex-text-secondary' :
               'text-yellow-400'
             }`}>
               {environment.status.toUpperCase()}

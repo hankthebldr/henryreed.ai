@@ -45,12 +45,12 @@ const logger_1 = require("../utils/logger");
 // SCENARIO EXECUTION ENGINE CLASS
 // ============================================================================
 class ScenarioExecutionEngine {
+    db;
     constructor() {
         this.db = admin.firestore();
     }
     // Main execution orchestration
     async executeScenario(executionId) {
-        var _a;
         logger_1.logger.info('Starting scenario execution', { executionId });
         try {
             // Get execution record
@@ -72,7 +72,7 @@ class ScenarioExecutionEngine {
             // Update status to running
             await executionRef.update({
                 status: 'running',
-                currentStage: (_a = blueprint.stages[0]) === null || _a === void 0 ? void 0 : _a.id,
+                currentStage: blueprint.stages[0]?.id,
                 lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
             });
             this.logExecution(executionId, 'info', 'scenario-engine', 'Scenario execution started');
@@ -128,12 +128,11 @@ class ScenarioExecutionEngine {
     }
     // Linear execution - stages run in sequence
     async executeLinear(executionId, blueprint, execution) {
-        var _a, _b;
         for (const stage of blueprint.stages) {
             const executionRef = this.db.collection('scenarioExecutions').doc(executionId);
             // Check if execution was paused or cancelled
             const currentExecution = await executionRef.get();
-            const status = (_a = currentExecution.data()) === null || _a === void 0 ? void 0 : _a.status;
+            const status = currentExecution.data()?.status;
             if (status === 'paused') {
                 this.logExecution(executionId, 'info', 'scenario-engine', 'Execution paused, waiting for resume');
                 return; // Exit gracefully, will be resumed later
@@ -161,14 +160,13 @@ class ScenarioExecutionEngine {
             // Run post-stage cleanup
             await this.runCleanupProcedures(executionId, blueprint, 'post-stage');
             // Apply adaptive rules if enabled
-            if ((_b = execution.options) === null || _b === void 0 ? void 0 : _b.adaptiveBehavior) {
+            if (execution.options?.adaptiveBehavior) {
                 await this.applyAdaptiveRules(executionId, blueprint, stage, stageResult);
             }
         }
     }
     // Execute a single stage
     async executeStage(executionId, stage, execution) {
-        var _a;
         const stageResult = {
             stageId: stage.id,
             status: 'running',
@@ -193,7 +191,7 @@ class ScenarioExecutionEngine {
                 const detection = await this.executeDetection(executionId, detectionPoint, stageResult);
                 stageResult.detections.push(detection);
                 // Check if we should pause on detection
-                if (detection.findings > 0 && ((_a = execution.options) === null || _a === void 0 ? void 0 : _a.pauseOnDetection)) {
+                if (detection.findings > 0 && execution.options?.pauseOnDetection) {
                     const executionRef = this.db.collection('scenarioExecutions').doc(executionId);
                     await executionRef.update({
                         status: 'paused',
@@ -316,7 +314,6 @@ class ScenarioExecutionEngine {
     }
     // Execute adaptive action
     async executeAdaptiveAction(executionId, rule, adaptation) {
-        var _a;
         const executionRef = this.db.collection('scenarioExecutions').doc(executionId);
         switch (rule.action) {
             case 'pause-execution':
@@ -342,7 +339,7 @@ class ScenarioExecutionEngine {
             case 'modify-parameters':
                 // Update execution variables
                 const currentExecution = await executionRef.get();
-                const currentVariables = ((_a = currentExecution.data()) === null || _a === void 0 ? void 0 : _a.variables) || {};
+                const currentVariables = currentExecution.data()?.variables || {};
                 await executionRef.update({
                     variables: { ...currentVariables, ...rule.parameters },
                     lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
@@ -354,13 +351,12 @@ class ScenarioExecutionEngine {
     }
     // Utility functions
     async checkPrerequisites(executionId, prerequisites, execution) {
-        var _a, _b;
         // Simplified prerequisite checking
         for (const prerequisite of prerequisites) {
-            if (prerequisite.includes('environment') && !((_a = execution.variables) === null || _a === void 0 ? void 0 : _a.environmentReady)) {
+            if (prerequisite.includes('environment') && !execution.variables?.environmentReady) {
                 return false;
             }
-            if (prerequisite.includes('network') && !((_b = execution.variables) === null || _b === void 0 ? void 0 : _b.networkAccess)) {
+            if (prerequisite.includes('network') && !execution.variables?.networkAccess) {
                 return false;
             }
         }

@@ -183,7 +183,7 @@ function UnifiedTerminal() {
                   <strong>Category:</strong> {cmd.category}
                 </div>
                 {cmd.aliases && (
-                  <div className="text-gray-500 mt-2 text-sm">
+                  <div className="text-cortex-text-muted mt-2 text-sm">
                     <strong>Aliases:</strong> {cmd.aliases.join(', ')}
                   </div>
                 )}
@@ -229,7 +229,7 @@ function UnifiedTerminal() {
               <div className="text-blue-400 font-bold mb-2">Permission Summary:</div>
               <div className="text-xs space-y-1">
                 {Object.entries(ctx.permissions).map(([perm, hasPermission]) => (
-                  <div key={perm} className={hasPermission ? 'text-green-400' : 'text-gray-500'}>
+                  <div key={perm} className={hasPermission ? 'text-green-400' : 'text-cortex-text-muted'}>
                     {hasPermission ? '✓' : '✗'} {perm}
                   </div>
                 ))}
@@ -263,7 +263,7 @@ function UnifiedTerminal() {
                   <div className="text-green-400 font-bold">Permissions:</div>
                   <div className="ml-4 mt-2 space-y-1">
                     {Object.entries(ctx.permissions).map(([perm, hasPermission]) => (
-                      <div key={perm} className={hasPermission ? 'text-green-400' : 'text-gray-500'}>
+                      <div key={perm} className={hasPermission ? 'text-green-400' : 'text-cortex-text-muted'}>
                         {hasPermission ? '✓' : '✗'} {perm.replace(/^can/, '').replace(/([A-Z])/g, ' $1').toLowerCase()}
                       </div>
                     ))}
@@ -278,7 +278,7 @@ function UnifiedTerminal() {
           <TerminalOutput type="info">
             <div className="text-lg font-bold text-blue-300">{ctx.user?.name}</div>
             <div className="text-sm text-gray-300">{ctx.user?.role} - {ctx.user?.email}</div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-xs text-cortex-text-muted mt-1">
               Use --detailed for more info | Session: {ctx.sessionId}
             </div>
           </TerminalOutput>
@@ -315,7 +315,7 @@ function UnifiedTerminal() {
                         <span className="text-green-400">{user.firstName} {user.lastName}</span>
                         <span className="text-yellow-400">{user.role}</span>
                       </div>
-                      <div className="text-gray-400 text-sm">{user.email}</div>
+                      <div className="text-cortex-text-secondary text-sm">{user.email}</div>
                     </div>
                   ))}
                 </div>
@@ -392,7 +392,7 @@ function UnifiedTerminal() {
         return (
           <TerminalOutput type="success">
             Mode switched to: <span className="text-green-400">{mode}</span>
-            <div className="text-sm text-gray-400 mt-1">
+            <div className="text-sm text-cortex-text-secondary mt-1">
               {mode === 'management' 
                 ? 'You now have access to aggregated data and management functions.'
                 : 'You now see only your personal data and activities.'
@@ -514,7 +514,7 @@ function UnifiedTerminal() {
                 </div>
               </div>
               
-              <div className="mt-4 text-sm text-gray-400">
+              <div className="mt-4 text-sm text-cortex-text-secondary">
                 💡 Use: <span className="text-green-400">compete splunk --pricing</span> for detailed comparison
               </div>
             </TerminalOutput>
@@ -688,10 +688,10 @@ function UnifiedTerminal() {
       newCommand.output = (
         <TerminalOutput type="error">
           Access denied. You don't have permission to execute '{cmdName}'.
-          <div className="text-sm text-gray-400 mt-2">
+          <div className="text-sm text-cortex-text-secondary mt-2">
             Required permissions: {cmd.requiredPermissions.join(', ')}
           </div>
-          <div className="text-sm text-gray-400">
+          <div className="text-sm text-cortex-text-secondary">
             Your role: {currentUser.role} | Contact admin for access.
           </div>
         </TerminalOutput>
@@ -816,7 +816,7 @@ function UnifiedTerminal() {
                 <span className="ml-2 text-yellow-400">({currentUser.role})</span>
                 {isManagementMode && <span className="ml-2 text-red-400">[MANAGEMENT MODE]</span>}
               </div>
-              <div className="text-sm text-gray-400 mt-2">
+              <div className="text-sm text-cortex-text-secondary mt-2">
                 RBAC-Protected Terminal Interface | Session: {sessionId}
               </div>
             </div>
@@ -857,7 +857,7 @@ function UnifiedTerminal() {
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
               <div className="text-green-400 font-bold">Cortex DC Terminal</div>
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-cortex-text-secondary">
                 {currentUser.name} ({currentUser.role})
                 {isManagementMode && <span className="text-red-400 ml-2">[MGMT]</span>}
               </div>

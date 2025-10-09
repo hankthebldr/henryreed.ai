@@ -137,7 +137,7 @@ export const HelpSection = ({
           <div className="text-green-400 font-bold">{cmd.name}</div>
           <div className="text-sm text-gray-300 mt-1">{cmd.description}</div>
           {cmd.aliases && (
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-xs text-cortex-text-muted mt-1">
               Aliases: {cmd.aliases.join(', ')}
             </div>
           )}
@@ -171,8 +171,8 @@ export const ListingOutput = ({
           {items.map((item, idx) => (
             <div key={idx} className="flex justify-between items-center">
               <div className="flex space-x-2">
-                <span className="text-gray-400">{item.permissions || (item.type === 'dir' ? 'drwxr-xr-x' : '-rw-r--r--')}</span>
-                <span className="w-12 text-right text-gray-400">{item.size || 0}</span>
+                <span className="text-cortex-text-secondary">{item.permissions || (item.type === 'dir' ? 'drwxr-xr-x' : '-rw-r--r--')}</span>
+                <span className="w-12 text-right text-cortex-text-secondary">{item.size || 0}</span>
                 <span className={item.type === 'dir' ? 'text-blue-400 font-bold' : 'text-gray-200'}>
                   {item.name}{item.type === 'dir' ? '/' : ''}
                 </span>
@@ -222,7 +222,7 @@ export const StatusDisplay = ({
           <div key={idx} className="flex items-center">
             {step.status === 'complete' && <span className="text-green-400 mr-2">✓</span>}
             {step.status === 'current' && <span className="animate-spin rounded-full h-3 w-3 border-b-2 border-yellow-400 mr-2"></span>}
-            {step.status === 'pending' && <span className="text-gray-400 mr-2">○</span>}
+            {step.status === 'pending' && <span className="text-cortex-text-secondary mr-2">○</span>}
             <span>{step.text}</span>
           </div>
         ))}

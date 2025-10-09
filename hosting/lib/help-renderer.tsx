@@ -124,14 +124,14 @@ function OptionsTable({ options }: { options: OptionSpec[] }) {
             </div>
             <div className="text-gray-300 text-sm mb-1">{option.description}</div>
             {option.enumValues && (
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-cortex-text-muted">
                 Values: {option.enumValues.map(val => (
                   <span key={val} className="font-mono bg-gray-900 px-1 rounded mr-1">{val}</span>
                 ))}
               </div>
             )}
             {option.default !== undefined && (
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-cortex-text-muted">
                 Default: <span className="font-mono bg-gray-900 px-1 rounded">{String(option.default)}</span>
               </div>
             )}
@@ -165,7 +165,7 @@ function ExamplesSection({ examples, helpContext }: { examples: ExampleSpec[], h
               </div>
             </div>
             {example.description && (
-              <div className="text-gray-400 text-sm">{example.description}</div>
+              <div className="text-cortex-text-secondary text-sm">{example.description}</div>
             )}
           </div>
         ))}
@@ -230,7 +230,7 @@ function AliasesSection({ command }: { command: EnhancedCommandConfig }) {
       <div className="text-yellow-400 font-bold mb-3">🏷️ Aliases & Usage Patterns</div>
       <div className="space-y-3">
         <div>
-          <div className="text-sm text-gray-400 mb-2">Available aliases:</div>
+          <div className="text-sm text-cortex-text-secondary mb-2">Available aliases:</div>
           <div className="flex flex-wrap gap-2">
             {command.aliases.map(alias => (
               <ActionButton key={alias} variant="copy" command={alias} size="sm" className="mr-1 mb-1" />
@@ -355,7 +355,7 @@ export function renderCommandHelp(command: EnhancedCommandConfig, helpContext?: 
       )}
       
       {/* Footer */}
-      <div className="mt-8 pt-4 border-t border-gray-600 text-xs text-gray-500">
+      <div className="mt-8 pt-4 border-t border-gray-600 text-xs text-cortex-text-muted">
         Need more help? Try <span className="font-mono text-green-400">help search "{command.name}"</span> or 
         visit the <span className="font-mono text-blue-400">contact</span> command for support options.
       </div>
@@ -380,7 +380,7 @@ export function renderHelpOverview(helpContext?: HelpContext): React.ReactNode {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-cyan-300 mb-2">🤖 Henry Reed AI Terminal Help</h1>
         <p className="text-gray-300 text-lg">Professional AI consulting and development services</p>
-        <div className="text-sm text-gray-500 mt-2">
+        <div className="text-sm text-cortex-text-muted mt-2">
           {stats.totalCommands} commands • {stats.totalAliases} aliases • Interactive help system
         </div>
       </div>
@@ -391,15 +391,15 @@ export function renderHelpOverview(helpContext?: HelpContext): React.ReactNode {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div>
             <div className="font-mono text-green-400">help search "query"</div>
-            <div className="text-gray-400">Find commands by topic</div>
+            <div className="text-cortex-text-secondary">Find commands by topic</div>
           </div>
           <div>
             <div className="font-mono text-blue-400">command --help</div>
-            <div className="text-gray-400">Detailed command help</div>
+            <div className="text-cortex-text-secondary">Detailed command help</div>
           </div>
           <div>
             <div className="font-mono text-purple-400">help --tour</div>
-            <div className="text-gray-400">Interactive guided tour</div>
+            <div className="text-cortex-text-secondary">Interactive guided tour</div>
           </div>
         </div>
       </div>
@@ -434,7 +434,7 @@ export function renderHelpOverview(helpContext?: HelpContext): React.ReactNode {
                 <span className="text-xs bg-gray-800 text-gray-300 px-2 py-1 rounded">{category.count}</span>
               </div>
               <div className="font-bold text-blue-300 mb-1">{category.displayName}</div>
-              <div className="text-xs text-gray-400">{category.description}</div>
+              <div className="text-xs text-cortex-text-secondary">{category.description}</div>
             </div>
           ))}
         </div>
@@ -458,7 +458,7 @@ export function renderHelpOverview(helpContext?: HelpContext): React.ReactNode {
       </div>
       
       {/* Footer */}
-      <div className="text-center pt-6 border-t border-gray-600 text-sm text-gray-400">
+      <div className="text-center pt-6 border-t border-gray-600 text-sm text-cortex-text-secondary">
         <div className="mb-2">
           Ready to explore? Start with <span className="font-mono text-green-400">getting started</span> or 
           dive into <span className="font-mono text-blue-400">ls ctx --all-products</span>
@@ -490,7 +490,7 @@ export function renderCategoryHelp(category: CommandCategory): React.ReactNode {
           {categoryInfo.icon} {categoryInfo.displayName}
         </h1>
         <p className="text-gray-300">{categoryInfo.description}</p>
-        <div className="text-sm text-gray-500 mt-2">
+        <div className="text-sm text-cortex-text-muted mt-2">
           {commands.length} command{commands.length !== 1 ? 's' : ''} available
         </div>
       </div>
@@ -501,14 +501,14 @@ export function renderCategoryHelp(category: CommandCategory): React.ReactNode {
             <div className="flex items-center justify-between mb-2">
               <div className="text-green-400 font-bold font-mono text-lg">{cmd.name}</div>
               {cmd.aliases && cmd.aliases.length > 0 && (
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-cortex-text-muted">
                   Aliases: {cmd.aliases.join(', ')}
                 </div>
               )}
             </div>
             <div className="text-gray-300 mb-3">{cmd.description}</div>
             {cmd.help?.examples && cmd.help.examples.length > 0 && (
-              <div className="text-xs text-gray-400 font-mono">
+              <div className="text-xs text-cortex-text-secondary font-mono">
                 Example: {cmd.help.examples[0].cmd}
               </div>
             )}
@@ -545,7 +545,7 @@ export function renderHelpSearch(query: string): React.ReactNode {
     <div className="text-blue-300 max-w-4xl">
       <div className="border-b border-gray-600 pb-4 mb-6">
         <h1 className="text-2xl font-bold text-cyan-300">🔍 Search Results for "{query}"</h1>
-        <div className="text-sm text-gray-500 mt-2">
+        <div className="text-sm text-cortex-text-muted mt-2">
           Found {results.length} relevant command{results.length !== 1 ? 's' : ''}
         </div>
       </div>
@@ -571,7 +571,7 @@ export function renderHelpSearch(query: string): React.ReactNode {
               </div>
             )}
             {result.command.help?.category && (
-              <div className="text-xs text-gray-500 mt-2">
+              <div className="text-xs text-cortex-text-muted mt-2">
                 Category: {CATEGORY_INFO[result.command.help.category]?.displayName}
               </div>
             )}

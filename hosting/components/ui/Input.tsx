@@ -1,4 +1,6 @@
 'use client';
+// legacy-orange: replaced by green per Cortex rebrand (2025-10-08)
+
 
 import React from 'react';
 import { cn } from '../../lib/utils';
@@ -29,7 +31,7 @@ export function Input({
     default: cn(
       'w-full bg-cortex-bg-primary/50 border border-cortex-border-muted rounded-xl',
       'text-cortex-text-primary placeholder-cortex-text-disabled',
-      'focus:outline-none focus:ring-2 focus:ring-cortex-orange focus:border-transparent',
+      'focus:outline-none focus:ring-2 focus:ring-cortex-accent focus:border-transparent',
       'transition-all duration-200'
     ),
     terminal: cn(
@@ -115,7 +117,7 @@ export function TextArea({
     default: cn(
       'w-full bg-cortex-bg-primary/50 border border-cortex-border-muted rounded-xl',
       'text-cortex-text-primary placeholder-cortex-text-disabled',
-      'focus:outline-none focus:ring-2 focus:ring-cortex-orange focus:border-transparent',
+      'focus:outline-none focus:ring-2 focus:ring-cortex-accent focus:border-transparent',
       'transition-all duration-200 resize-none'
     ),
     terminal: cn(

@@ -504,8 +504,8 @@ const ScenarioDetailView: React.FC<{
               initialOutput={
                 <div className="text-cyan-400">
                   <div className="text-lg font-bold mb-1">🔬 Scenario Deployment Terminal</div>
-                  <div className="text-sm text-gray-400 mb-3">Ready to deploy {scenario.name} scenario</div>
-                  <div className="text-xs text-gray-500 space-y-1">
+                  <div className="text-sm text-cortex-text-secondary mb-3">Ready to deploy {scenario.name} scenario</div>
+                  <div className="text-xs text-cortex-text-muted space-y-1">
                     <div>• Provider: {getScenarioProvider(scenarioKey).toUpperCase()} with auto-validation</div>
                     <div>• MITRE Mapping: {scenario.mitreMapping.join(', ')}</div>
                     <div>• Detection Types: {scenario.detectionTypes.join(', ')}</div>
@@ -577,8 +577,8 @@ const ScenarioDetailView: React.FC<{
               initialOutput={
                 <div className="text-cyan-400">
                   <div className="text-lg font-bold mb-1">🎯 POV Integration Terminal</div>
-                  <div className="text-sm text-gray-400 mb-3">Integrate {scenario.name} into customer POV demonstration</div>
-                  <div className="text-xs text-gray-500 space-y-1">
+                  <div className="text-sm text-cortex-text-secondary mb-3">Integrate {scenario.name} into customer POV demonstration</div>
+                  <div className="text-xs text-cortex-text-muted space-y-1">
                     <div>• Business Impact: {scenario.businessImpact.split(' - ')[0]}</div>
                     <div>• MITRE Techniques: {scenario.mitreMapping.length} mapped</div>
                     <div>• Detection Methods: {scenario.detectionTypes.length} technologies</div>
@@ -643,8 +643,8 @@ const ScenarioDetailView: React.FC<{
               initialOutput={
                 <div className="text-cyan-400">
                   <div className="text-lg font-bold mb-1">🔍 Detection Validation Terminal</div>
-                  <div className="text-sm text-gray-400 mb-3">Comprehensive detection testing for {scenario.name}</div>
-                  <div className="text-xs text-gray-500 space-y-1">
+                  <div className="text-sm text-cortex-text-secondary mb-3">Comprehensive detection testing for {scenario.name}</div>
+                  <div className="text-xs text-cortex-text-muted space-y-1">
                     <div>• Detection Technologies: {scenario.detectionTypes.join(', ')}</div>
                     <div>• MITRE Techniques: {scenario.mitreMapping.join(', ')}</div>
                     <div>• Provider: {getScenarioProvider(scenarioKey).toUpperCase()}</div>
@@ -742,8 +742,8 @@ const ScenarioDetailView: React.FC<{
               initialOutput={
                 <div className="text-cyan-400">
                   <div className="text-lg font-bold mb-1">📈 Monitoring Dashboard Terminal</div>
-                  <div className="text-sm text-gray-400 mb-3">Comprehensive monitoring and analysis for {scenario.name}</div>
-                  <div className="text-xs text-gray-500 space-y-1">
+                  <div className="text-sm text-cortex-text-secondary mb-3">Comprehensive monitoring and analysis for {scenario.name}</div>
+                  <div className="text-xs text-cortex-text-muted space-y-1">
                     <div>• Real-time Alerts: Enabled for {scenario.businessImpact.split(' - ')[0].toLowerCase()} risk events</div>
                     <div>• KPI Tracking: MITRE coverage, detection efficiency, false positive rate</div>
                     <div>• Threat Intel: Integrated with IOC feeds and reputation services</div>
