@@ -36,7 +36,14 @@ export const ManagementDashboard: React.FC = () => {
   const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [userMetrics, setUserMetrics] = useState<Record<string, UserMetrics>>({});
+  const [activityFeed, setActivityFeed] = useState<UserActivity[]>([]);
   const [activityFilter, setActivityFilter] = useState<'all' | 'today' | 'week' | 'month'>('today');
+  const [systemFeatureFlags, setSystemFeatureFlags] = useState<Record<string, boolean>>({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [teamFilter, setTeamFilter] = useState<string>('all');
+  const [userFilter, setUserFilter] = useState<UserRole | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [page, setPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [featureFlags, setFeatureFlags] = useState<FeatureFlagState[]>(platformSettingsSnapshot.featureFlags);
   const [settingsLoading, setSettingsLoading] = useState(false);
@@ -95,37 +102,64 @@ export const ManagementDashboard: React.FC = () => {
     return () => clearInterval(interval);
   }, [loadPlatformSettings]);
 
-  const loadDashboardData = async () => {
     setIsLoading(true);
     try {
-      // Load users
-      const allUsers = userManagementService.getAllUsers();
-      setUsers(allUsers);
+      let scope: 'all' | 'team' | 'self' = 'self';
+      if (authUserRole === 'admin') {
+        scope = 'all';
+      } else if (authUserRole === 'manager') {
+        scope = 'team';
+      }
 
-      // Load system metrics
-      const sysMetrics = userManagementService.generateSystemMetrics();
-      setSystemMetrics(sysMetrics);
-
-      // Load user metrics for active users
-      const metricsPromises = allUsers.map(async (user) => {
-        const metrics = userManagementService.generateUserMetrics(user.id, 'daily');
-        return { userId: user.id, metrics };
+      const scopedUsers = await userManagementService.getUsers({
+        scope,
+        managerId: scope === 'team' ? authUserId : undefined,
+        userId: authUserId,
+        includeInactive: true,
+        force,
       });
 
-      const metricsResults = await Promise.all(metricsPromises);
-      const metricsMap: Record<string, UserMetrics> = {};
-      metricsResults.forEach(({ userId, metrics }) => {
-        metricsMap[userId] = metrics;
+      setUsers(scopedUsers);
+      setPage(0);
+      setSelectedUser((previous) => {
+        if (!scopedUsers.length) return null;
+        if (!previous) return scopedUsers[0];
+        return scopedUsers.find((user) => user.id === previous.id) || scopedUsers[0];
       });
+
+      const userIds = scopedUsers.map((user) => user.id);
+      if (userIds.length === 0) {
+        setUserMetrics({});
+        setSystemMetrics(null);
+        setActivityFeed([]);
+        setSystemFeatureFlags({});
+        return;
+      }
+
+      const metricsMap = await userManagementService.getMetricsForUsers(userIds, { period: 'daily', force });
       setUserMetrics(metricsMap);
 
+      const sysMetrics = await userManagementService.generateSystemMetrics(userIds, { period: 'daily', force });
+      setSystemMetrics(sysMetrics);
+      actions.updateData('analytics', sysMetrics);
+
+      const activities = await userManagementService.getSystemActivities(100, { userIds, force });
+      setActivityFeed(activities);
+
+      setSystemFeatureFlags(userManagementService.getFeatureFlagSummary(userIds));
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
       actions.notify('error', 'Failed to load dashboard data');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [authUserId, authUserRole, actions]);
+
+  useEffect(() => {
+    loadDashboardData();
+    const interval = setInterval(() => loadDashboardData(), 30000);
+    return () => clearInterval(interval);
+  }, [loadDashboardData]);
 
   const handleFeatureFlagToggle = async (flagKey: string, enabled: boolean) => {
     const actor = {
@@ -376,22 +410,26 @@ export const ManagementDashboard: React.FC = () => {
   };
 
   const UsersTab = () => {
-    const [userFilter, setUserFilter] = useState<UserRole | 'all'>('all');
-    const [statusFilter, setStatusFilter] = useState<string>('all');
+    const filteredUsers = useMemo(() => {
+      const query = searchTerm.toLowerCase().trim();
+      return users.filter((user) => {
+        const roleMatch = userFilter === 'all' || user.role === userFilter;
+        const statusMatch = statusFilter === 'all' || user.status === statusFilter;
+        const teamMatch = teamFilter === 'all' || (user.teams || []).some((team) => team.id === teamFilter);
+        const normalized = `${user.firstName || ""} ${user.lastName || ""} ${user.email || ""}`.toLowerCase();
+        const searchMatch = query.length === 0 || normalized.includes(query);
+        return roleMatch && statusMatch && teamMatch && searchMatch;
+      });
+    }, [users, userFilter, statusFilter, teamFilter, searchTerm]);
 
-    const filteredUsers = users.filter(user => {
-      const roleMatch = userFilter === 'all' || user.role === userFilter;
-      const statusMatch = statusFilter === 'all' || user.status === statusFilter;
-      return roleMatch && statusMatch;
-    });
+    const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
+    const paginatedUsers = filteredUsers.slice(page * pageSize, page * pageSize + pageSize);
 
     const handleUpdateUserRole = async (userId: string, newRole: UserRole) => {
       try {
-        // In a real implementation, this would call an API
-        const user = users.find(u => u.id === userId);
+        const user = users.find((u) => u.id === userId);
         if (user) {
           user.role = newRole;
-          user.permissions = userManagementService['getDefaultPermissions'](newRole);
           user.updatedAt = new Date().toISOString();
           setUsers([...users]);
           actions.notify('success', `Updated ${user.firstName} ${user.lastName}'s role to ${newRole}`);
@@ -403,7 +441,7 @@ export const ManagementDashboard: React.FC = () => {
 
     const handleToggleUserStatus = async (userId: string) => {
       try {
-        const user = users.find(u => u.id === userId);
+        const user = users.find((u) => u.id === userId);
         if (user) {
           user.status = user.status === 'active' ? 'inactive' : 'active';
           user.updatedAt = new Date().toISOString();
@@ -452,10 +490,33 @@ export const ManagementDashboard: React.FC = () => {
               </select>
             </div>
 
-            <div className="flex-1"></div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-cortex-text-muted">Team:</span>
+              <select
+                value={teamFilter}
+                onChange={(e) => setTeamFilter(e.target.value)}
+                className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent text-sm"
+              >
+                <option value="all">All Teams</option>
+                {teamOptions.map((team) => (
+                  <option key={team.id} value={team.id}>{team.name}</option>
+                ))}
+              </select>
+            </div>
 
-            <div className="text-sm text-cortex-text-muted">
-              Showing {filteredUsers.length} of {users.length} users
+            <div className="flex items-center gap-2 flex-1 min-w-[220px]">
+              <span className="text-sm text-cortex-text-muted">Search:</span>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Name or email"
+                className="cortex-card w-full p-2 border-cortex-border-secondary text-sm bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent"
+              />
+            </div>
+
+            <div className="ml-auto text-sm text-cortex-text-muted">
+              Showing {paginatedUsers.length} of {filteredUsers.length} users ({users.length} total)
             </div>
           </div>
         </div>
@@ -476,18 +537,24 @@ export const ManagementDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map(user => {
+                {paginatedUsers.map((user) => {
                   const metrics = userMetrics[user.id];
+                  const initials = `${(user.firstName || "")[0] || ""}${(user.lastName || "")[0] || ""}`.toUpperCase() || 'NA';
                   return (
                     <tr key={user.id} className="border-t border-cortex-border-secondary hover:bg-cortex-bg-hover">
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 bg-gradient-to-r from-cortex-cyan to-cortex-blue rounded-full flex items-center justify-center text-white font-bold text-xs">
-                            {user.firstName[0]}{user.lastName[0]}
+                            {initials}
                           </div>
                           <div>
                             <div className="text-cortex-text-primary font-medium">{user.firstName} {user.lastName}</div>
                             <div className="text-sm text-cortex-text-muted">{user.email}</div>
+                            {(user.teams?.length || 0) > 0 && (
+                              <div className="text-xs text-cortex-text-muted">
+                                Teams: {(user.teams || []).map((team) => team.name).join(', ')}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </td>
@@ -506,16 +573,20 @@ export const ManagementDashboard: React.FC = () => {
                         </select>
                       </td>
                       <td className="p-4">
-                        <div className="text-cortex-text-primary">{user.department}</div>
-                        <div className="text-sm text-cortex-text-muted">{user.title}</div>
+                        <div className="text-cortex-text-primary">{user.department || '—'}</div>
+                        <div className="text-sm text-cortex-text-muted">{user.title || '—'}</div>
                       </td>
                       <td className="p-4">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${{
-                          'active': 'bg-cortex-success/20 text-cortex-success border border-cortex-success/30',
-                          'inactive': 'bg-cortex-bg-secondary/50 text-cortex-text-muted border border-cortex-border-secondary/50',
-                          'suspended': 'bg-cortex-error/20 text-cortex-error border border-cortex-error/30',
-                          'pending': 'bg-cortex-warning/20 text-cortex-warning border border-cortex-warning/30'
-                        }[user.status]}`}>
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-medium ${
+                            {
+                              active: 'bg-cortex-success/20 text-cortex-success border border-cortex-success/30',
+                              inactive: 'bg-cortex-bg-secondary/50 text-cortex-text-muted border border-cortex-border-secondary/50',
+                              suspended: 'bg-cortex-error/20 text-cortex-error border border-cortex-error/30',
+                              pending: 'bg-cortex-warning/20 text-cortex-warning border border-cortex-warning/30',
+                            }[user.status]
+                          }`}
+                        >
                           {user.status}
                         </span>
                       </td>
@@ -529,26 +600,20 @@ export const ManagementDashboard: React.FC = () => {
                           <span className="text-cortex-text-muted">No data</span>
                         )}
                       </td>
-                      <td className="p-4">
-                        <div className="text-cortex-text-primary text-sm">
-                          {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}
-                        </div>
+                      <td className="p-4 text-sm text-cortex-text-muted">
+                        {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : '—'}
                       </td>
                       <td className="p-4">
                         <div className="flex gap-2">
                           <button
                             onClick={() => setSelectedUser(user)}
-                            className="btn-modern button-hover-lift cortex-interactive px-2 py-1 bg-cortex-blue hover:bg-cortex-blue-dark text-white rounded text-xs transition-colors"
+                            className="btn-modern px-3 py-1 text-sm"
                           >
                             View
                           </button>
                           <button
                             onClick={() => handleToggleUserStatus(user.id)}
-                            className={`btn-modern button-hover-lift cortex-interactive px-2 py-1 rounded text-xs transition-colors ${
-                              user.status === 'active' 
-                                ? 'bg-cortex-error hover:bg-cortex-error-dark text-white'
-                                : 'bg-cortex-success hover:bg-cortex-success-dark text-white'
-                            }`}
+                            className="btn-modern px-3 py-1 text-sm bg-cortex-bg-tertiary"
                           >
                             {user.status === 'active' ? 'Deactivate' : 'Activate'}
                           </button>
@@ -560,11 +625,31 @@ export const ManagementDashboard: React.FC = () => {
               </tbody>
             </table>
           </div>
+          <div className="flex items-center justify-between px-4 py-3 border-t border-cortex-border-secondary bg-cortex-bg-secondary/30">
+            <div className="text-xs text-cortex-text-muted">
+              Page {page + 1} of {totalPages}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPage((prev) => Math.max(0, prev - 1))}
+                disabled={page === 0}
+                className="btn-modern px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                disabled={page + 1 >= totalPages}
+                className="btn-modern px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
   };
-
   const AnalyticsTab = () => {
     if (!systemMetrics) return <div>Loading...</div>;
 
@@ -663,17 +748,10 @@ export const ManagementDashboard: React.FC = () => {
   };
 
   const ActivityTab = () => {
-    const [activities, setActivities] = useState<UserActivity[]>([]);
-    
-    useEffect(() => {
-      const systemActivities = userManagementService.getSystemActivities(50);
-      setActivities(systemActivities);
-    }, []);
-
-    const filteredActivities = activities.filter(activity => {
+    const filteredActivities = useMemo(() => activityFeed.filter(activity => {
       const activityDate = new Date(activity.timestamp);
       const now = new Date();
-      
+
       switch (activityFilter) {
         case 'today':
           return activityDate.toDateString() === now.toDateString();
@@ -686,7 +764,7 @@ export const ManagementDashboard: React.FC = () => {
         default:
           return true;
       }
-    });
+    }), [activityFeed, activityFilter]);
 
     return (
       <div className="space-y-6">
