@@ -196,7 +196,7 @@ export const TerminalIntegrationSettings: React.FC = () => {
     <div className="terminal-integration-settings bg-gray-950 text-white p-6 rounded-lg border border-gray-700 max-w-4xl mx-auto">
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-orange-400 mb-2">⚡ Terminal Integration Settings</h2>
-        <p className="text-gray-400">Configure real-time terminal integration with cloud environments</p>
+        <p className="text-cortex-text-secondary">Configure real-time terminal integration with cloud environments</p>
       </div>
 
       <div className="bg-gray-800/50 p-4 rounded-lg">
@@ -208,7 +208,7 @@ export const TerminalIntegrationSettings: React.FC = () => {
         <div className="text-center py-8">
           <div className="text-4xl mb-4">🚀</div>
           <div className="text-xl text-white mb-2">Coming Soon</div>
-          <div className="text-gray-400">Advanced terminal integration with cloud environments</div>
+          <div className="text-cortex-text-secondary">Advanced terminal integration with cloud environments</div>
         </div>
       </div>
     </div>

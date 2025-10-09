@@ -44,11 +44,11 @@ function LoginPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-cortex-bg-secondary via-cortex-bg-primary to-cortex-bg-secondary flex items-center justify-center">
         <div className="bg-cortex-bg-tertiary/80 backdrop-blur-xl border border-cortex-border-secondary rounded-2xl p-12 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-cortex-border-muted border-t-cortex-orange mx-auto mb-6"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-cortex-border-muted border-t-cortex-accent mx-auto mb-6"></div>
           <div className="text-cortex-text-primary text-xl font-semibold mb-2">Authenticating</div>
           <div className="text-cortex-text-muted text-sm">Verifying your credentials...</div>
           <div className="mt-6 w-48 bg-cortex-bg-quaternary rounded-full h-2 mx-auto">
-            <div className="bg-cortex-orange h-2 rounded-full animate-pulse" style={{width: '70%'}}></div>
+            <div className="bg-cortex-accent h-2 rounded-full animate-pulse" style={{width: '70%'}}></div>
           </div>
         </div>
       </div>
@@ -59,10 +59,10 @@ function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-cortex-bg-secondary via-cortex-bg-primary to-cortex-bg-secondary relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-cortex-orange/10 via-transparent to-cortex-green/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-cortex-accent/10 via-transparent to-cortex-success/10" />
         <div className="absolute inset-0 opacity-20">
           <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,105,0,0.15) 1px, transparent 0)`,
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(0,204,102,0.15) 1px, transparent 0)`,
             backgroundSize: '30px 30px'
           }}></div>
         </div>
@@ -73,8 +73,12 @@ function LoginPage() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="h-10 w-10 bg-gradient-to-r from-cortex-orange to-cortex-green rounded-lg flex items-center justify-center shadow-lg shadow-cortex-orange/25">
-                <span className="text-cortex-text-primary font-bold text-sm">DC</span>
+              <div className="h-10 w-10 bg-gradient-to-r from-cortex-primary to-cortex-primary-light rounded-lg flex items-center justify-center shadow-lg shadow-cortex-primary/25">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
+                  <path d="M12 2L3 6v6c0 5.5 4 10 9 12 5-2 9-6.5 9-12V6l-9-4z" fill="currentColor"/>
+                  <circle cx="12" cy="10" r="2.5" fill="#000000" opacity="0.8"/>
+                  <path d="M10.5 10l1 1L14 8.5" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+                </svg>
               </div>
               <div>
                 <h1 className="text-cortex-text-primary font-bold text-lg">Cortex Domain Consultant Platform</h1>
@@ -98,16 +102,19 @@ function LoginPage() {
           {/* Welcome Section */}
           <div className="text-center mb-8">
             <div className="mb-6">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-cortex-orange to-cortex-green rounded-2xl shadow-2xl shadow-cortex-orange/25 mb-4">
-                <svg className="w-8 h-8 text-cortex-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-cortex-primary to-cortex-primary-light rounded-2xl shadow-2xl shadow-cortex-primary/25 mb-4 animate-glow-pulse hover:scale-110 transition-transform duration-300">
+                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24">
+                  <path d="M12 2L3 6v6c0 5.5 4 10 9 12 5-2 9-6.5 9-12V6l-9-4z" fill="currentColor" stroke="#00B359" strokeWidth="0.5"/>
+                  <circle cx="12" cy="10" r="3" fill="#000000" opacity="0.2"/>
+                  <path d="M10 10l1.5 1.5L15 8.5" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                  <rect x="8" y="15" width="8" height="1" rx="0.5" fill="#ffffff" opacity="0.6"/>
                 </svg>
               </div>
             </div>
             <h2 className="text-3xl font-bold text-cortex-text-primary mb-3">Welcome Back</h2>
             <p className="text-cortex-text-muted text-lg mb-2">Access your Domain Consultant workspace</p>
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-cortex-orange/20 border border-cortex-orange/30">
-              <span className="text-cortex-orange-light text-sm font-medium">Powered by Palo Alto Networks</span>
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-cortex-accent/20 to-cortex-success/20 border border-cortex-accent/30 backdrop-blur-sm">
+              <span className="text-cortex-accent text-sm font-medium">🛡️ Powered by Palo Alto Networks</span>
             </div>
           </div>
 
@@ -131,7 +138,7 @@ function LoginPage() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="w-full pl-10 pr-4 py-3 bg-cortex-bg-primary/50 border border-cortex-border-muted rounded-xl text-cortex-text-primary placeholder-cortex-text-disabled focus:outline-none focus:ring-2 focus:ring-cortex-orange focus:border-transparent transition-all duration-200"
+                    className="w-full pl-10 pr-4 py-3 bg-cortex-bg-primary/50 border border-cortex-border-muted rounded-xl text-cortex-text-primary placeholder-cortex-text-disabled focus:outline-none focus:ring-2 focus:ring-cortex-accent focus:border-transparent transition-all duration-200"
                     placeholder="Enter your username"
                     required
                     disabled={loading}
@@ -164,7 +171,7 @@ function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="w-full pl-10 pr-12 py-3 bg-cortex-bg-primary/50 border border-cortex-border-muted rounded-xl text-cortex-text-primary placeholder-cortex-text-disabled focus:outline-none focus:ring-2 focus:ring-cortex-orange focus:border-transparent transition-all duration-200"
+                    className="w-full pl-10 pr-12 py-3 bg-cortex-bg-primary/50 border border-cortex-border-muted rounded-xl text-cortex-text-primary placeholder-cortex-text-disabled focus:outline-none focus:ring-2 focus:ring-cortex-accent focus:border-transparent transition-all duration-200"
                     placeholder="Enter your password"
                     required
                     disabled={loading}
@@ -201,7 +208,7 @@ function LoginPage() {
               <button
                 type="submit"
                 disabled={loading || !username || !password}
-                className="w-full btn-modern bg-gradient-to-r from-cortex-orange to-cortex-green text-cortex-text-primary py-3 px-6 rounded-xl font-semibold shadow-lg shadow-cortex-orange/25 hover:from-cortex-orange-light hover:to-cortex-green-light focus:outline-none focus:ring-2 focus:ring-cortex-orange focus:ring-offset-2 focus:ring-offset-cortex-bg-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-2"
+                className="w-full btn-modern bg-gradient-to-r from-cortex-primary to-cortex-primary-light hover:from-cortex-primary/90 hover:to-cortex-primary-light/90 text-white py-3 px-6 rounded-xl font-semibold shadow-lg shadow-cortex-primary/25 focus:outline-none focus:ring-2 focus:ring-cortex-accent focus:ring-offset-2 focus:ring-offset-cortex-bg-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-2"
               >
                 {loading ? (
                   <>
@@ -232,7 +239,7 @@ function LoginPage() {
                   className="inline-flex items-center px-4 py-2 bg-cortex-bg-quaternary/50 hover:bg-cortex-bg-hover/50 border border-cortex-border-muted rounded-lg text-sm text-cortex-text-secondary transition-all duration-200 group"
                   disabled={loading}
                 >
-                  <svg className="h-4 w-4 mr-2 text-cortex-text-muted group-hover:text-cortex-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 mr-2 text-cortex-text-muted group-hover:text-cortex-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                   <span className="group-hover:text-cortex-text-primary">Use Demo Credentials</span>
@@ -250,11 +257,11 @@ function LoginPage() {
                 <span className="text-cortex-text-muted">Portal Online</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-cortex-orange rounded-full"></div>
-                <span className="text-cortex-text-muted">Cortex Ready</span>
+                <div className="w-2 h-2 bg-cortex-primary-light rounded-full"></div>
+                <span className="text-cortex-text-muted">XSIAM Ready</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-cortex-info rounded-full"></div>
+                <div className="w-2 h-2 bg-cortex-accent rounded-full"></div>
                 <span className="text-cortex-text-muted">Cloud Connected</span>
               </div>
             </div>

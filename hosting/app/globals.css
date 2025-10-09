@@ -8,7 +8,7 @@
 /* CSS Custom Properties for Cortex Theme */
 @layer base {
   :root {
-    /* Cortex Color System */
+    /* LEGACY Cortex Color System (preserved for compatibility) */
     --cortex-orange: #FF6900;
     --cortex-orange-light: #FF8533;
     --cortex-orange-dark: #E55A00;
@@ -16,31 +16,65 @@
     --cortex-green-light: #33D580;
     --cortex-green-dark: #00B359;
     
-    /* Background Hierarchy */
+    /* MODERN Cortex XSIAM Brand Colors (Official) */
+    /* RGB space for opacity utilities */
+    --cortex-primary: 0 204 102;     /* #00CC66 - Cortex green */
+    --cortex-primary-light: 51 213 128; /* #33D580 - Light green */
+    --cortex-primary-dark: 0 179 89;    /* #00B359 - Dark green */
+    --cortex-accent: 250 88 45;      /* #FA582D - PANW orange accent */
+    --cortex-blue: 0 192 232;        /* #00C0E8 - Interactive blue */
+    --cortex-gray: 107 114 128;      /* #6B7280 - UI gray */
+    --cortex-dark: 20 20 20;         /* #141414 */
+    
+    /* Surface Tokens (Dark Theme Optimized) */
+    --cortex-canvas: 0 0 0;          /* #000000 - App background */
+    --cortex-surface: 20 20 20;      /* #141414 - Card/panel background */
+    --cortex-elevated: 26 26 26;     /* #1A1A1A - Elevated surfaces */
+    --cortex-border: 48 48 48;       /* #303030 - Default borders */
+    
+  /* Text Tokens (Enhanced Visibility & Contrast) */
+    --cortex-text-primary: 255 255 255;   /* #FFFFFF - Headings (bright white) */
+    --cortex-text-secondary: 245 245 245; /* #F5F5F5 - Body text (off-white) */
+    --cortex-text-muted: 200 200 200;     /* #C8C8C8 - Meta text (light gray) */
+    
+    /* Status Colors (WCAG AA Compliant) */
+    --status-success: 0 204 102;     /* #00CC66 - Cortex green */
+    --status-warning: 245 158 11;    /* #F59E0B */
+    --status-error: 239 68 68;       /* #EF4444 */
+    --status-info: 0 192 232;        /* #00C0E8 */
+    
+    /* Focus & Ring Colors */
+    --ring-brand: 0 204 102;         /* Cortex green for focus */
+    --ring-focus: 0 204 102;         /* Cortex green for outline */
+    
+    /* Glass & Effects */
+    --glass-tint: 255 255 255;       /* White tint for glassmorphism */
+    
+    /* LEGACY Background Hierarchy (preserved) */
     --cortex-bg-primary: #000000;
     --cortex-bg-secondary: #0D1117;
     --cortex-bg-tertiary: #161B22;
     --cortex-bg-quaternary: #21262D;
     --cortex-bg-hover: #30363D;
     
-    /* Text Hierarchy */
-    --cortex-text-primary: #F0F6FC;
-    --cortex-text-secondary: #C9D1D9;
-    --cortex-text-muted: #8B949E;
-    --cortex-text-disabled: #6E7681;
+    /* LEGACY Text Hierarchy (enhanced visibility) */
+    --cortex-text-primary: #FFFFFF;
+    --cortex-text-secondary: #E6E6E6;
+    --cortex-text-muted: #BEBEBE;
+    --cortex-text-disabled: #9B9B9B;
     
-    /* Border System */
+    /* LEGACY Border System (preserved) */
     --cortex-border-primary: #FF6900;
     --cortex-border-secondary: #30363D;
     --cortex-border-muted: #21262D;
     
-    /* Status Colors */
+    /* LEGACY Status Colors (preserved) */
     --cortex-success: #00CC66;
     --cortex-error: #F85149;
     --cortex-warning: #F1C40F;
     --cortex-info: #58A6FF;
     
-    /* Shadows */
+    /* LEGACY Shadows (preserved) */
     --cortex-shadow-glow: 0 0 20px rgba(255, 105, 0, 0.4);
     --cortex-shadow-terminal: 0 0 50px rgba(0, 204, 102, 0.3);
   }
@@ -50,14 +84,17 @@
 html {
   scroll-behavior: smooth;
   background-color: #000000;
+  color-scheme: dark;
 }
 
 body {
   background-color: #000000;
-  color: #F0F6FC;
+  color: #F5F5F5; /* Slightly off-white for better eye comfort */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   margin: 0;
   padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Custom component styles that extend Tailwind */
@@ -94,12 +131,13 @@ input {
   background-color: #161B22;
   border: 1px solid #30363D;
   border-radius: 0.5rem;
-  color: #F0F6FC;
+  color: #F5F5F5; /* Match body text color */
   font-family: 'JetBrains Mono', Consolas, Monaco, 'Courier New', monospace;
+  font-size: 0.875rem; /* For better readability */
 }
 
 input::placeholder {
-  color: #8B949E;
+  color: #999999; /* Darker placeholder for better readability */
 }
 
 input:focus {
@@ -255,6 +293,31 @@ input:focus {
 .inline { display: inline; }
 .inline-block { display: inline-block; }
 
+/* Default text selection for better readability */
+*::selection {
+  background-color: #FF6900;
+  color: #000000;
+}
+
+*::-moz-selection {
+  background-color: #FF6900;
+  color: #000000;
+}
+
+/* Ensure text is properly styled in all contexts */
+* {
+  color: inherit;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #FFFFFF; /* Bright white for headings */
+  font-weight: 600;
+}
+
+p, span, div {
+  color: #F5F5F5; /* Consistent body text */
+}
+
 /* PANW Cortex Terminal Scrollbar */
 .terminal-scrollbar {
   scrollbar-width: thin;
@@ -301,7 +364,7 @@ input:focus {
 /* PANW Cortex button variants */
 .btn-cortex-secondary {
   background-color: #21262D;
-  color: #F0F6FC;
+  color: #FFFFFF;
   font-weight: 600;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
@@ -447,6 +510,7 @@ input:focus {
   min-height: 24rem;
   max-height: 24rem;
   overflow-y: auto;
+  color: #F5F5F5; /* Ensure terminal text is visible */
 }
 
 /* PANW Cortex Animations */
@@ -511,6 +575,79 @@ input:focus, textarea:focus, select:focus {
 /* ============================================
  * MODERN SOPHISTICATED UI PATTERNS
  * ============================================ */
+
+/* Modern Cortex Glass System */
+.ui-glass {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background-color: rgb(var(--glass-tint) / 0.03);
+  border: 1px solid rgb(var(--cortex-border) / 0.6);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.35),
+    0 8px 32px rgb(0 0 0 / 0.45);
+}
+
+.ui-glass-panel {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background-color: rgb(var(--cortex-surface) / 0.8);
+  border: 1px solid rgb(var(--cortex-border) / 0.5);
+  box-shadow:
+    0 4px 16px rgb(0 0 0 / 0.25),
+    0 8px 32px rgb(0 0 0 / 0.15),
+    inset 0 1px 0 rgb(var(--glass-tint) / 0.1);
+}
+
+.ui-glass-elevated {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background-color: rgb(var(--cortex-elevated) / 0.9);
+  border: 1px solid rgb(var(--cortex-border) / 0.4);
+  box-shadow:
+    0 8px 32px rgb(0 0 0 / 0.3),
+    0 16px 64px rgb(0 0 0 / 0.15),
+    inset 0 1px 0 rgb(var(--glass-tint) / 0.1);
+}
+
+/* Motion-safe animations */
+@media (prefers-reduced-motion: no-preference) {
+  .motion-safe-hover {
+    transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .motion-safe-hover:hover {
+    transform: translateY(-1px);
+  }
+  
+  .motion-safe-scale {
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .motion-safe-scale:hover {
+    transform: scale(1.02);
+  }
+}
+
+/* Focus system */
+.focus-brand {
+  outline: none;
+}
+
+.focus-brand:focus-visible {
+  outline: 2px solid rgb(var(--ring-brand));
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  box-shadow: 
+    0 0 0 2px rgb(var(--cortex-canvas)),
+    0 0 0 4px rgb(var(--ring-brand) / 0.6);
+}
 
 /* Enhanced Glassmorphism Effects */
 .glass {

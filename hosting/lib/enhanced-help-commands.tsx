@@ -53,7 +53,7 @@ export const enhancedHelpCommands: CommandConfig[] = [
             <div className="mt-3 text-yellow-400">
               <strong>Usage:</strong> <span className="font-mono text-white">{cmdName} [options]</span>
             </div>
-            <div className="mt-2 text-sm text-gray-500">
+            <div className="mt-2 text-sm text-cortex-text-muted">
               Use the navigation tabs above to explore related commands, or run <span className="font-mono text-green-400">help</span> for all available commands.
             </div>
           </div>
@@ -85,7 +85,7 @@ export const enhancedHelpCommands: CommandConfig[] = [
                 </div>
               </div>
             </div>
-            <div className="mt-4 text-sm text-gray-400">
+            <div className="mt-4 text-sm text-cortex-text-secondary">
               Use <span className="font-mono text-green-400">help</span> (without --quick) for comprehensive documentation.
             </div>
           </div>
@@ -104,7 +104,7 @@ export const enhancedHelpCommands: CommandConfig[] = [
         reporting: { name: 'Reporting & Analytics', icon: '📊', color: 'text-yellow-400', description: 'Professional reporting, business analytics, and real-time dashboards' },
         data: { name: 'BigQuery Export & Analytics', icon: '📊', color: 'text-teal-400', description: 'Export analytics data to BigQuery for advanced analysis and reporting' },
         integration: { name: 'XSIAM Integration', icon: '🔗', color: 'text-indigo-400', description: 'Connect to XSIAM tenant API for health monitoring, analytics, and XQL queries' },
-        system: { name: 'System & Utilities', icon: '⚙️', color: 'text-gray-400', description: 'System utilities, search capabilities, and session management' }
+        system: { name: 'System & Utilities', icon: '⚙️', color: 'text-cortex-text-secondary', description: 'System utilities, search capabilities, and session management' }
       } as const;
 
       const orderedKeys = ['pov','trr','template','customer','detection','ai','gui','reporting','data','integration','system'];
@@ -146,11 +146,11 @@ export const enhancedHelpCommands: CommandConfig[] = [
                     {items.map(cmd => (
                       <div key={cmd.name} className="bg-gray-800/50 p-2 rounded">
                         <div className={`font-mono ${catMeta.color} text-sm`}>{cmd.name}</div>
-                        <div className="text-xs text-gray-400 mt-1">{cmd.description}</div>
+                        <div className="text-xs text-cortex-text-secondary mt-1">{cmd.description}</div>
                       </div>
                     ))}
                   </div>
-                  <div className="mt-2 text-xs text-gray-500">
+                  <div className="mt-2 text-xs text-cortex-text-muted">
                     Try: <span className="font-mono text-green-400">help {items[0]?.name}</span> for detailed usage
                   </div>
                 </div>
@@ -169,7 +169,7 @@ export const enhancedHelpCommands: CommandConfig[] = [
               <div>• <span className="font-mono text-rose-400">project dashboard</span> for Gantt charts and task management</div>
               <div>• <span className="font-mono text-teal-400">bq-export --quick</span> for analytics export to BigQuery</div>
               <div>• <span className="font-mono text-indigo-400">xsiam-connect</span> to connect to your XSIAM tenant API</div>
-              <div>• Press <span className="font-mono text-gray-400">↑/↓</span> for command history, <span className="font-mono text-gray-400">Shift+Enter</span> for multi-line</div>
+              <div>• Press <span className="font-mono text-cortex-text-secondary">↑/↓</span> for command history, <span className="font-mono text-cortex-text-secondary">Shift+Enter</span> for multi-line</div>
             </div>
           </div>
         </div>
@@ -344,15 +344,15 @@ export const enhancedHelpCommands: CommandConfig[] = [
               <div className="space-y-2 text-sm">
                 <div>
                   <span className="font-mono text-green-400">getting-started --workflow executive-pov</span>
-                  <span className="text-gray-400 ml-2">→ Step-by-step executive POV process</span>
+                  <span className="text-cortex-text-secondary ml-2">→ Step-by-step executive POV process</span>
                 </div>
                 <div>
                   <span className="font-mono text-blue-400">getting-started --workflow technical-demo</span>
-                  <span className="text-gray-400 ml-2">→ Technical demonstration workflow</span>
+                  <span className="text-cortex-text-secondary ml-2">→ Technical demonstration workflow</span>
                 </div>
                 <div>
                   <span className="font-mono text-purple-400">getting-started --workflow template-customization</span>
-                  <span className="text-gray-400 ml-2">→ Template customization process</span>
+                  <span className="text-cortex-text-secondary ml-2">→ Template customization process</span>
                 </div>
               </div>
             </div>
@@ -380,7 +380,7 @@ export const enhancedHelpCommands: CommandConfig[] = [
             </div>
           </div>
 
-          <div className="mt-6 text-sm text-gray-400 text-center">
+          <div className="mt-6 text-sm text-cortex-text-secondary text-center">
             Ready to begin? Try clicking the <strong>POV Management</strong> tab above or run <span className="font-mono text-green-400">pov templates</span>
           </div>
         </div>

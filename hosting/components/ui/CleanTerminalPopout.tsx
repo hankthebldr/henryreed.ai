@@ -19,16 +19,29 @@ export function CleanTerminalPopout({
   onMinimize,
   title = 'Terminal',
   children,
-  initialPosition = { x: 100, y: 100 },
+  initialPosition,
   initialSize = { width: 800, height: 600 }
 }: CleanTerminalPopoutProps) {
+  // Calculate centered position if not provided
+  const getInitialPosition = () => {
+    if (initialPosition) return initialPosition;
+    
+    const centerX = (window.innerWidth - initialSize.width) / 2;
+    const centerY = (window.innerHeight - initialSize.height) / 2;
+    
+    return {
+      x: Math.max(50, centerX),
+      y: Math.max(50, centerY)
+    };
+  };
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
-  const [position, setPosition] = useState(initialPosition);
+  const [position, setPosition] = useState(() => getInitialPosition());
   const [size, setSize] = useState(initialSize);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isResizing, setIsResizing] = useState(false);
+  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
   
   const containerRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -47,17 +60,51 @@ export function CleanTerminalPopout({
     }
   };
 
+  // Constrain position to viewport bounds
+  const constrainToViewport = (pos: { x: number; y: number }, size: { width: number; height: number }) => {
+    const padding = 20;
+    const maxX = window.innerWidth - size.width - padding;
+    const maxY = window.innerHeight - size.height - padding;
+    
+    return {
+      x: Math.max(padding, Math.min(maxX, pos.x)),
+      y: Math.max(padding, Math.min(maxY, pos.y))
+    };
+  };
+
   const handleMouseMove = (e: MouseEvent) => {
     if (isDragging && !isMaximized) {
-      setPosition({
+      const newPosition = {
         x: e.clientX - dragOffset.x,
         y: e.clientY - dragOffset.y
+      };
+      
+      // Constrain to viewport bounds
+      const constrainedPosition = constrainToViewport(newPosition, size);
+      setPosition(constrainedPosition);
+    }
+    
+    if (isResizing && !isMaximized) {
+      const deltaX = e.clientX - resizeStart.x;
+      const deltaY = e.clientY - resizeStart.y;
+      
+      const newWidth = Math.max(400, resizeStart.width + deltaX);
+      const newHeight = Math.max(300, resizeStart.height + deltaY);
+      
+      // Ensure the new size doesn't exceed viewport bounds
+      const maxWidth = window.innerWidth - position.x - 20;
+      const maxHeight = window.innerHeight - position.y - 20;
+      
+      setSize({
+        width: Math.min(newWidth, maxWidth),
+        height: Math.min(newHeight, maxHeight)
       });
     }
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    setIsResizing(false);
   };
 
   // Handle window controls
@@ -79,6 +126,32 @@ export function CleanTerminalPopout({
     setIsMinimized(false);
   };
 
+  // Handle window resize to ensure terminal stays in bounds
+  useEffect(() => {
+    const handleWindowResize = () => {
+      if (!isMaximized) {
+        const constrainedPosition = constrainToViewport(position, size);
+        if (constrainedPosition.x !== position.x || constrainedPosition.y !== position.y) {
+          setPosition(constrainedPosition);
+        }
+        
+        // Also constrain size if it exceeds new viewport
+        const maxWidth = window.innerWidth - position.x - 20;
+        const maxHeight = window.innerHeight - position.y - 20;
+        
+        if (size.width > maxWidth || size.height > maxHeight) {
+          setSize({
+            width: Math.min(size.width, maxWidth),
+            height: Math.min(size.height, maxHeight)
+          });
+        }
+      }
+    };
+
+    window.addEventListener('resize', handleWindowResize);
+    return () => window.removeEventListener('resize', handleWindowResize);
+  }, [position, size, isMaximized]);
+
   // Escape key to close
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -91,19 +164,33 @@ export function CleanTerminalPopout({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
-  // Mouse event listeners for dragging
+  // Mouse event listeners for dragging and resizing
   useEffect(() => {
-    if (isDragging) {
+    if (isDragging || isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = isDragging ? 'move' : (isResizing ? 'se-resize' : 'default');
+      document.body.style.userSelect = 'none';
+      
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        document.body.style.cursor = 'default';
+        document.body.style.userSelect = 'auto';
       };
     }
-  }, [isDragging, dragOffset]);
+  }, [isDragging, isResizing, dragOffset, resizeStart, size, position]);
 
   if (!isOpen) return null;
+
+  // Add backdrop blur overlay when terminal is open
+  const backdropElement = (
+    <div 
+      className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity duration-300"
+      onClick={handleClose}
+      style={{ zIndex: 49 }}
+    />
+  );
 
   // Minimized state - show only a small bar
   if (isMinimized) {
@@ -120,7 +207,7 @@ export function CleanTerminalPopout({
               e.stopPropagation();
               handleClose();
             }}
-            className="text-gray-400 hover:text-red-400 transition-colors"
+            className="text-cortex-text-secondary hover:text-red-400 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -150,11 +237,16 @@ export function CleanTerminalPopout({
       };
 
   return (
-    <div
-      ref={containerRef}
-      style={containerStyle}
-      className="bg-gray-900 border border-gray-700 rounded-lg shadow-2xl overflow-hidden flex flex-col"
-    >
+    <>
+      {/* Backdrop */}
+      {backdropElement}
+      
+      {/* Terminal Window */}
+      <div
+        ref={containerRef}
+        style={containerStyle}
+        className="bg-gray-900 border border-gray-700 rounded-lg shadow-2xl overflow-hidden flex flex-col transition-all duration-300 ease-out transform animate-scale-in"
+      >
       {/* Header */}
       <div
         ref={headerRef}
@@ -214,12 +306,19 @@ export function CleanTerminalPopout({
           onMouseDown={(e) => {
             e.preventDefault();
             setIsResizing(true);
+            setResizeStart({
+              x: e.clientX,
+              y: e.clientY,
+              width: size.width,
+              height: size.height
+            });
           }}
         >
           <div className="w-full h-full bg-gray-600 rounded-tl-lg" />
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

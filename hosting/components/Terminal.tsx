@@ -41,7 +41,7 @@ function Terminal() {
       output: (
         <div className="text-green-400 mb-4">
 <div className="text-xl font-bold text-cyan-400">XSIAM & Cortex Terminal</div>
-          <div className="text-sm text-gray-400 mt-2">
+          <div className="text-sm text-cortex-text-secondary mt-2">
 <div className="text-lg text-cyan-300 font-semibold mb-1">Explore AI in Cortex capabilities</div>
             <div>Type 'getting started' or 'help' for available commands</div>
           </div>
@@ -64,7 +64,7 @@ function Terminal() {
               <div className="text-blue-300">
                 <div className="font-bold">{cmd.name}</div>
                 <div>{cmd.description}</div>
-                <div className="text-gray-400">Usage: {cmd.usage}</div>
+                <div className="text-cortex-text-secondary">Usage: {cmd.usage}</div>
               </div>
             );
           }
@@ -80,7 +80,7 @@ function Terminal() {
                 <span>{cmd.description}</span>
               </div>
             ))}
-            <div className="mt-4 text-gray-400 text-sm">
+            <div className="mt-4 text-cortex-text-secondary text-sm">
               Tip: Use 'help [command]' for detailed usage information
             </div>
           </div>
@@ -113,7 +113,7 @@ function Terminal() {
             </div>
           );
         }
-        return <div className="text-gray-400">Usage: ls scenarios</div>;
+        return <div className="text-cortex-text-secondary">Usage: ls scenarios</div>;
       }
     },
     {
@@ -132,7 +132,7 @@ function Terminal() {
                 <div><span className="text-green-400">Expertise:</span> Machine Learning, LLMs, Computer Vision</div>
                 <div><span className="text-green-400">Focus:</span> Enterprise AI implementation and strategy</div>
                 <div><span className="text-green-400">Mission:</span> Making AI accessible and practical for businesses</div>
-                <div className="mt-3 text-gray-400">
+                <div className="mt-3 text-cortex-text-secondary">
                   "Bridging the gap between cutting-edge AI research and real-world business applications"
                 </div>
               </div>
@@ -144,7 +144,7 @@ function Terminal() {
           <div className="text-blue-300">
             <div className="text-lg font-bold">Henry Reed</div>
 <div className="text-sm text-gray-300">AI/Security Engineer</div>
-            <div className="text-xs text-gray-500 mt-1">Use --detailed for more info</div>
+            <div className="text-xs text-cortex-text-muted mt-1">Use --detailed for more info</div>
           </div>
         );
       }
@@ -217,7 +217,7 @@ function Terminal() {
                     • ROI analysis and business case development
                   </div>
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-cortex-text-muted">
                   Perfect for: C-suite executives, CTOs, Product Managers
                 </div>
               </div>
@@ -238,7 +238,7 @@ function Terminal() {
                     • Production deployment and monitoring
                   </div>
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-cortex-text-muted">
                   Perfect for: Engineering teams, Startups, Scale-ups
                 </div>
               </div>
@@ -259,7 +259,7 @@ function Terminal() {
                     • Hands-on coding bootcamps
                   </div>
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-cortex-text-muted">
                   Perfect for: Teams, Organizations, Individuals
                 </div>
               </div>
@@ -275,7 +275,7 @@ function Terminal() {
               <div className="text-blue-400">• --development   Custom AI solutions</div>
               <div className="text-purple-400">• --training      Team education & workshops</div>
             </div>
-            <div className="mt-4 text-gray-400 text-sm">
+            <div className="mt-4 text-cortex-text-secondary text-sm">
               Try: services --consulting
             </div>
           </div>
@@ -320,7 +320,7 @@ function Terminal() {
                 </div>
               </div>
               
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-cortex-text-secondary">
                 Ready to get started? Try <span className="text-green-400 font-mono">services</span> or <span className="text-blue-400 font-mono">whoami</span> to explore.
               </div>
             </div>
@@ -446,7 +446,7 @@ function Terminal() {
         ))}
       </div>
 
-      <div className="border-t border-gray-800 px-4 py-1 text-right text-xs text-gray-500">Developed by Henry Reed</div>
+      <div className="border-t border-gray-800 px-4 py-1 text-right text-xs text-cortex-text-muted">Developed by Henry Reed</div>
       <form onSubmit={handleSubmit} className="border-t border-gray-700 p-4">
         <div className="flex">
           <span className="text-blue-400 mr-2">henry@ai:~$</span>

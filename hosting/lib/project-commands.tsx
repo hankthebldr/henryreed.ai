@@ -796,7 +796,7 @@ const handleProjectList = (args: string[]) => {
               </div>
 
               <div className="mt-3 flex justify-between items-center">
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-cortex-text-muted">
                   Tasks: {project.tasks.filter(t => t.status === 'completed').length}/{project.tasks.length} completed
                 </div>
                 <div className="text-green-400 font-mono text-sm">
@@ -883,7 +883,7 @@ const handleProjectStatus = (args: string[]) => {
               <div key={idx} className="flex justify-between items-center">
                 <div>
                   <div className="font-bold text-sm">{stakeholder.name}</div>
-                  <div className="text-xs text-gray-400">{stakeholder.role} • {stakeholder.company}</div>
+                  <div className="text-xs text-cortex-text-secondary">{stakeholder.role} • {stakeholder.company}</div>
                 </div>
                 <div className={`px-2 py-1 rounded text-xs ${
                   stakeholder.influence === 'high' ? 'bg-red-800 text-red-200' :
@@ -964,7 +964,7 @@ const handleProjectTasks = (args: string[]) => {
             </div>
 
             {task.dependencies.length > 0 && (
-              <div className="mt-2 text-xs text-gray-500">
+              <div className="mt-2 text-xs text-cortex-text-muted">
                 <strong>Dependencies:</strong> {task.dependencies.join(', ')}
               </div>
             )}
@@ -1039,7 +1039,7 @@ const handleProjectMilestones = (args: string[]) => {
                   <div><strong>Deliverables:</strong></div>
                   <ul className="ml-4 text-xs">
                     {milestone.deliverables.map((deliverable, idx) => (
-                      <li key={idx} className="text-gray-400">• {deliverable}</li>
+                      <li key={idx} className="text-cortex-text-secondary">• {deliverable}</li>
                     ))}
                   </ul>
                 </div>
@@ -1226,7 +1226,7 @@ const handleTRRList = (args: string[]) => {
               </div>
 
               <div className="mt-3 flex justify-between items-center">
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-cortex-text-muted">
                   Progress: {Math.round((validatedRequirements / totalRequirements) * 100)}% validated
                 </div>
                 <div className="text-green-400 font-mono text-sm">
@@ -1290,7 +1290,7 @@ const handleTRRStatus = (args: string[]) => {
             <div key={idx} className="flex justify-between items-center">
               <div>
                 <div className="font-bold text-sm">{approver.name}</div>
-                <div className="text-xs text-gray-400">{approver.role}</div>
+                <div className="text-xs text-cortex-text-secondary">{approver.role}</div>
               </div>
               <div className={`px-2 py-1 rounded text-xs ${
                 approver.status === 'approved' ? 'bg-green-800 text-green-200' :
@@ -1395,14 +1395,14 @@ const handleTRRRequirements = (args: string[]) => {
                 <div className="text-yellow-400 font-bold text-sm mb-1">Acceptance Criteria:</div>
                 <ul className="text-xs space-y-1">
                   {req.acceptanceCriteria.map((criteria, idx) => (
-                    <li key={idx} className="text-gray-400">• {criteria}</li>
+                    <li key={idx} className="text-cortex-text-secondary">• {criteria}</li>
                   ))}
                 </ul>
               </div>
             )}
 
             {req.comments && (
-              <div className="mt-2 text-xs text-gray-500">
+              <div className="mt-2 text-xs text-cortex-text-muted">
                 <strong>Comments:</strong> {req.comments}
               </div>
             )}

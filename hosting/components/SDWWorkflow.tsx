@@ -442,7 +442,7 @@ export const SDWWorkflow: React.FC<SDWWorkflowProps> = ({
                 <button
                   onClick={() => removeDataSource(index)}
                   disabled={readOnly}
-                  className="text-red-400 hover:text-red-300 disabled:text-gray-500"
+                  className="text-red-400 hover:text-red-300 disabled:text-cortex-text-muted"
                 >
                   🗑️
                 </button>
@@ -568,8 +568,8 @@ export const SDWWorkflow: React.FC<SDWWorkflowProps> = ({
             </div>
           )) || (
             <div className="text-center py-8">
-              <div className="text-gray-400 text-lg mb-2">📊 No Data Sources Configured</div>
-              <div className="text-gray-500 text-sm mb-4">Add data sources to begin sizing calculations</div>
+              <div className="text-cortex-text-secondary text-lg mb-2">📊 No Data Sources Configured</div>
+              <div className="text-cortex-text-muted text-sm mb-4">Add data sources to begin sizing calculations</div>
             </div>
           )}
         </div>
@@ -607,21 +607,21 @@ export const SDWWorkflow: React.FC<SDWWorkflowProps> = ({
             <div className="bg-blue-900/20 p-4 rounded border border-blue-500/30">
               <h4 className="text-blue-400 font-medium mb-2">Daily Ingestion</h4>
               <div className="text-2xl font-mono text-blue-300">{ingestionCalcs.dailyEvents.toLocaleString()}</div>
-              <div className="text-sm text-gray-400">events/day</div>
+              <div className="text-sm text-cortex-text-secondary">events/day</div>
               <div className="text-lg font-mono text-blue-300 mt-1">{ingestionCalcs.dailyGB} GB</div>
-              <div className="text-sm text-gray-400">data/day</div>
+              <div className="text-sm text-cortex-text-secondary">data/day</div>
             </div>
             
             <div className="bg-green-900/20 p-4 rounded border border-green-500/30">
               <h4 className="text-green-400 font-medium mb-2">Monthly Volume</h4>
               <div className="text-2xl font-mono text-green-300">{ingestionCalcs.monthlyGB}</div>
-              <div className="text-sm text-gray-400">GB/month</div>
+              <div className="text-sm text-cortex-text-secondary">GB/month</div>
             </div>
             
             <div className="bg-purple-900/20 p-4 rounded border border-purple-500/30">
               <h4 className="text-purple-400 font-medium mb-2">Total Storage (7 years)</h4>
               <div className="text-2xl font-mono text-purple-300">{storageCalcs.totalGB}</div>
-              <div className="text-sm text-gray-400">GB total</div>
+              <div className="text-sm text-cortex-text-secondary">GB total</div>
             </div>
           </div>
         </div>
@@ -633,7 +633,7 @@ export const SDWWorkflow: React.FC<SDWWorkflowProps> = ({
             <div className="flex justify-between items-center p-3 bg-gray-700/30 rounded">
               <div>
                 <div className="text-white font-medium">Hot Storage (30 days)</div>
-                <div className="text-sm text-gray-400">Fast access, frequent queries</div>
+                <div className="text-sm text-cortex-text-secondary">Fast access, frequent queries</div>
               </div>
               <div className="text-right">
                 <div className="text-xl font-mono text-orange-400">{storageCalcs.hotGB} GB</div>
@@ -643,7 +643,7 @@ export const SDWWorkflow: React.FC<SDWWorkflowProps> = ({
             <div className="flex justify-between items-center p-3 bg-gray-700/30 rounded">
               <div>
                 <div className="text-white font-medium">Warm Storage (1 year)</div>
-                <div className="text-sm text-gray-400">Moderate access, compliance searches</div>
+                <div className="text-sm text-cortex-text-secondary">Moderate access, compliance searches</div>
               </div>
               <div className="text-right">
                 <div className="text-xl font-mono text-yellow-400">{storageCalcs.warmGB} GB</div>
@@ -653,7 +653,7 @@ export const SDWWorkflow: React.FC<SDWWorkflowProps> = ({
             <div className="flex justify-between items-center p-3 bg-gray-700/30 rounded">
               <div>
                 <div className="text-white font-medium">Cold Storage (6 years)</div>
-                <div className="text-sm text-gray-400">Long-term retention, archival</div>
+                <div className="text-sm text-cortex-text-secondary">Long-term retention, archival</div>
               </div>
               <div className="text-right">
                 <div className="text-xl font-mono text-blue-400">{storageCalcs.coldGB} GB</div>
@@ -859,7 +859,7 @@ export const SDWWorkflow: React.FC<SDWWorkflowProps> = ({
                   {phase.duration} days
                 </span>
               </div>
-              <p className="text-gray-400 text-sm">{phase.description}</p>
+              <p className="text-cortex-text-secondary text-sm">{phase.description}</p>
               <div className="mt-2 bg-gray-600 rounded-full h-2">
                 <div 
                   className="bg-blue-500 h-2 rounded-full"
@@ -873,7 +873,7 @@ export const SDWWorkflow: React.FC<SDWWorkflowProps> = ({
         <div className="mt-6 p-4 bg-green-900/20 rounded border border-green-500/30">
           <h4 className="text-green-400 font-medium mb-2">📅 Total Project Duration</h4>
           <div className="text-2xl font-mono text-green-300">71 days</div>
-          <div className="text-sm text-gray-400 mt-1">Approximately 10 weeks</div>
+          <div className="text-sm text-cortex-text-secondary mt-1">Approximately 10 weeks</div>
         </div>
       </div>
     </div>
@@ -981,7 +981,7 @@ export const SDWWorkflow: React.FC<SDWWorkflowProps> = ({
           <h1 className="text-3xl font-bold text-cyan-400 mb-2">
             📋 Solution Design Workbook
           </h1>
-          <p className="text-gray-400">
+          <p className="text-cortex-text-secondary">
             {existingSDW ? 'Review and edit' : 'Create'} solution design workbook for TRR-{trrId?.slice(-8)}
           </p>
         </div>
@@ -999,7 +999,7 @@ export const SDWWorkflow: React.FC<SDWWorkflowProps> = ({
                     ? 'bg-cyan-600 text-white'
                     : index < currentStepIndex
                     ? 'bg-green-600/50 text-green-200'
-                    : 'bg-gray-700/50 text-gray-400 hover:bg-gray-600/50'
+                    : 'bg-gray-700/50 text-cortex-text-secondary hover:bg-gray-600/50'
                 }`}
               >
                 <div className="text-lg mb-1">{step.icon}</div>
@@ -1020,7 +1020,7 @@ export const SDWWorkflow: React.FC<SDWWorkflowProps> = ({
           <h2 className="text-xl font-bold text-white mb-1">
             {currentStepInfo.icon} {currentStepInfo.label}
           </h2>
-          <p className="text-gray-400 text-sm">{currentStepInfo.description}</p>
+          <p className="text-cortex-text-secondary text-sm">{currentStepInfo.description}</p>
         </div>
 
         {/* Step Content */}

@@ -193,8 +193,8 @@ export function buildLinuxCommands(): CommandConfig[] {
                   {itemDetails.map((item, idx) => (
                     <div key={idx} className="flex justify-between items-center">
                       <div className="flex space-x-2">
-                        <span className="text-gray-400">{item.permissions}</span>
-                        <span className="w-12 text-right text-gray-400">{item.size}</span>
+                        <span className="text-cortex-text-secondary">{item.permissions}</span>
+                        <span className="w-12 text-right text-cortex-text-secondary">{item.size}</span>
                         <span className={item.type === 'dir' ? 'text-blue-400 font-bold' : 'text-gray-200'}>
                           {item.name}{item.type === 'dir' ? '/' : ''}
                         </span>
@@ -643,7 +643,7 @@ export function buildLinuxCommands(): CommandConfig[] {
             <div className="font-mono text-sm">
               {ctx.history.map((cmd, idx) => (
                 <div key={idx}>
-                  <span className="text-gray-400 mr-3">{String(idx + 1).padStart(4, ' ')}</span>
+                  <span className="text-cortex-text-secondary mr-3">{String(idx + 1).padStart(4, ' ')}</span>
                   <span className="text-gray-200">{cmd}</span>
                 </div>
               ))}

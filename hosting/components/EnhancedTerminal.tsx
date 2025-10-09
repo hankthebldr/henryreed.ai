@@ -151,29 +151,29 @@ function EnhancedTerminal() {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="font-mono text-green-400">help</span>
-                      <span className="text-gray-400">Show all available commands</span>
+                      <span className="text-cortex-text-secondary">Show all available commands</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-mono text-blue-400">scenario list</span>
-                      <span className="text-gray-400">Browse security scenarios</span>
+                      <span className="text-cortex-text-secondary">Browse security scenarios</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-mono text-purple-400">scenario mitre --scenario-type cloud-posture</span>
-                      <span className="text-gray-400">View MITRE mappings</span>
+                      <span className="text-cortex-text-secondary">View MITRE mappings</span>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="font-mono text-yellow-400">whoami --detailed</span>
-                      <span className="text-gray-400">Learn about expertise</span>
+                      <span className="text-cortex-text-secondary">Learn about expertise</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-mono text-cyan-400">ai [question]</span>
-                      <span className="text-gray-400">Ask the AI assistant</span>
+                      <span className="text-cortex-text-secondary">Ask the AI assistant</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="font-mono text-cyan-400">detect</span>
-                      <span className="text-gray-400">Output MITRE-mapped stub event</span>
+                      <span className="text-cortex-text-secondary">Output MITRE-mapped stub event</span>
                     </div>
                   </div>
                 </div>
@@ -263,7 +263,7 @@ function EnhancedTerminal() {
             </div>
           );
         }
-        return <div className="text-gray-400">Usage: ls scenarios</div>;
+        return <div className="text-cortex-text-secondary">Usage: ls scenarios</div>;
       }
     },
     {
@@ -300,9 +300,9 @@ function EnhancedTerminal() {
               <div className="font-bold mb-3">Scenario Command</div>
               <div className="space-y-2 text-sm">
                 <div className="font-mono text-green-400">scenario list</div>
-                <div className="text-gray-500 ml-4">→ Browse all available scenario templates</div>
+                <div className="text-cortex-text-muted ml-4">→ Browse all available scenario templates</div>
                 <div className="font-mono text-blue-400">scenario generate --scenario-type cloud-posture --provider gcp</div>
-                <div className="text-gray-500 ml-4">→ Deploy a cloud security posture scenario</div>
+                <div className="text-cortex-text-muted ml-4">→ Deploy a cloud security posture scenario</div>
               </div>
             </div>
           );

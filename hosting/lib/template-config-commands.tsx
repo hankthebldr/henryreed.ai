@@ -512,7 +512,7 @@ const handleTemplateList = (args: string[]) => {
                 }`}>
                   {template.difficulty}
                 </div>
-                <div className="text-gray-400">{template.duration}</div>
+                <div className="text-cortex-text-secondary">{template.duration}</div>
               </div>
             </div>
             
@@ -526,7 +526,7 @@ const handleTemplateList = (args: string[]) => {
                     </span>
                   ))}
                   {template.mitreTechniques.length > 3 && (
-                    <span className="text-xs text-gray-400">+{template.mitreTechniques.length - 3} more</span>
+                    <span className="text-xs text-cortex-text-secondary">+{template.mitreTechniques.length - 3} more</span>
                   )}
                 </div>
               </div>
@@ -628,7 +628,7 @@ const handleTemplateShow = (args: string[]) => {
                 <div key={variable.name} className="border border-gray-700 p-2 rounded text-sm">
                   <div className="flex justify-between">
                     <span className="text-cyan-400 font-mono">{variable.name}</span>
-                    <span className="text-xs text-gray-400">{variable.type}</span>
+                    <span className="text-xs text-cortex-text-secondary">{variable.type}</span>
                   </div>
                   <div className="text-xs text-gray-300 mt-1">{variable.description}</div>
                   {variable.required && (
@@ -666,11 +666,11 @@ const handleTemplateShow = (args: string[]) => {
                     }`}>
                       {step.type}
                     </div>
-                    <div className="text-gray-400">{step.estimatedTime}</div>
+                    <div className="text-cortex-text-secondary">{step.estimatedTime}</div>
                   </div>
                 </div>
                 {step.dependencies.length > 0 && (
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-xs text-cortex-text-muted mt-1">
                     Depends on: {step.dependencies.join(', ')}
                   </div>
                 )}

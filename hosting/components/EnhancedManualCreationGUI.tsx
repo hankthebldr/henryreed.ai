@@ -393,7 +393,7 @@ const BlockRenderer: React.FC<{
           <div className="space-y-2">
             {(value || ['']).map((item: string, index: number) => (
               <div key={index} className="flex items-center space-x-2">
-                <span className="text-gray-400">•</span>
+                <span className="text-cortex-text-secondary">•</span>
                 <input
                   type="text"
                   value={item}
@@ -596,7 +596,7 @@ export const EnhancedManualCreationGUI: React.FC = () => {
             </div>
             <button
               onClick={() => setActiveMode('none')}
-              className="text-gray-400 hover:text-white transition-colors p-2"
+              className="text-cortex-text-secondary hover:text-white transition-colors p-2"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

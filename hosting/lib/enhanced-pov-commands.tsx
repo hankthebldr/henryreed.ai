@@ -298,7 +298,7 @@ const GanttChart: React.FC<{ project: POVProject }> = ({ project }) => {
       
       {/* Timeline Header */}
       <div className="mb-4">
-        <div className="flex justify-between text-xs text-gray-400 mb-2">
+        <div className="flex justify-between text-xs text-cortex-text-secondary mb-2">
           <span>{startDate.toLocaleDateString()}</span>
           <span>{endDate.toLocaleDateString()}</span>
         </div>
@@ -308,7 +308,7 @@ const GanttChart: React.FC<{ project: POVProject }> = ({ project }) => {
             style={{ width: `${project.progress}%` }}
           />
         </div>
-        <div className="text-xs text-gray-400 mt-1">Overall Progress: {project.progress}%</div>
+        <div className="text-xs text-cortex-text-secondary mt-1">Overall Progress: {project.progress}%</div>
       </div>
 
       {/* Milestones */}
@@ -330,7 +330,7 @@ const GanttChart: React.FC<{ project: POVProject }> = ({ project }) => {
                   'bg-gray-500'
                 }`} />
                 <span className="text-sm font-medium text-white">{milestone.name}</span>
-                <span className="text-xs text-gray-400 ml-2">
+                <span className="text-xs text-cortex-text-secondary ml-2">
                   Due: {new Date(milestone.dueDate).toLocaleDateString()}
                 </span>
               </div>
@@ -395,15 +395,15 @@ const TaskBoard: React.FC<{ tasks: POVTask[] }> = ({ tasks }) => {
                     </div>
                   </div>
                   
-                  <p className="text-xs text-gray-400 mb-2">{task.description}</p>
+                  <p className="text-xs text-cortex-text-secondary mb-2">{task.description}</p>
                   
-                  <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="flex items-center justify-between text-xs text-cortex-text-muted">
                     <span>{task.assignee}</span>
                     <span>{new Date(task.dueDate).toLocaleDateString()}</span>
                   </div>
                   
                   {task.estimatedHours && (
-                    <div className="mt-2 text-xs text-gray-400">
+                    <div className="mt-2 text-xs text-cortex-text-secondary">
                       Est: {task.estimatedHours}h
                       {task.actualHours && ` | Actual: ${task.actualHours}h`}
                     </div>
@@ -440,7 +440,7 @@ const TeamUtilization: React.FC<{ team: POVTeamMember[] }> = ({ team }) => {
             <div className="flex-1">
               <div className="flex items-center justify-between mb-1">
                 <span className="font-medium text-white">{member.name}</span>
-                <span className="text-sm text-gray-400">{member.role}</span>
+                <span className="text-sm text-cortex-text-secondary">{member.role}</span>
               </div>
               
               <div className="flex items-center space-x-2">
@@ -454,12 +454,12 @@ const TeamUtilization: React.FC<{ team: POVTeamMember[] }> = ({ team }) => {
                     style={{ width: `${member.utilization || 0}%` }}
                   />
                 </div>
-                <span className="text-xs text-gray-400 min-w-[3rem]">
+                <span className="text-xs text-cortex-text-secondary min-w-[3rem]">
                   {member.utilization || 0}%
                 </span>
               </div>
               
-              <div className="mt-1 text-xs text-gray-500">
+              <div className="mt-1 text-xs text-cortex-text-muted">
                 Available: {member.availability}% | Skills: {member.skills.slice(0, 3).join(', ')}
                 {member.skills.length > 3 && ` +${member.skills.length - 3} more`}
               </div>
@@ -576,7 +576,7 @@ export const enhancedPovCommands: CommandConfig[] = [
                     <div className="text-sm text-gray-300">{project.name}</div>
                   </div>
                 </div>
-                <div className="text-sm text-gray-400">
+                <div className="text-sm text-cortex-text-secondary">
                   Total Tasks: {project.tasks.length}
                 </div>
               </div>
@@ -700,28 +700,28 @@ export const enhancedPovCommands: CommandConfig[] = [
                       </div>
                     </div>
                     
-                    <p className="text-gray-400 mb-4">{project.description}</p>
+                    <p className="text-cortex-text-secondary mb-4">{project.description}</p>
                     
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                       <div className="text-center">
                         <div className="text-2xl font-bold text-green-400">{project.progress}%</div>
-                        <div className="text-xs text-gray-400">Progress</div>
+                        <div className="text-xs text-cortex-text-secondary">Progress</div>
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-blue-400">{project.milestones.length}</div>
-                        <div className="text-xs text-gray-400">Milestones</div>
+                        <div className="text-xs text-cortex-text-secondary">Milestones</div>
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-purple-400">{project.tasks.length}</div>
-                        <div className="text-xs text-gray-400">Tasks</div>
+                        <div className="text-xs text-cortex-text-secondary">Tasks</div>
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-cyan-400">{project.team.length}</div>
-                        <div className="text-xs text-gray-400">Team</div>
+                        <div className="text-xs text-cortex-text-secondary">Team</div>
                       </div>
                     </div>
                     
-                    <div className="flex justify-between items-center text-sm text-gray-500">
+                    <div className="flex justify-between items-center text-sm text-cortex-text-muted">
                       <span>Start: {new Date(project.startDate).toLocaleDateString()}</span>
                       <span>End: {new Date(project.estimatedEndDate).toLocaleDateString()}</span>
                       <span>Lead: {project.team.find(m => m.role === 'lead')?.name || 'Unassigned'}</span>
@@ -755,19 +755,19 @@ export const enhancedPovCommands: CommandConfig[] = [
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-gray-800 p-4 rounded-lg border border-gray-600 text-center">
                 <div className="text-2xl font-bold text-white">{totalProjects}</div>
-                <div className="text-sm text-gray-400">Total Projects</div>
+                <div className="text-sm text-cortex-text-secondary">Total Projects</div>
               </div>
               <div className="bg-blue-900/20 p-4 rounded-lg border border-blue-500/30 text-center">
                 <div className="text-2xl font-bold text-blue-400">{activeProjects}</div>
-                <div className="text-sm text-gray-400">Active</div>
+                <div className="text-sm text-cortex-text-secondary">Active</div>
               </div>
               <div className="bg-green-900/20 p-4 rounded-lg border border-green-500/30 text-center">
                 <div className="text-2xl font-bold text-green-400">{completedProjects}</div>
-                <div className="text-sm text-gray-400">Completed</div>
+                <div className="text-sm text-cortex-text-secondary">Completed</div>
               </div>
               <div className="bg-purple-900/20 p-4 rounded-lg border border-purple-500/30 text-center">
                 <div className="text-2xl font-bold text-purple-400">{avgProgress}%</div>
-                <div className="text-sm text-gray-400">Avg Progress</div>
+                <div className="text-sm text-cortex-text-secondary">Avg Progress</div>
               </div>
             </div>
 

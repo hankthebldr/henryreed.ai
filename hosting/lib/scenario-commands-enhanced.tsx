@@ -7,19 +7,22 @@ import React from 'react';
 import { CommandConfig } from './commands';
 import { 
   scenarioRegistry, 
+  filterScenarios,
+  PANWProduct,
+  BusinessValueTag,
+  EnhancedScenarioConfig
+} from './scenario/registry';
+import { 
+  Provider, 
+  DeploymentState, 
+  ScenarioDeployment,
   scenarioEngine,
   getActiveDeployments,
   deployScenario,
   validateDeployment,
   exportDeployment,
-  destroyDeployment,
-  filterScenarios,
-  PANWProduct,
-  BusinessValueTag,
-  EnhancedScenarioConfig,
-  ScenarioDeployment
-} from './scenario/registry';
-import { Provider, DeploymentState } from './scenario/engine';
+  destroyDeployment
+} from './scenario/engine';
 
 // Enhanced scenario commands with registry integration
 export const enhancedScenarioCommands: CommandConfig[] = [
@@ -66,9 +69,9 @@ export const enhancedScenarioCommands: CommandConfig[] = [
             <div className="mt-6 p-4 bg-gray-800 rounded-lg">
               <h4 className="text-green-300 font-semibold mb-2">🚀 Quick Start</h4>
               <div className="space-y-2 text-sm font-mono">
-                <div><span className="text-blue-300">scenario list --detailed</span> <span className="text-gray-400"># Browse available scenarios</span></div>
-                <div><span className="text-green-300">scenario generate --id cloud-posture-misconfigured-s3</span> <span className="text-gray-400"># Deploy scenario</span></div>
-                <div><span className="text-purple-300">scenario validate [deployment-id]</span> <span className="text-gray-400"># Run validation tests</span></div>
+                <div><span className="text-blue-300">scenario list --detailed</span> <span className="text-cortex-text-secondary"># Browse available scenarios</span></div>
+                <div><span className="text-green-300">scenario generate --id cloud-posture-misconfigured-s3</span> <span className="text-cortex-text-secondary"># Deploy scenario</span></div>
+                <div><span className="text-purple-300">scenario validate [deployment-id]</span> <span className="text-cortex-text-secondary"># Run validation tests</span></div>
               </div>
             </div>
           </div>
@@ -157,7 +160,7 @@ function listScenariosCommand(args: string[]): React.ReactNode {
         <div className="text-2xl font-bold text-blue-300">
           🎯 Enhanced Scenario Registry ({scenarios.length} scenarios)
         </div>
-        <div className="text-sm text-gray-400">
+        <div className="text-sm text-cortex-text-secondary">
           High Impact: {stats.highImpact} | Medium: {stats.mediumImpact} | Low: {stats.lowImpact}
         </div>
       </div>
@@ -189,15 +192,15 @@ function listScenariosCommand(args: string[]): React.ReactNode {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div className="space-y-2">
             <div className="font-mono text-green-400">scenario list --product prisma-cloud</div>
-            <div className="text-gray-400 ml-4">Show Prisma Cloud scenarios</div>
+            <div className="text-cortex-text-secondary ml-4">Show Prisma Cloud scenarios</div>
             <div className="font-mono text-blue-400">scenario list --business-value risk-mitigation</div>
-            <div className="text-gray-400 ml-4">Show risk mitigation scenarios</div>
+            <div className="text-cortex-text-secondary ml-4">Show risk mitigation scenarios</div>
           </div>
           <div className="space-y-2">
             <div className="font-mono text-purple-400">scenario list --category cloud-security --detailed</div>
-            <div className="text-gray-400 ml-4">Detailed cloud security scenarios</div>
+            <div className="text-cortex-text-secondary ml-4">Detailed cloud security scenarios</div>
             <div className="font-mono text-orange-400">scenario list --complexity beginner</div>
-            <div className="text-gray-400 ml-4">Show beginner-friendly scenarios</div>
+            <div className="text-cortex-text-secondary ml-4">Show beginner-friendly scenarios</div>
           </div>
         </div>
       </div>
@@ -215,7 +218,7 @@ function renderDetailedScenario(scenario: EnhancedScenarioConfig): React.ReactNo
           <span className="px-2 py-1 bg-purple-600 rounded text-xs">{scenario.complexity}</span>
           <span className="px-2 py-1 bg-orange-600 rounded text-xs">v{scenario.version}</span>
         </div>
-        <div className="text-right text-sm text-gray-400">
+        <div className="text-right text-sm text-cortex-text-secondary">
           <div>Total: {scenario.estimatedDuration.setup + scenario.estimatedDuration.execution + scenario.estimatedDuration.analysis} min</div>
           <div>Impact: {scenario.businessValue.businessImpact}/5</div>
         </div>
@@ -228,7 +231,7 @@ function renderDetailedScenario(scenario: EnhancedScenarioConfig): React.ReactNo
           <h4 className="text-blue-300 font-medium mb-2">Business Value</h4>
           <div className="space-y-1 text-sm">
             <div className="text-green-300">{scenario.businessValue.primaryValue.replace('-', ' ')}</div>
-            <div className="text-gray-400">ROI: {scenario.businessValue.roiTimeframe}</div>
+            <div className="text-cortex-text-secondary">ROI: {scenario.businessValue.roiTimeframe}</div>
             <div className="text-xs text-yellow-300">
               {scenario.businessValue.quantifiableMetrics.slice(0, 2).map((metric, i) => (
                 <div key={i}>• {metric}</div>
@@ -293,7 +296,7 @@ function renderDetailedScenario(scenario: EnhancedScenarioConfig): React.ReactNo
             <span className="text-green-300 font-medium">Deploy:</span>
             <span className="text-blue-300 font-mono ml-2">scenario generate --id {scenario.id}</span>
           </div>
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-cortex-text-secondary">
             Last updated: {new Date(scenario.lastUpdated).toLocaleDateString()}
           </div>
         </div>
@@ -319,7 +322,7 @@ function renderCompactScenario(scenario: EnhancedScenarioConfig): React.ReactNod
         </div>
       </div>
       
-      <p className="text-gray-400 text-xs mb-3 line-clamp-2">{scenario.description}</p>
+      <p className="text-cortex-text-secondary text-xs mb-3 line-clamp-2">{scenario.description}</p>
       
       <div className="space-y-2 text-xs">
         <div className="flex justify-between">
@@ -327,14 +330,14 @@ function renderCompactScenario(scenario: EnhancedScenarioConfig): React.ReactNod
           <span className="text-purple-300">{scenario.complexity}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-500">
+          <span className="text-cortex-text-muted">
             {scenario.estimatedDuration.setup + scenario.estimatedDuration.execution}m
           </span>
           <span className="text-yellow-300">
             {scenario.panwProducts.length} products
           </span>
         </div>
-        <div className="text-gray-400 truncate">
+        <div className="text-cortex-text-secondary truncate">
           {scenario.businessValue.primaryValue.replace('-', ' ')}
         </div>
       </div>
@@ -492,13 +495,13 @@ function DeploymentInitiator({ scenario, provider, config }: DeploymentInitiator
         <div className="text-blue-400 font-bold mb-3">📊 Next Steps</div>
         <div className="space-y-2 text-sm">
           <div className="font-mono text-green-400">scenario status {deployment.id}</div>
-          <div className="text-gray-400 ml-4">→ Monitor deployment progress</div>
+          <div className="text-cortex-text-secondary ml-4">→ Monitor deployment progress</div>
           <div className="font-mono text-purple-400">scenario validate {deployment.id}</div>
-          <div className="text-gray-400 ml-4">→ Run validation tests when ready</div>
+          <div className="text-cortex-text-secondary ml-4">→ Run validation tests when ready</div>
           <div className="font-mono text-blue-400">scenario export {deployment.id} --format pdf</div>
-          <div className="text-gray-400 ml-4">→ Generate executive report</div>
+          <div className="text-cortex-text-secondary ml-4">→ Generate executive report</div>
           <div className="font-mono text-red-400">scenario destroy {deployment.id}</div>
-          <div className="text-gray-400 ml-4">→ Clean up resources</div>
+          <div className="text-cortex-text-secondary ml-4">→ Clean up resources</div>
         </div>
       </div>
 
@@ -958,7 +961,7 @@ function renderDeploymentStatus(deployment: ScenarioDeployment): React.ReactNode
               <div key={i} className="flex justify-between items-center p-2 bg-gray-800 rounded">
                 <div>
                   <span className="text-gray-300">{resource.name}</span>
-                  <span className="text-xs text-gray-400 ml-2">({resource.type})</span>
+                  <span className="text-xs text-cortex-text-secondary ml-2">({resource.type})</span>
                 </div>
                 <span className={`px-2 py-1 rounded text-xs ${
                   resource.status === 'active' ? 'bg-green-700 text-green-200' :

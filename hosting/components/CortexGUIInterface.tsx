@@ -1,4 +1,6 @@
 'use client';
+// legacy-orange: replaced by green per Cortex rebrand (2025-10-08)
+
 
 import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import { useActivityTracking } from '../hooks/useActivityTracking';
@@ -21,7 +23,7 @@ const UnifiedContentCreator = lazy(() => import('./UnifiedContentCreator'));
 const ComponentLoader = React.memo(() => (
   <div className="flex items-center justify-center p-8">
     <div className="text-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-4 border-cortex-border-muted border-t-cortex-orange mx-auto mb-4"></div>
+      <div className="animate-spin rounded-full h-8 w-8 border-4 border-cortex-border-muted border-t-cortex-accent mx-auto mb-4"></div>
       <div className="text-cortex-text-muted text-sm">Loading component...</div>
     </div>
   </div>
@@ -222,7 +224,7 @@ const POVDashboard = React.memo(({ terminalExpanded, setTerminalExpanded }: { te
           <div className="flex flex-col lg:flex-row items-start justify-between mb-8">
             <div>
               <h1 className="text-4xl font-bold text-cortex-text-primary mb-2 flex items-center">
-                <span className="text-cortex-orange mr-3">🎯</span>
+                <span className="text-cortex-accent mr-3">🎯</span>
                 Cortex DC Portal
               </h1>
               <p className="text-cortex-text-muted text-lg">Domain Consultant Engagement Platform</p>
@@ -278,7 +280,7 @@ const POVDashboard = React.memo(({ terminalExpanded, setTerminalExpanded }: { te
             <div className="cortex-card-elevated p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="text-2xl">💰</div>
-                <div className="text-xs bg-cortex-orange/20 text-cortex-orange px-2 py-1 rounded-full">ROI</div>
+                <div className="text-xs bg-cortex-accent/20 text-cortex-accent px-2 py-1 rounded-full">ROI</div>
               </div>
               <div className="text-2xl font-bold text-cortex-text-primary mb-1">54%</div>
               <div className="text-cortex-text-secondary text-sm mb-2">Cost Savings</div>
@@ -335,10 +337,10 @@ const POVDashboard = React.memo(({ terminalExpanded, setTerminalExpanded }: { te
         <div className="glass-card p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-semibold text-cortex-text-primary flex items-center">
-                <span className="text-cortex-orange mr-2">⚡</span>
+                <span className="text-cortex-accent mr-2">⚡</span>
                 Quick Actions
               </h3>
-              <div className="text-xs bg-cortex-orange/10 text-cortex-orange px-3 py-1 rounded-full border border-cortex-orange/20">
+              <div className="text-xs bg-cortex-accent/10 text-cortex-accent px-3 py-1 rounded-full border border-cortex-accent/20">
                 7 Available
               </div>
             </div>
@@ -639,17 +641,17 @@ export default function CortexGUIInterface() {
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-6">
               <h1 className="text-2xl font-bold text-cortex-text-primary flex items-center">
-                <span className="text-cortex-orange mr-3">🏢</span>
+                <span className="text-cortex-accent mr-3">🏢</span>
                 Cortex DC Portal
               </h1>
             {currentUser && (
               <div className="flex items-center space-x-4">
                 <div className="text-sm text-cortex-text-secondary">
-                  Welcome, <span className="text-cortex-orange font-medium">{currentUser.firstName} {currentUser.lastName}</span>
+                  Welcome, <span className="text-cortex-accent font-medium">{currentUser.firstName} {currentUser.lastName}</span>
                   <span className="text-cortex-text-muted ml-2">• {currentUser.role}</span>
                 </div>
                 {isManagementMode && (
-                  <div className="text-xs text-cortex-orange bg-cortex-orange/10 px-3 py-1 rounded-full border border-cortex-orange/20">
+                  <div className="text-xs text-cortex-accent bg-cortex-accent/10 px-3 py-1 rounded-full border border-cortex-accent/20">
                     📈 MANAGEMENT MODE
                   </div>
                 )}
@@ -696,13 +698,13 @@ export default function CortexGUIInterface() {
           <div className="mt-3 text-xs text-cortex-text-muted border-t border-cortex-border-muted/20 pt-3">
             <div className="flex justify-between items-center">
               <span className="flex items-center space-x-4">
-                <span>User: <span className="text-cortex-orange">{currentUser.email}</span></span>
+                <span>User: <span className="text-cortex-accent">{currentUser.email}</span></span>
                 <span>Role: <span className="text-cortex-warning">{currentUser.role}</span></span>
                 <span>Session: <span className="text-cortex-success">{currentUser.id}</span></span>
               </span>
               <span>
                 Access Level: {isManagementMode ? 
-                  <span className="text-cortex-orange">Management (All Data)</span> : 
+                  <span className="text-cortex-accent">Management (All Data)</span> : 
                   <span className="text-cortex-info">User (Personal Data Only)</span>
                 }
               </span>
@@ -721,16 +723,16 @@ export default function CortexGUIInterface() {
               data-feature="navigation"
               className={`group relative px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap flex items-center space-x-2 min-w-fit cortex-interactive ${
                 activeTab === tab.id 
-                  ? 'text-cortex-text-primary bg-cortex-orange/20 border-cortex-orange/40 shadow-cortex-lg' 
+                  ? 'text-cortex-text-primary bg-cortex-accent/20 border-cortex-accent/40 shadow-cortex-lg' 
                   : 'text-cortex-text-muted bg-cortex-bg-tertiary/30 border-cortex-border-muted/20 hover:text-cortex-text-primary hover:bg-cortex-bg-tertiary/50 hover:border-cortex-border-secondary/30'
               }`}
             >
               <span className={`text-lg transition-transform group-hover:scale-110 ${
-                activeTab === tab.id ? 'text-cortex-orange' : 'text-cortex-text-muted'
+                activeTab === tab.id ? 'text-cortex-accent' : 'text-cortex-text-muted'
               }`}>{tab.icon}</span>
               <span>{tab.name}</span>
               {activeTab === tab.id && (
-                <div className="absolute inset-0 rounded-xl bg-cortex-orange/5 animate-pulse" />
+                <div className="absolute inset-0 rounded-xl bg-cortex-accent/5 animate-pulse" />
               )}
             </button>
           ))}
@@ -742,7 +744,7 @@ export default function CortexGUIInterface() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4 text-sm">
             <div className="flex items-center space-x-2">
-              <span className="text-cortex-orange text-lg">
+              <span className="text-cortex-accent text-lg">
                 {visibleTabs.find(tab => tab.id === activeTab)?.icon}
               </span>
               <span className="text-cortex-text-primary font-medium">

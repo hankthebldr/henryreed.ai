@@ -23,6 +23,8 @@
     "test:smoke": "npm run test:e2e -- --grep=\"@smoke\"",
     "test:all": "npm run test && npm run test:e2e",
     "validate": "npm run typecheck && npm run test:all",
+    "lint:branding": "node ./scripts/check-no-orange.js",
+    "fix:branding": "node ./scripts/replace-orange.js",
     "_legacy:build:exp": "cross-env NEXT_ENABLE_WEBPACK_EXPERIMENTS=1 next build",
     "_legacy:deploy:std": "npm run build && firebase deploy --only hosting",
     "_legacy:deploy:full": "npm run _legacy:build:exp && firebase deploy",

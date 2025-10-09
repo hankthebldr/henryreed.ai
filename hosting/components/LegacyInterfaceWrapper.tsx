@@ -27,7 +27,7 @@ const LegacyInterfaceWrapper: React.FC<LegacyInterfaceWrapperProps> = ({ mode, o
           <div className="text-center py-12">
             <div className="text-4xl mb-4">🔧</div>
             <div className="text-lg text-gray-300">Legacy Mode</div>
-            <div className="text-sm text-gray-400 mt-2">Mode: {mode}</div>
+            <div className="text-sm text-cortex-text-secondary mt-2">Mode: {mode}</div>
           </div>
         );
     }
@@ -43,7 +43,7 @@ const LegacyInterfaceWrapper: React.FC<LegacyInterfaceWrapperProps> = ({ mode, o
               <h1 className="text-xl font-bold text-white">
                 Legacy Interface - {mode.toUpperCase()}
               </h1>
-              <p className="text-gray-400 mt-1">
+              <p className="text-cortex-text-secondary mt-1">
                 Classic interface for backwards compatibility
               </p>
             </div>
@@ -73,7 +73,7 @@ const EnhancedPOVDashboard = () => (
   <div className="text-center py-12">
     <div className="text-4xl mb-4">📊</div>
     <div className="text-lg text-gray-300">Legacy POV Dashboard</div>
-    <div className="text-sm text-gray-400 mt-2">Classic dashboard interface</div>
+    <div className="text-sm text-cortex-text-secondary mt-2">Classic dashboard interface</div>
   </div>
 );
 
@@ -81,7 +81,7 @@ const EnhancedAIInsights = () => (
   <div className="text-center py-12">
     <div className="text-4xl mb-4">🤖</div>
     <div className="text-lg text-gray-300">Legacy AI Insights</div>
-    <div className="text-sm text-gray-400 mt-2">Classic AI interface</div>
+    <div className="text-sm text-cortex-text-secondary mt-2">Classic AI interface</div>
   </div>
 );
 

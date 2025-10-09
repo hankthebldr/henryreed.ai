@@ -100,7 +100,7 @@ export default function DocsPage() {
                   <div className="text-sm text-gray-300 mt-1">
                     Show available commands or detailed help for a specific command. More intuitive than Splunk's complex help system.
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">Aliases: ?, man</div>
+                  <div className="text-xs text-cortex-text-muted mt-1">Aliases: ?, man</div>
                 </div>
                 
                 <div className="bg-gray-800/50 p-4 rounded">
@@ -108,7 +108,7 @@ export default function DocsPage() {
                   <div className="text-sm text-gray-300 mt-1">
                     Display information about Henry Reed. Use --detailed for comprehensive profile
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">Aliases: me, info</div>
+                  <div className="text-xs text-cortex-text-muted mt-1">Aliases: me, info</div>
                 </div>
                 
                 <div className="bg-gray-800/50 p-4 rounded">
@@ -116,7 +116,7 @@ export default function DocsPage() {
                   <div className="text-sm text-gray-300 mt-1">
                     Clear the terminal screen
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">Aliases: cls</div>
+                  <div className="text-xs text-cortex-text-muted mt-1">Aliases: cls</div>
                 </div>
               </div>
             </div>
@@ -129,7 +129,7 @@ export default function DocsPage() {
                   <div className="text-sm text-gray-300 mt-1">
                     Open login form to access premium features
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">Aliases: auth, signin</div>
+                  <div className="text-xs text-cortex-text-muted mt-1">Aliases: auth, signin</div>
                 </div>
                 
                 <div className="bg-gray-800/50 p-4 rounded">
@@ -137,7 +137,7 @@ export default function DocsPage() {
                   <div className="text-sm text-gray-300 mt-1">
                     Sign out of your account
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">Aliases: signout</div>
+                  <div className="text-xs text-cortex-text-muted mt-1">Aliases: signout</div>
                 </div>
               </div>
             </div>
@@ -150,7 +150,7 @@ export default function DocsPage() {
                   <div className="text-sm text-gray-300 mt-1">
                     Open documentation page (this page) in a new tab
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">Aliases: documentation, guide</div>
+                  <div className="text-xs text-cortex-text-muted mt-1">Aliases: documentation, guide</div>
                 </div>
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function DocsPage() {
                 <li>• <span className="text-red-400">Error messages</span> - red borders and backgrounds <span className="text-red-300 text-xs">(better than CrowdStrike alerts)</span></li>
                 <li>• <span className="text-yellow-400">Warning messages</span> - yellow borders and backgrounds <span className="text-red-300 text-xs">(more visible than QRadar)</span></li>
                 <li>• <span className="text-blue-400">Info messages</span> - blue borders and backgrounds <span className="text-red-300 text-xs">(structured vs Sentinel logs)</span></li>
-                <li>• <span className="text-gray-400">Default content</span> - gray borders and backgrounds <span className="text-red-300 text-xs">(cleaner than legacy SIEM)</span></li>
+                <li>• <span className="text-cortex-text-secondary">Default content</span> - gray borders and backgrounds <span className="text-red-300 text-xs">(cleaner than legacy SIEM)</span></li>
               </ul>
             </div>
             
@@ -274,10 +274,10 @@ export default function DocsPage() {
                 <div className="bg-gray-800/50 p-4 rounded">
                   <div className="text-green-400 font-bold mb-2">Command Aliases</div>
                   <div className="text-sm text-gray-300 space-y-1">
-                    <div>• <span className="text-blue-400">help</span> = <span className="text-gray-400">? man</span></div>
-                    <div>• <span className="text-blue-400">whoami</span> = <span className="text-gray-400">me info</span></div>
-                    <div>• <span className="text-blue-400">clear</span> = <span className="text-gray-400">cls</span></div>
-                    <div>• <span className="text-blue-400">login</span> = <span className="text-gray-400">auth signin</span></div>
+                    <div>• <span className="text-blue-400">help</span> = <span className="text-cortex-text-secondary">? man</span></div>
+                    <div>• <span className="text-blue-400">whoami</span> = <span className="text-cortex-text-secondary">me info</span></div>
+                    <div>• <span className="text-blue-400">clear</span> = <span className="text-cortex-text-secondary">cls</span></div>
+                    <div>• <span className="text-blue-400">login</span> = <span className="text-cortex-text-secondary">auth signin</span></div>
                   </div>
                 </div>
               </div>
@@ -334,7 +334,7 @@ export default function DocsPage() {
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-xs text-gray-400 ml-4">docs.paloaltonetworks.com/cortex</span>
+                  <span className="text-xs text-cortex-text-secondary ml-4">docs.paloaltonetworks.com/cortex</span>
                 </div>
               </div>
               <div className="border border-t-0 border-gray-600 rounded-b overflow-hidden">
@@ -459,7 +459,7 @@ export default function DocsPage() {
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-xs text-gray-400 ml-4">github.com/hankthebldr</span>
+                  <span className="text-xs text-cortex-text-secondary ml-4">github.com/hankthebldr</span>
                 </div>
               </div>
               <div className="border border-t-0 border-gray-600 rounded-b overflow-hidden">
@@ -603,7 +603,7 @@ export default function DocsPage() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-cyan-400">POV-CLI Documentation</h1>
-            <p className="text-sm text-gray-400">Henry Reed AI Terminal - Complete Guide</p>
+            <p className="text-sm text-cortex-text-secondary">Henry Reed AI Terminal - Complete Guide</p>
           </div>
           <a 
             href="/gui"
@@ -627,7 +627,7 @@ export default function DocsPage() {
                     className={`w-full text-left px-3 py-2 rounded transition-colors ${
                       activeSection === section.id
                         ? 'bg-blue-600 text-white'
-                        : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                        : 'text-cortex-text-secondary hover:text-white hover:bg-gray-800'
                     }`}
                   >
                     {section.title}

@@ -144,7 +144,7 @@ const handleMonitorStart = async (args: string[]) => {
             </div>
           </div>
 
-          <div className="mt-4 text-xs text-gray-400">
+          <div className="mt-4 text-xs text-cortex-text-secondary">
             <strong>Commands:</strong> monitor status {sessionId}, monitor stop {sessionId}
           </div>
         </div>
@@ -229,7 +229,7 @@ const handleMonitorStart = async (args: string[]) => {
             </div>
           </div>
 
-          <div className="mt-4 text-xs text-gray-400">
+          <div className="mt-4 text-xs text-cortex-text-secondary">
             Session data available for 30 days. Export with: monitor export {sessionId}
           </div>
         </div>
@@ -256,7 +256,7 @@ const handleMonitorStatus = async (args: string[]) => {
           <div className="font-bold mb-4 text-xl">📊 Active Monitoring Sessions</div>
           
           {activeSessions.length === 0 ? (
-            <div className="text-gray-500">No active monitoring sessions</div>
+            <div className="text-cortex-text-muted">No active monitoring sessions</div>
           ) : (
             <div className="space-y-3">
               {activeSessions.map(session => {
@@ -268,7 +268,7 @@ const handleMonitorStatus = async (args: string[]) => {
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <div className="font-bold text-green-400">{session.id}</div>
-                        <div className="text-sm text-gray-400">
+                        <div className="text-sm text-cortex-text-secondary">
                           Scenario: {session.scenario} • Uptime: {Math.floor(uptime / 60)}m {uptime % 60}s
                         </div>
                       </div>
@@ -285,19 +285,19 @@ const handleMonitorStatus = async (args: string[]) => {
                     <div className="grid grid-cols-4 gap-3">
                       <div className="text-center">
                         <div className="text-lg font-bold text-blue-400">{currentData.activeAlerts}</div>
-                        <div className="text-xs text-gray-400">Alerts</div>
+                        <div className="text-xs text-cortex-text-secondary">Alerts</div>
                       </div>
                       <div className="text-center">
                         <div className="text-lg font-bold text-green-400">{currentData.coverage}%</div>
-                        <div className="text-xs text-gray-400">Coverage</div>
+                        <div className="text-xs text-cortex-text-secondary">Coverage</div>
                       </div>
                       <div className="text-center">
                         <div className="text-lg font-bold text-yellow-400">{currentData.responseTime}ms</div>
-                        <div className="text-xs text-gray-400">Response</div>
+                        <div className="text-xs text-cortex-text-secondary">Response</div>
                       </div>
                       <div className="text-center">
                         <div className="text-lg font-bold text-purple-400">{currentData.detectionRate}%</div>
-                        <div className="text-xs text-gray-400">Detection</div>
+                        <div className="text-xs text-cortex-text-secondary">Detection</div>
                       </div>
                     </div>
                   </div>
@@ -306,7 +306,7 @@ const handleMonitorStatus = async (args: string[]) => {
             </div>
           )}
           
-          <div className="mt-4 text-sm text-gray-400">
+          <div className="mt-4 text-sm text-cortex-text-secondary">
             Use <span className="font-mono">monitor status SESSION_ID</span> for detailed session info
           </div>
         </div>
@@ -385,7 +385,7 @@ const handleMonitorStatus = async (args: string[]) => {
           </div>
         )}
 
-        <div className="mt-4 text-xs text-gray-400">
+        <div className="mt-4 text-xs text-cortex-text-secondary">
           <strong>Commands:</strong> {session.status === 'active' ? `monitor stop ${sessionId}` : `monitor report ${sessionId}`}
         </div>
       </div>
@@ -417,7 +417,7 @@ const handleMonitorList = async (args: string[]) => {
         </div>
 
         {allSessions.length === 0 ? (
-          <div className="text-gray-500">No monitoring sessions found</div>
+          <div className="text-cortex-text-muted">No monitoring sessions found</div>
         ) : (
           <div className="space-y-4">
             {activeSessions.length > 0 && (
@@ -433,7 +433,7 @@ const handleMonitorList = async (args: string[]) => {
                             <span className="font-mono text-yellow-400">{session.id}</span>
                             <span className="ml-3 capitalize">{session.scenario.replace('-', ' ')}</span>
                           </div>
-                          <div className="text-sm text-gray-400">
+                          <div className="text-sm text-cortex-text-secondary">
                             {Math.floor(uptime / 60)}m {uptime % 60}s
                           </div>
                         </div>
@@ -446,7 +446,7 @@ const handleMonitorList = async (args: string[]) => {
 
             {stoppedSessions.length > 0 && (
               <div>
-                <div className="font-bold text-gray-400 mb-2">⚪ Stopped Sessions</div>
+                <div className="font-bold text-cortex-text-secondary mb-2">⚪ Stopped Sessions</div>
                 <div className="space-y-2">
                   {stoppedSessions.slice(-5).map(session => {
                     const duration = session.endTime 
@@ -459,7 +459,7 @@ const handleMonitorList = async (args: string[]) => {
                             <span className="font-mono text-yellow-400">{session.id}</span>
                             <span className="ml-3 capitalize">{session.scenario.replace('-', ' ')}</span>
                           </div>
-                          <div className="text-sm text-gray-400">
+                          <div className="text-sm text-cortex-text-secondary">
                             Ran for {Math.floor(duration / 60)}m {duration % 60}s
                           </div>
                         </div>
@@ -472,7 +472,7 @@ const handleMonitorList = async (args: string[]) => {
           </div>
         )}
 
-        <div className="mt-4 text-sm text-gray-400">
+        <div className="mt-4 text-sm text-cortex-text-secondary">
           Use <span className="font-mono">monitor status SESSION_ID</span> for detailed information
         </div>
       </div>

@@ -275,7 +275,7 @@ const handlePovInit = (args: string[]) => {
               <div key={index} className="flex justify-between items-center p-2 border border-gray-700 rounded">
                 <div>
                   <div className="text-green-400">{scenario.name}</div>
-                  <div className="text-xs text-gray-400">{scenario.category} • {scenario.duration}</div>
+                  <div className="text-xs text-cortex-text-secondary">{scenario.category} • {scenario.duration}</div>
                 </div>
                 <div className="text-purple-300 text-xs">
                   {scenario.detectionsCovered.join(', ')}
@@ -300,11 +300,11 @@ const handlePovInit = (args: string[]) => {
           <div className="text-blue-200 font-bold mb-2">🚀 Next Steps</div>
           <div className="space-y-1 text-sm">
             <div className="font-mono text-green-400">pov configure {povId} --xsiam-tenant &lt;tenant&gt;</div>
-            <div className="text-gray-500 ml-4">→ Configure XSIAM connection and data sources</div>
+            <div className="text-cortex-text-muted ml-4">→ Configure XSIAM connection and data sources</div>
             <div className="font-mono text-purple-400">pov execute {povId} --scenario &lt;scenario-id&gt;</div>
-            <div className="text-gray-500 ml-4">→ Start executing scenarios</div>
+            <div className="text-cortex-text-muted ml-4">→ Start executing scenarios</div>
             <div className="font-mono text-yellow-400">pov status {povId}</div>
-            <div className="text-gray-500 ml-4">→ Monitor POV progress</div>
+            <div className="text-cortex-text-muted ml-4">→ Monitor POV progress</div>
           </div>
         </div>
       </div>
@@ -417,7 +417,7 @@ const handlePovTemplates = (args: string[]) => {
                 }`}>
                   {template.difficulty}
                 </div>
-                <div className="text-gray-400">{template.duration}</div>
+                <div className="text-cortex-text-secondary">{template.duration}</div>
               </div>
             </div>
             
@@ -576,7 +576,7 @@ const handlePovBadassBlueprint = (args: string[]) => {
   return (
     <div className="space-y-4 text-blue-300">
       <div className="text-2xl font-bold text-cyan-400">🧭 POV Badass Blueprint</div>
-      <div className="text-sm text-gray-400">A cumulative roll-up of DC engagement activities and a state-based transformation journey.</div>
+      <div className="text-sm text-cortex-text-secondary">A cumulative roll-up of DC engagement activities and a state-based transformation journey.</div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div className="p-4 rounded border border-green-500/40 bg-green-900/10">
@@ -620,7 +620,7 @@ const handlePovBadassBlueprint = (args: string[]) => {
         </div>
       </div>
 
-      <div className="text-xs text-gray-400">
+      <div className="text-xs text-cortex-text-secondary">
         Tip: Use <span className="font-mono text-green-400">pov --badass-blueprint --since 180d customer-name</span> for a 6-month roll-up.
       </div>
     </div>

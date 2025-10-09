@@ -807,7 +807,7 @@ export const OnboardingGuide: React.FC<OnboardingGuideProps> = ({ onComplete }) 
                                 <div className="text-cyan-400">
                                   <div className="text-sm font-bold mb-1">📋 Command Example</div>
                                   <div className="font-mono text-green-400 text-sm mb-2">{step.command}</div>
-                                  <div className="text-xs text-gray-400">Use the CLI guidance below to execute this command</div>
+                                  <div className="text-xs text-cortex-text-secondary">Use the CLI guidance below to execute this command</div>
                                 </div>
                               }
                             />

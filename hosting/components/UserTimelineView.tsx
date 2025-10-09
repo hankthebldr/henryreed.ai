@@ -206,7 +206,7 @@ const UserTimelineView: React.FC<UserTimelineViewProps> = ({
       <div className={`flex items-center justify-center p-8 ${className}`}>
         <div className="text-center">
           <div className="cortex-spinner mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading timeline...</p>
+          <p className="text-cortex-text-secondary">Loading timeline...</p>
         </div>
       </div>
     );
@@ -221,7 +221,7 @@ const UserTimelineView: React.FC<UserTimelineViewProps> = ({
             <div className="text-3xl">⏰</div>
             <div>
               <h2 className="text-2xl font-bold text-white">Activity Timeline</h2>
-              <p className="text-gray-400">Track your progress and activities</p>
+              <p className="text-cortex-text-secondary">Track your progress and activities</p>
             </div>
           </div>
 
@@ -267,23 +267,23 @@ const UserTimelineView: React.FC<UserTimelineViewProps> = ({
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
             <div className="bg-blue-900/20 border border-blue-600/30 rounded-lg p-3 text-center">
               <div className="text-2xl font-bold text-blue-400">{insights.totalNotes}</div>
-              <div className="text-xs text-gray-400">Notes</div>
+              <div className="text-xs text-cortex-text-secondary">Notes</div>
             </div>
             <div className="bg-green-900/20 border border-green-600/30 rounded-lg p-3 text-center">
               <div className="text-2xl font-bold text-green-400">{insights.totalMeetings}</div>
-              <div className="text-xs text-gray-400">Meetings</div>
+              <div className="text-xs text-cortex-text-secondary">Meetings</div>
             </div>
             <div className="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-3 text-center">
               <div className="text-2xl font-bold text-yellow-400">{insights.pendingActionItems}</div>
-              <div className="text-xs text-gray-400">Pending</div>
+              <div className="text-xs text-cortex-text-secondary">Pending</div>
             </div>
             <div className="bg-purple-900/20 border border-purple-600/30 rounded-lg p-3 text-center">
               <div className="text-2xl font-bold text-purple-400">{insights.recentActivity}</div>
-              <div className="text-xs text-gray-400">Recent</div>
+              <div className="text-xs text-cortex-text-secondary">Recent</div>
             </div>
             <div className="bg-cyan-900/20 border border-cyan-600/30 rounded-lg p-3 text-center">
               <div className="text-2xl font-bold text-cyan-400">{insights.productivityScore}%</div>
-              <div className="text-xs text-gray-400">Score</div>
+              <div className="text-xs text-cortex-text-secondary">Score</div>
             </div>
           </div>
         )}
@@ -340,7 +340,7 @@ const UserTimelineView: React.FC<UserTimelineViewProps> = ({
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 pl-10 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
               />
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-cortex-text-secondary">
                 🔍
               </div>
             </div>
@@ -354,7 +354,7 @@ const UserTimelineView: React.FC<UserTimelineViewProps> = ({
           <div className="text-center py-12">
             <div className="text-6xl mb-4">📝</div>
             <h3 className="text-xl font-bold text-gray-300 mb-2">No activities yet</h3>
-            <p className="text-gray-400 mb-6">Start creating POVs, taking notes, or scheduling meetings to see your timeline.</p>
+            <p className="text-cortex-text-secondary mb-6">Start creating POVs, taking notes, or scheduling meetings to see your timeline.</p>
             <div className="flex justify-center space-x-3">
               <CortexButton
                 variant="primary"
@@ -382,7 +382,7 @@ const UserTimelineView: React.FC<UserTimelineViewProps> = ({
               <div key={group.date}>
                 <div className="sticky top-0 bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 mb-4 z-10">
                   <h3 className="font-bold text-white">{group.date}</h3>
-                  <p className="text-sm text-gray-400">{group.events.length} events</p>
+                  <p className="text-sm text-cortex-text-secondary">{group.events.length} events</p>
                 </div>
 
                 <div className="space-y-4">
@@ -415,7 +415,7 @@ const UserTimelineView: React.FC<UserTimelineViewProps> = ({
                               
                               {/* Metadata */}
                               {Object.keys(event.metadata).length > 0 && !compactMode && (
-                                <div className="text-xs text-gray-400 space-x-4">
+                                <div className="text-xs text-cortex-text-secondary space-x-4">
                                   {Object.entries(event.metadata).map(([key, value]) => (
                                     <span key={key}>
                                       <span className="font-medium">{key}:</span> {JSON.stringify(value)}
@@ -426,7 +426,7 @@ const UserTimelineView: React.FC<UserTimelineViewProps> = ({
                             </div>
                           </div>
 
-                          <div className="text-right text-xs text-gray-400 ml-4">
+                          <div className="text-right text-xs text-cortex-text-secondary ml-4">
                             <div>{formatRelativeTime(event.timestamp)}</div>
                             <div>{new Date(event.timestamp).toLocaleTimeString()}</div>
                           </div>
@@ -435,7 +435,7 @@ const UserTimelineView: React.FC<UserTimelineViewProps> = ({
                         {/* Associated content preview */}
                         {event.associatedId && !compactMode && (
                           <div className="mt-3 pt-3 border-t border-gray-600">
-                            <div className="flex items-center space-x-2 text-xs text-gray-400">
+                            <div className="flex items-center space-x-2 text-xs text-cortex-text-secondary">
                               <span>🔗</span>
                               <span>Related ID: {event.associatedId}</span>
                             </div>

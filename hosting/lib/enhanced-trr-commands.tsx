@@ -275,7 +275,7 @@ const CSVUploadComponent: React.FC<{
           </div>
           
           {uploadStatus === 'idle' && (
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-cortex-text-muted">
               Supported format: CSV files with TRR validation data
             </div>
           )}
@@ -286,9 +286,9 @@ const CSVUploadComponent: React.FC<{
         </div>
       </div>
       
-      <div className="mt-4 text-xs text-gray-500">
+      <div className="mt-4 text-xs text-cortex-text-muted">
         <details className="cursor-pointer">
-          <summary className="font-semibold text-gray-400 hover:text-gray-300">
+          <summary className="font-semibold text-cortex-text-secondary hover:text-gray-300">
             View expected CSV format ▶
           </summary>
           <div className="mt-2 bg-gray-900 p-3 rounded font-mono text-xs overflow-x-auto">
@@ -405,7 +405,7 @@ export const enhancedTrrCommands: CommandConfig[] = [
               </div>
               
               <div className="bg-gray-900 p-4 rounded border border-gray-600">
-                <div className="text-sm text-gray-400 mb-2">Export Summary:</div>
+                <div className="text-sm text-cortex-text-secondary mb-2">Export Summary:</div>
                 <div className="text-green-400">✅ {trrValidations.length} TRR validations exported</div>
                 <div className="mt-4 text-xs">
                   <details className="cursor-pointer">
@@ -444,7 +444,7 @@ export const enhancedTrrCommands: CommandConfig[] = [
                     </div>
                   </div>
                 </div>
-                <div className="text-sm text-gray-400">
+                <div className="text-sm text-cortex-text-secondary">
                   Use --customer or --status to filter
                 </div>
               </div>
@@ -472,7 +472,7 @@ export const enhancedTrrCommands: CommandConfig[] = [
                           {trr.priority}
                         </div>
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-cortex-text-muted">
                         {trr.assignedTo} • {trr.customer}
                       </div>
                     </div>
@@ -482,28 +482,28 @@ export const enhancedTrrCommands: CommandConfig[] = [
                       <div className="text-sm text-gray-300 mt-1">{trr.description}</div>
                     </div>
                     
-                    <div className="text-xs text-gray-400 grid grid-cols-2 gap-4">
+                    <div className="text-xs text-cortex-text-secondary grid grid-cols-2 gap-4">
                       <div>
-                        <span className="text-gray-500">Method:</span> {trr.validationMethod}
+                        <span className="text-cortex-text-muted">Method:</span> {trr.validationMethod}
                       </div>
                       <div>
-                        <span className="text-gray-500">Expected:</span> {trr.expectedOutcome}
+                        <span className="text-cortex-text-muted">Expected:</span> {trr.expectedOutcome}
                       </div>
                       {trr.dueDate && (
                         <div>
-                          <span className="text-gray-500">Due:</span> {new Date(trr.dueDate).toLocaleDateString()}
+                          <span className="text-cortex-text-muted">Due:</span> {new Date(trr.dueDate).toLocaleDateString()}
                         </div>
                       )}
                       {trr.estimatedHours && (
                         <div>
-                          <span className="text-gray-500">Est. Hours:</span> {trr.estimatedHours}h
+                          <span className="text-cortex-text-muted">Est. Hours:</span> {trr.estimatedHours}h
                         </div>
                       )}
                     </div>
                     
                     {trr.comments.length > 0 && (
                       <div className="mt-3 pt-3 border-t border-gray-700">
-                        <div className="text-xs text-gray-500 mb-1">Recent Comments:</div>
+                        <div className="text-xs text-cortex-text-muted mb-1">Recent Comments:</div>
                         <div className="text-xs text-gray-300">{trr.comments[trr.comments.length - 1]}</div>
                       </div>
                     )}
@@ -541,19 +541,19 @@ export const enhancedTrrCommands: CommandConfig[] = [
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-gray-800 p-4 rounded-lg border border-gray-600 text-center">
                 <div className="text-2xl font-bold text-white">{trrValidations.length}</div>
-                <div className="text-sm text-gray-400">Total TRRs</div>
+                <div className="text-sm text-cortex-text-secondary">Total TRRs</div>
               </div>
               <div className="bg-green-900/20 p-4 rounded-lg border border-green-500/30 text-center">
                 <div className="text-2xl font-bold text-green-400">{statusCounts.validated || 0}</div>
-                <div className="text-sm text-gray-400">Validated</div>
+                <div className="text-sm text-cortex-text-secondary">Validated</div>
               </div>
               <div className="bg-yellow-900/20 p-4 rounded-lg border border-yellow-500/30 text-center">
                 <div className="text-2xl font-bold text-yellow-400">{statusCounts['in-progress'] || 0}</div>
-                <div className="text-sm text-gray-400">In Progress</div>
+                <div className="text-sm text-cortex-text-secondary">In Progress</div>
               </div>
               <div className="bg-red-900/20 p-4 rounded-lg border border-red-500/30 text-center">
                 <div className="text-2xl font-bold text-red-400">{priorityCounts.critical || 0}</div>
-                <div className="text-sm text-gray-400">Critical Priority</div>
+                <div className="text-sm text-cortex-text-secondary">Critical Priority</div>
               </div>
             </div>
 

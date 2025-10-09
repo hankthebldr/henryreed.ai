@@ -148,7 +148,7 @@ export const scenarioCommands = {
             </div>
             
             {scenarios.length === 0 ? (
-              <div className="text-gray-500 ml-4">No templates available</div>
+              <div className="text-cortex-text-muted ml-4">No templates available</div>
             ) : (
               <div className="space-y-3">
                 {scenarios.map(scenario => (
@@ -180,7 +180,7 @@ export const scenarioCommands = {
                           </span>
                         ))}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-cortex-text-muted">
                         ID: {scenario.id} | Provider: {scenario.provider}
                       </div>
                     </div>
@@ -201,11 +201,11 @@ export const scenarioCommands = {
           <div className="text-yellow-400 font-bold mb-2">💡 Usage Examples</div>
           <div className="text-gray-300 text-sm space-y-1">
             <div className="font-mono text-green-400">scenario list</div>
-            <div className="text-gray-500 ml-4">→ Show all available scenario templates</div>
+            <div className="text-cortex-text-muted ml-4">→ Show all available scenario templates</div>
             <div className="font-mono text-blue-400">scenario list --scenario-type cloud-posture</div>
-            <div className="text-gray-500 ml-4">→ Show only cloud posture scenarios</div>
+            <div className="text-cortex-text-muted ml-4">→ Show only cloud posture scenarios</div>
             <div className="font-mono text-purple-400">scenario generate --scenario-type ai-threat --provider gcp</div>
-            <div className="text-gray-500 ml-4">→ Deploy an AI threat scenario on GCP</div>
+            <div className="text-cortex-text-muted ml-4">→ Deploy an AI threat scenario on GCP</div>
           </div>
         </div>
       </div>
@@ -272,11 +272,11 @@ export const scenarioCommands = {
               <div className="text-blue-400 font-bold mb-2">📊 Next Steps</div>
               <div className="text-sm space-y-1">
                 <div className="font-mono text-green-400">scenario status {deploymentId}</div>
-                <div className="text-gray-500 ml-4">→ Check deployment progress</div>
+                <div className="text-cortex-text-muted ml-4">→ Check deployment progress</div>
                 <div className="font-mono text-purple-400">scenario validate {deploymentId}</div>
-                <div className="text-gray-500 ml-4">→ Run validation tests (after deployment completes)</div>
+                <div className="text-cortex-text-muted ml-4">→ Run validation tests (after deployment completes)</div>
                 <div className="font-mono text-red-400">scenario destroy {deploymentId}</div>
-                <div className="text-gray-500 ml-4">→ Clean up resources</div>
+                <div className="text-cortex-text-muted ml-4">→ Clean up resources</div>
               </div>
             </div>
 
@@ -673,12 +673,12 @@ export const scenarioCommands = {
             <div key={t} className="border border-gray-600 rounded p-3">
               <div className="text-cyan-400 font-mono font-bold mb-2">{t}</div>
               {(MITRE_MAP[t] || []).length === 0 ? (
-                <div className="text-gray-500 text-sm">No mappings available</div>
+                <div className="text-cortex-text-muted text-sm">No mappings available</div>
               ) : (
                 <ul className="text-sm space-y-1">
                   {(MITRE_MAP[t] || []).map((m) => (
                     <li key={m.tid}>
-                      <span className="text-green-400">{m.tid}</span> – {m.technique} <span className="text-gray-400">({m.description})</span>
+                      <span className="text-green-400">{m.tid}</span> – {m.technique} <span className="text-cortex-text-secondary">({m.description})</span>
                     </li>
                   ))}
                 </ul>

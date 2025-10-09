@@ -1,5 +1,9 @@
 {
   "hosting": {
+    "predeploy": [
+      "npm --prefix hosting ci || npm --prefix hosting install",
+      "npm --prefix hosting run build:exp"
+    ],
     "public": "hosting/out",
     "ignore": [
       "firebase.json",
@@ -40,5 +44,12 @@
     ],
     "cleanUrls": false,
     "trailingSlash": true
+  },
+  "functions": {
+    "predeploy": [
+      "npm --prefix functions ci || npm --prefix functions install",
+      "npm --prefix functions run build"
+    ],
+    "source": "functions"
   }
 }

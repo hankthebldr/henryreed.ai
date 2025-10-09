@@ -30,7 +30,7 @@ export const commands: CommandConfig[] = [
               <div className="text-gray-300 mt-1">{cmd.description}</div>
               <div className="text-yellow-400 mt-2">Usage: <span className="font-mono">{cmd.usage}</span></div>
               {cmd.aliases && (
-                <div className="text-gray-500 mt-1 text-sm">Aliases: {cmd.aliases.join(', ')}</div>
+                <div className="text-cortex-text-muted mt-1 text-sm">Aliases: {cmd.aliases.join(', ')}</div>
               )}
             </div>
           );
@@ -52,14 +52,14 @@ export const commands: CommandConfig[] = [
                 <div className="text-green-400 font-mono font-bold">{cmd.name}</div>
                 <div className="text-sm text-gray-300 mt-1">{cmd.description}</div>
                 {cmd.aliases && (
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-xs text-cortex-text-muted mt-1">
                     Aliases: {cmd.aliases.join(', ')}
                   </div>
                 )}
               </div>
             ))}
           </div>
-          <div className="mt-6 text-gray-400 text-sm border-t border-gray-600 pt-4">
+          <div className="mt-6 text-cortex-text-secondary text-sm border-t border-gray-600 pt-4">
             💡 <strong>Pro Tips:</strong><br/>
             • Use 'help [command]' for detailed usage<br/>
             • Press ↑/↓ arrows to navigate command history<br/>
@@ -100,7 +100,7 @@ export const commands: CommandConfig[] = [
                     <div className="text-green-300">• ROI Analysis</div>
                   </div>
                 </div>
-                <div className="mt-3 text-xs text-gray-500">
+                <div className="mt-3 text-xs text-cortex-text-muted">
                   Perfect for: CTOs, Product Leaders, C-Suite Executives
                 </div>
               </div>
@@ -117,7 +117,7 @@ export const commands: CommandConfig[] = [
                     <div className="text-blue-300">• MLOps Pipelines</div>
                   </div>
                 </div>
-                <div className="mt-3 text-xs text-gray-500">
+                <div className="mt-3 text-xs text-cortex-text-muted">
                   Perfect for: Engineering Teams, Startups, Scale-ups
                 </div>
               </div>
@@ -134,7 +134,7 @@ export const commands: CommandConfig[] = [
                     <div className="text-purple-300">• Coding Bootcamps</div>
                   </div>
                 </div>
-                <div className="mt-3 text-xs text-gray-500">
+                <div className="mt-3 text-xs text-cortex-text-muted">
                   Perfect for: Teams, Organizations, Individual Contributors
                 </div>
               </div>
@@ -258,7 +258,7 @@ export const commands: CommandConfig[] = [
               <div className="border border-green-500 bg-gray-900 p-4 rounded">
                 <div className="flex justify-between items-start mb-2">
                   <div className="text-green-400 font-bold">enterprise-llm-deployment/</div>
-                  <div className="text-gray-500 text-xs">2 days ago</div>
+                  <div className="text-cortex-text-muted text-xs">2 days ago</div>
                 </div>
                 <div className="text-gray-300 text-sm mb-2">
                   Large enterprise LLM deployment with custom fine-tuning and RAG implementation
@@ -273,7 +273,7 @@ export const commands: CommandConfig[] = [
               <div className="border border-blue-500 bg-gray-900 p-4 rounded">
                 <div className="flex justify-between items-start mb-2">
                   <div className="text-blue-400 font-bold">computer-vision-pipeline/</div>
-                  <div className="text-gray-500 text-xs">1 week ago</div>
+                  <div className="text-cortex-text-muted text-xs">1 week ago</div>
                 </div>
                 <div className="text-gray-300 text-sm mb-2">
                   Real-time object detection and tracking system for manufacturing quality control
@@ -288,7 +288,7 @@ export const commands: CommandConfig[] = [
               <div className="border border-purple-500 bg-gray-900 p-4 rounded">
                 <div className="flex justify-between items-start mb-2">
                   <div className="text-purple-400 font-bold">ai-training-curriculum/</div>
-                  <div className="text-gray-500 text-xs">2 weeks ago</div>
+                  <div className="text-cortex-text-muted text-xs">2 weeks ago</div>
                 </div>
                 <div className="text-gray-300 text-sm mb-2">
                   Comprehensive AI/ML training program for Fortune 500 engineering teams
@@ -337,19 +337,19 @@ export const commands: CommandConfig[] = [
           <div className="space-y-2 font-mono text-sm">
             <div className="flex justify-between">
               <span className="text-green-400">ctx/</span>
-              <span className="text-gray-500">Context and information about Henry Reed AI</span>
+              <span className="text-cortex-text-muted">Context and information about Henry Reed AI</span>
             </div>
             <div className="flex justify-between">
               <span className="text-blue-400">projects/</span>
-              <span className="text-gray-500">Project portfolio and case studies</span>
+              <span className="text-cortex-text-muted">Project portfolio and case studies</span>
             </div>
             <div className="flex justify-between">
               <span className="text-purple-400">services/</span>
-              <span className="text-gray-500">Available AI consulting services</span>
+              <span className="text-cortex-text-muted">Available AI consulting services</span>
             </div>
             <div className="flex justify-between">
               <span className="text-yellow-400">contact/</span>
-              <span className="text-gray-500">Get in touch and schedule meetings</span>
+              <span className="text-cortex-text-muted">Get in touch and schedule meetings</span>
             </div>
           </div>
           <div className="mt-6 p-4 bg-gray-800 rounded border border-gray-600">

@@ -64,10 +64,6 @@ export const EnhancedAIAssistant: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    actions.updateBreadcrumbs([
-      { label: 'Home', path: '/gui' },
-      { label: 'AI Assistant', path: '/gui/ai' },
-    ]);
     
     // Initialize sample data if empty
     if (dcContextStore.getAllCustomerEngagements().length === 0) {
@@ -551,7 +547,7 @@ Could you be more specific about what you'd like help with? I can provide detail
       {/* Context Selector */}
       <div className="flex items-center gap-4 p-4 bg-gray-900/50 rounded-lg mb-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-400">Context:</span>
+          <span className="text-sm text-cortex-text-secondary">Context:</span>
           <select 
             value={contextMode}
             onChange={(e) => setContextMode(e.target.value as any)}
@@ -628,7 +624,7 @@ Could you be more specific about what you'd like help with? I can provide detail
             <div className="bg-gray-800 p-3 rounded-lg">
               <div className="flex items-center space-x-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
-                <span className="text-gray-400">AI is thinking...</span>
+                <span className="text-cortex-text-secondary">AI is thinking...</span>
               </div>
             </div>
           </div>
@@ -696,14 +692,14 @@ Could you be more specific about what you'd like help with? I can provide detail
                   {insight.impact.toUpperCase()} IMPACT
                 </span>
               </div>
-              <div className="text-xs text-gray-400">{insight.confidence}% confident</div>
+              <div className="text-xs text-cortex-text-secondary">{insight.confidence}% confident</div>
             </div>
             
             <h4 className="text-white font-medium mb-2">{insight.title}</h4>
             <p className="text-gray-300 text-sm mb-3">{insight.description}</p>
             
             <div className="mb-3">
-              <div className="text-xs text-gray-400 mb-1">Action Items:</div>
+              <div className="text-xs text-cortex-text-secondary mb-1">Action Items:</div>
               <ul className="text-sm text-gray-300 space-y-1">
                 {insight.actionItems.map((item, idx) => (
                   <li key={idx} className="flex items-start">
@@ -735,7 +731,7 @@ Could you be more specific about what you'd like help with? I can provide detail
   const TemplatesTab = () => (
     <div className="space-y-4">
       <h3 className="text-lg font-bold text-white">📝 AI Analysis Templates</h3>
-      <p className="text-gray-400 text-sm">Pre-built templates for common DC analysis workflows</p>
+      <p className="text-cortex-text-secondary text-sm">Pre-built templates for common DC analysis workflows</p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {aiTemplates.map(template => (
@@ -755,7 +751,7 @@ Could you be more specific about what you'd like help with? I can provide detail
             <p className="text-gray-300 text-sm mb-3">{template.description}</p>
             
             <div className="mb-3">
-              <div className="text-xs text-gray-400 mb-1">Required Context:</div>
+              <div className="text-xs text-cortex-text-secondary mb-1">Required Context:</div>
               <div className="flex flex-wrap gap-1">
                 {template.requiredContext.map(ctx => (
                   <span key={ctx} className="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded">
@@ -779,7 +775,7 @@ Could you be more specific about what you'd like help with? I can provide detail
       <h3 className="text-lg font-bold text-white">📊 Conversation History</h3>
       
       <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-        <div className="text-center text-gray-400">
+        <div className="text-center text-cortex-text-secondary">
           <div className="text-4xl mb-2">📋</div>
           <div className="text-sm">Conversation history will be available here</div>
           <div className="text-xs mt-1">Previous sessions, analysis results, and insights</div>
@@ -793,7 +789,7 @@ Could you be more specific about what you'd like help with? I can provide detail
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-blue-400 mb-2">🤖 Enhanced AI Assistant</h1>
-          <p className="text-gray-400">Your intelligent companion for Cortex DC success - context-aware, workflow-integrated, and action-oriented</p>
+          <p className="text-cortex-text-secondary">Your intelligent companion for Cortex DC success - context-aware, workflow-integrated, and action-oriented</p>
         </div>
 
         {/* Navigation Tabs */}
@@ -810,7 +806,7 @@ Could you be more specific about what you'd like help with? I can provide detail
               className={`flex-1 px-4 py-3 text-center transition-colors rounded-lg ${
                 activeTab === tab.id
                   ? 'bg-blue-600 text-white'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                  : 'text-cortex-text-secondary hover:text-white hover:bg-gray-700/50'
               }`}
             >
               <div className="font-medium">{tab.label}</div>
