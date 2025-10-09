@@ -805,10 +805,19 @@ Could you be more specific about what you'd like help with? I can provide detail
   );
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6">
+    <section
+      id="ai-advisor-console"
+      aria-labelledby="ai-advisor-console-heading"
+      className="min-h-screen bg-gray-950 text-white p-6 scroll-mt-28"
+    >
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-blue-400 mb-2">🤖 Enhanced AI Assistant</h1>
+          <h1
+            id="ai-advisor-console-heading"
+            className="text-3xl font-bold text-blue-400 mb-2"
+          >
+            🤖 Enhanced AI Assistant
+          </h1>
           <p className="text-cortex-text-secondary">Your intelligent companion for Cortex DC success - context-aware, workflow-integrated, and action-oriented</p>
         </div>
 
@@ -843,6 +852,6 @@ Could you be more specific about what you'd like help with? I can provide detail
           {activeTab === 'history' && <HistoryTab />}
         </div>
       </div>
-    </div>
+    </section>
   );
 };

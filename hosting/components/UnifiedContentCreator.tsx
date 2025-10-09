@@ -1133,10 +1133,19 @@ export const UnifiedContentCreator: React.FC<ScenarioCreatorProps> = ({
   };
 
   const renderOverview = () => (
-    <div className="space-y-6">
+    <section
+      id="content-intelligence-library"
+      aria-labelledby="content-intelligence-library-heading"
+      className="space-y-6 scroll-mt-28"
+    >
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-cortex-text-primary">POV Detection Scenarios</h1>
+          <h1
+            id="content-intelligence-library-heading"
+            className="text-3xl font-bold text-cortex-text-primary"
+          >
+            POV Detection Scenarios
+          </h1>
           <p className="text-cortex-text-secondary mt-1">
             Comprehensive library of {Object.keys(POV_DETECTION_SCENARIOS).length} security scenarios for proof-of-value demonstrations
           </p>
@@ -1252,7 +1261,7 @@ export const UnifiedContentCreator: React.FC<ScenarioCreatorProps> = ({
           <p className="text-cortex-text-secondary">Try adjusting your search terms or filters.</p>
         </div>
       )}
-    </div>
+    </section>
   );
 
   const renderDetail = () => {

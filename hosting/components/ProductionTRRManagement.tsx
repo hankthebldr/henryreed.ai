@@ -566,7 +566,25 @@ export const ProductionTRRManagement: React.FC = () => {
   );
 
   const ManageTab = () => (
-    <div className="space-y-6">
+    <section
+      id="notes-workbench"
+      aria-labelledby="notes-workbench-heading"
+      className="space-y-6 scroll-mt-28"
+    >
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h3 id="notes-workbench-heading" className="text-2xl font-semibold text-white flex items-center gap-2">
+            📝 Notes Workbench
+          </h3>
+          <p className="text-sm text-cortex-text-secondary mt-1">
+            Centralized workspace for TRR notes, validation evidence, and follow-up actions.
+          </p>
+        </div>
+        <div className="flex items-center text-xs text-cortex-text-muted bg-gray-800/60 border border-gray-700 rounded px-3 py-2">
+          Live collaboration enabled
+        </div>
+      </div>
+
       {/* Filters and Search */}
       <div className="bg-gray-900/50 p-4 rounded border border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
@@ -744,7 +762,7 @@ export const ProductionTRRManagement: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 
   const CreateTab = () => (

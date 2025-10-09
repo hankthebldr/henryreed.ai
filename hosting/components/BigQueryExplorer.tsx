@@ -518,11 +518,20 @@ ORDER BY success_rate DESC, times_used DESC`,
   );
 
   return (
-    <div className="p-8 space-y-8">
+    <section
+      id="data-analytics-panel"
+      aria-labelledby="data-analytics-panel-heading"
+      className="p-8 space-y-8 scroll-mt-28"
+    >
       <div className="glass-card p-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-cortex-text-primary mb-2">BigQuery Data Explorer</h1>
+            <h1
+              id="data-analytics-panel-heading"
+              className="text-3xl font-bold text-cortex-text-primary mb-2"
+            >
+              BigQuery Data Explorer
+            </h1>
             <p className="text-cortex-text-muted">Comprehensive data export and analytics platform for DC workflows</p>
           </div>
         </div>
@@ -569,6 +578,6 @@ ORDER BY success_rate DESC, times_used DESC`,
           {activeTab === 'analytics' && <AnalyticsTab />}
         </div>
       </div>
-    </div>
+    </section>
   );
 };

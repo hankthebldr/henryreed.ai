@@ -825,11 +825,20 @@ export const POVProjectManagement: React.FC = () => {
   };
 
   return (
-    <div className="p-8 space-y-8">
+    <section
+      id="pov-planning-hub"
+      aria-labelledby="pov-planning-hub-heading"
+      className="p-8 space-y-8 scroll-mt-28"
+    >
       <div className="glass-card p-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-cortex-text-primary mb-2">POV Project Management</h1>
+            <h1
+              id="pov-planning-hub-heading"
+              className="text-3xl font-bold text-cortex-text-primary mb-2"
+            >
+              POV Project Management
+            </h1>
             <p className="text-cortex-text-muted">Comprehensive POV lifecycle management with AI-powered optimization</p>
           </div>
         </div>
@@ -881,6 +890,6 @@ export const POVProjectManagement: React.FC = () => {
           {activeTab === 'analytics' && <div className="text-center py-12"><div className="text-cortex-text-muted">Analytics coming soon...</div></div>}
         </div>
       </div>
-    </div>
+    </section>
   );
 };

@@ -1103,11 +1103,20 @@ export const ManagementDashboard: React.FC = () => {
   };
 
   return (
-    <div className="p-8 space-y-8">
+    <section
+      id="management-control-center"
+      aria-labelledby="management-control-center-heading"
+      className="p-8 space-y-8 scroll-mt-28"
+    >
       <div className="glass-card p-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-cortex-text-primary mb-2">⚙️ Management Dashboard</h1>
+          <h1
+            id="management-control-center-heading"
+            className="text-3xl font-bold text-cortex-text-primary mb-2"
+          >
+            ⚙️ Management Dashboard
+          </h1>
           <p className="text-cortex-text-muted">Comprehensive system oversight and user management</p>
           {isLoading && (
             <div className="mt-2 text-yellow-400 text-sm">🔄 Refreshing data...</div>
@@ -1210,6 +1219,6 @@ export const ManagementDashboard: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 };
