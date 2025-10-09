@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback, ChangeEvent, FormEvent } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
+import CortexButton from './CortexButton';
 import {
   userManagementService,
   UserProfile,
@@ -27,6 +28,11 @@ interface DashboardTab {
   icon: string;
   description: string;
 }
+
+type UserMutationState = {
+  isSaving: boolean;
+  error?: string;
+};
 
 export const ManagementDashboard: React.FC = () => {
   const { state, actions } = useAppState();
@@ -56,6 +62,31 @@ export const ManagementDashboard: React.FC = () => {
     updatedAt: platformSettingsSnapshot.updatedAt,
     updatedBy: platformSettingsSnapshot.updatedBy,
   });
+  const [userMutations, setUserMutations] = useState<Record<string, UserMutationState>>({});
+
+  const setUserMutation = useCallback(
+    (userId: string, mutation: Partial<UserMutationState>) => {
+      setUserMutations((previous) => {
+        const existing = previous[userId] ?? { isSaving: false };
+        const next: UserMutationState = {
+          ...existing,
+          ...mutation,
+        };
+        return { ...previous, [userId]: next };
+      });
+    },
+    [setUserMutations],
+  );
+
+  const clearUserMutation = useCallback(
+    (userId: string) => {
+      setUserMutations((previous) => {
+        const { [userId]: _removed, ...rest } = previous;
+        return rest;
+      });
+    },
+    [setUserMutations],
+  );
 
   const authUserId =
     state.auth.user?.id || state.auth.user?.email || 'system';
@@ -448,30 +479,81 @@ export const ManagementDashboard: React.FC = () => {
     const paginatedUsers = filteredUsers.slice(page * pageSize, page * pageSize + pageSize);
 
     const handleUpdateUserRole = async (userId: string, newRole: UserRole) => {
+      const targetUser = users.find((candidate) => candidate.id === userId);
+      if (!targetUser) {
+        return;
+      }
+
+      const previousUsersSnapshot = users.map((profile) => ({ ...profile }));
+      const previousSelectedUser = selectedUser ? { ...selectedUser } : null;
+
+      setUserMutation(userId, { isSaving: true, error: undefined });
+
+      setUsers((currentUsers) =>
+        currentUsers.map((profile) =>
+          profile.id === userId
+            ? { ...profile, role: newRole, updatedAt: new Date().toISOString() }
+            : profile,
+        ),
+      );
+      setSelectedUser((current) =>
+        current && current.id === userId ? { ...current, role: newRole } : current,
+      );
+
       try {
-        const user = users.find((u) => u.id === userId);
-        if (user) {
-          user.role = newRole;
-          user.updatedAt = new Date().toISOString();
-          setUsers([...users]);
-          actions.notify('success', `Updated ${user.firstName} ${user.lastName}'s role to ${newRole}`);
-        }
+        await userManagementService.updateUser(userId, { role: newRole });
+        await loadDashboardData(true);
+        actions.notify(
+          'success',
+          `Updated ${targetUser.firstName} ${targetUser.lastName}'s role to ${newRole}`,
+        );
+        clearUserMutation(userId);
       } catch (error) {
-        actions.notify('error', 'Failed to update user role');
+        setUsers(previousUsersSnapshot);
+        setSelectedUser(previousSelectedUser);
+        const message = error instanceof Error ? error.message : 'Failed to update user role';
+        setUserMutation(userId, { isSaving: false, error: message });
+        actions.notify('error', message);
       }
     };
 
     const handleToggleUserStatus = async (userId: string) => {
+      const targetUser = users.find((candidate) => candidate.id === userId);
+      if (!targetUser) {
+        return;
+      }
+
+      const previousUsersSnapshot = users.map((profile) => ({ ...profile }));
+      const previousSelectedUser = selectedUser ? { ...selectedUser } : null;
+      const nextStatus: UserProfile['status'] = targetUser.status === 'active' ? 'inactive' : 'active';
+
+      setUserMutation(userId, { isSaving: true, error: undefined });
+
+      setUsers((currentUsers) =>
+        currentUsers.map((profile) =>
+          profile.id === userId
+            ? { ...profile, status: nextStatus, updatedAt: new Date().toISOString() }
+            : profile,
+        ),
+      );
+      setSelectedUser((current) =>
+        current && current.id === userId ? { ...current, status: nextStatus } : current,
+      );
+
       try {
-        const user = users.find((u) => u.id === userId);
-        if (user) {
-          user.status = user.status === 'active' ? 'inactive' : 'active';
-          user.updatedAt = new Date().toISOString();
-          setUsers([...users]);
-          actions.notify('success', `${user.status === 'active' ? 'Activated' : 'Deactivated'} ${user.firstName} ${user.lastName}`);
-        }
+        await userManagementService.updateUser(userId, { status: nextStatus });
+        await loadDashboardData(true);
+        actions.notify(
+          'success',
+          `${nextStatus === 'active' ? 'Activated' : 'Deactivated'} ${targetUser.firstName} ${targetUser.lastName}`,
+        );
+        clearUserMutation(userId);
       } catch (error) {
-        actions.notify('error', 'Failed to update user status');
+        setUsers(previousUsersSnapshot);
+        setSelectedUser(previousSelectedUser);
+        const message = error instanceof Error ? error.message : 'Failed to update user status';
+        setUserMutation(userId, { isSaving: false, error: message });
+        actions.notify('error', message);
       }
     };
 
@@ -561,6 +643,7 @@ export const ManagementDashboard: React.FC = () => {
               <tbody>
                 {paginatedUsers.map((user) => {
                   const metrics = userMetrics[user.id];
+                  const mutation = userMutations[user.id];
                   const initials = `${(user.firstName || "")[0] || ""}${(user.lastName || "")[0] || ""}`.toUpperCase() || 'NA';
                   return (
                     <tr key={user.id} className="border-t border-cortex-border-secondary hover:bg-cortex-bg-hover">
@@ -583,8 +666,9 @@ export const ManagementDashboard: React.FC = () => {
                       <td className="p-4">
                         <select
                           value={user.role}
-                          onChange={(e) => handleUpdateUserRole(user.id, e.target.value as UserRole)}
+                          onChange={(e) => void handleUpdateUserRole(user.id, e.target.value as UserRole)}
                           className="cortex-card p-2 border-cortex-border-secondary text-cortex-text-primary bg-cortex-bg-secondary rounded-md focus:ring-2 focus:ring-cortex-accent text-sm"
+                          disabled={Boolean(mutation?.isSaving)}
                         >
                           <option value="admin">Admin</option>
                           <option value="manager">Manager</option>
@@ -626,19 +710,36 @@ export const ManagementDashboard: React.FC = () => {
                         {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : '—'}
                       </td>
                       <td className="p-4">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => setSelectedUser(user)}
-                            className="btn-modern px-3 py-1 text-sm"
-                          >
-                            View
-                          </button>
-                          <button
-                            onClick={() => handleToggleUserStatus(user.id)}
-                            className="btn-modern px-3 py-1 text-sm bg-cortex-bg-tertiary"
-                          >
-                            {user.status === 'active' ? 'Deactivate' : 'Activate'}
-                          </button>
+                        <div className="flex flex-col gap-1">
+                          <div className="flex gap-2">
+                            <CortexButton
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setSelectedUser(user)}
+                              disabled={Boolean(mutation?.isSaving)}
+                              ariaLabel={`View details for ${user.firstName} ${user.lastName}`}
+                            >
+                              View
+                            </CortexButton>
+                            <CortexButton
+                              variant={user.status === 'active' ? 'danger' : 'success'}
+                              size="sm"
+                              onClick={() => void handleToggleUserStatus(user.id)}
+                              disabled={Boolean(mutation?.isSaving)}
+                              loading={Boolean(mutation?.isSaving)}
+                            >
+                              {mutation?.isSaving
+                                ? 'Updating…'
+                                : user.status === 'active'
+                                  ? 'Deactivate'
+                                  : 'Activate'}
+                            </CortexButton>
+                          </div>
+                          {mutation?.error && (
+                            <div className="text-xs text-cortex-error" role="alert">
+                              {mutation.error}
+                            </div>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -652,20 +753,24 @@ export const ManagementDashboard: React.FC = () => {
               Page {page + 1} of {totalPages}
             </div>
             <div className="flex gap-2">
-              <button
+              <CortexButton
+                variant="ghost"
+                size="sm"
                 onClick={() => setPage((prev) => Math.max(0, prev - 1))}
                 disabled={page === 0}
-                className="btn-modern px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                ariaLabel="Go to previous page"
               >
                 Previous
-              </button>
-              <button
+              </CortexButton>
+              <CortexButton
+                variant="ghost"
+                size="sm"
                 onClick={() => setPage((prev) => Math.min(totalPages - 1, prev + 1))}
                 disabled={page + 1 >= totalPages}
-                className="btn-modern px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                ariaLabel="Go to next page"
               >
                 Next
-              </button>
+              </CortexButton>
             </div>
           </div>
         </div>
@@ -796,17 +901,17 @@ export const ManagementDashboard: React.FC = () => {
             <span className="text-cortex-text-muted text-sm">Time Period:</span>
             <div className="flex gap-2">
               {(['all', 'today', 'week', 'month'] as const).map(period => (
-                <button
+                <CortexButton
                   key={period}
+                  variant={activityFilter === period ? 'info' : 'ghost'}
+                  size="sm"
                   onClick={() => setActivityFilter(period)}
-                  className={`btn-modern button-hover-lift cortex-interactive px-3 py-1 rounded text-sm transition-colors capitalize ${
-                    activityFilter === period
-                      ? 'bg-cortex-cyan text-white'
-                      : 'bg-cortex-bg-secondary text-cortex-text-muted hover:bg-cortex-bg-hover'
-                  }`}
+                  ariaLabel={`Show ${period} activity`}
+                  className="capitalize"
+                  glow={activityFilter === period}
                 >
                   {period}
-                </button>
+                </CortexButton>
               ))}
             </div>
             <div className="flex-1"></div>
@@ -963,14 +1068,17 @@ export const ManagementDashboard: React.FC = () => {
                   <div className="mt-1">by {settingsMetadata.updatedBy}</div>
                 </div>
               )}
-              <button
+              <CortexButton
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => void loadPlatformSettings(true)}
-                className="btn-modern button-hover-lift cortex-interactive px-3 py-1 rounded bg-cortex-bg-secondary hover:bg-cortex-bg-hover"
                 disabled={settingsLoading || flagSavingKey !== null || environmentSaving}
+                loading={settingsLoading}
+                ariaLabel="Refresh platform settings"
               >
                 {settingsLoading ? 'Syncing…' : 'Refresh'}
-              </button>
+              </CortexButton>
             </div>
           </div>
 
@@ -1163,13 +1271,16 @@ export const ManagementDashboard: React.FC = () => {
               <div className="text-xs text-cortex-text-muted">
                 Changes are tracked in the audit log for compliance reviews.
               </div>
-              <button
+              <CortexButton
                 type="submit"
-                className="btn-modern button-hover-lift cortex-interactive px-4 py-2 rounded bg-cortex-cyan text-white hover:bg-cortex-cyan/80 disabled:opacity-60"
+                variant="primary"
+                size="md"
+                loading={environmentSaving}
                 disabled={environmentSaving}
+                ariaLabel="Save environment configuration"
               >
                 {environmentSaving ? 'Saving configuration…' : 'Save configuration'}
-              </button>
+              </CortexButton>
             </div>
           </form>
         </div>
@@ -1225,21 +1336,31 @@ export const ManagementDashboard: React.FC = () => {
 
         {/* Navigation Tabs */}
         <div className="flex space-x-1 mb-6 bg-cortex-bg-secondary p-1 rounded-lg overflow-x-auto terminal-scrollbar">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 px-4 py-2 text-center transition-colors rounded-md cortex-interactive whitespace-nowrap min-w-fit ${
-                activeTab === tab.id
-                  ? 'bg-cortex-cyan text-white'
-                  : 'text-cortex-text-muted hover:text-white hover:bg-cortex-bg-hover'
-              }`}
-              title={tab.description}
-            >
-              <div className="font-medium">{tab.icon} {tab.name}</div>
-              <div className="text-xs opacity-75">{tab.description}</div>
-            </button>
-          ))}
+          {tabs.map(tab => {
+            const isActive = activeTab === tab.id;
+            return (
+              <CortexButton
+                key={tab.id}
+                variant="ghost"
+                size="md"
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex-1 whitespace-nowrap min-w-fit px-4 py-2 ${
+                  isActive
+                    ? 'bg-cortex-cyan text-white border-cortex-cyan'
+                    : 'text-cortex-text-muted hover:text-white hover:bg-cortex-bg-hover'
+                }`}
+                fullWidth
+                glow={isActive}
+                ariaLabel={`Switch to ${tab.name} tab`}
+                tooltip={tab.description}
+              >
+                <span className="flex flex-col items-center text-center leading-tight">
+                  <span className="font-medium">{tab.icon} {tab.name}</span>
+                  <span className="text-xs opacity-75">{tab.description}</span>
+                </span>
+              </CortexButton>
+            );
+          })}
         </div>
 
         {/* Tab Content */}
@@ -1258,12 +1379,14 @@ export const ManagementDashboard: React.FC = () => {
             <div className="glass-card p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto terminal-scrollbar">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold text-cortex-text-primary">👤 User Details</h3>
-                <button
+                <CortexButton
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setSelectedUser(null)}
-                  className="text-cortex-text-muted hover:text-white cortex-interactive"
+                  ariaLabel="Close user details"
                 >
                   ✕
-                </button>
+                </CortexButton>
               </div>
               
               <div className="space-y-4">
@@ -1307,12 +1430,14 @@ export const ManagementDashboard: React.FC = () => {
                 </div>
                 
                 <div className="flex justify-end gap-2">
-                  <button
+                  <CortexButton
+                    variant="ghost"
+                    size="md"
                     onClick={() => setSelectedUser(null)}
-                    className="btn-modern button-hover-lift cortex-interactive px-4 py-2 bg-cortex-bg-secondary hover:bg-cortex-bg-hover text-cortex-text-primary rounded transition-colors"
+                    ariaLabel="Close user details"
                   >
                     Close
-                  </button>
+                  </CortexButton>
                 </div>
               </div>
             </div>
