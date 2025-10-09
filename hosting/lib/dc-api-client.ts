@@ -3,7 +3,13 @@
  * Comprehensive API layer for all DC workflows and operations
  */
 
-import { dcContextStore, CustomerEngagement, ActivePOV as POVRecord, TRRRecord, WorkflowHistory as WorkflowHistoryEntry, UserProfile } from './dc-context-store';
+import {
+  dcContextStore,
+  CustomerEngagement,
+  ActivePOV as POVRecord,
+  TRRRecord,
+  WorkflowHistory as WorkflowHistoryEntry
+} from './dc-context-store';
 import { dcAIClient, DCWorkflowContext } from './dc-ai-client';
 import { SolutionDesignWorkbook, SDWExportConfiguration } from './sdw-models';
 import getFirebaseServices from './firebase/client';
@@ -443,6 +449,23 @@ export class DCAPIClient {
     }
   }
 
+  async createTRR(trr: Omit<TRRRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<APIResponse<TRRRecord>> {
+    const newTRR: TRRRecord = {
+      ...trr,
+      id: `trr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      aiInsights: trr.aiInsights || []
+    };
+
+    dcContextStore.addTRRRecord(newTRR);
+
+    return {
+      success: true,
+      data: newTRR,
+      timestamp: new Date().toISOString(),
+      requestId: `req_${Date.now()}_local`
+    };
   async createTRR(context: UserScopeContext, trr: Omit<TRRRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<APIResponse<TRRRecord>> {
     try {
       const ownerId = context.targetUserId || context.userId;
@@ -669,6 +692,46 @@ export class DCAPIClient {
       timestamp: new Date().toISOString(),
       requestId: `req_${Date.now()}_local`
     };
+  }
+
+  async fetchUserContext(): Promise<APIResponse<DCWorkflowSnapshot>> {
+    const timestamp = new Date().toISOString();
+    const requestId = `req_${Date.now()}_context`;
+
+    try {
+      const response = await fetch(`${this.baseUrl}/context`, {
+        method: 'GET',
+        headers: this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : undefined,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error(`${response.status} ${response.statusText}`);
+      }
+
+      const payload = await response.json();
+      const snapshot: DCWorkflowSnapshot = {
+        customers: payload.customers || [],
+        povs: payload.povs || [],
+        trrs: payload.trrs || [],
+      };
+
+      this.syncContextSnapshot(snapshot);
+
+      return {
+        success: true,
+        data: snapshot,
+        timestamp,
+        requestId,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch workflow context',
+        timestamp,
+        requestId,
+      };
+    }
   }
 
   // XSIAM Health Checks

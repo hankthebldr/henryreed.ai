@@ -10,6 +10,8 @@ import { useAppState } from '../contexts/AppStateContext';
 import { dcAPIClient, UserScopeContext } from '../lib/dc-api-client';
 import { dcContextStore, TRRRecord, CustomerEngagement, ActivePOV, UserProfile } from '../lib/dc-context-store';
 import { dcAIClient, DCWorkflowContext } from '../lib/dc-ai-client';
+import { aiInsightsClient } from '../lib/ai-insights-client';
+import type { GeminiFunctionResponse, GeminiResponse } from '../lib/gemini-ai-service';
 import { SolutionDesignWorkbook } from '../lib/sdw-models';
 import { SDWWorkflow } from './SDWWorkflow';
 
@@ -59,6 +61,7 @@ export const ProductionTRRManagement: React.FC = () => {
   const [trrList, setTrrList] = useState<TRRRecord[]>([]);
   const [selectedTRR, setSelectedTRR] = useState<TRRRecord | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [aiStatus, setAIStatus] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState<Partial<TRRFormData>>({
     acceptanceCriteria: [],
@@ -216,6 +219,72 @@ export const ProductionTRRManagement: React.FC = () => {
     ];
     
     setWorkflowSteps(defaultSteps);
+  };
+
+  const persistTrrInsight = (trrId: string, result: GeminiFunctionResponse, type: AIWorkflowInsight['type'], fallbackTitle?: string) => {
+    if (!result.success || !result.data) {
+      actions.notify('error', result.error || 'AI request failed');
+      return;
+    }
+
+    const data = result.data as GeminiResponse & { content?: string; title?: string; confidence?: number };
+    const content = typeof data.response === 'string' ? data.response : data.content || '';
+    if (!content) {
+      actions.notify('warning', 'AI response did not include any content to save.');
+      return;
+    }
+
+    const insight: AIWorkflowInsight = {
+      id: `ai_${Date.now()}`,
+      type,
+      source: 'gemini',
+      title: data.title || fallbackTitle,
+      content,
+      confidence: data.confidence,
+      createdAt: new Date().toISOString(),
+    };
+
+    const updated = dcContextStore.recordTRRInsight(trrId, insight);
+    if (updated) {
+      setTrrList(dcContextStore.getAllTRRRecords());
+      setSelectedTRR(updated);
+      actions.notify('success', 'AI insight saved to TRR');
+    }
+  };
+
+  const handleGenerateValidationSummary = async (trr: TRRRecord) => {
+    const customer = dcContextStore.getCustomerEngagement(trr.customerId);
+    const pov = trr.povId ? dcContextStore.getActivePOV(trr.povId) : undefined;
+    const context: DCWorkflowContext = {
+      workflowType: 'trr_validation',
+      customerProfile: customer ? {
+        industry: customer.industry,
+        size: customer.size,
+        maturityLevel: customer.maturityLevel,
+        primaryConcerns: customer.primaryConcerns,
+        techStack: customer.techStack,
+      } : undefined,
+      engagementData: {
+        scope: pov ? pov.scenarios.map(s => s.name) : [],
+        stakeholders: customer ? customer.stakeholders.map(s => s.name) : [],
+        objectives: pov?.objectives,
+      },
+      workInProgress: {
+        povsActive: dcContextStore.getAllActivePOVs().filter(p => p.status === 'executing').length,
+        trrsCompleted: dcContextStore.getAllTRRRecords().filter(record => record.status === 'validated').length,
+        blockers: trr.dependencies,
+      },
+    };
+
+    setAIStatus('Summarizing TRR validation...');
+    try {
+      const response = await aiInsightsClient.analyzeTRR({ ...trr, context });
+      persistTrrInsight(trr.id, response, 'validation_summary', `Validation Summary: ${trr.title}`);
+    } catch (error) {
+      actions.notify('error', `Failed to generate validation summary: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setAIStatus(null);
+    }
   };
 
   const handleCreateTRR = async () => {
@@ -1091,14 +1160,38 @@ export const ProductionTRRManagement: React.FC = () => {
                     {selectedTRR.status}
                   </span>
                 </div>
-                
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={() => handleGenerateValidationSummary(selectedTRR)}
+                    className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm transition-colors"
+                    disabled={!!aiStatus}
+                  >
+                    🤖 Generate Validation Summary
+                  </button>
+                  {aiStatus && <span className="text-xs text-cortex-text-muted">{aiStatus}</span>}
+                </div>
+
                 {selectedTRR.description && (
                   <div>
                     <div className="text-sm text-cortex-text-secondary">Description</div>
                     <div className="text-white">{selectedTRR.description}</div>
                   </div>
                 )}
-                
+
+                {selectedTRR.aiInsights && selectedTRR.aiInsights.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="text-sm text-cortex-text-secondary">AI Insights</div>
+                    {selectedTRR.aiInsights.map(insight => (
+                      <div key={insight.id} className="bg-gray-800/60 p-3 rounded border border-blue-500/30">
+                        <div className="text-xs text-cortex-text-muted mb-1">{new Date(insight.createdAt).toLocaleString()}</div>
+                        <div className="text-cortex-text-primary font-medium mb-1">{insight.title || 'AI Recommendation'}</div>
+                        <div className="text-sm text-cortex-text-secondary whitespace-pre-wrap">{insight.content}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {/* SDW Status */}
                 {sdwList[selectedTRR.id] && (
                   <div className="bg-purple-900/20 p-4 rounded border border-purple-500/30">

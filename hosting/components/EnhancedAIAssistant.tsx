@@ -6,9 +6,17 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
-import { dcAPIClient, UserScopeContext } from '../lib/dc-api-client';
-import { dcContextStore, UserProfile } from '../lib/dc-context-store';
+import { dcAPIClient, DCWorkflowSnapshot } from '../lib/dc-api-client';
+import {
+  dcContextStore,
+  CustomerEngagement,
+  ActivePOV,
+  TRRRecord,
+  AIWorkflowInsight
+} from '../lib/dc-context-store';
 import { dcAIClient, DCWorkflowContext } from '../lib/dc-ai-client';
+import { aiInsightsClient, GeminiArtifact } from '../lib/ai-insights-client';
+import type { GeminiFunctionResponse, GeminiResponse } from '../lib/gemini-ai-service';
 
 interface AIMessage {
   id: string;
@@ -26,6 +34,16 @@ interface AIAction {
   type: 'execute' | 'navigate' | 'create' | 'export';
   action: string;
   data?: any;
+}
+
+type AssistantContextMode = 'global' | 'customer' | 'pov' | 'trr';
+
+interface UploadedArtifact {
+  id: string;
+  name: string;
+  size: number;
+  mimeType: string;
+  dataUrl: string;
 }
 
 interface AIInsight {
@@ -59,9 +77,41 @@ export const EnhancedAIAssistant: React.FC = () => {
   const [insights, setInsights] = useState<AIInsight[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<string>('');
   const [selectedPOV, setSelectedPOV] = useState<string>('');
-  const [contextMode, setContextMode] = useState<'global' | 'customer' | 'pov'>('global');
-  
+  const [selectedTRR, setSelectedTRR] = useState<string>('');
+  const [contextMode, setContextMode] = useState<AssistantContextMode>('global');
+  const [artifacts, setArtifacts] = useState<UploadedArtifact[]>([]);
+  const [contextLoading, setContextLoading] = useState(false);
+  const [contextError, setContextError] = useState<string | null>(null);
+
+  const getSnapshotFromStore = (): DCWorkflowSnapshot => ({
+    customers: dcContextStore.getAllCustomerEngagements(),
+    povs: dcContextStore.getAllActivePOVs(),
+    trrs: dcContextStore.getAllTRRRecords(),
+  });
+
+  const [workflowSnapshot, setWorkflowSnapshot] = useState<DCWorkflowSnapshot>(getSnapshotFromStore);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const convertArtifactsToGemini = (items: UploadedArtifact[]): GeminiArtifact[] =>
+    items
+      .map(item => {
+        const base64 = item.dataUrl.split(',')[1];
+        if (!base64) {
+          return null;
+        }
+        return {
+          id: item.id,
+          mimeType: item.mimeType || 'application/octet-stream',
+          data: base64,
+          description: item.name,
+        } satisfies GeminiArtifact;
+      })
+      .filter(Boolean) as GeminiArtifact[];
+
+  const refreshSnapshot = () => {
+    setWorkflowSnapshot(getSnapshotFromStore());
+  };
 
   useEffect(() => {
     const ensureData = async () => {
@@ -97,6 +147,10 @@ export const EnhancedAIAssistant: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    loadInsights(workflowSnapshot);
+  }, [workflowSnapshot]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -142,10 +196,65 @@ What would you like to work on today?`,
     setMessages([welcomeMessage]);
   };
 
-  const loadInsights = async () => {
-    const customers = dcContextStore.getAllCustomerEngagements();
-    const povs = dcContextStore.getAllActivePOVs();
-    const trrs = dcContextStore.getAllTRRRecords();
+  const loadUserContext = async () => {
+    setContextLoading(true);
+    setContextError(null);
+
+    try {
+      const response = await dcAPIClient.fetchUserContext();
+      if (response.success && response.data) {
+        setWorkflowSnapshot(response.data);
+        if (response.data.customers.length === 0 && dcContextStore.getAllCustomerEngagements().length === 0) {
+          dcContextStore.initializeSampleData();
+          refreshSnapshot();
+        }
+      } else {
+        throw new Error(response.error || 'Context unavailable');
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Context unavailable';
+      console.warn('Falling back to local workflow context:', message);
+      setContextError(message);
+      if (dcContextStore.getAllCustomerEngagements().length === 0) {
+        dcContextStore.initializeSampleData();
+      }
+      refreshSnapshot();
+    } finally {
+      setContextLoading(false);
+    }
+  };
+
+  const mapWorkflowInsight = (insight: AIWorkflowInsight, entity: { id: string; name: string }, category: 'pov' | 'trr'): AIInsight => {
+    const typeMap: Record<AIWorkflowInsight['type'], AIInsight['type']> = {
+      scenario_recommendation: 'opportunity',
+      validation_summary: 'next_action',
+      executive_briefing: 'opportunity',
+      engagement_update: 'next_action',
+      general: 'optimization',
+    };
+
+    const confidenceScore = Math.round(((insight.confidence ?? 0.75) * 100));
+    const impact: AIInsight['impact'] = confidenceScore >= 90 ? 'high' : confidenceScore <= 60 ? 'low' : 'medium';
+    const urgency: AIInsight['urgency'] = category === 'trr' ? 'immediate' : 'this_week';
+
+    return {
+      id: `${category}_${entity.id}_${insight.id}`,
+      type: typeMap[insight.type] || 'optimization',
+      title: insight.title || `${category === 'pov' ? 'POV' : 'TRR'} Insight: ${entity.name}`,
+      description: insight.content,
+      confidence: Math.min(100, Math.max(0, confidenceScore)),
+      impact,
+      urgency,
+      actionItems: Array.isArray(insight.metadata?.actionItems) ? insight.metadata!.actionItems : [],
+      relatedCustomers: insight.metadata?.customerId ? [insight.metadata.customerId] : undefined,
+      relatedPOVs: category === 'pov' ? [entity.id] : undefined,
+    };
+  };
+
+  const loadInsights = (snapshot: DCWorkflowSnapshot = workflowSnapshot) => {
+    const customers = snapshot.customers;
+    const povs = snapshot.povs;
+    const trrs = snapshot.trrs;
 
     // Generate AI insights based on current state
     const generatedInsights: AIInsight[] = [
@@ -209,7 +318,116 @@ What would you like to work on today?`,
       }
     ];
 
-    setInsights(generatedInsights);
+    const storedInsights: AIInsight[] = [];
+    povs.forEach(pov => {
+      pov.aiInsights?.forEach(insight => {
+        storedInsights.push(mapWorkflowInsight(insight, { id: pov.id, name: pov.name }, 'pov'));
+      });
+    });
+    trrs.forEach(trr => {
+      trr.aiInsights?.forEach(insight => {
+        storedInsights.push(mapWorkflowInsight(insight, { id: trr.id, name: trr.title }, 'trr'));
+      });
+    });
+
+    setInsights([...storedInsights, ...generatedInsights]);
+  };
+
+  const buildStructuredContext = (context: DCWorkflowContext) => {
+    const summarizeCustomer = (customer: CustomerEngagement) => ({
+      id: customer.id,
+      name: customer.name,
+      industry: customer.industry,
+      maturity: customer.maturityLevel,
+      priorityConcerns: customer.primaryConcerns,
+    });
+
+    const summarizePOV = (pov: ActivePOV) => ({
+      id: pov.id,
+      name: pov.name,
+      status: pov.status,
+      scenarioCount: pov.scenarios.length,
+      completedScenarios: pov.scenarios.filter(s => s.status === 'completed').length,
+    });
+
+    const summarizeTRR = (trr: TRRRecord) => ({
+      id: trr.id,
+      title: trr.title,
+      status: trr.status,
+      priority: trr.priority,
+      risk: trr.riskLevel,
+    });
+
+    return {
+      ...context,
+      selections: {
+        mode: contextMode,
+        customerId: selectedCustomer || null,
+        povId: selectedPOV || null,
+        trrId: selectedTRR || null,
+      },
+      snapshot: {
+        customers: workflowSnapshot.customers.slice(0, 10).map(summarizeCustomer),
+        povs: workflowSnapshot.povs.slice(0, 10).map(summarizePOV),
+        trrs: workflowSnapshot.trrs.slice(0, 10).map(summarizeTRR),
+      },
+    };
+  };
+
+  const extractResponseContent = (response: GeminiFunctionResponse): { text: string; confidence?: number; title?: string } => {
+    if (!response.success || !response.data) {
+      return { text: '' };
+    }
+
+    const data = response.data as GeminiResponse & Partial<AIWorkflowInsight> & { content?: string };
+    if (typeof (data as GeminiResponse).response === 'string') {
+      return {
+        text: (data as GeminiResponse).response,
+        confidence: (data as GeminiResponse).confidence,
+        title: data.title,
+      };
+    }
+
+    if (typeof data.content === 'string') {
+      return { text: data.content, confidence: data.confidence, title: data.title };
+    }
+
+    return { text: '' };
+  };
+
+  const persistAIOutput = (result: GeminiFunctionResponse, context: DCWorkflowContext) => {
+    if (!result?.success || !result.data) return;
+
+    const { text, confidence, title } = extractResponseContent(result);
+    if (!text) return;
+
+    const baseInsight: AIWorkflowInsight = {
+      id: `ai_${Date.now()}`,
+      type: contextMode === 'pov' ? 'scenario_recommendation' : contextMode === 'trr' ? 'validation_summary' : 'engagement_update',
+      source: 'gemini',
+      title: title || undefined,
+      content: text,
+      confidence,
+      createdAt: new Date().toISOString(),
+      metadata: {
+        mode: contextMode,
+        customerId: selectedCustomer,
+        povId: selectedPOV,
+        trrId: selectedTRR,
+      },
+    };
+
+    if (contextMode === 'pov' && selectedPOV) {
+      const updated = dcContextStore.recordPOVInsight(selectedPOV, baseInsight);
+      if (updated) {
+        refreshSnapshot();
+      }
+    } else if (contextMode === 'trr' && selectedTRR) {
+      const updated = dcContextStore.recordTRRInsight(selectedTRR, baseInsight);
+      if (updated) {
+        refreshSnapshot();
+      }
+    }
   };
 
   const handleSendMessage = async () => {
@@ -227,13 +445,27 @@ What would you like to work on today?`,
     setIsLoading(true);
 
     try {
-      // Get current context
       const context = getCurrentContext();
-      
-      // Process the user input with AI
-      const aiResponse = await processUserInput(currentInput, context);
-      
-      setMessages(prev => [...prev, aiResponse]);
+      const structuredContext = buildStructuredContext(context);
+      const artifactPayload = convertArtifactsToGemini(artifacts);
+      const response = await aiInsightsClient.chat(userMessage.content, structuredContext, artifactPayload);
+
+      persistAIOutput(response, context);
+
+      const { text, confidence, title } = extractResponseContent(response);
+      const assistantContent = text || 'I have received your request and will continue researching.';
+
+      const assistantMessage: AIMessage = {
+        id: `assistant_${Date.now()}`,
+        type: 'assistant',
+        content: title ? `**${title}**\n\n${assistantContent}` : assistantContent,
+        timestamp: new Date().toISOString(),
+        context,
+        actions: undefined,
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+      setArtifacts([]);
     } catch (error) {
       console.error('AI processing error:', error);
       const errorMessage: AIMessage = {
@@ -248,10 +480,43 @@ What would you like to work on today?`,
     }
   };
 
+  const handleArtifactUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const uploads: UploadedArtifact[] = [];
+
+    for (const file of Array.from(files)) {
+      try {
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => reject(reader.error || new Error('Failed to load file'));
+          reader.readAsDataURL(file);
+        });
+
+        uploads.push({
+          id: `${file.name}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          name: file.name,
+          size: file.size,
+          mimeType: file.type,
+          dataUrl,
+        });
+      } catch (error) {
+        console.warn('Failed to attach artifact:', error);
+        actions.notify('warning', `Could not attach ${file.name}`);
+      }
+    }
+
+    if (uploads.length) {
+      setArtifacts(prev => [...prev, ...uploads]);
+    }
+
+    event.target.value = '';
+  };
+
   const getCurrentContext = (): DCWorkflowContext => {
-    const customers = dcContextStore.getAllCustomerEngagements();
-    const povs = dcContextStore.getAllActivePOVs();
-    const trrs = dcContextStore.getAllTRRRecords();
+    const { customers, povs, trrs } = workflowSnapshot;
 
     let customerProfile;
     if (selectedCustomer) {
@@ -267,13 +532,33 @@ What would you like to work on today?`,
       }
     }
 
+    const pov = selectedPOV ? povs.find(p => p.id === selectedPOV) : undefined;
+    const trr = selectedTRR ? trrs.find(t => t.id === selectedTRR) : undefined;
+
     return {
-      workflowType: contextMode === 'customer' ? 'customer_analysis' : 
-                   contextMode === 'pov' ? 'pov_planning' : 'engagement_summary',
+      workflowType: contextMode === 'customer' ? 'customer_analysis' :
+                   contextMode === 'pov' ? 'pov_planning' :
+                   contextMode === 'trr' ? 'trr_validation' : 'engagement_summary',
       customerProfile,
       engagementData: {
-        scope: povs.map(p => p.name),
-        stakeholders: customers.flatMap(c => c.stakeholders.map(s => s.name))
+        scope: pov ? [pov.name] : povs.map(p => p.name),
+        stakeholders: customerProfile
+          ? workflowSnapshot.customers
+              .filter(c => !selectedCustomer || c.id === selectedCustomer)
+              .flatMap(c => c.stakeholders.map(s => s.name))
+          : customers.flatMap(c => c.stakeholders.map(s => s.name)),
+        povStatus: pov ? {
+          id: pov.id,
+          status: pov.status,
+          completedScenarios: pov.scenarios.filter(s => s.status === 'completed').length,
+          totalScenarios: pov.scenarios.length,
+        } : undefined,
+        trrFocus: trr ? {
+          id: trr.id,
+          title: trr.title,
+          status: trr.status,
+          priority: trr.priority,
+        } : undefined,
       },
       workInProgress: {
         povsActive: povs.filter(p => p.status === 'executing').length,
@@ -524,8 +809,7 @@ Could you be more specific about what you'd like help with? I can provide detail
     }
   };
 
-  const customers = dcContextStore.getAllCustomerEngagements();
-  const povs = dcContextStore.getAllActivePOVs();
+  const { customers, povs, trrs } = workflowSnapshot;
 
   const aiTemplates: AITemplate[] = [
     {
@@ -565,22 +849,34 @@ Could you be more specific about what you'd like help with? I can provide detail
   const ChatTab = () => (
     <div className="flex flex-col h-96">
       {/* Context Selector */}
-      <div className="flex items-center gap-4 p-4 bg-gray-900/50 rounded-lg mb-4">
+      <div className="flex flex-wrap items-center gap-4 p-4 bg-gray-900/50 rounded-lg mb-4">
         <div className="flex items-center gap-2">
           <span className="text-sm text-cortex-text-secondary">Context:</span>
-          <select 
+          <select
             value={contextMode}
-            onChange={(e) => setContextMode(e.target.value as any)}
+            onChange={(e) => setContextMode(e.target.value as AssistantContextMode)}
             className="px-3 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
           >
             <option value="global">Global</option>
             <option value="customer">Customer-Focused</option>
             <option value="pov">POV-Focused</option>
+            <option value="trr">TRR-Focused</option>
           </select>
         </div>
-        
+
+        {contextLoading && (
+          <div className="flex items-center gap-2 text-xs text-blue-300">
+            <span className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-300"></span>
+            Loading latest engagement data...
+          </div>
+        )}
+
+        {contextError && !contextLoading && (
+          <div className="text-xs text-yellow-400">Using cached context ({contextError})</div>
+        )}
+
         {contextMode === 'customer' && (
-          <select 
+          <select
             value={selectedCustomer}
             onChange={(e) => setSelectedCustomer(e.target.value)}
             className="px-3 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
@@ -591,9 +887,9 @@ Could you be more specific about what you'd like help with? I can provide detail
             ))}
           </select>
         )}
-        
+
         {contextMode === 'pov' && (
-          <select 
+          <select
             value={selectedPOV}
             onChange={(e) => setSelectedPOV(e.target.value)}
             className="px-3 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
@@ -604,6 +900,19 @@ Could you be more specific about what you'd like help with? I can provide detail
             ))}
           </select>
         )}
+
+        {contextMode === 'trr' && (
+          <select
+            value={selectedTRR}
+            onChange={(e) => setSelectedTRR(e.target.value)}
+            className="px-3 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+          >
+            <option value="">Select TRR...</option>
+            {trrs.map(record => (
+              <option key={record.id} value={record.id}>{record.title}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Messages */}
@@ -611,8 +920,8 @@ Could you be more specific about what you'd like help with? I can provide detail
         {messages.map((message) => (
           <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-3xl p-3 rounded-lg ${
-              message.type === 'user' 
-                ? 'bg-blue-600 text-white' 
+              message.type === 'user'
+                ? 'bg-blue-600 text-white'
                 : message.type === 'system'
                 ? 'bg-purple-600/20 border border-purple-500/30 text-purple-300'
                 : 'bg-gray-800 text-gray-100'
@@ -621,7 +930,7 @@ Could you be more specific about what you'd like help with? I can provide detail
                 {message.type === 'user' ? 'You' : 'AI Assistant'} • {new Date(message.timestamp).toLocaleTimeString()}
               </div>
               <div className="whitespace-pre-wrap">{message.content}</div>
-              
+
               {message.actions && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   {message.actions.map(action => (
@@ -638,7 +947,7 @@ Could you be more specific about what you'd like help with? I can provide detail
             </div>
           </div>
         ))}
-        
+
         {isLoading && (
           <div className="flex justify-start">
             <div className="bg-gray-800 p-3 rounded-lg">
@@ -653,7 +962,27 @@ Could you be more specific about what you'd like help with? I can provide detail
       </div>
 
       {/* Input */}
+      {artifacts.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-4">
+          {artifacts.map(file => (
+            <div key={file.id} className="flex items-center gap-2 bg-gray-800/70 px-3 py-1 rounded">
+              <span className="text-xs text-gray-200">{file.name}</span>
+              <button
+                onClick={() => setArtifacts(prev => prev.filter(item => item.id !== file.id))}
+                className="text-xs text-red-300 hover:text-red-200"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="flex gap-2 mt-4">
+        <label className="px-4 py-3 bg-gray-800/70 border border-gray-600 rounded-lg text-white text-sm cursor-pointer hover:bg-gray-700">
+          📎 Attach
+          <input type="file" multiple className="hidden" onChange={handleArtifactUpload} />
+        </label>
         <input
           type="text"
           value={currentInput}

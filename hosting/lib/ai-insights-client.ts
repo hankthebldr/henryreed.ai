@@ -2,7 +2,11 @@
 // - Uses Firebase/Cloud Functions if configured via NEXT_PUBLIC_FUNCTIONS_BASE_URL
 // - Falls back to local GeminiAIService simulation when not configured
 
-import GeminiAIService, { GeminiFunctionRequest, GeminiFunctionResponse } from './gemini-ai-service';
+import GeminiAIService, {
+  GeminiArtifact,
+  GeminiFunctionRequest,
+  GeminiFunctionResponse
+} from './gemini-ai-service';
 
 export type AIInsightsAction = GeminiFunctionRequest['action'];
 
@@ -34,51 +38,73 @@ async function callCloudFunction(payload: GeminiFunctionRequest): Promise<Gemini
 }
 
 export const aiInsightsClient = {
-  async chat(message: string, context?: any) {
+  async chat(message: string, context?: any, artifacts?: GeminiArtifact[]) {
     const base = getBaseUrl();
     const userId = 'dc-user';
     const sessionId = `sess_${Date.now()}`;
 
     if (base) {
-      return callCloudFunction({ action: 'chat', data: { message, context }, userId, sessionId });
+      return callCloudFunction({ action: 'chat', data: { message, context, artifacts }, userId, sessionId });
     }
 
     // Fallback to local simulation
     const gemini = GeminiAIService.getInstance();
-    const data = await gemini.chatWithGemini(message, context, sessionId);
-    return { success: true, data, usage: { tokensUsed: 'tokensUsed' in data ? (data as any).tokensUsed : 0, cost: 0 } } satisfies GeminiFunctionResponse;
+    const data = await gemini.chatWithGemini(message, JSON.stringify(context), sessionId, artifacts);
+    const localResponse: GeminiFunctionResponse = {
+      success: true,
+      data,
+      usage: { tokensUsed: 'tokensUsed' in data ? (data as any).tokensUsed : 0, cost: 0 }
+    };
+    return localResponse;
   },
 
-  async analyzePOV(pov: any) {
+  async analyzePOV(pov: any, artifacts?: GeminiArtifact[]) {
     const base = getBaseUrl();
     const userId = 'dc-user';
     if (base) {
-      return callCloudFunction({ action: 'analyze_pov', data: pov, userId });
+      return callCloudFunction({ action: 'analyze_pov', data: { ...pov, artifacts }, userId });
     }
     const gemini = GeminiAIService.getInstance();
-    const data = await gemini.analyzePOV(pov);
-    return { success: true, data, usage: { tokensUsed: 'tokensUsed' in data ? (data as any).tokensUsed : 0, cost: 0 } } satisfies GeminiFunctionResponse;
+    const data = await gemini.analyzePOV({ ...pov, artifacts });
+    const localResponse: GeminiFunctionResponse = {
+      success: true,
+      data,
+      usage: { tokensUsed: 'tokensUsed' in data ? (data as any).tokensUsed : 0, cost: 0 }
+    };
+    return localResponse;
   },
 
-  async analyzeTRR(trr: any) {
+  async analyzeTRR(trr: any, artifacts?: GeminiArtifact[]) {
     const base = getBaseUrl();
     const userId = 'dc-user';
     if (base) {
-      return callCloudFunction({ action: 'analyze_trr', data: trr, userId });
+      return callCloudFunction({ action: 'analyze_trr', data: { ...trr, artifacts }, userId });
     }
     const gemini = GeminiAIService.getInstance();
-    const data = await gemini.analyzeTRR(trr);
-    return { success: true, data, usage: { tokensUsed: 'tokensUsed' in data ? (data as any).tokensUsed : 0, cost: 0 } } satisfies GeminiFunctionResponse;
+    const data = await gemini.analyzeTRR({ ...trr, artifacts });
+    const localResponse: GeminiFunctionResponse = {
+      success: true,
+      data,
+      usage: { tokensUsed: 'tokensUsed' in data ? (data as any).tokensUsed : 0, cost: 0 }
+    };
+    return localResponse;
   },
 
-  async generateDetection(scenario: any) {
+  async generateDetection(scenario: any, artifacts?: GeminiArtifact[]) {
     const base = getBaseUrl();
     const userId = 'dc-user';
     if (base) {
-      return callCloudFunction({ action: 'generate_detection', data: scenario, userId });
+      return callCloudFunction({ action: 'generate_detection', data: { ...scenario, artifacts }, userId });
     }
     const gemini = GeminiAIService.getInstance();
-    const data = await gemini.generateDetectionRule(scenario);
-    return { success: true, data, usage: { tokensUsed: 'tokensUsed' in data ? (data as any).tokensUsed : 0, cost: 0 } } satisfies GeminiFunctionResponse;
+    const data = await gemini.generateDetectionRule({ ...scenario, artifacts });
+    const localResponse: GeminiFunctionResponse = {
+      success: true,
+      data,
+      usage: { tokensUsed: 'tokensUsed' in data ? (data as any).tokensUsed : 0, cost: 0 }
+    };
+    return localResponse;
   },
 };
+
+export type { GeminiArtifact };
