@@ -27,6 +27,7 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
 }) => {
   const { state, actions } = useAppState();
   const [sidebarSize, setSidebarSize] = useState<SidebarSize>(defaultExpanded ? 'standard' : 'minimized');
+  const [lastActiveSize, setLastActiveSize] = useState<SidebarSize>('standard');
   const [isResizing, setIsResizing] = useState(false);
   const [customWidth, setCustomWidth] = useState<number | null>(null);
   const [quickCommands] = useState([
@@ -80,8 +81,58 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
     }
   }, [isResizing, resize, stopResize]);
 
+  useEffect(() => {
+    actions.setTerminalHostType('sidebar');
+    actions.setTerminalRef(terminalRef);
+
+    return () => {
+      actions.setTerminalRef({ current: null });
+      actions.setTerminalHostType('overlay');
+    };
+  }, [actions]);
+
+  useEffect(() => {
+    if (sidebarSize !== 'minimized') {
+      setLastActiveSize(sidebarSize);
+    }
+  }, [sidebarSize]);
+
+  useEffect(() => {
+    if (state.terminal.isVisible) {
+      setSidebarSize((currentSize) => (currentSize === 'minimized' ? lastActiveSize : currentSize));
+    } else {
+      setSidebarSize('minimized');
+    }
+  }, [state.terminal.isVisible, lastActiveSize]);
+
+  useEffect(() => {
+    const bridge = state.commandBridge;
+    if (!bridge.pendingExecution || !bridge.lastExecutedCommand || !terminalRef.current) {
+      return;
+    }
+
+    const execute = async () => {
+      try {
+        actions.openTerminal();
+        setSidebarSize((currentSize) => (currentSize === 'minimized' ? lastActiveSize : currentSize));
+        await terminalRef.current?.executeCommand(bridge.lastExecutedCommand);
+        actions.notify('success', `Command executed: ${bridge.lastExecutedCommand}`);
+        setTimeout(() => {
+          terminalRef.current?.focus();
+        }, 50);
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        actions.notify('error', `Command failed: ${err.message}`);
+      } finally {
+        actions.clearPendingExecution();
+      }
+    };
+
+    execute();
+  }, [state.commandBridge.pendingExecution, state.commandBridge.lastExecutedCommand, actions, lastActiveSize]);
+
   const toggleSidebar = () => {
-    const newSize = sidebarSize === 'minimized' ? 'standard' : 'minimized';
+    const newSize = sidebarSize === 'minimized' ? lastActiveSize : 'minimized';
     setSidebarSize(newSize);
     if (newSize === 'minimized') {
       clearInlineWidth();
@@ -271,7 +322,7 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
 
       {/* Quick Commands Bar */}
       {isVisible && (
-      <div className="flex-shrink-0 p-3 border-b border-cortex-border/40 bg-cortex-bg-tertiary/40">
+        <div className="flex-shrink-0 p-3 border-b border-cortex-border/40 bg-cortex-bg-tertiary/40">
           <div className="text-xs text-cortex-text-secondary mb-2 font-medium">Quick Commands</div>
           <div className="grid grid-cols-2 gap-2">
             {quickCommands.map((cmd, index) => (
