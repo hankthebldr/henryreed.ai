@@ -7,8 +7,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
 import { dcAPIClient } from '../lib/dc-api-client';
-import { dcContextStore, ActivePOV as POVRecord, CustomerEngagement } from '../lib/dc-context-store';
+import { dcContextStore, ActivePOV as POVRecord, CustomerEngagement, AIWorkflowInsight } from '../lib/dc-context-store';
 import { dcAIClient, DCWorkflowContext } from '../lib/dc-ai-client';
+import { aiInsightsClient } from '../lib/ai-insights-client';
+import type { GeminiFunctionResponse, GeminiResponse } from '../lib/gemini-ai-service';
 
 interface POVScenario {
   id: string;
@@ -73,6 +75,8 @@ export const POVProjectManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'create' | 'manage' | 'templates' | 'analytics'>('dashboard');
   const [selectedPOV, setSelectedPOV] = useState<POVRecord | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [aiStatus, setAIStatus] = useState<string | null>(null);
+  const [povs, setPovs] = useState<POVRecord[]>(dcContextStore.getAllActivePOVs());
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState<Partial<POVFormData>>({
     objectives: [],
@@ -89,11 +93,12 @@ export const POVProjectManagement: React.FC = () => {
   });
 
   useEffect(() => {
-    
+
     // Initialize sample data if empty
     if (dcContextStore.getAllCustomerEngagements().length === 0) {
       dcContextStore.initializeSampleData();
     }
+    setPovs(dcContextStore.getAllActivePOVs());
   }, [actions]);
 
   const povTemplates: POVTemplate[] = [
@@ -160,7 +165,6 @@ export const POVProjectManagement: React.FC = () => {
   ];
 
   const customers = dcContextStore.getAllCustomerEngagements();
-  const povs = dcContextStore.getAllActivePOVs();
 
   const handleCreatePOV = async () => {
     if (!formData.name || !formData.customerId) {
@@ -212,6 +216,7 @@ export const POVProjectManagement: React.FC = () => {
           risks: [],
           timeline: { start: '', end: '', milestones: [] }
         });
+        setPovs(dcContextStore.getAllActivePOVs());
       } else {
         actions.notify('error', response.error || 'Failed to create POV');
       }
@@ -219,6 +224,86 @@ export const POVProjectManagement: React.FC = () => {
       actions.notify('error', `Failed to create POV: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const persistPovInsight = (povId: string, result: GeminiFunctionResponse, type: AIWorkflowInsight['type'], fallbackTitle?: string) => {
+    if (!result.success || !result.data) {
+      actions.notify('error', result.error || 'AI request failed');
+      return;
+    }
+
+    const data = result.data as GeminiResponse & { content?: string; title?: string; confidence?: number };
+    const content = typeof data.response === 'string' ? data.response : data.content || '';
+
+    if (!content) {
+      actions.notify('warning', 'AI response did not include any content to save.');
+      return;
+    }
+
+    const insight: AIWorkflowInsight = {
+      id: `ai_${Date.now()}`,
+      type,
+      source: 'gemini',
+      title: data.title || fallbackTitle,
+      content,
+      confidence: data.confidence,
+      createdAt: new Date().toISOString(),
+    };
+
+    const updated = dcContextStore.recordPOVInsight(povId, insight);
+    if (updated) {
+      setPovs(dcContextStore.getAllActivePOVs());
+      setSelectedPOV(updated);
+      actions.notify('success', 'AI insight saved to POV');
+    }
+  };
+
+  const handleScenarioRecommendations = async (pov: POVRecord) => {
+    const customer = customers.find(c => c.id === pov.customerId);
+    const context: DCWorkflowContext = {
+      workflowType: 'pov_planning',
+      customerProfile: customer ? {
+        industry: customer.industry,
+        size: customer.size,
+        maturityLevel: customer.maturityLevel,
+        primaryConcerns: customer.primaryConcerns,
+        techStack: customer.techStack,
+      } : undefined,
+      engagementData: {
+        scope: pov.scenarios.map(s => s.name),
+        stakeholders: customer ? customer.stakeholders.map(s => s.name) : [],
+        objectives: pov.objectives,
+      },
+      workInProgress: {
+        povsActive: povs.filter(p => p.status === 'executing').length,
+        trrsCompleted: dcContextStore.getAllTRRRecords().filter(trr => trr.povId === pov.id && trr.status === 'validated').length,
+        blockers: [],
+      },
+    };
+
+    setAIStatus('Generating scenario recommendations...');
+    try {
+      const response = await dcAIClient.optimizePOVPlan(pov, context);
+      persistPovInsight(pov.id, response, 'scenario_recommendation', `Scenario Recommendations: ${pov.name}`);
+    } catch (error) {
+      actions.notify('error', `Failed to generate recommendations: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setAIStatus(null);
+    }
+  };
+
+  const handleExecutiveBriefingDraft = async (pov: POVRecord) => {
+    const customer = customers.find(c => c.id === pov.customerId);
+    setAIStatus('Drafting executive briefing...');
+    try {
+      const briefingPrompt = `Create an executive briefing summarizing the POV "${pov.name}" for customer "${customer?.name || 'Unknown'}". Include current status, measurable outcomes, business impact, recommended next steps, and risk mitigations. Use concise executive language.`;
+      const response = await aiInsightsClient.chat(briefingPrompt, { pov, customer, workflow: 'executive_briefing' });
+      persistPovInsight(pov.id, response, 'executive_briefing', `Executive Briefing Draft: ${pov.name}`);
+    } catch (error) {
+      actions.notify('error', `Failed to draft executive briefing: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setAIStatus(null);
     }
   };
 
@@ -657,10 +742,30 @@ export const POVProjectManagement: React.FC = () => {
                 'executing': 'bg-cortex-success/20 text-cortex-success border border-cortex-success/30',
                 'completed': 'bg-cortex-blue/20 text-cortex-blue border border-cortex-blue/30',
                 'planning': 'bg-cortex-warning/20 text-cortex-warning border border-cortex-warning/30'
-              }[selectedPOV.status]}`}>
+              }[selectedPOV.status]}`}> 
                 {selectedPOV.status}
               </div>
             </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3 mb-6">
+            <button
+              onClick={() => handleScenarioRecommendations(selectedPOV)}
+              className="px-4 py-2 bg-cortex-blue text-white rounded shadow hover:bg-cortex-blue/80 transition"
+              disabled={!!aiStatus}
+            >
+              🔍 Scenario Recommendations
+            </button>
+            <button
+              onClick={() => handleExecutiveBriefingDraft(selectedPOV)}
+              className="px-4 py-2 bg-cortex-purple text-white rounded shadow hover:bg-cortex-purple/80 transition"
+              disabled={!!aiStatus}
+            >
+              📝 Executive Briefing Draft
+            </button>
+            {aiStatus && (
+              <span className="text-xs text-cortex-text-muted flex items-center">{aiStatus}</span>
+            )}
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -722,6 +827,21 @@ export const POVProjectManagement: React.FC = () => {
             ))}
           </div>
         </div>
+
+        {selectedPOV.aiInsights && selectedPOV.aiInsights.length > 0 && (
+          <div className="glass-card p-6">
+            <h4 className="text-lg font-bold text-cortex-text-primary mb-4">🤖 AI Insights</h4>
+            <div className="space-y-3">
+              {selectedPOV.aiInsights.map(insight => (
+                <div key={insight.id} className="cortex-card p-4 border border-cortex-purple/30">
+                  <div className="text-xs text-cortex-text-muted mb-1">{new Date(insight.createdAt).toLocaleString()}</div>
+                  <div className="font-semibold text-cortex-text-primary mb-2">{insight.title || 'AI Recommendation'}</div>
+                  <div className="text-sm text-cortex-text-secondary whitespace-pre-wrap">{insight.content}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Objectives */}
         <div className="glass-card p-6">

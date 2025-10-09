@@ -73,6 +73,7 @@ export interface ActivePOV {
     lessonsLearned: string[];
   };
   nextSteps: string[];
+  aiInsights?: AIWorkflowInsight[];
   createdAt: string;
   updatedAt: string;
 }
@@ -101,6 +102,7 @@ export interface TRRRecord {
   businessImpact: string;
   customerStakeholder: string;
   notes: string[];
+  aiInsights?: AIWorkflowInsight[];
   createdAt: string;
   updatedAt: string;
 }
@@ -115,6 +117,17 @@ export interface WorkflowHistory {
   outcome: string;
   duration: number;
   timestamp: string;
+}
+
+export interface AIWorkflowInsight {
+  id: string;
+  type: 'scenario_recommendation' | 'validation_summary' | 'executive_briefing' | 'engagement_update' | 'general';
+  source: 'gemini' | 'manual' | 'system';
+  title?: string;
+  content: string;
+  confidence?: number;
+  createdAt: string;
+  metadata?: Record<string, any>;
 }
 
 class DCContextStore {
@@ -197,6 +210,11 @@ class DCContextStore {
     this.saveToStorage();
   }
 
+  replaceCustomerEngagements(engagements: CustomerEngagement[]) {
+    this.data.customerEngagements = new Map(engagements.map(eng => [eng.id, eng]));
+    this.saveToStorage();
+  }
+
   getCustomerEngagement(id: string): CustomerEngagement | undefined {
     return this.data.customerEngagements.get(id);
   }
@@ -220,6 +238,11 @@ class DCContextStore {
     this.saveToStorage();
   }
 
+  replaceActivePOVs(povs: ActivePOV[]) {
+    this.data.activePOVs = new Map(povs.map(pov => [pov.id, pov]));
+    this.saveToStorage();
+  }
+
   getActivePOV(id: string): ActivePOV | undefined {
     return this.data.activePOVs.get(id);
   }
@@ -237,9 +260,29 @@ class DCContextStore {
     }
   }
 
+  recordPOVInsight(id: string, insight: AIWorkflowInsight): ActivePOV | undefined {
+    const existing = this.data.activePOVs.get(id);
+    if (!existing) return undefined;
+
+    const updated: ActivePOV = {
+      ...existing,
+      aiInsights: [...(existing.aiInsights || []), insight],
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.data.activePOVs.set(id, updated);
+    this.saveToStorage();
+    return updated;
+  }
+
   // TRR Management
   addTRRRecord(trr: TRRRecord) {
     this.data.trrRecords.set(trr.id, trr);
+    this.saveToStorage();
+  }
+
+  replaceTRRRecords(trrs: TRRRecord[]) {
+    this.data.trrRecords = new Map(trrs.map(trr => [trr.id, trr]));
     this.saveToStorage();
   }
 
@@ -266,6 +309,21 @@ class DCContextStore {
       this.data.trrRecords.set(id, updated);
       this.saveToStorage();
     }
+  }
+
+  recordTRRInsight(id: string, insight: AIWorkflowInsight): TRRRecord | undefined {
+    const existing = this.data.trrRecords.get(id);
+    if (!existing) return undefined;
+
+    const updated: TRRRecord = {
+      ...existing,
+      aiInsights: [...(existing.aiInsights || []), insight],
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.data.trrRecords.set(id, updated);
+    this.saveToStorage();
+    return updated;
   }
 
   // Workflow History
@@ -448,6 +506,7 @@ class DCContextStore {
         lessonsLearned: ['Customer values automation over alerts', 'Integration complexity is key concern']
       },
       nextSteps: ['Complete ransomware scenario', 'Prepare executive presentation', 'Draft technical proposal'],
+      aiInsights: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -479,6 +538,7 @@ class DCContextStore {
         businessImpact: 'Critical for cloud visibility requirements',
         customerStakeholder: 'Mike Davis',
         notes: ['Customer very satisfied with ingestion speed', 'Requested additional custom fields'],
+        aiInsights: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       },
@@ -504,6 +564,7 @@ class DCContextStore {
         businessImpact: 'Important for operational workflow',
         customerStakeholder: 'Sarah Johnson',
         notes: ['Waiting for dev instance access', 'Customer excited about automation potential'],
+        aiInsights: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }

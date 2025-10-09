@@ -6,6 +6,7 @@ interface GeminiConfig {
   projectId: string;
   location: string;
   model: string;
+  endpoint?: string;
 }
 
 interface GeminiRequest {
@@ -14,6 +15,24 @@ interface GeminiRequest {
   temperature?: number;
   maxTokens?: number;
   systemInstruction?: string;
+  artifacts?: GeminiArtifact[];
+  contextParts?: GeminiContentPart[];
+}
+
+type GeminiContentPart =
+  | { text: string }
+  | { inlineData: { data: string; mimeType: string } };
+
+interface GeminiContent {
+  role: 'user' | 'model' | 'system';
+  parts: GeminiContentPart[];
+}
+
+export interface GeminiArtifact {
+  id: string;
+  mimeType: string;
+  data: string;
+  description?: string;
 }
 
 export interface GeminiResponse {
@@ -23,6 +42,7 @@ export interface GeminiResponse {
   model: string;
   timestamp: string;
   sessionId?: string;
+  raw?: any;
 }
 
 export interface AIInsight {
@@ -44,8 +64,9 @@ export class GeminiAIService {
     this.config = {
       apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY || '',
       projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'cortex-dc-portal',
-      location: 'us-central1',
-      model: 'gemini-1.5-pro'
+      location: process.env.NEXT_PUBLIC_GEMINI_LOCATION || 'us-central1',
+      model: process.env.NEXT_PUBLIC_GEMINI_MODEL || 'gemini-1.5-pro',
+      endpoint: process.env.NEXT_PUBLIC_GEMINI_ENDPOINT,
     };
   }
 
@@ -63,345 +84,318 @@ export class GeminiAIService {
 
   async generateResponse(request: GeminiRequest, sessionId?: string): Promise<GeminiResponse> {
     try {
-      // In production, this would call the actual Gemini API
-      // For demo purposes, we'll simulate intelligent responses
-      const response = await this.simulateGeminiResponse(request);
-      
-      // Track conversation history
+      const contents = this.buildUserContents(request);
+      const systemInstruction = request.systemInstruction
+        ? { role: 'system' as const, parts: [{ text: request.systemInstruction }] }
+        : undefined;
+
+      const payload: Record<string, any> = {
+        contents,
+        generationConfig: {
+          temperature: request.temperature ?? 0.7,
+          maxOutputTokens: request.maxTokens ?? 1024,
+        },
+      };
+
+      if (systemInstruction) {
+        payload.systemInstruction = systemInstruction;
+      }
+
+      const response = await this.invokeModel(payload);
+      const parsed = this.extractResponseText(response);
+
+      if (!parsed.text) {
+        throw new Error('Gemini returned an empty response');
+      }
+
       if (sessionId) {
         const history = this.sessionHistory.get(sessionId) || [];
-        history.push({ request, response, timestamp: new Date().toISOString() });
+        history.push({ request, response: parsed, timestamp: new Date().toISOString() });
         this.sessionHistory.set(sessionId, history);
       }
 
       return {
-        response: response.content,
-        confidence: response.confidence,
-        tokensUsed: this.estimateTokens(request.prompt + response.content),
+        response: parsed.text,
+        confidence: parsed.confidence ?? 0.75,
+        tokensUsed: this.estimateTokens(`${request.prompt}\n${parsed.text}`),
         model: this.config.model,
         timestamp: new Date().toISOString(),
-        sessionId
+        sessionId,
+        raw: response,
       };
     } catch (error) {
-      throw new Error(`Gemini AI request failed: ${error}`);
+      throw new Error(`Gemini AI request failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
   async analyzePOV(povData: any): Promise<AIInsight> {
+    const { artifacts, ...povDetails } = povData || {};
     const prompt = `
     Analyze this Proof of Value project and provide strategic insights:
-    
+
     POV Details:
-    - Name: ${povData.name}
-    - Customer: ${povData.customer}
-    - Priority: ${povData.priority}
-    - Progress: ${povData.progress}%
-    - Team Size: ${povData.team?.length || 0}
-    - Milestones: ${povData.milestones?.length || 0}
-    - Budget: $${povData.budget || 0}
-    
+    - Name: ${povDetails.name}
+    - Customer: ${povDetails.customer}
+    - Priority: ${povDetails.priority}
+    - Progress: ${povDetails.progress}%
+    - Team Size: ${povDetails.team?.length || 0}
+    - Milestones: ${povDetails.milestones?.length || 0}
+    - Budget: $${povDetails.budget || 0}
+
     Provide analysis on risks, optimization opportunities, and success factors.
     `;
 
     const response = await this.generateResponse({
       prompt,
-      systemInstruction: `You are an expert security consultant specializing in XSIAM/Cortex implementations. 
+      context: JSON.stringify(povDetails),
+      systemInstruction: `You are an expert security consultant specializing in XSIAM/Cortex implementations.
       Provide actionable insights for POV success, risk mitigation, and customer value demonstration.`,
-      temperature: 0.7
+      temperature: 0.7,
+      artifacts,
     });
 
     return {
       type: 'recommendation',
-      title: `POV Strategic Analysis: ${povData.name}`,
+      title: `POV Strategic Analysis: ${povDetails.name}`,
       content: response.response,
       confidence: response.confidence,
       actionItems: this.extractActionItems(response.response),
-      relatedData: povData
+      relatedData: povDetails
     };
   }
 
   async analyzeTRR(trrData: any): Promise<AIInsight> {
+    const { artifacts, ...trrDetails } = trrData || {};
     const prompt = `
     Analyze this Technical Requirements Review validation:
-    
+
     TRR Details:
-    - ID: ${trrData.id}
-    - Requirement: ${trrData.requirement}
-    - Status: ${trrData.status}
-    - Priority: ${trrData.priority}
-    - Risk Level: ${trrData.riskLevel}
-    - Validation Method: ${trrData.validationMethod}
-    - Expected Outcome: ${trrData.expectedOutcome}
-    - Business Impact: ${trrData.businessImpact}
-    
+    - ID: ${trrDetails.id}
+    - Requirement: ${trrDetails.requirement}
+    - Status: ${trrDetails.status}
+    - Priority: ${trrDetails.priority}
+    - Risk Level: ${trrDetails.riskLevel}
+    - Validation Method: ${trrDetails.validationMethod}
+    - Expected Outcome: ${trrDetails.expectedOutcome}
+    - Business Impact: ${trrDetails.businessImpact}
+
     Provide analysis on validation approach, potential risks, and recommendations for success.
     `;
 
     const response = await this.generateResponse({
       prompt,
-      systemInstruction: `You are a technical validation expert with deep knowledge of security implementations. 
+      context: JSON.stringify(trrDetails),
+      systemInstruction: `You are a technical validation expert with deep knowledge of security implementations.
       Focus on practical validation approaches and risk assessment.`,
-      temperature: 0.6
+      temperature: 0.6,
+      artifacts,
     });
 
     return {
       type: 'trr_analysis',
-      title: `TRR Analysis: ${trrData.requirement}`,
+      title: `TRR Analysis: ${trrDetails.requirement}`,
       content: response.response,
       confidence: response.confidence,
       actionItems: this.extractActionItems(response.response),
-      relatedData: trrData
+      relatedData: trrDetails
     };
   }
 
   async generateDetectionRule(scenarioData: any): Promise<AIInsight> {
+    const { artifacts, ...scenarioDetails } = scenarioData || {};
     const prompt = `
     Generate a detection rule for this Cloud Detection and Response scenario:
-    
+
     Scenario Details:
-    - Name: ${scenarioData.name}
-    - Type: ${scenarioData.type}
-    - Severity: ${scenarioData.severity}
-    - Attack Vectors: ${scenarioData.attackVectors?.join(', ')}
-    - MITRE Mapping: ${scenarioData.mitreMapping?.join(', ')}
-    
+    - Name: ${scenarioDetails.name}
+    - Type: ${scenarioDetails.type}
+    - Severity: ${scenarioDetails.severity}
+    - Attack Vectors: ${scenarioDetails.attackVectors?.join(', ')}
+    - MITRE Mapping: ${scenarioDetails.mitreMapping?.join(', ')}
+
     Create XSIAM XQL query and detection logic for this scenario.
     `;
 
     const response = await this.generateResponse({
       prompt,
-      systemInstruction: `You are a security detection engineer expert in XQL and XSIAM. 
+      context: JSON.stringify(scenarioDetails),
+      systemInstruction: `You are a security detection engineer expert in XQL and XSIAM.
       Generate practical, tested detection rules with proper syntax and logic.`,
-      temperature: 0.4
+      temperature: 0.4,
+      artifacts,
     });
 
     return {
       type: 'detection_rule',
-      title: `Detection Rule: ${scenarioData.name}`,
+      title: `Detection Rule: ${scenarioDetails.name}`,
       content: response.response,
       confidence: response.confidence,
       actionItems: ['Test detection rule', 'Tune thresholds', 'Validate coverage'],
-      relatedData: scenarioData
+      relatedData: scenarioDetails
     };
   }
 
   async optimizeScenario(scenarioData: any, performanceData?: any): Promise<AIInsight> {
+    const { artifacts, ...scenarioDetails } = scenarioData || {};
     const prompt = `
     Optimize this Cloud Detection and Response scenario:
-    
+
     Current Scenario:
-    - Name: ${scenarioData.name}
-    - Duration: ${scenarioData.duration} hours
-    - Prerequisites: ${scenarioData.prerequisites?.join(', ')}
-    - Detection Rules: ${scenarioData.detectionRules?.length || 0}
-    
+    - Name: ${scenarioDetails.name}
+    - Duration: ${scenarioDetails.duration} hours
+    - Prerequisites: ${scenarioDetails.prerequisites?.join(', ')}
+    - Detection Rules: ${scenarioDetails.detectionRules?.length || 0}
+
     ${performanceData ? `Performance Data: ${JSON.stringify(performanceData, null, 2)}` : ''}
-    
+
     Suggest improvements for effectiveness, efficiency, and learning outcomes.
     `;
 
     const response = await this.generateResponse({
       prompt,
-      systemInstruction: `You are a cybersecurity training expert specializing in hands-on scenarios. 
+      context: JSON.stringify({ scenario: scenarioDetails, performanceData }),
+      systemInstruction: `You are a cybersecurity training expert specializing in hands-on scenarios.
       Focus on educational value, realistic attack simulation, and measurable learning outcomes.`,
-      temperature: 0.8
+      temperature: 0.8,
+      artifacts,
     });
 
     return {
       type: 'scenario_optimization',
-      title: `Scenario Optimization: ${scenarioData.name}`,
+      title: `Scenario Optimization: ${scenarioDetails.name}`,
       content: response.response,
       confidence: response.confidence,
       actionItems: this.extractActionItems(response.response),
-      relatedData: { scenario: scenarioData, performance: performanceData }
+      relatedData: { scenario: scenarioDetails, performance: performanceData }
     };
   }
 
   async generateRiskAssessment(projectData: any): Promise<AIInsight> {
+    const { artifacts, ...projectDetails } = projectData || {};
     const prompt = `
     Perform comprehensive risk assessment for this project:
-    
-    Project Data: ${JSON.stringify(projectData, null, 2)}
-    
+
+    Project Data: ${JSON.stringify(projectDetails, null, 2)}
+
     Analyze technical, business, and timeline risks. Provide mitigation strategies.
     `;
 
     const response = await this.generateResponse({
       prompt,
-      systemInstruction: `You are a cybersecurity risk assessment specialist. 
+      context: JSON.stringify(projectDetails),
+      systemInstruction: `You are a cybersecurity risk assessment specialist.
       Provide structured risk analysis with probability, impact, and actionable mitigation plans.`,
-      temperature: 0.5
+      temperature: 0.5,
+      artifacts,
     });
 
     return {
       type: 'risk_analysis',
-      title: `Risk Assessment: ${projectData.name || 'Project Analysis'}`,
+      title: `Risk Assessment: ${projectDetails.name || 'Project Analysis'}`,
       content: response.response,
       confidence: response.confidence,
       actionItems: this.extractActionItems(response.response),
-      relatedData: projectData
+      relatedData: projectDetails
     };
   }
 
-  async chatWithGemini(message: string, context?: string, sessionId?: string): Promise<GeminiResponse> {
+  async chatWithGemini(message: string, context?: string, sessionId?: string, artifacts?: GeminiArtifact[]): Promise<GeminiResponse> {
     const conversationHistory = sessionId ? this.sessionHistory.get(sessionId) : [];
     const contextPrompt = context ? `Context: ${context}\n\n` : '';
-    const historyPrompt = conversationHistory?.length ? 
-      `Previous conversation:\n${conversationHistory.slice(-3).map(h => `User: ${h.request.prompt}\nAssistant: ${h.response.response}`).join('\n')}\n\n` : '';
+    const historyPrompt = conversationHistory?.length ?
+      `Previous conversation:\n${conversationHistory.slice(-3).map(h => `User: ${h.request.prompt}\nAssistant: ${h.response.text || ''}`).join('\n')}\n\n` : '';
 
     const prompt = `${contextPrompt}${historyPrompt}User: ${message}`;
 
     return this.generateResponse({
       prompt,
-      systemInstruction: `You are an expert Cortex/XSIAM consultant helping with POV management, 
+      systemInstruction: `You are an expert Cortex/XSIAM consultant helping with POV management,
       TRR validation, and Cloud Detection and Response scenarios. Provide practical, actionable advice.`,
-      temperature: 0.7
+      temperature: 0.7,
+      artifacts,
     }, sessionId);
   }
 
-  // Simulate Gemini responses for demo (replace with actual API calls in production)
-  private async simulateGeminiResponse(request: GeminiRequest): Promise<{ content: string; confidence: number }> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+  private buildUserContents(request: GeminiRequest): GeminiContent[] {
+    const parts: GeminiContentPart[] = [];
 
-    const responses = {
-      pov_analysis: {
-        content: `Based on the POV analysis, I identify several key areas for optimization:
+    if (request.context) {
+      parts.push({ text: `Context:\n${request.context}` });
+    }
 
-**Risk Assessment:**
-• Timeline risk: Medium - Current progress indicates potential delays
-• Resource utilization: Team appears properly sized but check for skill gaps
-• Budget variance: Monitor actual vs estimated costs
+    if (request.contextParts?.length) {
+      parts.push(...request.contextParts);
+    }
 
-**Success Factors:**
-• Strong customer engagement evident from milestone completion
-• Technical validation proceeding well
-• Clear success criteria established
-
-**Recommendations:**
-1. Implement weekly risk review sessions
-2. Add buffer time for integration challenges
-3. Prepare demo environment backup plan
-4. Schedule regular customer check-ins
-
-**Next Steps:**
-• Review milestone dependencies
-• Validate technical requirements with customer
-• Prepare contingency scenarios`,
-        confidence: 0.87
-      },
-      trr_analysis: {
-        content: `TRR Validation Analysis reveals:
-
-**Validation Approach Assessment:**
-• Current method is appropriate for requirement type
-• Risk level correctly assessed as medium
-• Business impact clearly defined
-
-**Potential Challenges:**
-• Integration complexity may require additional time
-• Customer environment dependencies need validation
-• Evidence collection may need enhancement
-
-**Recommendations:**
-1. Add interim validation checkpoints
-2. Create detailed test scenarios
-3. Establish clear pass/fail criteria
-4. Document all assumptions
-
-**Success Metrics:**
-• Validation completeness: Target 95%
-• Timeline adherence: Monitor weekly
-• Customer satisfaction: Regular feedback`,
-        confidence: 0.82
-      },
-      detection_rule: {
-        content: `**XSIAM Detection Rule:**
-
-\`\`\`xql
-dataset = xdr_data
-| where event_type = "Process" 
-| where action_process_file_name matches regex ".*crypto.*|.*mine.*|.*xmrig.*"
-| where action_process_command_line contains any ("pool", "wallet", "stratum")
-| eval severity = if(action_process_cpu_usage > 80, "High", "Medium")
-| project _time, agent_hostname, action_process_file_name, 
-         action_process_command_line, action_process_cpu_usage, severity
-| where _time > ago(24h)
-\`\`\`
-
-**Rule Logic:**
-• Detects cryptocurrency mining processes
-• Monitors CPU usage patterns
-• Checks for mining-related command line arguments
-• Assigns severity based on resource usage
-
-**Tuning Recommendations:**
-1. Adjust CPU threshold based on environment
-2. Add whitelist for legitimate mining operations
-3. Implement behavioral analytics for persistence
-4. Consider network traffic correlation`,
-        confidence: 0.91
-      },
-      scenario_optimization: {
-        content: `**Scenario Optimization Analysis:**
-
-**Current Strengths:**
-• Well-defined attack vectors
-• Appropriate duration for learning objectives
-• Good MITRE ATT&CK mapping
-
-**Optimization Opportunities:**
-1. **Duration Efficiency**: Reduce setup time by 30% with automated provisioning
-2. **Detection Coverage**: Add behavioral analytics scenarios
-3. **Learning Outcomes**: Include incident response simulation
-4. **Realism**: Enhance with real-world attack timing
-
-**Enhanced Scenario Flow:**
-1. Initial compromise (15 minutes)
-2. Persistence establishment (20 minutes)
-3. Lateral movement (25 minutes)
-4. Data exfiltration simulation (30 minutes)
-5. Detection and response (20 minutes)
-
-**Success Metrics:**
-• Detection accuracy: >90%
-• Mean time to detection: <15 minutes
-• False positive rate: <5%`,
-        confidence: 0.85
+    if (request.artifacts?.length) {
+      for (const artifact of request.artifacts) {
+        if (!artifact.data) continue;
+        parts.push({
+          inlineData: {
+            data: artifact.data,
+            mimeType: artifact.mimeType || 'application/octet-stream',
+          }
+        });
       }
-    };
-
-    // Determine response type based on prompt content
-    let responseType = 'general';
-    if (request.prompt.toLowerCase().includes('pov') || request.prompt.toLowerCase().includes('proof of value')) {
-      responseType = 'pov_analysis';
-    } else if (request.prompt.toLowerCase().includes('trr') || request.prompt.toLowerCase().includes('technical requirements')) {
-      responseType = 'trr_analysis';
-    } else if (request.prompt.toLowerCase().includes('detection rule') || request.prompt.toLowerCase().includes('xql')) {
-      responseType = 'detection_rule';
-    } else if (request.prompt.toLowerCase().includes('optimize') || request.prompt.toLowerCase().includes('scenario')) {
-      responseType = 'scenario_optimization';
     }
 
-    const response = responses[responseType as keyof typeof responses];
-    if (response) {
-      return response;
+    parts.push({ text: request.prompt });
+
+    return [
+      {
+        role: 'user',
+        parts,
+      }
+    ];
+  }
+
+  private async invokeModel(payload: Record<string, any>) {
+    const { apiKey, projectId, location, model } = this.config;
+    if (!apiKey) {
+      throw new Error('Gemini API key is not configured');
     }
 
-    // Default response
-    return {
-      content: `I understand you're asking about: "${request.prompt.substring(0, 100)}..."
+    const endpoint = this.config.endpoint?.trim();
+    const baseUrl = endpoint && endpoint.length > 0
+      ? endpoint.replace(/\/$/, '')
+      : `https://${location}-aiplatform.googleapis.com/v1`;
 
-As your Cortex/XSIAM AI assistant, I can help with:
-• POV strategy and risk analysis
-• TRR validation planning
-• Detection rule generation
-• Scenario optimization
-• Security best practices
+    const url = projectId
+      ? `${baseUrl}/projects/${projectId}/locations/${location}/publishers/google/models/${model}:generateContent`
+      : `${baseUrl}/models/${model}:generateContent`;
 
-Please provide more specific details about what you'd like assistance with, and I'll provide targeted recommendations.`,
-      confidence: 0.75
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
     };
+
+    if (url.includes('aiplatform.googleapis.com')) {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+    } else {
+      headers['x-goog-api-key'] = apiKey;
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '');
+      throw new Error(`Gemini API error ${response.status}: ${errorText || response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  private extractResponseText(response: any): { text: string; confidence?: number } {
+    const candidate = response?.candidates?.[0];
+    const text = candidate?.content?.parts?.map((part: GeminiContentPart) => 'text' in part ? part.text : '').join('\n').trim();
+    const confidence = candidate?.safetyRatings?.length
+      ? 1 - Math.max(...candidate.safetyRatings.map((rating: any) => rating.probability || 0))
+      : undefined;
+
+    return { text: text || '', confidence };
   }
 
   private extractActionItems(content: string): string[] {
