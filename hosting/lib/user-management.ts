@@ -13,6 +13,7 @@ import {
 import backendUserService, {
   UserProfile as BackendUserProfile,
   UserActivity as BackendUserActivity,
+  UpdateUserRequest,
 } from './user-management-service';
 import { getFirestoreClient } from './firebase/client';
 
@@ -619,6 +620,64 @@ export class UserManagementService {
     }
 
     return results;
+  }
+
+  async updateUser(
+    userId: string,
+    updates: Partial<Pick<UserProfile, 'role' | 'status'>>,
+  ): Promise<UserProfile> {
+    const request: UpdateUserRequest = { uid: userId };
+
+    if (updates.role) {
+      request.role = updates.role;
+    }
+
+    if (updates.status) {
+      request.status = updates.status;
+    }
+
+    if (request.role === undefined && request.status === undefined) {
+      throw new Error('No updates supplied for user profile.');
+    }
+
+    try {
+      const result = await backendUserService.updateUser(request);
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update user');
+      }
+
+      const existing = this.users[userId];
+      if (existing) {
+        this.users[userId] = {
+          ...existing,
+          ...(updates.role ? { role: updates.role } : {}),
+          ...(updates.status ? { status: updates.status } : {}),
+          updatedAt: new Date().toISOString(),
+        };
+      }
+
+      await this.ensureDataLoaded(true);
+
+      const refreshedUser = this.users[userId];
+      if (refreshedUser) {
+        return refreshedUser;
+      }
+
+      const fallbackProfile = await backendUserService.getUserProfile(userId);
+      if (fallbackProfile) {
+        const mapped = this.mapBackendUser(fallbackProfile);
+        this.users[userId] = mapped;
+        return mapped;
+      }
+
+      throw new Error('User not found after update');
+    } catch (error) {
+      console.error('Failed to update user profile', error);
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Failed to update user');
+    }
   }
 
   getAllUsers(): UserProfile[] {

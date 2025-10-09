@@ -136,9 +136,6 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
     setSidebarSize(newSize);
     if (newSize === 'minimized') {
       clearInlineWidth();
-      actions.closeTerminal();
-    } else {
-      actions.openTerminal();
     }
     onToggle?.(newSize !== 'minimized');
   };
@@ -147,22 +144,27 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
     setSidebarSize(size);
     if (size === 'minimized') {
       clearInlineWidth();
-      actions.closeTerminal();
     } else {
       setCustomWidth(null);
       clearInlineWidth();
-      actions.openTerminal();
     }
     onToggle?.(size !== 'minimized');
   };
 
   const executeQuickCommand = async (command: string) => {
     if (sidebarSize === 'minimized') {
-      setSidebarSize(lastActiveSize);
-      actions.openTerminal();
+      setSidebarSize('standard');
       onToggle?.(true);
     }
-    await actions.executeCommandFromGUI(command, { open: true, focus: true });
+
+    // Focus terminal and execute command
+    if (terminalRef.current) {
+      await terminalRef.current.executeCommand(command);
+      terminalRef.current.focus();
+    }
+    
+    // Track activity
+    actions.executeCommandFromGUI(command);
   };
 
   const isVisible = sidebarSize !== 'minimized';

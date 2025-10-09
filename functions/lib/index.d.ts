@@ -1,4 +1,5 @@
 import { processScenarioExecution, monitorExecutionStatusChanges, cleanupOldExecutions } from './handlers/scenario-executor';
+import { generateBadassBlueprintCallable, renderBadassBlueprintPdf, bundleBlueprintArtifacts, exportBlueprintAnalytics } from './handlers/badass-blueprint';
 declare const app: import("express-serve-static-core").Express;
 /**
  * AI-powered TRR suggestion and enhancement
@@ -40,6 +41,7 @@ export { monitorExecutionStatusChanges };
  * Runs daily to clean up expired data
  */
 export { cleanupOldExecutions };
+export { generateBadassBlueprintCallable as generateBadassBlueprint, renderBadassBlueprintPdf, bundleBlueprintArtifacts, exportBlueprintAnalytics, };
 export declare const api: import("firebase-functions/v2/https").HttpsFunction;
 export { beforeUserCreation, beforeUserSignIn, onUserDocumentCreated, createUserProfile, updateUserProfile } from './auth/user-creation-handler';
 export { app };

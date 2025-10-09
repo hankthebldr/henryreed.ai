@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.app = exports.updateUserProfile = exports.createUserProfile = exports.onUserDocumentCreated = exports.beforeUserSignIn = exports.beforeUserCreation = exports.api = exports.cleanupOldExecutions = exports.monitorExecutionStatusChanges = exports.processScenarioExecution = exports.generateDetectionQueriesFunction = exports.controlScenarioExecutionFunction = exports.executeScenarioFunction = exports.generateThreatActorScenarioFunction = exports.aiTrrSuggest = void 0;
+exports.app = exports.updateUserProfile = exports.createUserProfile = exports.onUserDocumentCreated = exports.beforeUserSignIn = exports.beforeUserCreation = exports.api = exports.exportBlueprintAnalytics = exports.bundleBlueprintArtifacts = exports.renderBadassBlueprintPdf = exports.generateBadassBlueprint = exports.cleanupOldExecutions = exports.monitorExecutionStatusChanges = exports.processScenarioExecution = exports.generateDetectionQueriesFunction = exports.controlScenarioExecutionFunction = exports.executeScenarioFunction = exports.generateThreatActorScenarioFunction = exports.aiTrrSuggest = void 0;
 // Cloud Functions for TRR Management System
 const https_1 = require("firebase-functions/v2/https");
 const admin = __importStar(require("firebase-admin"));
@@ -53,6 +53,11 @@ Object.defineProperty(exports, "monitorExecutionStatusChanges", { enumerable: tr
 Object.defineProperty(exports, "cleanupOldExecutions", { enumerable: true, get: function () { return scenario_executor_1.cleanupOldExecutions; } });
 // Import utils
 const logger_1 = require("./utils/logger");
+const badass_blueprint_1 = require("./handlers/badass-blueprint");
+Object.defineProperty(exports, "generateBadassBlueprint", { enumerable: true, get: function () { return badass_blueprint_1.generateBadassBlueprintCallable; } });
+Object.defineProperty(exports, "renderBadassBlueprintPdf", { enumerable: true, get: function () { return badass_blueprint_1.renderBadassBlueprintPdf; } });
+Object.defineProperty(exports, "bundleBlueprintArtifacts", { enumerable: true, get: function () { return badass_blueprint_1.bundleBlueprintArtifacts; } });
+Object.defineProperty(exports, "exportBlueprintAnalytics", { enumerable: true, get: function () { return badass_blueprint_1.exportBlueprintAnalytics; } });
 // Initialize Firebase Admin SDK
 if (!admin.apps.length) {
     admin.initializeApp({
@@ -165,6 +170,26 @@ function requireAuth(req, res, next) {
         return next();
     return res.status(401).json({ error: 'unauthenticated' });
 }
+const mapHttpsErrorToStatus = (code) => {
+    switch (code) {
+        case 'invalid-argument':
+            return 400;
+        case 'failed-precondition':
+            return 412;
+        case 'permission-denied':
+            return 403;
+        case 'not-found':
+            return 404;
+        case 'already-exists':
+            return 409;
+        case 'resource-exhausted':
+            return 429;
+        case 'unauthenticated':
+            return 401;
+        default:
+            return 500;
+    }
+};
 // AI routes (Genkit/Vertex flows)
 const ai_1 = require("./routes/ai");
 app.use('/ai', requireAuth, ai_1.aiRouter);
@@ -174,6 +199,24 @@ app.use('/export', requireAuth, bigquery_1.exportRouter);
 // TRR routes (export/signoff)
 const trr_1 = require("./routes/trr");
 app.use('/trr', requireAuth, trr_1.trrRouter);
+app.post('/extensions/badass-blueprint', requireAuth, async (req, res) => {
+    try {
+        const result = await (0, badass_blueprint_1.generateBlueprintViaHttp)(req.body, req.user?.uid || null);
+        return res.json({ success: true, ...result });
+    }
+    catch (error) {
+        if (error instanceof https_1.HttpsError) {
+            const status = mapHttpsErrorToStatus(error.code);
+            return res.status(status).json({
+                success: false,
+                message: error.message,
+                details: error.details,
+            });
+        }
+        logger_1.logger.error('Badass Blueprint HTTP handler error', error);
+        return res.status(500).json({ success: false, message: 'Failed to generate blueprint' });
+    }
+});
 // Scenario HTTP endpoints to align with frontend CloudFunctionsAPI
 const scenario_orchestration_2 = require("./handlers/scenario-orchestration");
 // Deploy scenario (expects { blueprintId, options, context? })
@@ -393,8 +436,6 @@ exports.generateDetectionQueriesFunction = (0, https_1.onCall)({
         throw new https_1.HttpsError('internal', 'Detection query generation service temporarily unavailable');
     }
 });
-// TRR Export handler - TODO: Implement
-// export const trrExport = functions...
 // TRR Signoff handler - TODO: Implement
 // export const trrSignoffCreate = functions...
 // ============================================================================
