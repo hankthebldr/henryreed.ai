@@ -86,64 +86,61 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 // Theme configuration constants
 export const THEME_CONFIG = {
   colors: {
-    // Palo Alto Networks official brand colors
+    // Cortex Brand Palette mapped to CSS variables
     brand: {
-      primary: '#22c55e', // Palo Alto Networks Orange
-      secondary: '#8ad3de', // Cortex Teal
-      tertiary: '#00c0e8', // Cortex Blue
-      dark: '#141414', // Palo Alto Dark
+      primary: 'rgb(var(--cortex-primary, 0 204 102))',
+      secondary: 'rgb(var(--cortex-teal, 21 189 178))',
+      tertiary: 'rgb(var(--cortex-blue, 0 192 232))',
+      dark: 'rgb(var(--cortex-dark, 8 17 24))',
     },
-    
-    // Enhanced Cortex color system
+
     cortex: {
-      primary: '#00CC66', // Cortex Primary Green
-      primaryLight: '#33D580',
-      primaryDark: '#00B359',
-      secondary: '#22c55e', // Cortex Secondary Orange
-      secondaryLight: '#bbf7d0',
-      secondaryDark: '#15803d',
-      accent: '#58A6FF', // Cortex Accent Blue
-      accentLight: '#79B8FF',
-      accentDark: '#388BFD',
+      primary: 'rgb(var(--cortex-primary, 0 204 102))',
+      primaryLight: 'rgb(var(--cortex-primary-light, 54 231 149))',
+      primaryDark: 'rgb(var(--cortex-primary-dark, 0 156 78))',
+      secondary: 'rgb(var(--cortex-teal, 21 189 178))',
+      tertiary: 'rgb(var(--cortex-blue, 0 192 232))',
+      teal: 'rgb(var(--cortex-teal, 21 189 178))',
+      blue: 'rgb(var(--cortex-blue, 0 192 232))',
+      cyan: 'rgb(var(--cortex-cyan, 0 214 255))',
+      purple: 'rgb(var(--cortex-purple, 130 125 255))',
+      accent: 'rgb(var(--cortex-accent, 120 220 255))',
     },
-    
-    // Background system for dark theme
+
     background: {
-      primary: '#000000',
-      secondary: '#0D1117',
-      tertiary: '#161B22',
-      quaternary: '#21262D',
-      hover: '#30363D',
+      primary: 'var(--cortex-bg-primary, #050C11)',
+      secondary: 'var(--cortex-bg-secondary, #081118)',
+      tertiary: 'var(--cortex-bg-tertiary, #0E1A22)',
+      quaternary: 'var(--cortex-bg-quaternary, #13232D)',
+      hover: 'var(--cortex-bg-hover, #1A303C)',
     },
-    
-    // Text hierarchy
+
     text: {
-      primary: '#F0F6FC',
-      secondary: '#C9D1D9',
-      muted: '#8B949E',
-      disabled: '#6E7681',
+      primary: 'rgb(var(--cortex-text-primary, 224 244 239))',
+      secondary: 'rgb(var(--cortex-text-secondary, 188 214 207))',
+      muted: 'rgb(var(--cortex-text-muted, 148 173 168))',
+      disabled: 'rgb(var(--cortex-text-disabled, 110 130 126))',
     },
-    
-    // Status colors
+
     status: {
-      success: '#00CC66',
-      successBg: '#0D2818',
-      warning: '#F1C40F',
-      warningBg: '#2B2000',
-      error: '#F85149',
-      errorBg: '#2D0F0F',
-      info: '#58A6FF',
-      infoBg: '#0C1D2E',
+      success: 'rgb(var(--status-success, 0 204 140))',
+      successBg: 'rgba(var(--status-success, 0 204 140), 0.12)',
+      warning: 'rgb(var(--status-warning, 255 171 38))',
+      warningBg: 'rgba(var(--status-warning, 255 171 38), 0.14)',
+      error: 'rgb(var(--status-error, 239 83 80))',
+      errorBg: 'rgba(var(--status-error, 239 83 80), 0.14)',
+      info: 'rgb(var(--status-info, 32 196 255))',
+      infoBg: 'rgba(var(--status-info, 32 196 255), 0.14)',
     },
-    
-    // Border system
+
     border: {
-      primary: '#30363D',
-      secondary: '#21262D',
-      accent: '#00CC66',
-      error: '#F85149',
-      warning: '#F1C40F',
-      info: '#58A6FF',
+      primary: 'rgb(var(--cortex-border, 28 44 54))',
+      secondary: 'rgb(var(--cortex-border-secondary, 46 70 82))',
+      muted: 'rgb(var(--cortex-border-muted, 64 88 100))',
+      accent: 'rgb(var(--cortex-primary, 0 204 102))',
+      warning: 'rgb(var(--status-warning, 255 171 38))',
+      error: 'rgb(var(--status-error, 239 83 80))',
+      info: 'rgb(var(--status-info, 32 196 255))',
     }
   },
   
@@ -181,15 +178,15 @@ export const THEME_CONFIG = {
   // Component variants
   variants: {
     button: {
-      primary: 'bg-cortex-primary hover:bg-cortex-primary-light text-black font-semibold transition-all duration-300',
-      secondary: 'bg-cortex-bg-quaternary hover:bg-cortex-bg-hover border border-cortex-border-primary text-cortex-text-primary',
-      outline: 'border border-cortex-primary text-cortex-primary hover:bg-cortex-primary hover:text-black',
+      primary: 'bg-gradient-to-r from-cortex-primary to-cortex-blue text-white shadow-cortex-md hover:shadow-cortex-lg transition-all duration-300',
+      secondary: 'bg-cortex-bg-quaternary/80 hover:bg-cortex-bg-hover border border-cortex-border text-cortex-text-primary',
+      outline: 'border border-cortex-border text-cortex-text-primary hover:border-cortex-primary hover:text-cortex-primary',
       ghost: 'text-cortex-primary hover:bg-cortex-primary/10',
-      danger: 'bg-cortex-error hover:bg-cortex-error-light text-white',
+      danger: 'bg-status-error hover:bg-status-error/90 text-white',
     },
     card: {
-      default: 'bg-cortex-bg-tertiary border border-cortex-border-primary rounded-lg',
-      elevated: 'bg-cortex-bg-quaternary border border-cortex-border-primary rounded-lg shadow-cortex-lg',
+      default: 'bg-cortex-bg-tertiary border border-cortex-border rounded-lg',
+      elevated: 'bg-cortex-bg-quaternary border border-cortex-border-secondary rounded-lg shadow-cortex-lg',
       glass: 'glass-card rounded-lg',
       terminal: 'glass-terminal rounded-lg',
     }

@@ -402,10 +402,10 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
 
   const getDifficultyColor = (difficulty: string) => {
     const colors = {
-      beginner: 'text-cortex-success bg-cortex-success/10 border-cortex-success/30',
-      intermediate: 'text-cortex-info bg-cortex-info/10 border-cortex-info/30',
-      advanced: 'text-cortex-warning bg-cortex-warning/10 border-cortex-warning/30',
-      expert: 'text-cortex-error bg-cortex-error/10 border-cortex-error/30'
+      beginner: 'text-status-success bg-status-success/10 border-status-success/30',
+      intermediate: 'text-status-info bg-status-info/10 border-status-info/30',
+      advanced: 'text-status-warning bg-status-warning/10 border-status-warning/30',
+      expert: 'text-status-error bg-status-error/10 border-status-error/30'
     };
     return colors[difficulty as keyof typeof colors] || colors.beginner;
   };
@@ -427,7 +427,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
     
     if (viewMode === 'list') {
       return (
-        <div key={item.id} className="cortex-card p-4 hover:border-cortex-green/50 transition-all">
+        <div key={item.id} className="cortex-card p-4 hover:border-cortex-primary/50 transition-all">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center space-x-3 mb-2">
@@ -462,7 +462,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
             <div className="flex items-center space-x-2 ml-4">
               <button
                 onClick={() => toggleFavorite(item.id)}
-                className={`p-2 rounded ${isFavorited ? 'text-cortex-warning' : 'text-cortex-text-muted hover:text-cortex-warning'}`}
+                className={`p-2 rounded ${isFavorited ? 'text-status-warning' : 'text-cortex-text-muted hover:text-status-warning'}`}
               >
                 {isFavorited ? '★' : '☆'}
               </button>
@@ -491,12 +491,12 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
     }
 
     return (
-      <div key={item.id} className="cortex-card p-4 hover:border-cortex-green/50 transition-all">
+      <div key={item.id} className="cortex-card p-4 hover:border-cortex-primary/50 transition-all">
         <div className="flex items-start justify-between mb-3">
           <span className="text-3xl">{getCategoryIcon(item.category)}</span>
           <button
             onClick={() => toggleFavorite(item.id)}
-            className={`text-lg ${isFavorited ? 'text-cortex-warning' : 'text-cortex-text-muted hover:text-cortex-warning'}`}
+            className={`text-lg ${isFavorited ? 'text-status-warning' : 'text-cortex-text-muted hover:text-status-warning'}`}
           >
             {isFavorited ? '★' : '☆'}
           </button>
@@ -553,13 +553,13 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setViewMode('grid')}
-            className={`p-2 rounded ${viewMode === 'grid' ? 'bg-cortex-green text-white' : 'text-cortex-text-muted hover:text-cortex-text-primary'}`}
+            className={`p-2 rounded ${viewMode === 'grid' ? 'bg-cortex-primary text-white' : 'text-cortex-text-muted hover:text-cortex-text-primary'}`}
           >
             ⊞
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={`p-2 rounded ${viewMode === 'list' ? 'bg-cortex-green text-white' : 'text-cortex-text-muted hover:text-cortex-text-primary'}`}
+            className={`p-2 rounded ${viewMode === 'list' ? 'bg-cortex-primary text-white' : 'text-cortex-text-muted hover:text-cortex-text-primary'}`}
           >
             ☰
           </button>
@@ -574,7 +574,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
             placeholder="Search content..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-3 py-2 bg-cortex-bg-secondary border border-cortex-border-secondary rounded text-cortex-text-primary placeholder-cortex-text-muted focus:border-cortex-green focus:outline-none"
+            className="w-full px-3 py-2 bg-cortex-bg-secondary border border-cortex-border/40 rounded text-cortex-text-primary placeholder-cortex-text-muted focus:border-cortex-primary focus:outline-none"
           />
         </div>
         
@@ -582,7 +582,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full px-3 py-2 bg-cortex-bg-secondary border border-cortex-border-secondary rounded text-cortex-text-primary focus:border-cortex-green focus:outline-none"
+            className="w-full px-3 py-2 bg-cortex-bg-secondary border border-cortex-border/40 rounded text-cortex-text-primary focus:border-cortex-primary focus:outline-none"
           >
             {categories.map(category => (
               <option key={category.id} value={category.id}>
@@ -596,7 +596,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
           <select
             value={selectedDifficulty}
             onChange={(e) => setSelectedDifficulty(e.target.value)}
-            className="w-full px-3 py-2 bg-cortex-bg-secondary border border-cortex-border-secondary rounded text-cortex-text-primary focus:border-cortex-green focus:outline-none"
+            className="w-full px-3 py-2 bg-cortex-bg-secondary border border-cortex-border/40 rounded text-cortex-text-primary focus:border-cortex-primary focus:outline-none"
           >
             {difficulties.map(difficulty => (
               <option key={difficulty.id} value={difficulty.id}>
@@ -610,7 +610,7 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
-            className="w-full px-3 py-2 bg-cortex-bg-secondary border border-cortex-border-secondary rounded text-cortex-text-primary focus:border-cortex-green focus:outline-none"
+            className="w-full px-3 py-2 bg-cortex-bg-secondary border border-cortex-border/40 rounded text-cortex-text-primary focus:border-cortex-primary focus:outline-none"
           >
             <option value="rating">Sort by Rating</option>
             <option value="usage">Sort by Usage</option>
@@ -623,21 +623,21 @@ const ContentLibrary: React.FC<ContentLibraryProps> = ({
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="cortex-card p-4 text-center">
-          <div className="text-2xl font-bold text-cortex-green">{filteredContent.length}</div>
+          <div className="text-2xl font-bold text-cortex-primary">{filteredContent.length}</div>
           <div className="text-sm text-cortex-text-secondary">Items Found</div>
         </div>
         <div className="cortex-card p-4 text-center">
-          <div className="text-2xl font-bold text-cortex-info">{favorites.size}</div>
+          <div className="text-2xl font-bold text-status-info">{favorites.size}</div>
           <div className="text-sm text-cortex-text-secondary">Favorites</div>
         </div>
         <div className="cortex-card p-4 text-center">
-          <div className="text-2xl font-bold text-cortex-warning">
+          <div className="text-2xl font-bold text-status-warning">
             {categories.filter(c => c.id !== 'all').length}
           </div>
           <div className="text-sm text-cortex-text-secondary">Categories</div>
         </div>
         <div className="cortex-card p-4 text-center">
-          <div className="text-2xl font-bold text-cortex-text-accent">
+          <div className="text-2xl font-bold text-cortex-accent">
             {Math.round(CONTENT_LIBRARY.reduce((acc, item) => acc + item.rating, 0) / CONTENT_LIBRARY.length * 10) / 10}
           </div>
           <div className="text-sm text-cortex-text-secondary">Avg Rating</div>

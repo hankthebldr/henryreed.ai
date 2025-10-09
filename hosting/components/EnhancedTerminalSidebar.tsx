@@ -29,10 +29,10 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
   const [sidebarSize, setSidebarSize] = useState<SidebarSize>(defaultExpanded ? 'standard' : 'minimized');
   const [isResizing, setIsResizing] = useState(false);
   const [quickCommands] = useState([
-    { name: 'POV Status', command: 'pov status --current', icon: '📊', color: 'text-cortex-green' },
-    { name: 'List Scenarios', command: 'scenario list', icon: '📋', color: 'text-cortex-info' },
-    { name: 'Deploy Latest', command: 'scenario deploy --latest', icon: '🚀', color: 'text-cortex-warning' },
-    { name: 'Generate Report', command: 'pov report --executive', icon: '📄', color: 'text-cortex-text-accent' }
+    { name: 'POV Status', command: 'pov status --current', icon: '📊', color: 'text-cortex-primary' },
+    { name: 'List Scenarios', command: 'scenario list', icon: '📋', color: 'text-status-info' },
+    { name: 'Deploy Latest', command: 'scenario deploy --latest', icon: '🚀', color: 'text-status-warning' },
+    { name: 'Generate Report', command: 'pov report --executive', icon: '📄', color: 'text-cortex-accent' }
   ]);
   
   const terminalRef = useRef<ImprovedTerminalRef>(null);
@@ -104,7 +104,7 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
     <div
       ref={sidebarRef}
       className={cn(
-        'fixed right-0 top-0 h-full bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 border-l border-gray-700 shadow-2xl transition-all duration-300 ease-in-out z-40',
+        'fixed right-0 top-0 h-full bg-gradient-to-b from-cortex-bg-secondary via-cortex-bg-tertiary to-cortex-bg-secondary border-l border-cortex-border/60 shadow-cortex-xl transition-all duration-300 ease-in-out z-40 backdrop-blur-xl',
         SIDEBAR_WIDTHS[sidebarSize],
         'flex flex-col',
         className
@@ -114,17 +114,17 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
       {sidebarSize !== 'minimized' && (
         <div
           ref={resizeHandleRef}
-          className="absolute left-0 top-0 w-1 h-full cursor-col-resize bg-gray-600 hover:bg-cortex-green transition-colors opacity-0 hover:opacity-100"
+          className="absolute left-0 top-0 w-1 h-full cursor-col-resize bg-cortex-border-muted hover:bg-cortex-primary transition-colors opacity-0 hover:opacity-100"
           onMouseDown={startResize}
         />
       )}
 
       {/* Header Bar */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-700 bg-gray-800/50">
+      <div className="flex items-center justify-between p-3 border-b border-cortex-border/50 bg-cortex-bg-tertiary/60">
         {sidebarSize === 'minimized' ? (
           <button
             onClick={toggleSidebar}
-            className="w-8 h-8 flex items-center justify-center text-cortex-text-secondary hover:text-cortex-green transition-colors rounded-md hover:bg-gray-700"
+            className="w-8 h-8 flex items-center justify-center text-cortex-text-secondary hover:text-cortex-primary transition-colors rounded-md hover:bg-cortex-bg-hover/80"
             title="Open Terminal"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -135,11 +135,11 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
           <>
             <div className="flex items-center space-x-2">
               <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <div className="w-2 h-2 bg-status-error rounded-full"></div>
+                <div className="w-2 h-2 bg-status-warning rounded-full"></div>
+                <div className="w-2 h-2 bg-status-success rounded-full"></div>
               </div>
-              <span className="text-sm font-medium text-gray-300">Terminal</span>
+              <span className="text-sm font-medium text-cortex-text-secondary">Terminal</span>
             </div>
             
             <div className="flex items-center space-x-1">
@@ -149,7 +149,7 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
                   onClick={() => setSizeMode('compact')}
                   className={cn(
                     'w-5 h-5 flex items-center justify-center rounded text-xs transition-colors',
-                    sidebarSize === 'compact' ? 'bg-cortex-green text-gray-900' : 'text-cortex-text-secondary hover:text-cortex-green hover:bg-gray-700'
+                    sidebarSize === 'compact' ? 'bg-cortex-primary text-cortex-dark' : 'text-cortex-text-secondary hover:text-cortex-primary hover:bg-cortex-bg-hover/80'
                   )}
                   title="Compact view"
                 >
@@ -159,7 +159,7 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
                   onClick={() => setSizeMode('standard')}
                   className={cn(
                     'w-5 h-5 flex items-center justify-center rounded text-xs transition-colors',
-                    sidebarSize === 'standard' ? 'bg-cortex-green text-gray-900' : 'text-cortex-text-secondary hover:text-cortex-green hover:bg-gray-700'
+                    sidebarSize === 'standard' ? 'bg-cortex-primary text-cortex-dark' : 'text-cortex-text-secondary hover:text-cortex-primary hover:bg-cortex-bg-hover/80'
                   )}
                   title="Standard view"
                 >
@@ -169,7 +169,7 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
                   onClick={() => setSizeMode('expanded')}
                   className={cn(
                     'w-5 h-5 flex items-center justify-center rounded text-xs transition-colors',
-                    sidebarSize === 'expanded' ? 'bg-cortex-green text-gray-900' : 'text-cortex-text-secondary hover:text-cortex-green hover:bg-gray-700'
+                    sidebarSize === 'expanded' ? 'bg-cortex-primary text-cortex-dark' : 'text-cortex-text-secondary hover:text-cortex-primary hover:bg-cortex-bg-hover/80'
                   )}
                   title="Expanded view"
                 >
@@ -180,7 +180,7 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
               {/* Minimize Button */}
               <button
                 onClick={toggleSidebar}
-                className="w-7 h-7 flex items-center justify-center text-cortex-text-secondary hover:text-cortex-warning transition-colors rounded-md hover:bg-gray-700"
+                className="w-7 h-7 flex items-center justify-center text-cortex-text-secondary hover:text-status-warning transition-colors rounded-md hover:bg-cortex-bg-hover/80"
                 title="Minimize Terminal"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -194,7 +194,7 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
                   setSidebarSize('minimized');
                   actions.closeTerminal();
                 }}
-                className="w-7 h-7 flex items-center justify-center text-cortex-text-secondary hover:text-red-400 transition-colors rounded-md hover:bg-gray-700"
+                className="w-7 h-7 flex items-center justify-center text-cortex-text-secondary hover:text-status-error transition-colors rounded-md hover:bg-cortex-bg-hover/80"
                 title="Close Terminal"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -208,7 +208,7 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
 
       {/* Quick Commands Bar */}
       {isVisible && (
-        <div className="flex-shrink-0 p-3 border-b border-gray-700 bg-gray-800/30">
+      <div className="flex-shrink-0 p-3 border-b border-cortex-border/40 bg-cortex-bg-tertiary/40">
           <div className="text-xs text-cortex-text-secondary mb-2 font-medium">Quick Commands</div>
           <div className="grid grid-cols-2 gap-2">
             {quickCommands.map((cmd, index) => (
@@ -216,8 +216,8 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
                 key={index}
                 onClick={() => executeQuickCommand(cmd.command)}
                 className={cn(
-                  'flex items-center space-x-2 p-2 rounded-lg border border-gray-600 hover:border-gray-500 transition-all duration-200 hover:shadow-md text-left',
-                  'bg-gray-800/50 hover:bg-gray-700/50'
+                  'flex items-center space-x-2 p-2 rounded-lg border border-cortex-border/60 hover:border-cortex-border transition-all duration-200 hover:shadow-cortex-sm text-left',
+                  'bg-cortex-bg-tertiary/60 hover:bg-cortex-bg-hover/50'
                 )}
                 title={cmd.command}
               >
@@ -237,7 +237,7 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
       {isVisible && (
         <div className="flex-1 min-h-0 overflow-hidden">
           <div className="h-full p-2">
-            <div className="h-full rounded-lg border border-gray-600 bg-gray-900/50 overflow-hidden">
+            <div className="h-full rounded-lg border border-cortex-border/60 bg-cortex-bg-secondary/60 overflow-hidden">
               <ImprovedTerminal ref={terminalRef} />
             </div>
           </div>
@@ -246,15 +246,15 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
 
       {/* Status Bar */}
       {isVisible && (
-        <div className="flex-shrink-0 flex items-center justify-between px-3 py-2 border-t border-gray-700 bg-gray-800/50 text-xs text-cortex-text-secondary">
+        <div className="flex-shrink-0 flex items-center justify-between px-3 py-2 border-t border-cortex-border/40 bg-cortex-bg-tertiary/40 text-xs text-cortex-text-secondary">
           <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-1">
-              <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+              <div className="flex items-center space-x-1">
+                <div className="w-1.5 h-1.5 bg-status-success rounded-full animate-pulse"></div>
               <span>Online</span>
             </div>
             {state.data.currentPovId && (
               <div className="flex items-center space-x-1">
-                <span className="text-cortex-green">POV:</span>
+                <span className="text-cortex-primary">POV:</span>
                 <span className="font-mono">{state.data.currentPovId}</span>
               </div>
             )}
@@ -262,7 +262,7 @@ const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({
           
           <div className="flex items-center space-x-2">
             <button
-              className="text-cortex-text-secondary hover:text-cortex-info transition-colors"
+              className="text-cortex-text-secondary hover:text-status-info transition-colors"
               title="Terminal Help"
               onClick={() => executeQuickCommand('help')}
             >

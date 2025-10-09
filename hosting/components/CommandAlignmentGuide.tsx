@@ -180,7 +180,7 @@ const CommandAlignmentGuide = () => {
     <div className="bg-black text-white min-h-screen p-6">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-cortex-green mb-4">🔄 Terminal ↔ GUI Command Alignment</h1>
+          <h1 className="text-3xl font-bold text-cortex-primary mb-4">🔄 Terminal ↔ GUI Command Alignment</h1>
           <p className="text-cortex-text-secondary">
             Consistent user experience across terminal and graphical interfaces
           </p>
@@ -189,27 +189,27 @@ const CommandAlignmentGuide = () => {
         <div className="space-y-8">
           {commandMappings.map((category, categoryIndex) => (
             <div key={categoryIndex} className="cortex-card p-6">
-              <h2 className="text-2xl font-bold text-cortex-green mb-6">{category.category}</h2>
+              <h2 className="text-2xl font-bold text-cortex-primary mb-6">{category.category}</h2>
               
               <div className="space-y-4">
                 {category.commands.map((mapping, commandIndex) => (
-                  <div key={commandIndex} className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 bg-cortex-bg-quaternary rounded border border-cortex-border-muted">
+                  <div key={commandIndex} className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 bg-cortex-bg-quaternary rounded border border-cortex-border/30">
                     <div className="space-y-2">
-                      <div className="text-sm font-bold text-cortex-text-accent">Terminal Command</div>
-                      <div className="font-mono text-cortex-green bg-black p-2 rounded text-sm">
+                      <div className="text-sm font-bold text-cortex-accent">Terminal Command</div>
+                      <div className="font-mono text-cortex-primary bg-black p-2 rounded text-sm">
                         {mapping.terminal}
                       </div>
                     </div>
                     
                     <div className="space-y-2">
-                      <div className="text-sm font-bold text-cortex-text-accent">GUI Action</div>
-                      <div className="text-cortex-info bg-cortex-info-bg p-2 rounded text-sm">
+                      <div className="text-sm font-bold text-cortex-accent">GUI Action</div>
+                      <div className="text-status-info bg-status-info-bg p-2 rounded text-sm">
                         {mapping.gui}
                       </div>
                     </div>
                     
                     <div className="space-y-2">
-                      <div className="text-sm font-bold text-cortex-text-accent">Description</div>
+                      <div className="text-sm font-bold text-cortex-accent">Description</div>
                       <div className="text-cortex-text-secondary text-sm">
                         {mapping.description}
                       </div>
@@ -222,47 +222,47 @@ const CommandAlignmentGuide = () => {
         </div>
 
         <div className="mt-12 cortex-card p-6">
-          <h2 className="text-2xl font-bold text-cortex-green mb-4">🎯 Design Principles</h2>
+          <h2 className="text-2xl font-bold text-cortex-primary mb-4">🎯 Design Principles</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-lg font-bold text-cortex-green-light mb-3">Consistency Goals</h3>
+              <h3 className="text-lg font-bold text-cortex-primary-light mb-3">Consistency Goals</h3>
               <ul className="space-y-2 text-cortex-text-secondary">
                 <li className="flex items-start space-x-2">
-                  <span className="text-cortex-success mt-0.5">✓</span>
+                  <span className="text-status-success mt-0.5">✓</span>
                   <span>Same commands trigger identical backend operations</span>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <span className="text-cortex-success mt-0.5">✓</span>
+                  <span className="text-status-success mt-0.5">✓</span>
                   <span>Buttons are ordered to match terminal command flow</span>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <span className="text-cortex-success mt-0.5">✓</span>
+                  <span className="text-status-success mt-0.5">✓</span>
                   <span>GUI buttons execute exact terminal commands</span>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <span className="text-cortex-success mt-0.5">✓</span>
+                  <span className="text-status-success mt-0.5">✓</span>
                   <span>Same user workflows across both interfaces</span>
                 </li>
               </ul>
             </div>
             
             <div>
-              <h3 className="text-lg font-bold text-cortex-green-light mb-3">User Benefits</h3>
+              <h3 className="text-lg font-bold text-cortex-primary-light mb-3">User Benefits</h3>
               <ul className="space-y-2 text-cortex-text-secondary">
                 <li className="flex items-start space-x-2">
-                  <span className="text-cortex-info mt-0.5">💡</span>
+                  <span className="text-status-info mt-0.5">💡</span>
                   <span>Learn once, use everywhere approach</span>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <span className="text-cortex-info mt-0.5">💡</span>
+                  <span className="text-status-info mt-0.5">💡</span>
                   <span>Seamless switching between interfaces</span>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <span className="text-cortex-info mt-0.5">💡</span>
+                  <span className="text-status-info mt-0.5">💡</span>
                   <span>Consistent muscle memory and workflows</span>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <span className="text-cortex-info mt-0.5">💡</span>
+                  <span className="text-status-info mt-0.5">💡</span>
                   <span>Enhanced productivity and reduced learning curve</span>
                 </li>
               </ul>
