@@ -5,10 +5,10 @@
  * and comprehensive reporting. Full data persistence and workflow automation.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
-import { dcAPIClient } from '../lib/dc-api-client';
-import { dcContextStore, TRRRecord, CustomerEngagement, ActivePOV } from '../lib/dc-context-store';
+import { dcAPIClient, UserScopeContext } from '../lib/dc-api-client';
+import { dcContextStore, TRRRecord, CustomerEngagement, ActivePOV, UserProfile } from '../lib/dc-context-store';
 import { dcAIClient, DCWorkflowContext } from '../lib/dc-ai-client';
 import { SolutionDesignWorkbook } from '../lib/sdw-models';
 import { SDWWorkflow } from './SDWWorkflow';
@@ -73,32 +73,98 @@ export const ProductionTRRManagement: React.FC = () => {
   const [showSDWWorkflow, setShowSDWWorkflow] = useState(false);
   const [selectedTRRForSDW, setSelectedTRRForSDW] = useState<string | null>(null);
   const [sdwList, setSDWList] = useState<Record<string, SolutionDesignWorkbook>>({});
+  const [povList, setPovList] = useState<POVRecord[]>([]);
+  const [isSeeding, setIsSeeding] = useState(false);
 
-  useEffect(() => {
-    
-    // Initialize sample data if empty
-    if (dcContextStore.getAllCustomerEngagements().length === 0) {
-      dcContextStore.initializeSampleData();
+  const buildUserContext = useCallback((): UserScopeContext | null => {
+    if (!state.auth.user) {
+      return null;
     }
-    
-    loadTRRs();
-    initializeWorkflowTemplates();
-  }, [actions]);
 
-  const loadTRRs = async () => {
+    const isManager = state.auth.user.role === 'manager' || state.auth.user.role === 'admin';
+
+    return {
+      userId: state.auth.user.id,
+      scope: isManager ? 'team' : 'self',
+      teamUserIds: isManager ? state.auth.user.assignedProjects || [] : undefined
+    };
+  }, [state.auth.user]);
+
+  const onboardingProfile = useMemo<UserProfile | null>(() => {
+    if (!state.auth.user) {
+      return null;
+    }
+
+    const roleMap: Record<string, UserProfile['role']> = {
+      admin: 'manager',
+      manager: 'manager',
+      senior_dc: 'dc',
+      dc: 'dc',
+      analyst: 'dc'
+    };
+
+    return {
+      id: state.auth.user.id,
+      name: state.auth.user.username || state.auth.user.email || 'Team Member',
+      email: state.auth.user.email || `${state.auth.user.username || 'user'}@henryreed.ai`,
+      role: roleMap[state.auth.user.role] || 'dc',
+      region: 'AMER',
+      specializations: state.auth.user.assignedProjects || [],
+      createdAt: state.auth.user.lastLogin || new Date().toISOString(),
+      lastActive: new Date().toISOString()
+    };
+  }, [state.auth.user]);
+
+  const reloadData = useCallback(async (contextOverride?: UserScopeContext) => {
+    const context = contextOverride || buildUserContext();
+    if (!context || !state.auth.user) {
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const response = await dcAPIClient.getTRRs();
-      if (response.success && response.data) {
-        setTrrList(response.data);
+      const [trrResponse, povResponse] = await Promise.all([
+        dcAPIClient.getTRRs(context),
+        dcAPIClient.getPOVs(context)
+      ]);
+
+      let trrs = trrResponse.success && trrResponse.data ? trrResponse.data : [];
+      let povs = povResponse.success && povResponse.data ? povResponse.data : [];
+
+      if (trrs.length === 0 && povs.length === 0 && onboardingProfile) {
+        setIsSeeding(true);
+        await dcAPIClient.ensureStarterDataForUser(context, onboardingProfile);
+        const [seededTRRs, seededPOVs] = await Promise.all([
+          dcAPIClient.getTRRs(context),
+          dcAPIClient.getPOVs(context)
+        ]);
+
+        if (seededTRRs.success && seededTRRs.data) {
+          trrs = seededTRRs.data;
+        }
+        if (seededPOVs.success && seededPOVs.data) {
+          povs = seededPOVs.data;
+        }
       }
+
+      setTrrList(trrs);
+      setPovList(povs);
     } catch (error) {
-      console.error('Failed to load TRRs:', error);
-      actions.notify('error', 'Failed to load TRRs');
+      console.error('Failed to load TRR data:', error);
+      actions.notify('error', 'Failed to load TRR data');
     } finally {
       setIsLoading(false);
+      setIsSeeding(false);
     }
-  };
+  }, [actions, buildUserContext, onboardingProfile, state.auth.user]);
+
+  useEffect(() => {
+    initializeWorkflowTemplates();
+  }, []);
+
+  useEffect(() => {
+    reloadData();
+  }, [reloadData]);
 
   const initializeWorkflowTemplates = () => {
     const defaultSteps: TRRWorkflowStep[] = [
@@ -158,6 +224,12 @@ export const ProductionTRRManagement: React.FC = () => {
       return;
     }
 
+    const context = buildUserContext();
+    if (!context) {
+      actions.notify('error', 'Active user context unavailable');
+      return;
+    }
+
     setIsLoading(true);
     try {
       const trrData: Omit<TRRRecord, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -171,7 +243,7 @@ export const ProductionTRRManagement: React.FC = () => {
         acceptanceCriteria: formData.acceptanceCriteria || [],
         validationMethod: formData.validationMethod || 'Technical review',
         validationEvidence: [],
-        assignedTo: formData.assignedTo || 'Domain Consultant',
+        assignedTo: formData.assignedTo || onboardingProfile?.name || state.auth.user?.username || 'Domain Consultant',
         reviewers: formData.reviewers || [],
         timeline: {
           created: new Date().toISOString(),
@@ -185,7 +257,7 @@ export const ProductionTRRManagement: React.FC = () => {
         notes: formData.notes || []
       };
 
-      const response = await dcAPIClient.createTRR(trrData);
+      const response = await dcAPIClient.createTRR(context, trrData);
       if (response.success) {
         actions.notify('success', `TRR "${formData.title}" created successfully`);
         setShowCreateForm(false);
@@ -195,7 +267,7 @@ export const ProductionTRRManagement: React.FC = () => {
           dependencies: [],
           notes: []
         });
-        loadTRRs();
+        reloadData(context);
       } else {
         actions.notify('error', response.error || 'Failed to create TRR');
       }
@@ -208,12 +280,20 @@ export const ProductionTRRManagement: React.FC = () => {
   };
 
   const handleValidateTRR = async (trrId: string, evidence?: string[]) => {
+    const context = buildUserContext();
+    if (!context) {
+      actions.notify('error', 'Active user context unavailable');
+      return;
+    }
+
+    const trr = trrList.find(t => t.id === trrId);
+
     setIsLoading(true);
     try {
-      const response = await dcAPIClient.validateTRR(trrId, evidence);
+      const response = await dcAPIClient.validateTRR(context, trrId, evidence, trr?.ownerId);
       if (response.success) {
         actions.notify('success', 'TRR validated successfully');
-        loadTRRs();
+        reloadData(context);
       } else {
         actions.notify('error', response.error || 'Failed to validate TRR');
       }
@@ -229,16 +309,22 @@ export const ProductionTRRManagement: React.FC = () => {
     const trr = trrList.find(t => t.id === trrId);
     if (!trr) return;
 
+    const context = buildUserContext();
+    if (!context) {
+      actions.notify('error', 'Active user context unavailable');
+      return;
+    }
+
     const updates: Partial<TRRRecord> = {
       status: newStatus,
       notes: [...trr.notes, `Status updated to ${newStatus} at ${new Date().toLocaleString()}`]
     };
 
     try {
-      const response = await dcAPIClient.updateTRR(trrId, updates);
+      const response = await dcAPIClient.updateTRR(context, trrId, updates, trr.ownerId);
       if (response.success) {
         actions.notify('success', `TRR status updated to ${newStatus}`);
-        loadTRRs();
+        reloadData(context);
       } else {
         actions.notify('error', 'Failed to update TRR status');
       }
@@ -281,21 +367,26 @@ export const ProductionTRRManagement: React.FC = () => {
   const handleSaveSDW = async (sdw: SolutionDesignWorkbook) => {
     // Store SDW in local state (in production, this would go to API/database)
     setSDWList(prev => ({ ...prev, [sdw.trrId]: sdw }));
-    
+
     // Update TRR to reference the SDW
     const updates: Partial<TRRRecord> = {
       notes: [...(selectedTRR?.notes || []), `Solution Design Workbook created: ${sdw.id}`]
     };
-    
+
     if (selectedTRRForSDW) {
+      const context = buildUserContext();
       try {
-        await dcAPIClient.updateTRR(selectedTRRForSDW, updates);
-        loadTRRs();
+        if (!context) {
+          throw new Error('Active user context unavailable');
+        }
+        const targetTRR = trrList.find(t => t.id === selectedTRRForSDW);
+        await dcAPIClient.updateTRR(context, selectedTRRForSDW, updates, targetTRR?.ownerId);
+        reloadData(context);
       } catch (error) {
         console.error('Failed to update TRR with SDW reference:', error);
       }
     }
-    
+
     setShowSDWWorkflow(false);
     setSelectedTRRForSDW(null);
   };
@@ -306,7 +397,7 @@ export const ProductionTRRManagement: React.FC = () => {
   };
 
   const customers = dcContextStore.getAllCustomerEngagements();
-  const povs = dcContextStore.getAllActivePOVs();
+  const povs = povList.length > 0 ? povList : dcContextStore.getAllActivePOVs();
 
   // Filter and search logic
   const filteredTRRs = trrList.filter(trr => {
@@ -475,7 +566,25 @@ export const ProductionTRRManagement: React.FC = () => {
   );
 
   const ManageTab = () => (
-    <div className="space-y-6">
+    <section
+      id="notes-workbench"
+      aria-labelledby="notes-workbench-heading"
+      className="space-y-6 scroll-mt-28"
+    >
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h3 id="notes-workbench-heading" className="text-2xl font-semibold text-white flex items-center gap-2">
+            📝 Notes Workbench
+          </h3>
+          <p className="text-sm text-cortex-text-secondary mt-1">
+            Centralized workspace for TRR notes, validation evidence, and follow-up actions.
+          </p>
+        </div>
+        <div className="flex items-center text-xs text-cortex-text-muted bg-gray-800/60 border border-gray-700 rounded px-3 py-2">
+          Live collaboration enabled
+        </div>
+      </div>
+
       {/* Filters and Search */}
       <div className="bg-gray-900/50 p-4 rounded border border-gray-700">
         <div className="flex flex-wrap items-center gap-4">
@@ -530,7 +639,9 @@ export const ProductionTRRManagement: React.FC = () => {
         {isLoading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-2"></div>
-            <div className="text-cortex-text-secondary">Loading TRRs...</div>
+            <div className="text-cortex-text-secondary">
+              {isSeeding ? 'Preparing starter TRRs for your workspace...' : 'Loading TRRs...'}
+            </div>
           </div>
         ) : filteredTRRs.length === 0 ? (
           <div className="text-center py-8">
@@ -651,7 +762,7 @@ export const ProductionTRRManagement: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 
   const CreateTab = () => (

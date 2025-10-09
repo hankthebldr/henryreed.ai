@@ -109,6 +109,7 @@ const POV_SCHEMA: FormSchema = {
   ]
 };
 
+
 const TEMPLATE_SCHEMA: FormSchema = {
   title: 'Create New Template',
   description: 'Reusable Scenario Template',
@@ -653,14 +654,23 @@ export const EnhancedManualCreationGUI: React.FC = () => {
 
   // Main Dashboard
   return (
-    <div className="space-y-8 p-8">
+    <section
+      id="demo-blueprint-studio"
+      aria-labelledby="demo-blueprint-studio-heading"
+      className="space-y-8 p-8 scroll-mt-28"
+    >
       {/* Header */}
       <div className="glass-card p-8">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
             <div className="text-4xl">🛠️</div>
             <div>
-              <h1 className="text-3xl font-bold text-cortex-text-primary">Enhanced Creation Studio</h1>
+              <h1
+                id="demo-blueprint-studio-heading"
+                className="text-3xl font-bold text-cortex-text-primary"
+              >
+                Enhanced Creation Studio
+              </h1>
               <p className="text-cortex-text-muted mt-2">Notion-inspired interface for creating POVs, templates, and scenarios</p>
             </div>
           </div>
@@ -812,7 +822,7 @@ export const EnhancedManualCreationGUI: React.FC = () => {
           </ul>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
