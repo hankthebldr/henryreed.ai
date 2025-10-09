@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { httpsCallable } from 'firebase/functions';
 import { collection, query, orderBy, limit, onSnapshot, where } from 'firebase/firestore';
-import { functions, db } from '../lib/firebase/client';
+import { functions, db } from '../src/lib/firebase';
 
 interface UserProfile {
   uid: string;

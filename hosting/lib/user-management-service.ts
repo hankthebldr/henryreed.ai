@@ -15,7 +15,7 @@ import {
   onSnapshot,
   Unsubscribe
 } from 'firebase/firestore';
-import { functions, db } from './firebase/client';
+import { functions, db } from '../src/lib/firebase';
 
 // ============================================================================
 // INTERFACES
@@ -251,7 +251,7 @@ export class UserManagementService {
   /**
    * Get user activity logs
    */
-  async getUserActivity(userId?: string, limit: number = 50): Promise<UserActivity[]> {
+  async getUserActivity(userId?: string, limitCount: number = 50): Promise<UserActivity[]> {
     try {
       let q = query(collection(db, 'activityLogs'));
       
@@ -259,7 +259,7 @@ export class UserManagementService {
         q = query(q, where('userId', '==', userId));
       }
       
-      q = query(q, orderBy('timestamp', 'desc'), limit(limit));
+      q = query(q, orderBy('timestamp', 'desc'), limit(limitCount));
 
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
@@ -278,7 +278,7 @@ export class UserManagementService {
   subscribeToActivity(
     callback: (activities: UserActivity[]) => void,
     userId?: string,
-    limit: number = 50
+    limitCount: number = 50
   ): Unsubscribe {
     let q = query(collection(db, 'activityLogs'));
     
@@ -286,7 +286,7 @@ export class UserManagementService {
       q = query(q, where('userId', '==', userId));
     }
     
-    q = query(q, orderBy('timestamp', 'desc'), limit(limit));
+    q = query(q, orderBy('timestamp', 'desc'), limit(limitCount));
 
     return onSnapshot(q, (querySnapshot) => {
       const activities = querySnapshot.docs.map(doc => ({
@@ -425,13 +425,13 @@ export class UserManagementService {
   /**
    * Get user notifications
    */
-  async getUserNotifications(userId: string, limit: number = 20): Promise<any[]> {
+  async getUserNotifications(userId: string, limitCount: number = 20): Promise<any[]> {
     try {
       const q = query(
         collection(db, 'notifications'),
         where('userId', '==', userId),
         orderBy('createdAt', 'desc'),
-        limit(limit)
+        limit(limitCount)
       );
 
       const querySnapshot = await getDocs(q);
