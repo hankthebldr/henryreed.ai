@@ -7,6 +7,7 @@ import { useActivityTracking } from '../hooks/useActivityTracking';
 import { useCommandExecutor } from '../hooks/useCommandExecutor';
 import { useAppState } from '../contexts/AppStateContext';
 import { userManagementService, UserProfile, SystemMetrics } from '../lib/user-management';
+import { dcContextStore, WorkflowHistory } from '../lib/dc-context-store';
 import EnhancedTerminalSidebar from './EnhancedTerminalSidebar';
 import { cn } from '../lib/utils';
 
@@ -65,6 +66,17 @@ interface QuickAction {
   className: string;
 }
 
+interface DashboardStatCard {
+  id: string;
+  icon: string;
+  badgeClass: string;
+  badgeText: string;
+  value: number;
+  suffix?: string;
+  label: string;
+  footer: string;
+}
+
 const DEFAULT_TAB_ID = 'dashboard';
 const ANCHOR_TAB_MAP: Record<string, string> = {
   'dashboard-blueprints': 'dashboard',
@@ -78,7 +90,25 @@ const ANCHOR_TAB_MAP: Record<string, string> = {
   'management-control-center': 'admin'
 };
 
-const POVDashboard = React.memo(({ terminalExpanded, setTerminalExpanded }: { terminalExpanded: boolean; setTerminalExpanded: (expanded: boolean) => void }) => {
+const POVDashboard = React.memo(({
+  terminalExpanded,
+  setTerminalExpanded,
+  statCards,
+  successRate,
+  lastUpdatedLabel,
+  activity,
+  getActivityStatus,
+  formatRelativeTime,
+}: {
+  terminalExpanded: boolean;
+  setTerminalExpanded: (expanded: boolean) => void;
+  statCards: DashboardStatCard[];
+  successRate: number;
+  lastUpdatedLabel: string;
+  activity: WorkflowHistory[];
+  getActivityStatus: (entry: WorkflowHistory) => 'success' | 'warning' | 'error' | 'info';
+  formatRelativeTime: (timestamp: string) => string;
+}) => {
   const { run: executeCommand, isRunning } = useCommandExecutor();
   
   // Optimized Blueprint PDF creation with better error handling
@@ -240,15 +270,6 @@ const POVDashboard = React.memo(({ terminalExpanded, setTerminalExpanded }: { te
   ], [createGuiBlueprintPdf, executeCommand]);
 
   // Memoized activity data for performance
-  const activityData = useMemo(() => [
-    { action: 'POV Completed', target: 'Enterprise Banking Corp (vs Splunk)', time: '2 hours ago', status: 'success' },
-    { action: 'Detection Deployed', target: 'Lateral Movement vs CrowdStrike', time: '4 hours ago', status: 'info' },
-    { action: 'SOAR Playbook', target: 'Automated Triage vs Phantom', time: '6 hours ago', status: 'warning' },
-    { action: 'TRR-SDW Linked', target: 'Multi-Cloud Security Design', time: '8 hours ago', status: 'success' },
-    { action: 'Analytics Query', target: '10x Faster than Splunk SPL', time: '1 day ago', status: 'info' },
-    { action: 'Cost Analysis', target: '60% Savings vs Sentinel', time: '1 day ago', status: 'success' }
-  ], []);
-
   return (
     <div className="p-8 space-y-8">
       {/* Modern Hero Section */}
@@ -267,57 +288,32 @@ const POVDashboard = React.memo(({ terminalExpanded, setTerminalExpanded }: { te
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-cortex-info rounded-full"></div>
-                  <span className="text-cortex-text-secondary text-sm">12 Active POVs</span>
+                  <span className="text-cortex-text-secondary text-sm">{statCards[0]?.value ?? 0} executing POVs</span>
                 </div>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-3xl font-light text-cortex-text-primary">98.7%</div>
-              <div className="text-cortex-text-muted text-sm">Success Rate</div>
+            <div className="text-right space-y-1">
+              <div className="text-3xl font-light text-cortex-text-primary">{successRate}%</div>
+              <div className="text-cortex-text-muted text-sm">TRR Success Rate</div>
+              <div className="text-xs text-cortex-text-muted">Updated {lastUpdatedLabel}</div>
             </div>
           </div>
 
           {/* Modern Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="cortex-card-elevated p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-2xl">📈</div>
-                <div className="text-xs bg-cortex-success/20 text-cortex-success px-2 py-1 rounded-full">+15%</div>
+            {statCards.map(card => (
+              <div key={card.id} className="cortex-card-elevated p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-2xl">{card.icon}</div>
+                  <div className={card.badgeClass}>{card.badgeText}</div>
+                </div>
+                <div className="text-2xl font-bold text-cortex-text-primary mb-1">
+                  {card.value}{card.suffix ?? ""}
+                </div>
+                <div className="text-cortex-text-secondary text-sm mb-2">{card.label}</div>
+                <div className="text-xs text-cortex-text-muted">{card.footer}</div>
               </div>
-              <div className="text-2xl font-bold text-cortex-text-primary mb-1">12</div>
-              <div className="text-cortex-text-secondary text-sm mb-2">Active POVs</div>
-              <div className="text-xs text-cortex-text-muted">3 in progress • 9 completed</div>
-            </div>
-
-            <div className="cortex-card-elevated p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-2xl">🛡️</div>
-                <div className="text-xs bg-cortex-info/20 text-cortex-info px-2 py-1 rounded-full">New</div>
-              </div>
-              <div className="text-2xl font-bold text-cortex-text-primary mb-1">47</div>
-              <div className="text-cortex-text-secondary text-sm mb-2">Detection Scripts</div>
-              <div className="text-xs text-cortex-text-muted">Production-ready detections</div>
-            </div>
-
-            <div className="cortex-card-elevated p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-2xl">📋</div>
-                <div className="text-xs bg-cortex-warning/20 text-cortex-warning px-2 py-1 rounded-full">23</div>
-              </div>
-              <div className="text-2xl font-bold text-cortex-text-primary mb-1">89%</div>
-              <div className="text-cortex-text-secondary text-sm mb-2">TRR Success</div>
-              <div className="text-xs text-cortex-text-muted">Linked design workbooks</div>
-            </div>
-
-            <div className="cortex-card-elevated p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-2xl">💰</div>
-                <div className="text-xs bg-cortex-accent/20 text-cortex-accent px-2 py-1 rounded-full">ROI</div>
-              </div>
-              <div className="text-2xl font-bold text-cortex-text-primary mb-1">54%</div>
-              <div className="text-cortex-text-secondary text-sm mb-2">Cost Savings</div>
-              <div className="text-xs text-cortex-text-muted">vs Splunk/CrowdStrike/Sentinel</div>
-            </div>
+            ))}
           </div>
         </div>
       
@@ -334,28 +330,61 @@ const POVDashboard = React.memo(({ terminalExpanded, setTerminalExpanded }: { te
                 Live Updates
               </div>
             </div>
-            
+
             <div className="space-y-3 max-h-96 overflow-y-auto terminal-scrollbar pr-2">
-              {activityData.map((item, idx) => (
-                <div key={idx} className="cortex-card p-4">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="font-medium text-cortex-text-primary text-sm mb-1">{item.action}</div>
-                      <div className="text-cortex-text-muted text-xs leading-relaxed">{item.target}</div>
-                    </div>
-                    <div className="flex items-center space-x-2 ml-4">
-                      <div className={`w-2 h-2 rounded-full ${{
-                        'success': 'bg-cortex-success',
-                        'warning': 'bg-cortex-warning',
-                        'info': 'bg-cortex-info'
-                      }[item.status]} animate-pulse`}></div>
-                      <div className="text-xs text-cortex-text-muted font-mono">
-                        {item.time}
+              {activity.length === 0 ? (
+                <div className="cortex-card p-4 text-sm text-cortex-text-muted">
+                  No recent activity yet. Execute a workflow or import data to populate this feed.
+                </div>
+              ) : (
+                activity.slice(0, 12).map((entry, idx) => {
+                  const status = getActivityStatus(entry);
+                  const indicatorClass =
+                    status === 'success'
+                      ? 'bg-cortex-success'
+                      : status === 'warning'
+                        ? 'bg-cortex-warning'
+                        : status === 'error'
+                          ? 'bg-cortex-error'
+                          : 'bg-cortex-info';
+                  const contextSummary =
+                    entry.context && typeof entry.context === 'object'
+                      ? entry.context.customerName ||
+                        entry.context.customer?.name ||
+                        entry.context.povName ||
+                        entry.context.trrTitle ||
+                        entry.context.title ||
+                        entry.context.name ||
+                        ''
+                      : '';
+
+                  return (
+                    <div key={`${entry.id}-${idx}`} className="cortex-card p-4">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="font-medium text-cortex-text-primary text-sm mb-1">
+                            {entry.action || entry.workflowType.replace(/_/g, ' ')}
+                          </div>
+                          <div className="text-cortex-text-muted text-xs leading-relaxed">
+                            {(entry.outcome || 'In progress')} • {entry.workflowType.replace(/_/g, ' ')}
+                          </div>
+                          {contextSummary && (
+                            <div className="text-cortex-text-secondary text-xs mt-1">
+                              {contextSummary}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-2 ml-4">
+                          <div className={`w-2 h-2 rounded-full ${indicatorClass} animate-pulse`}></div>
+                          <div className="text-xs text-cortex-text-muted font-mono">
+                            {formatRelativeTime(entry.timestamp)}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))}
+                  );
+                })
+              )}
             </div>
             
             <div className="mt-4 pt-4 border-t border-cortex-border-muted/20">
@@ -385,22 +414,28 @@ const POVDashboard = React.memo(({ terminalExpanded, setTerminalExpanded }: { te
               </p>
             </div>
             <div className="text-xs bg-cortex-accent/10 text-cortex-accent px-3 py-1 rounded-full border border-cortex-accent/20">
-              7 Available
+              {quickActions.length} Available
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 mb-6">
             {quickActions.map((action, idx) => (
               <button
                 key={idx}
+                id={`quick-action-${action.name.toLowerCase().replace(/\s+/g, '-')}`}
+                data-quick-action={action.name.toLowerCase().replace(/\s+/g, '-')}
                 onClick={action.onClick}
-                className="btn-modern button-hover-lift cortex-card p-4 text-center"
+                className="btn-modern button-hover-lift cortex-card p-4 text-left flex flex-col items-start space-y-2"
                 title={action.description}
+                aria-label={action.description}
               >
-                <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">{action.icon}</div>
-                <div className="text-xs font-medium text-cortex-text-secondary group-hover:text-cortex-text-primary transition-colors">
+                <div className="text-2xl group-hover:scale-110 transition-transform" aria-hidden="true">{action.icon}</div>
+                <div className="text-sm font-medium text-cortex-text-primary">
                   {action.name}
                 </div>
+                <p className="text-xs text-cortex-text-muted leading-snug line-clamp-3">
+                  {action.description}
+                </p>
               </button>
             ))}
           </div>
@@ -410,48 +445,62 @@ const POVDashboard = React.memo(({ terminalExpanded, setTerminalExpanded }: { te
             <h4 className="text-sm font-medium text-cortex-text-secondary mb-3">Advanced Actions</h4>
             <div className="space-y-2">
               <button
+                id="advanced-action-sync-demo"
+                data-advanced-action="sync-demo"
                 onClick={() => {
                   const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'xsiam', action: 'sync-platform' } });
                   window.dispatchEvent(event);
                 }}
                 className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 cortex-interactive"
+                aria-label="Sync demo environment"
               >
-                <span>🔄</span>
+                <span aria-hidden="true">🔄</span>
                 <span>Sync demo environment</span>
               </button>
               <button
+                id="advanced-action-export-dashboard"
+                data-advanced-action="export-dashboard"
                 onClick={() => {
                   const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'export-dashboard' } });
                   window.dispatchEvent(event);
                 }}
                 className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 cortex-interactive"
+                aria-label="Export current dashboard"
               >
-                <span>📋</span>
+                <span aria-hidden="true">📋</span>
                 <span>Export current dashboard</span>
               </button>
               <button
+                id="advanced-action-engagement-metrics"
+                data-advanced-action="engagement-metrics"
                 onClick={() => {
                   const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'data', action: 'engagement-metrics' } });
                   window.dispatchEvent(event);
                 }}
                 className="w-full text-left p-3 rounded-lg hover:bg-cortex-bg-secondary/30 transition-colors text-sm text-cortex-text-muted hover:text-cortex-text-primary flex items-center space-x-3 cortex-interactive"
+                aria-label="View engagement metrics"
               >
-                <span>📊</span>
+                <span aria-hidden="true">📊</span>
                 <span>View engagement metrics</span>
               </button>
               <button
+                id="advanced-action-create-sdw"
+                data-advanced-action="create-sdw"
                 onClick={() => {
                   const event = new CustomEvent('navigate-to-tab', { detail: { tabId: 'trr', action: 'create-sdw' } });
                   window.dispatchEvent(event);
                 }}
                 className="w-full text-left p-3 rounded-lg hover:bg-cortex-warning/10 transition-colors text-sm text-cortex-warning hover:text-cortex-warning border border-cortex-warning/20 hover:border-cortex-warning/40 mt-3 cortex-interactive"
+                aria-label="Create Solution Design Workbook"
               >
                 <div className="flex items-center space-x-3">
-                  <span>📝</span>
+                  <span aria-hidden="true">📝</span>
                   <span>Create Solution Design Workbook</span>
                 </div>
               </button>
               <button
+                id="advanced-action-toggle-terminal"
+                data-advanced-action="toggle-terminal"
                 onClick={async () => {
                   setTerminalExpanded(!terminalExpanded);
                   if (!terminalExpanded) {
@@ -467,9 +516,10 @@ const POVDashboard = React.memo(({ terminalExpanded, setTerminalExpanded }: { te
                   }
                 }}
                 className="w-full text-left p-3 rounded-lg hover:bg-cortex-success/10 transition-colors text-sm text-cortex-success hover:text-cortex-success border border-cortex-success/20 hover:border-cortex-success/40 cortex-interactive"
+                aria-label={terminalExpanded ? 'Hide Terminal Sidebar' : 'Show Terminal Sidebar'}
               >
                 <div className="flex items-center space-x-3">
-                  <span>⌨️</span>
+                  <span aria-hidden="true">⌨️</span>
                   <span>{terminalExpanded ? 'Hide Terminal Sidebar' : 'Show Terminal Sidebar'}</span>
                 </div>
               </button>
@@ -565,6 +615,93 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
   const [aggregateMetrics, setAggregateMetrics] = useState<SystemMetrics | null>(null);
   const [currentDateTime, setCurrentDateTime] = useState('');
   const [terminalExpanded, setTerminalExpanded] = useState(false);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalCustomers: 0,
+    activeCustomers: 0,
+    totalPOVs: 0,
+    executingPOVs: 0,
+    planningPOVs: 0,
+    completedPOVs: 0,
+    totalTRRs: 0,
+    pendingTRRs: 0,
+    inReviewTRRs: 0,
+    validatedTRRs: 0,
+    blockedTRRs: 0,
+    successRate: 0,
+  });
+  const [recentActivity, setRecentActivity] = useState<WorkflowHistory[]>([]);
+  const [lastOperationalRefresh, setLastOperationalRefresh] = useState<string>('');
+  const formatRelativeTime = useCallback((timestamp: string) => {
+    if (!timestamp) return 'Just now';
+    const time = new Date(timestamp);
+    if (Number.isNaN(time.getTime())) {
+      return 'Just now';
+    }
+    const diffMs = Date.now() - time.getTime();
+    if (diffMs < 0) return 'Just now';
+    const minutes = Math.floor(diffMs / 60000);
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    return time.toLocaleDateString();
+  }, []);
+
+  const getActivityStatus = useCallback((entry: WorkflowHistory) => {
+    const outcome = (entry.outcome || '').toLowerCase();
+    if (outcome.includes('success') || outcome.includes('validated') || outcome.includes('completed')) {
+      return 'success';
+    }
+    if (outcome.includes('fail') || outcome.includes('error')) {
+      return 'error';
+    }
+    if (outcome.includes('block') || outcome.includes('risk') || outcome.includes('warning')) {
+      return 'warning';
+    }
+    return 'info';
+  }, []);
+
+  const refreshOperationalData = useCallback(() => {
+    try {
+      const customers = dcContextStore.getAllCustomerEngagements();
+      const povs = dcContextStore.getAllActivePOVs();
+      const trrs = dcContextStore.getAllTRRRecords();
+      const workflowContext = dcContextStore.getCurrentWorkflowContext();
+
+      const executingPOVs = povs.filter(p => p.status === 'executing').length;
+      const planningPOVs = povs.filter(p => p.status === 'planning').length;
+      const completedPOVs = povs.filter(p => p.status === 'completed').length;
+
+      const pendingTRRs = trrs.filter(t => t.status === 'pending' || t.status === 'draft').length;
+      const inReviewTRRs = trrs.filter(t => t.status === 'in-review').length;
+      const validatedTRRs = trrs.filter(t => t.status === 'validated').length;
+      const blockedTRRs = trrs.filter(t => t.status === 'blocked').length;
+      const totalTRRs = trrs.length;
+      const successRate = totalTRRs > 0 ? Math.round((validatedTRRs / totalTRRs) * 100) : 0;
+
+      setDashboardStats({
+        totalCustomers: customers.length,
+        activeCustomers: workflowContext?.activeCustomers ?? 0,
+        totalPOVs: povs.length,
+        executingPOVs,
+        planningPOVs,
+        completedPOVs,
+        totalTRRs,
+        pendingTRRs,
+        inReviewTRRs,
+        validatedTRRs,
+        blockedTRRs,
+        successRate,
+      });
+
+      setRecentActivity(workflowContext?.recentActivity ?? []);
+      setLastOperationalRefresh(new Date().toISOString());
+    } catch (error) {
+      console.warn('Failed to refresh dashboard data:', error);
+    }
+  }, []);
   
   const { trackFeatureUsage, trackPageView } = useActivityTracking();
   const { run: executeCommand, isRunning } = useCommandExecutor();
@@ -650,6 +787,62 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
     const interval = setInterval(updateDateTime, 60000); // Update every minute
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    refreshOperationalData();
+    const interval = setInterval(refreshOperationalData, 15000);
+    return () => clearInterval(interval);
+  }, [refreshOperationalData, aggregateMetrics]);
+
+  const lastUpdatedLabel = useMemo(() => formatRelativeTime(lastOperationalRefresh), [lastOperationalRefresh, formatRelativeTime]);
+
+  const statCards = useMemo<DashboardStatCard[]>(() => {
+    const uptime = aggregateMetrics?.uptime ?? 0;
+    const engagementGap = Math.max(dashboardStats.totalCustomers - dashboardStats.activeCustomers, 0);
+    const successRateValue = dashboardStats.successRate;
+    return [
+      {
+        id: 'povs',
+        icon: '🎯',
+        badgeClass: 'text-xs font-medium bg-cortex-success/20 text-cortex-success px-2 py-1 rounded-full',
+        badgeText: `${dashboardStats.totalPOVs} total`,
+        value: dashboardStats.executingPOVs,
+        suffix: '',
+        label: 'Active POVs',
+        footer: `${dashboardStats.planningPOVs} planning • ${dashboardStats.completedPOVs} completed`,
+      },
+      {
+        id: 'customers',
+        icon: '🤝',
+        badgeClass: 'text-xs font-medium bg-cortex-info/20 text-cortex-info px-2 py-1 rounded-full',
+        badgeText: `${dashboardStats.activeCustomers} engaged`,
+        value: dashboardStats.totalCustomers,
+        suffix: '',
+        label: 'Customers',
+        footer: engagementGap > 0 ? `${engagementGap} ready for outreach` : 'All customers engaged',
+      },
+      {
+        id: 'trrs',
+        icon: '📋',
+        badgeClass: 'text-xs font-medium bg-cortex-warning/20 text-cortex-warning px-2 py-1 rounded-full',
+        badgeText: `${dashboardStats.pendingTRRs} pending`,
+        value: dashboardStats.validatedTRRs,
+        suffix: '',
+        label: 'Validated TRRs',
+        footer: `${dashboardStats.inReviewTRRs} in review • ${dashboardStats.blockedTRRs} blocked`,
+      },
+      {
+        id: 'uptime',
+        icon: '⚡',
+        badgeClass: 'text-xs font-medium bg-cortex-accent/20 text-cortex-accent px-2 py-1 rounded-full',
+        badgeText: `${successRateValue}% success`,
+        value: uptime,
+        suffix: '%',
+        label: 'Platform Uptime',
+        footer: `${successRateValue}% TRR success rate`,
+      },
+    ];
+  }, [aggregateMetrics, dashboardStats]);
   
   const handleTabChange = useCallback(
     (tabId: string, action?: string, metadata?: any) => {
@@ -766,7 +959,18 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
   // Create component with props for POVDashboard
   const ActiveComponent = () => {
     if (ActiveComponentClass === POVDashboard) {
-      return <POVDashboard terminalExpanded={terminalExpanded} setTerminalExpanded={setTerminalExpanded} />;
+      return (
+        <POVDashboard
+          terminalExpanded={terminalExpanded}
+          setTerminalExpanded={setTerminalExpanded}
+          statCards={statCards}
+          successRate={dashboardStats.successRate}
+          lastUpdatedLabel={lastUpdatedLabel}
+          activity={recentActivity}
+          getActivityStatus={getActivityStatus}
+          formatRelativeTime={formatRelativeTime}
+        />
+      );
     }
     const Component = ActiveComponentClass as React.ComponentType<any>;
     return <Component />;

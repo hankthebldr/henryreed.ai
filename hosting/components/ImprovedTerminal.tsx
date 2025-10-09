@@ -1672,14 +1672,21 @@ level: high`}
               <div className="text-cortex-text-muted">v2.5.1</div>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => executeCommand('exit')}
+              className="px-3 py-2 text-sm rounded-lg bg-cortex-bg-secondary hover:bg-cortex-bg-hover text-cortex-text-primary border border-cortex-border-secondary/40 transition-colors"
+              title="Close terminal and return to the GUI"
+            >
+              Exit Terminal
+            </button>
             {user ? (
               <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2 bg-cortex-success/10 px-3 py-1 rounded-full border border-cortex-success/20">
+                <div className="hidden sm:flex items-center space-x-2 bg-cortex-success/10 px-3 py-1 rounded-full border border-cortex-success/20">
                   <div className="w-2 h-2 bg-cortex-success rounded-full animate-pulse"></div>
                   <span className="text-cortex-text-secondary text-sm">{user.email}</span>
                 </div>
-                <button 
+                <button
                   onClick={() => executeCommand('logout')}
                   className="text-cortex-error hover:text-cortex-error-light px-3 py-1 rounded-lg border border-cortex-error/20 hover:border-cortex-error/40 transition-all duration-200 text-sm bg-cortex-error/5 hover:bg-cortex-error/10"
                 >
@@ -1687,7 +1694,7 @@ level: high`}
                 </button>
               </div>
             ) : (
-              <button 
+              <button
                 onClick={() => setShowLogin(true)}
                 className="text-cortex-info hover:text-cortex-info-light px-3 py-1 rounded-lg border border-cortex-info/20 hover:border-cortex-info/40 transition-all duration-200 text-sm bg-cortex-info/5 hover:bg-cortex-info/10"
               >
@@ -1700,6 +1707,20 @@ level: high`}
 
       {/* Modern Terminal Container */}
       <div className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-cortex-text-primary flex items-center space-x-2">
+            <span>🖥️</span>
+            <span>Interactive Terminal</span>
+          </h2>
+          <button
+            onClick={() => executeCommand('exit')}
+            className='px-3 py-2 text-sm rounded-lg bg-cortex-bg-secondary hover:bg-cortex-bg-hover text-cortex-text-primary border border-cortex-border-secondary/40 transition-colors flex items-center space-x-2'
+            title='Close terminal and return to the GUI'
+          >
+            <span>Exit</span>
+            <span className='text-lg'>✖</span>
+          </button>
+        </div>
         <Card variant="terminal" className="h-[calc(100vh-200px)] flex flex-col overflow-hidden">
           {/* Terminal Content */}
           <div 
