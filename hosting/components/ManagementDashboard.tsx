@@ -57,6 +57,10 @@ export const ManagementDashboard: React.FC = () => {
     updatedBy: platformSettingsSnapshot.updatedBy,
   });
 
+  const authUserId =
+    state.auth.user?.id || state.auth.user?.uid || state.auth.user?.email || 'system';
+  const authUserRole = (state.auth.user?.role as UserRole | undefined) || 'analyst';
+
   const applyFeatureFlagSnapshotToUsers = useCallback((flags: FeatureFlagState[]) => {
     const snapshot = flags.reduce((acc, flag) => {
       acc[flag.key] = flag.enabled;
@@ -92,18 +96,18 @@ export const ManagementDashboard: React.FC = () => {
   );
 
   useEffect(() => {
-    loadDashboardData();
     void loadPlatformSettings(true);
     // Auto-refresh every 30 seconds
     const interval = setInterval(() => {
-      loadDashboardData();
       void loadPlatformSettings();
     }, 30000);
     return () => clearInterval(interval);
   }, [loadPlatformSettings]);
 
-    setIsLoading(true);
-    try {
+  const loadDashboardData = useCallback(
+    async (force = false) => {
+      setIsLoading(true);
+      try {
       let scope: 'all' | 'team' | 'self' = 'self';
       if (authUserRole === 'admin') {
         scope = 'all';
@@ -150,14 +154,16 @@ export const ManagementDashboard: React.FC = () => {
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
       actions.notify('error', 'Failed to load dashboard data');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [authUserId, authUserRole, actions]);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [actions, authUserId, authUserRole]
+  );
 
   useEffect(() => {
-    loadDashboardData();
-    const interval = setInterval(() => loadDashboardData(), 30000);
+    void loadDashboardData();
+    const interval = setInterval(() => void loadDashboardData(), 30000);
     return () => clearInterval(interval);
   }, [loadDashboardData]);
 

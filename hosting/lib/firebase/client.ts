@@ -162,6 +162,8 @@ export const createCallableFunction = <T = any, R = any>(functionName: string) =
   return httpsCallable<T, R>(functions, functionName);
 };
 
+export const getFirestoreClient = (): Firestore => getFirebaseServices().firestore;
+
 // Common Cloud Functions
 export const callTRRAIFunction = createCallableFunction('aiTrrSuggest');
 export const callTRRExportFunction = createCallableFunction('trr-export');

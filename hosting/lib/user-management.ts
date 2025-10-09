@@ -14,7 +14,7 @@ import backendUserService, {
   UserProfile as BackendUserProfile,
   UserActivity as BackendUserActivity,
 } from './user-management-service';
-import { db } from './firebase/client';
+import { getFirestoreClient } from './firebase/client';
 
 export type UserRole = 'admin' | 'manager' | 'senior_dc' | 'dc' | 'se' | 'viewer';
 
@@ -282,12 +282,9 @@ export class UserManagementService {
   }
 
   private async fetchTeamsFromFirestore(): Promise<TeamRecord[]> {
-    if (!db) {
-      return [];
-    }
-
     try {
-      const snapshot = await getDocs(collection(db, 'teams'));
+      const firestore = getFirestoreClient();
+      const snapshot = await getDocs(collection(firestore, 'teams'));
       return snapshot.docs.map((doc) => {
         const data = doc.data() as Record<string, any>;
         const members = Array.isArray(data.members)
