@@ -33,8 +33,6 @@ export class CloudFunctionsAPI {
     engagementId: string;
     executiveTone?: string;
     emphasis?: { wins?: string[]; risks?: string[]; roadmap?: string[] };
-    recordSelections?: BlueprintRecordSelection[];
-    tailoredPrompt?: string;
   }): Promise<{
     success: boolean;
     blueprintId?: string;

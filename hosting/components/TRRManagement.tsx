@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
+import Papa from 'papaparse';
 import { TRR, CreateTRRFormData, UpdateTRRFormData, TRRFilters, TRRStatus, TRRPriority, TRRCategory, RiskLevel, ValidationMethod } from '../types/trr';
 import CortexButton from './CortexButton';
 
@@ -104,6 +105,289 @@ export let trrDatabase: TRR[] = [
     workflowStage: 'completed'
   }
 ];
+
+const statusValues: TRRStatus[] = ['draft', 'pending', 'in-progress', 'validated', 'failed', 'not-applicable', 'completed'];
+const priorityValues: TRRPriority[] = ['critical', 'high', 'medium', 'low'];
+const categoryValues: TRRCategory[] = ['security', 'performance', 'compliance', 'integration', 'usability', 'scalability', 'reliability'];
+const riskValues: RiskLevel[] = ['low', 'medium', 'high', 'critical'];
+const validationValues: ValidationMethod[] = ['manual', 'automated', 'hybrid', 'peer-review', 'compliance-check'];
+
+const normalizeString = (value: unknown): string => {
+  if (value === undefined || value === null) {
+    return '';
+  }
+  return String(value).trim();
+};
+
+const parseEnumValue = <T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  fallback: T,
+  aliases: Record<string, T> = {},
+): T => {
+  const normalized = normalizeString(value).toLowerCase();
+  if (!normalized) {
+    return fallback;
+  }
+
+  const canonical = normalized.replace(/[_\s]+/g, '-');
+  if (aliases[canonical]) {
+    return aliases[canonical];
+  }
+
+  return (allowed.find(item => item === canonical) ?? fallback) as T;
+};
+
+const parseListValue = (value: unknown): string[] => {
+  if (!value && value !== 0) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(item => normalizeString(item)).filter(Boolean);
+  }
+
+  const stringValue = normalizeString(value);
+  if (!stringValue) {
+    return [];
+  }
+
+  return stringValue
+    .split(/[,;\n|]/)
+    .map(item => item.trim())
+    .filter(Boolean);
+};
+
+const parseNumberValue = (value: unknown): number | undefined => {
+  const stringValue = normalizeString(value);
+  if (!stringValue) {
+    return undefined;
+  }
+
+  const parsed = Number(stringValue);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const parseDateValue = (value: unknown): string | undefined => {
+  const stringValue = normalizeString(value);
+  if (!stringValue) {
+    return undefined;
+  }
+
+  const parsed = Date.parse(stringValue);
+  if (!Number.isNaN(parsed)) {
+    return new Date(parsed).toISOString();
+  }
+
+  const usMatch = stringValue.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (usMatch) {
+    const [, month, day, year] = usMatch;
+    const normalizedYear = year.length === 2 ? `20${year}` : year;
+    return new Date(Number(normalizedYear), Number(month) - 1, Number(day)).toISOString();
+  }
+
+  return stringValue;
+};
+
+const parseComplexity = (value: unknown): 'simple' | 'moderate' | 'complex' | 'very-complex' => {
+  const stringValue = normalizeString(value).toLowerCase();
+  if (!stringValue) {
+    return 'moderate';
+  }
+
+  const normalized = stringValue.replace(/[_\s]+/g, '-');
+  if (['simple', 'moderate', 'complex', 'very-complex'].includes(normalized)) {
+    return normalized as 'simple' | 'moderate' | 'complex' | 'very-complex';
+  }
+
+  if (normalized === 'verycomplex' || normalized === 'very-complex') {
+    return 'very-complex';
+  }
+
+  return 'moderate';
+};
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> => {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+};
+
+const ensureUniqueId = (preferredId: string | undefined, existingIds: Set<string>): string => {
+  const fallback = preferredId && preferredId.trim() ? preferredId.trim() : generateTRRId();
+  const base = fallback.replace(/\s+/g, '-');
+  let candidate = base || generateTRRId();
+  let suffix = 1;
+
+  while (existingIds.has(candidate.toLowerCase())) {
+    candidate = `${base || generateTRRId()}-${suffix}`;
+    suffix += 1;
+  }
+
+  return candidate;
+};
+
+type ImportFeedback = {
+  type: 'success' | 'error';
+  message: string;
+  details?: string[];
+};
+
+const buildTRRFromInput = (input: Record<string, any>, existingIds: Set<string>): TRR => {
+  const normalized: Record<string, any> = { ...input };
+
+  Object.keys(input).forEach(key => {
+    if (typeof key === 'string') {
+      const lower = key.toLowerCase();
+      const compact = lower.replace(/[_\s-]+/g, '');
+      normalized[lower] = input[key];
+      normalized[compact] = input[key];
+    }
+  });
+
+  const getValue = (...keys: string[]): any => {
+    for (const key of keys) {
+      if (normalized[key] !== undefined) {
+        return normalized[key];
+      }
+      const lower = key.toLowerCase();
+      if (normalized[lower] !== undefined) {
+        return normalized[lower];
+      }
+      const compact = lower.replace(/[_\s-]+/g, '');
+      if (normalized[compact] !== undefined) {
+        return normalized[compact];
+      }
+    }
+    return undefined;
+  };
+
+  const now = new Date().toISOString();
+  const title = normalizeString(getValue('title', 'trr title', 'name')) || 'Imported TRR';
+  const description = normalizeString(getValue('description', 'summary', 'details')) || 'Imported via bulk upload';
+  const preferredId = normalizeString(getValue('id', 'trrId', 'trr_id', 'reference'));
+  const id = ensureUniqueId(preferredId, existingIds);
+  existingIds.add(id.toLowerCase());
+
+  const status = parseEnumValue(
+    getValue('status', 'state', 'trr status'),
+    statusValues,
+    'draft',
+    {
+      'in-progress': 'in-progress',
+      'inprogress': 'in-progress',
+      'in_progress': 'in-progress',
+      'not-applicable': 'not-applicable',
+      'notapplicable': 'not-applicable',
+    },
+  );
+
+  const priority = parseEnumValue(getValue('priority', 'severity', 'impact'), priorityValues, 'medium');
+  const category = parseEnumValue(getValue('category', 'type', 'trr category'), categoryValues, 'integration');
+  const riskLevel = parseEnumValue(getValue('riskLevel', 'risk level'), riskValues, 'low');
+  const validationMethod = parseEnumValue(
+    getValue('validationMethod', 'validation method', 'method'),
+    validationValues,
+    'manual',
+    {
+      'peer-review': 'peer-review',
+      'peerreview': 'peer-review',
+      'compliance-check': 'compliance-check',
+      'compliancecheck': 'compliance-check',
+    },
+  );
+
+  const acceptance = parseListValue(getValue('acceptanceCriteria', 'acceptance criteria'));
+  const dependencies = parseListValue(getValue('dependencies'));
+  const blockedBy = parseListValue(getValue('blockedBy', 'blocked by'));
+  const relatedTRRs = parseListValue(getValue('relatedTRRs', 'related trrs'));
+  const complianceFrameworks = parseListValue(getValue('complianceFrameworks', 'compliance frameworks'));
+  const regulatoryRequirements = parseListValue(getValue('regulatoryRequirements', 'regulatory requirements'));
+  const tags = parseListValue(getValue('tags', 'labels'));
+
+  const createdDate = parseDateValue(getValue('createdDate', 'created date')) ?? now;
+  const updatedDate = parseDateValue(getValue('updatedDate', 'updated date')) ?? createdDate;
+  const dueDate = parseDateValue(getValue('dueDate', 'due date'));
+  const startDate = parseDateValue(getValue('startDate', 'start date'));
+  const completedDate = parseDateValue(getValue('completedDate', 'completed date'));
+  const escalationDate = parseDateValue(getValue('escalationDate', 'escalation date'));
+
+  const estimatedHours = parseNumberValue(getValue('estimatedHours', 'estimated hours'));
+  const actualHours = parseNumberValue(getValue('actualHours', 'actual hours'));
+  const versionNumber = parseNumberValue(getValue('version'));
+
+  const evidenceValue = getValue('evidence');
+  const attachmentsValue = getValue('attachments');
+  const commentsValue = getValue('comments');
+  const validationResultsValue = getValue('validationResults');
+  const testCasesValue = getValue('testCases');
+  const signoffsValue = getValue('signoffs');
+  const approvalsValue = getValue('approvals');
+  const customFieldsValue = getValue('customFields');
+  const externalIdsValue = getValue('externalIds');
+
+  const archivedValue = getValue('archived');
+  const archived = typeof archivedValue === 'boolean'
+    ? archivedValue
+    : normalizeString(archivedValue).toLowerCase() === 'true';
+
+  const acceptanceCriteria = acceptance.length ? acceptance : [''];
+
+  return {
+    id,
+    title,
+    description,
+    category,
+    priority,
+    status,
+    assignedTo: normalizeString(getValue('assignedTo', 'assignee', 'owner')) || 'Unassigned',
+    assignedToEmail: normalizeString(getValue('assignedToEmail', 'assigneeEmail', 'ownerEmail')),
+    customer: normalizeString(getValue('customer', 'account', 'account name')) || 'Unknown Customer',
+    customerContact: normalizeString(getValue('customerContact', 'contact', 'contact email')) || undefined,
+    project: normalizeString(getValue('project', 'project name')) || undefined,
+    scenario: normalizeString(getValue('scenario')) || undefined,
+    validationMethod,
+    expectedOutcome: normalizeString(getValue('expectedOutcome', 'expected outcome')),
+    actualOutcome: normalizeString(getValue('actualOutcome', 'actual outcome')) || undefined,
+    acceptanceCriteria,
+    evidence: Array.isArray(evidenceValue) ? (evidenceValue as TRR['evidence']) : [],
+    attachments: Array.isArray(attachmentsValue) ? (attachmentsValue as TRR['attachments']) : [],
+    comments: Array.isArray(commentsValue) ? (commentsValue as TRR['comments']) : [],
+    createdDate,
+    updatedDate,
+    dueDate,
+    startDate,
+    completedDate,
+    estimatedHours,
+    actualHours,
+    complexity: parseComplexity(getValue('complexity')),
+    dependencies,
+    blockedBy,
+    relatedTRRs,
+    riskLevel,
+    businessImpact: normalizeString(getValue('businessImpact', 'business impact')),
+    technicalRisk: normalizeString(getValue('technicalRisk', 'technical risk')),
+    mitigationPlan: normalizeString(getValue('mitigationPlan', 'mitigation plan')) || undefined,
+    complianceFrameworks,
+    regulatoryRequirements,
+    validationResults: Array.isArray(validationResultsValue)
+      ? (validationResultsValue as TRR['validationResults'])
+      : [],
+    testCases: Array.isArray(testCasesValue) ? (testCasesValue as TRR['testCases']) : [],
+    signoffs: Array.isArray(signoffsValue) ? (signoffsValue as TRR['signoffs']) : [],
+    approvals: Array.isArray(approvalsValue) ? (approvalsValue as TRR['approvals']) : [],
+    tags,
+    customFields: isPlainObject(customFieldsValue)
+      ? (customFieldsValue as Record<string, any>)
+      : {},
+    archived,
+    version: versionNumber && versionNumber > 0 ? Math.round(versionNumber) : 1,
+    externalIds: isPlainObject(externalIdsValue)
+      ? (externalIdsValue as Record<string, string>)
+      : undefined,
+    workflowStage: normalizeString(getValue('workflowStage', 'workflow stage', 'stage')) || status,
+    nextActionRequired: normalizeString(getValue('nextActionRequired', 'next action required')) || undefined,
+    escalationDate,
+  };
+};
 
 // Utility functions
 const generateTRRId = (): string => {
@@ -840,6 +1124,116 @@ export const TRRManagement: React.FC = () => {
   const [trrs, setTRRs] = useState<TRR[]>(trrDatabase);
   const [selectedTRRs, setSelectedTRRs] = useState<string[]>([]);
   const [filters, setFilters] = useState<TRRFilters>({});
+  const [importFeedback, setImportFeedback] = useState<ImportFeedback | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleImportClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const feedbackDetails: string[] = [];
+    const imported: TRR[] = [];
+    const existingIds = new Set(trrDatabase.map(trr => trr.id.toLowerCase()));
+
+    try {
+      if (file.name.toLowerCase().endsWith('.json')) {
+        const text = await file.text();
+        let parsed: unknown;
+
+        try {
+          parsed = JSON.parse(text);
+        } catch (error) {
+          throw new Error('Invalid JSON file. Please ensure the file contains valid JSON.');
+        }
+
+        const entries = Array.isArray(parsed) ? parsed : [parsed];
+
+        entries.forEach((entry, index) => {
+          if (!isPlainObject(entry)) {
+            feedbackDetails.push(`Entry ${index + 1}: Skipped because it was not an object.`);
+            return;
+          }
+
+          const hasContent = Object.values(entry).some(value => normalizeString(value).length > 0);
+          if (!hasContent) {
+            feedbackDetails.push(`Entry ${index + 1}: No data detected. Skipped.`);
+            return;
+          }
+
+          const trr = buildTRRFromInput(entry as Record<string, any>, existingIds);
+          if (trr.title === 'Imported TRR') {
+            feedbackDetails.push(`Entry ${index + 1}: Title missing. Default applied.`);
+          }
+          imported.push(trr);
+        });
+      } else if (file.name.toLowerCase().endsWith('.csv')) {
+        const text = await file.text();
+        const { data, errors } = Papa.parse<Record<string, string>>(text, {
+          header: true,
+          skipEmptyLines: true,
+        });
+
+        errors.forEach(error => {
+          feedbackDetails.push(`Row ${typeof error.row === 'number' ? error.row + 1 : 'unknown'}: ${error.message}`);
+        });
+
+        data.forEach((row, index) => {
+          const normalizedRow: Record<string, any> = {};
+          Object.entries(row).forEach(([key, value]) => {
+            normalizedRow[key] = value;
+          });
+
+          const hasContent = Object.values(normalizedRow).some(value => normalizeString(value).length > 0);
+          if (!hasContent) {
+            feedbackDetails.push(`Row ${index + 2}: No data detected. Skipped.`);
+            return;
+          }
+
+          const trr = buildTRRFromInput(normalizedRow, existingIds);
+          if (trr.title === 'Imported TRR') {
+            feedbackDetails.push(`Row ${index + 2}: Title missing. Default applied.`);
+          }
+          imported.push(trr);
+        });
+      } else {
+        throw new Error('Unsupported file type. Please select a CSV or JSON file.');
+      }
+
+      if (imported.length > 0) {
+        setTRRs(prev => [...prev, ...imported]);
+        trrDatabase = [...trrDatabase, ...imported];
+        setImportFeedback({
+          type: 'success',
+          message: `Imported ${imported.length} TRR${imported.length === 1 ? '' : 's'} from ${file.name}.`,
+          details: feedbackDetails.length ? feedbackDetails : undefined,
+        });
+      } else {
+        setImportFeedback({
+          type: 'error',
+          message: `No TRRs were imported from ${file.name}.`,
+          details: feedbackDetails.length ? feedbackDetails : undefined,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to import TRRs:', error);
+      setImportFeedback({
+        type: 'error',
+        message: (error as Error).message || 'Failed to import TRRs.',
+      });
+    } finally {
+      event.target.value = '';
+    }
+  };
+
 
   const handleCreateTRR = (formData: CreateTRRFormData) => {
     const newTRR: TRR = {
@@ -925,6 +1319,13 @@ export const TRRManagement: React.FC = () => {
 
     return (
       <div className="space-y-6">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".csv,.json,application/json,text/csv"
+          className="hidden"
+          onChange={handleFileImport}
+        />
         {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-cortex-text-primary">TRR Management</h1>
@@ -932,11 +1333,9 @@ export const TRRManagement: React.FC = () => {
             <CortexButton
               variant="outline"
               icon="📤"
-              onClick={() => {
-                console.log("trr upload");
-              }}
+              onClick={handleImportClick}
             >
-              Import CSV
+              Import CSV/JSON
             </CortexButton>
             <CortexButton
               variant="outline"
@@ -956,6 +1355,27 @@ export const TRRManagement: React.FC = () => {
             </CortexButton>
           </div>
         </div>
+
+        {importFeedback && (
+          <div
+            className={`cortex-card border p-4 ${
+              importFeedback.type === 'success'
+                ? 'border-status-success/40 bg-status-success/5'
+                : 'border-status-error/40 bg-status-error/5'
+            }`}
+          >
+            <p className="text-sm font-semibold text-cortex-text-primary">
+              {importFeedback.message}
+            </p>
+            {importFeedback.details && importFeedback.details.length > 0 && (
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-cortex-text-secondary">
+                {importFeedback.details.map((detail, index) => (
+                  <li key={`${detail}-${index}`}>{detail}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">

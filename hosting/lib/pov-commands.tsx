@@ -4,10 +4,7 @@ import {
   requestBlueprintGeneration,
   subscribeToBlueprint,
   BadassBlueprintRecord,
-  BlueprintRecordSelection,
 } from './badass-blueprint-service';
-import { dcContextStore, type CustomerEngagement, type ActivePOV, type TRRRecord } from './dc-context-store';
-import { DCAPIClient } from './dc-api-client';
 
 // POV engagement data structures
 interface POVEngagement {
@@ -518,229 +515,6 @@ const handlePovCleanup = (args: string[]) => {
 };
 
 // Generate a "badass blueprint" roll-up with transformation journey and PDF link
-interface SelectableBlueprintRecord {
-  id: string;
-  label: string;
-  description: string;
-  selection: BlueprintRecordSelection;
-  details?: {
-    typeLabel: string;
-    status?: string;
-    healthScore?: number;
-  };
-}
-
-const sanitizeContextPayload = <T,>(value: T): T => {
-  try {
-    return JSON.parse(JSON.stringify(value));
-  } catch (error) {
-    console.warn('Failed to sanitize blueprint selection context', error);
-    return value;
-  }
-};
-
-const computeHealthScoreFromCustomer = (customer: CustomerEngagement): number => {
-  const milestones = customer.timeline?.keyMilestones || [];
-  const completed = milestones.filter(milestone => milestone.status === 'complete').length;
-  const atRisk = milestones.filter(milestone => milestone.status === 'at-risk').length;
-  const total = Math.max(milestones.length, 1);
-  const completionScore = (completed / total) * 45;
-  const momentumScore = Math.min(customer.notes?.length || 0, 6) * 4;
-  const maturityWeights: Record<CustomerEngagement['maturityLevel'], number> = {
-    basic: 6,
-    intermediate: 12,
-    advanced: 18,
-    expert: 22,
-  };
-  const maturityScore = maturityWeights[customer.maturityLevel] ?? 10;
-  const riskPenalty = atRisk * 6;
-  const base = 45 + completionScore + momentumScore + maturityScore - riskPenalty;
-  return Math.max(35, Math.min(95, Math.round(base)));
-};
-
-const toCustomerSelectionContext = (customer: CustomerEngagement) =>
-  sanitizeContextPayload({
-    id: customer.id,
-    name: customer.name,
-    industry: customer.industry,
-    maturityLevel: customer.maturityLevel,
-    primaryConcerns: customer.primaryConcerns,
-    techStack: customer.techStack,
-    stakeholders: customer.stakeholders,
-    timeline: customer.timeline,
-    budget: customer.budget,
-    competition: customer.competition,
-    notes: customer.notes,
-  });
-
-const toPovSelectionContext = (pov: ActivePOV) =>
-  sanitizeContextPayload({
-    id: pov.id,
-    name: pov.name,
-    status: pov.status,
-    scenarios: pov.scenarios,
-    objectives: pov.objectives,
-    successMetrics: pov.successMetrics,
-    timeline: pov.timeline,
-    outcomes: pov.outcomes,
-    nextSteps: pov.nextSteps,
-    aiInsights: pov.aiInsights,
-    resources: pov.resources,
-  });
-
-const toTrrSelectionContext = (trr: TRRRecord) =>
-  sanitizeContextPayload({
-    id: trr.id,
-    title: trr.title,
-    priority: trr.priority,
-    status: trr.status,
-    description: trr.description,
-    acceptanceCriteria: trr.acceptanceCriteria,
-    validationMethod: trr.validationMethod,
-    validationEvidence: trr.validationEvidence,
-    timeline: trr.timeline,
-    riskLevel: trr.riskLevel,
-    businessImpact: trr.businessImpact,
-    dependencies: trr.dependencies,
-    notes: trr.notes,
-    reviewers: trr.reviewers,
-    assignedTo: trr.assignedTo,
-  });
-
-const buildSelectableRecordsFromContext = (): SelectableBlueprintRecord[] => {
-  if (typeof window === 'undefined') return [];
-
-  const customers = dcContextStore.getAllCustomerEngagements();
-  const povs = dcContextStore.getAllActivePOVs();
-  const trrs = dcContextStore.getAllTRRRecords();
-
-  const customerMap = new Map<string, CustomerEngagement>(customers.map(customer => [customer.id, customer]));
-  const records: SelectableBlueprintRecord[] = [];
-
-  customers.forEach(customer => {
-    const commonName = customer.name || `Customer ${customer.id}`;
-    records.push({
-      id: `customer:${customer.id}`,
-      label: `${commonName} • Customer Engagement`,
-      description: `${customer.industry} • ${customer.maturityLevel} maturity • ${
-        customer.timeline?.keyMilestones?.length || 0
-      } milestones`,
-      selection: {
-        source: 'customer',
-        recordId: customer.id,
-        commonName,
-        customerId: customer.id,
-        context: toCustomerSelectionContext(customer),
-      },
-      details: {
-        typeLabel: 'Customer',
-        status: customer.timeline?.keyMilestones?.slice(-1)[0]?.status,
-      },
-    });
-  });
-
-  povs.forEach(pov => {
-    const baseCustomer = customerMap.get(pov.customerId);
-    const commonName = baseCustomer?.name || pov.name || pov.id;
-    records.push({
-      id: `pov:${pov.id}`,
-      label: `${commonName} • POV: ${pov.name}`,
-      description: `Status: ${pov.status} • ${pov.scenarios.length} scenarios`,
-      selection: {
-        source: 'pov',
-        recordId: pov.id,
-        commonName,
-        customerId: pov.customerId,
-        context: toPovSelectionContext(pov),
-      },
-      details: {
-        typeLabel: 'POV',
-        status: pov.status,
-      },
-    });
-  });
-
-  trrs.forEach(trr => {
-    const baseCustomer = customerMap.get(trr.customerId);
-    const commonName = baseCustomer?.name || trr.title || trr.customerId || trr.id;
-    records.push({
-      id: `trr:${trr.id}`,
-      label: `${commonName} • TRR: ${trr.title}`,
-      description: `Priority: ${trr.priority} • Status: ${trr.status}`,
-      selection: {
-        source: 'trr',
-        recordId: trr.id,
-        commonName,
-        customerId: trr.customerId,
-        context: toTrrSelectionContext(trr),
-      },
-      details: {
-        typeLabel: 'TRR',
-        status: trr.status,
-      },
-    });
-  });
-
-  customers.forEach(customer => {
-    const commonName = customer.name || `Customer ${customer.id}`;
-    const healthScore = computeHealthScoreFromCustomer(customer);
-    records.push({
-      id: `health:${customer.id}`,
-      label: `${commonName} • Health Flow`,
-      description: `Composite health score ${healthScore}/100 across ${
-        customer.timeline?.keyMilestones?.length || 0
-      } milestones`,
-      selection: {
-        source: 'health',
-        recordId: `health-${customer.id}`,
-        commonName,
-        customerId: customer.id,
-        context: sanitizeContextPayload({
-          customerId: customer.id,
-          healthScore,
-          milestones: customer.timeline?.keyMilestones || [],
-          notes: customer.notes || [],
-          maturityLevel: customer.maturityLevel,
-          primaryConcerns: customer.primaryConcerns,
-        }),
-      },
-      details: {
-        typeLabel: 'Health Flow',
-        status: `${healthScore}/100`,
-        healthScore,
-      },
-    });
-  });
-
-  const unique = new Map<string, SelectableBlueprintRecord>();
-  records.forEach(record => {
-    unique.set(record.id, record);
-  });
-
-  return Array.from(unique.values()).sort((a, b) => a.label.localeCompare(b.label));
-};
-
-const loadSelectableRecords = async (): Promise<SelectableBlueprintRecord[]> => {
-  if (typeof window === 'undefined') return [];
-  let records = buildSelectableRecordsFromContext();
-  if (records.length > 0) {
-    return records;
-  }
-
-  try {
-    const apiClient = new DCAPIClient();
-    const response = await apiClient.fetchUserContext();
-    if (!response.success) {
-      console.warn('Failed to refresh DC context before blueprint selection', response.error);
-    }
-  } catch (error) {
-    console.warn('Blueprint record fetch failed', error);
-  }
-
-  records = buildSelectableRecordsFromContext();
-  return records;
-};
-
 const PovBadassBlueprintView: React.FC<{ args: string[] }> = ({ args }) => {
   const getArgValue = React.useCallback((flag: string): string | undefined => {
     const index = args.indexOf(flag);
@@ -781,97 +555,13 @@ const PovBadassBlueprintView: React.FC<{ args: string[] }> = ({ args }) => {
     () => `${emphasis.wins.join('|')}::${emphasis.risks.join('|')}::${emphasis.roadmap.join('|')}`,
     [emphasis]
   );
-  const [availableRecords, setAvailableRecords] = React.useState<SelectableBlueprintRecord[]>([]);
-  const [loadingRecords, setLoadingRecords] = React.useState(false);
-  const [selectedRecordIds, setSelectedRecordIds] = React.useState<string[]>([]);
-  const [promptDraft, setPromptDraft] = React.useState('');
-  const [debouncedPrompt, setDebouncedPrompt] = React.useState('');
-
-  React.useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    let cancelled = false;
-
-    const load = async () => {
-      setLoadingRecords(true);
-      try {
-        const records = await loadSelectableRecords();
-        if (cancelled) return;
-        setAvailableRecords(records);
-        setSelectedRecordIds(current => {
-          if (current.length > 0) return current;
-          if (records.length === 0) return current;
-
-          const preferred = records
-            .filter(record => {
-              if (!engagementId) return false;
-              if (record.selection.recordId === engagementId) return true;
-              if (record.selection.customerId === engagementId) return true;
-              return record.selection.commonName
-                .toLowerCase()
-                .includes(engagementId.toLowerCase());
-            })
-            .map(record => record.id);
-
-          const fallback = preferred.length > 0
-            ? preferred
-            : records.slice(0, Math.min(2, records.length)).map(record => record.id);
-
-          return Array.from(new Set(fallback));
-        });
-      } finally {
-        if (!cancelled) {
-          setLoadingRecords(false);
-        }
-      }
-    };
-
-    load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [engagementId]);
-
-  React.useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    const handle = window.setTimeout(() => {
-      setDebouncedPrompt(promptDraft.trim());
-    }, 400);
-    return () => window.clearTimeout(handle);
-  }, [promptDraft]);
-
-  const selectionKey = React.useMemo(() => {
-    const keys = selectedRecordIds
-      .map(id => {
-        const record = availableRecords.find(item => item.id === id);
-        if (!record) return null;
-        return `${record.selection.source}:${record.selection.recordId}`;
-      })
-      .filter(Boolean) as string[];
-    return keys.sort().join(',');
-  }, [availableRecords, selectedRecordIds]);
-
-  const requestKey = `${engagementId}|${executiveTone}|${emphasisKey}|${selectionKey}|${debouncedPrompt || ''}`;
-
-  const selectedRecords = React.useMemo(() => {
-    const set = new Set(selectedRecordIds);
-    return availableRecords.filter(record => set.has(record.id));
-  }, [availableRecords, selectedRecordIds]);
+  const requestKey = `${engagementId}|${executiveTone}|${emphasisKey}`;
 
   const [blueprint, setBlueprint] = React.useState<BadassBlueprintRecord | null>(null);
   const [blueprintId, setBlueprintId] = React.useState<string | null>(null);
   const [status, setStatus] = React.useState<'idle' | 'requesting' | 'watching' | 'ready' | 'error'>('idle');
   const [error, setError] = React.useState<string | null>(null);
   const [elapsedMs, setElapsedMs] = React.useState(0);
-
-  const handleRecordChange = React.useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
-    const values = Array.from(event.target.selectedOptions).map(option => option.value);
-    setSelectedRecordIds(values);
-  }, []);
-
-  const handlePromptChange = React.useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setPromptDraft(event.target.value);
-  }, []);
 
   const requestRef = React.useRef<string | null>(null);
 
@@ -913,16 +603,10 @@ const PovBadassBlueprintView: React.FC<{ args: string[] }> = ({ args }) => {
       setError(null);
 
       try {
-        const selectionsPayload = selectedRecordIds
-          .map(id => availableRecords.find(item => item.id === id)?.selection)
-          .filter(Boolean) as BlueprintRecordSelection[];
-
         const response = await requestBlueprintGeneration({
           engagementId,
           executiveTone,
           emphasis,
-          recordSelections: selectionsPayload,
-          tailoredPrompt: debouncedPrompt || undefined,
         });
 
         if (cancelled) {
@@ -943,15 +627,7 @@ const PovBadassBlueprintView: React.FC<{ args: string[] }> = ({ args }) => {
     return () => {
       cancelled = true;
     };
-  }, [
-    requestKey,
-    engagementId,
-    executiveTone,
-    emphasis,
-    availableRecords,
-    selectedRecordIds,
-    debouncedPrompt,
-  ]);
+  }, [requestKey, engagementId, executiveTone, emphasis]);
 
   React.useEffect(() => {
     if (!blueprintId || typeof window === 'undefined') {
@@ -1074,151 +750,6 @@ const PovBadassBlueprintView: React.FC<{ args: string[] }> = ({ args }) => {
     </div>
   ), [analytics, blueprint]);
 
-  const renderRecordPicker = React.useCallback(() => {
-    if (loadingRecords) {
-      return (
-        <div className="border border-slate-700 rounded p-4 bg-slate-900/40">
-          <div className="text-cyan-400 font-semibold mb-1">Supporting Records</div>
-          <div className="text-xs text-cortex-text-secondary">Loading record catalog…</div>
-        </div>
-      );
-    }
-
-    if (availableRecords.length === 0) {
-      return (
-        <div className="border border-slate-700 rounded p-4 bg-slate-900/40">
-          <div className="text-cyan-400 font-semibold mb-1">Supporting Records</div>
-          <div className="text-xs text-cortex-text-secondary">
-            No saved POV/TRR records found yet. Run{' '}
-            <span className="font-mono text-green-400">dc sync</span> to import your customer workspace.
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="border border-slate-700 rounded p-4 bg-slate-900/40 space-y-3">
-        <div>
-          <div className="text-cyan-400 font-semibold">Supporting Records</div>
-          <div className="text-xs text-cortex-text-secondary">
-            Select multiple customer artifacts to weave into the blueprint narrative.
-          </div>
-        </div>
-        <select
-          multiple
-          value={selectedRecordIds}
-          onChange={handleRecordChange}
-          className="w-full h-32 bg-slate-950/70 border border-slate-700 rounded px-2 py-2 text-sm text-gray-100 focus:outline-none focus:border-cyan-500"
-        >
-          {availableRecords.map(record => (
-            <option key={record.id} value={record.id}>
-              {record.label}
-            </option>
-          ))}
-        </select>
-        <div className="flex flex-wrap gap-2">
-          {selectedRecords.length > 0 ? (
-            selectedRecords.map(record => (
-              <span
-                key={record.id}
-                className="px-2 py-1 rounded border border-cyan-600/60 bg-cyan-900/30 text-xs text-cyan-100"
-              >
-                {record.details?.typeLabel ? `${record.details.typeLabel}: ` : ''}
-                {record.selection.commonName}
-              </span>
-            ))
-          ) : (
-            <span className="text-xs text-cortex-text-secondary">
-              Select at least one record to activate blueprint blending.
-            </span>
-          )}
-        </div>
-      </div>
-    );
-  }, [availableRecords, handleRecordChange, loadingRecords, selectedRecordIds, selectedRecords]);
-
-  const renderTailoredPrompt = React.useCallback(
-    () => (
-      <div className="border border-slate-700 rounded p-4 bg-slate-900/40 space-y-2">
-        <div className="text-cyan-400 font-semibold">Tailored Prompt</div>
-        <div className="text-xs text-cortex-text-secondary">
-          Give the multi-modal engine a pointed executive ask (e.g. board readiness, automation velocity, risk posture).
-        </div>
-        <textarea
-          value={promptDraft}
-          onChange={handlePromptChange}
-          rows={4}
-          placeholder="Focus on the automation wins that resonate with the CISO and highlight roadmap acceleration."
-          className="w-full bg-slate-950/70 border border-slate-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-purple-500"
-        />
-        {debouncedPrompt && (
-          <div className="text-xs text-cortex-text-secondary">
-            Locked prompt: <span className="text-cyan-200">{debouncedPrompt}</span>
-          </div>
-        )}
-      </div>
-    ),
-    [debouncedPrompt, handlePromptChange, promptDraft]
-  );
-
-  const renderSupportingRecords = React.useCallback(() => {
-    const supporting = (blueprint?.contextSnapshot?.supportingRecords as any[]) || [];
-    const fallback = blueprint?.selections || [];
-
-    if (supporting.length === 0 && fallback.length === 0 && selectedRecords.length === 0) {
-      return (
-        <div className="border border-slate-700 rounded p-4 bg-slate-900/40 text-xs text-cortex-text-secondary">
-          Selected records will appear here once the blueprint run begins.
-        </div>
-      );
-    }
-
-    const recordsToRender = supporting.length > 0
-      ? supporting
-      : fallback.length > 0
-      ? fallback
-      : selectedRecords.map(record => ({
-          source: record.selection.source,
-          recordId: record.selection.recordId,
-          commonName: record.selection.commonName,
-          summary: record.description,
-          details: record.details,
-        }));
-
-    return (
-      <div className="border border-slate-700 rounded p-4 bg-slate-900/40 space-y-3">
-        <div className="text-cyan-400 font-semibold">Context Blend</div>
-        <div className="text-xs text-cortex-text-secondary">
-          Blueprint is combining {recordsToRender.length} record{recordsToRender.length === 1 ? '' : 's'} across POV, TRR, and health data.
-        </div>
-        <ul className="space-y-2 text-xs text-gray-200">
-          {recordsToRender.map((record: any, index: number) => (
-            <li
-              key={`${record.recordId || record.id || index}`}
-              className="border border-slate-700/60 rounded px-3 py-2 bg-slate-950/40"
-            >
-              <div className="flex justify-between items-start gap-2">
-                <div className="font-semibold text-white">{record.commonName || record.label}</div>
-                <div className="text-[10px] uppercase tracking-wide text-cyan-300">
-                  {(record.source || record.type || record.details?.typeLabel || 'record').toString()}
-                </div>
-              </div>
-              {record.summary && <div className="text-cortex-text-secondary mt-1">{record.summary}</div>}
-              {Array.isArray(record.highlights) && record.highlights.length > 0 && (
-                <div className="text-cortex-text-secondary mt-1">
-                  {(record.highlights as string[]).slice(0, 3).join(' • ')}
-                </div>
-              )}
-              {record.details?.status && (
-                <div className="text-cortex-text-secondary mt-1">Status: {record.details.status}</div>
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  }, [blueprint, selectedRecords]);
-
   const renderAnalytics = React.useCallback(() => {
     if (!analytics) return null;
     const formatPercent = (value: number | null | undefined) =>
@@ -1289,6 +820,8 @@ const PovBadassBlueprintView: React.FC<{ args: string[] }> = ({ args }) => {
           Multi-modal extension that compiles POV/TRR context into an executive-ready blueprint and artifact bundle.
         </div>
       </div>
+    );
+  }, [analytics]);
 
       <div className="flex flex-wrap items-center gap-3 text-xs">
         <span className="px-2 py-1 rounded-full border border-cyan-500/60 bg-cyan-900/30 text-cyan-200">
@@ -1303,15 +836,6 @@ const PovBadassBlueprintView: React.FC<{ args: string[] }> = ({ args }) => {
         <span className="px-2 py-1 rounded-full border border-slate-600 bg-slate-900/40 text-slate-200">
           Elapsed: {elapsedSeconds}s
         </span>
-        <span className="px-2 py-1 rounded-full border border-cyan-700/60 bg-cyan-900/40 text-cyan-100">
-          Records: {Math.max(selectedRecords.length, blueprint?.selections?.length || 0)}
-        </span>
-        {(debouncedPrompt || promptDraft || blueprint?.tailoredPrompt) && (
-          <span className="px-2 py-1 rounded-full border border-purple-600/60 bg-purple-900/40 text-purple-100">
-            Prompt: {(blueprint?.tailoredPrompt || debouncedPrompt || promptDraft).slice(0, 48)}
-            {(blueprint?.tailoredPrompt || debouncedPrompt || promptDraft).length > 48 ? '…' : ''}
-          </span>
-        )}
         {blueprint?.payload?.executiveTheme && (
           <span className="px-2 py-1 rounded-full border border-green-600/50 bg-green-900/30 text-green-200">
             Theme: {blueprint.payload.executiveTheme}
@@ -1326,14 +850,6 @@ const PovBadassBlueprintView: React.FC<{ args: string[] }> = ({ args }) => {
       )}
 
       {renderAnalytics()}
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="space-y-4">
-          {renderRecordPicker()}
-          {renderTailoredPrompt()}
-        </div>
-        <div>{renderSupportingRecords()}</div>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 space-y-4">

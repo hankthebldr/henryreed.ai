@@ -3,22 +3,6 @@ export interface BadassBlueprintEmphasis {
     risks?: string[];
     roadmap?: string[];
 }
-export interface BlueprintRecordSelection {
-    source: 'customer' | 'pov' | 'trr' | 'health';
-    recordId: string;
-    commonName: string;
-    customerId?: string;
-    context?: Record<string, any>;
-}
-export interface BlueprintSupportingRecord {
-    source: string;
-    recordId: string;
-    commonName: string;
-    summary?: string;
-    highlights?: string[];
-    metrics?: Record<string, any>;
-    details?: Record<string, any>;
-}
 export interface BlueprintFileMetadata {
     storagePath: string;
     checksumSha256?: string;
@@ -67,6 +51,4 @@ export interface BlueprintDocument extends Record<string, any> {
         executiveTheme: string;
     };
     emphasis?: BadassBlueprintEmphasis;
-    selections?: BlueprintRecordSelection[];
-    tailoredPrompt?: string;
 }

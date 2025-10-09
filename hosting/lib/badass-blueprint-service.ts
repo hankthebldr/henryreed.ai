@@ -36,8 +36,6 @@ export interface BadassBlueprintRecord {
   analytics?: BlueprintAnalytics;
   contextSnapshot?: Record<string, any>;
   emphasis?: { wins?: string[]; risks?: string[]; roadmap?: string[] };
-  selections?: BlueprintRecordSelection[];
-  tailoredPrompt?: string;
   payload?: {
     sections?: number;
     executiveTheme?: string;
@@ -49,22 +47,12 @@ export interface BlueprintGenerationOptions {
   engagementId: string;
   executiveTone?: string;
   emphasis?: { wins?: string[]; risks?: string[]; roadmap?: string[] };
-  recordSelections?: BlueprintRecordSelection[];
-  tailoredPrompt?: string;
 }
 
 export interface BlueprintGenerationResponse {
   blueprintId: string;
   status: string;
   payloadPath: string;
-}
-
-export interface BlueprintRecordSelection {
-  source: 'customer' | 'pov' | 'trr' | 'health';
-  recordId: string;
-  commonName: string;
-  customerId?: string;
-  context?: Record<string, any>;
 }
 
 const apiSingleton = new CloudFunctionsAPI();
@@ -91,8 +79,6 @@ const buildRecord = (snapshot: any): BadassBlueprintRecord => {
     analytics: data.analytics,
     contextSnapshot: data.contextSnapshot,
     emphasis: data.emphasis,
-    selections: data.selections,
-    tailoredPrompt: data.tailoredPrompt,
     payload: data.payload,
     error: data.error || null,
   };

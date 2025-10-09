@@ -1,4 +1,4 @@
-import { BadassBlueprintEmphasis, BlueprintRecordSelection, BlueprintSupportingRecord } from '../handlers/badass-blueprint-types';
+import { BadassBlueprintEmphasis } from '../handlers/badass-blueprint-types';
 export interface EngagementTimelineEntry {
     label: string;
     timestamp: string;
@@ -44,9 +44,6 @@ export interface EngagementContextSnapshot {
         source: string;
         tokens: number;
     }[];
-    supportingRecords?: BlueprintSupportingRecord[];
-    tailoredPrompt?: string;
-    recordSelections?: BlueprintRecordSelection[];
 }
 export interface BlueprintVisualBlock {
     type: 'progress' | 'heatmap' | 'stat' | 'callout';

@@ -15,26 +15,13 @@ import {
   generateBadassBlueprintPayload,
   EngagementContextSnapshot,
   BadassBlueprintPayload,
-  EngagementNote,
-  EngagementScenarioOutcome,
-  EngagementMetricSnapshot,
 } from '../ai/badass-blueprint-extension';
 import {
   BadassBlueprintEmphasis,
   BlueprintDocument,
   BlueprintAnalyticsSnapshot,
   BlueprintFileMetadata,
-  BlueprintRecordSelection,
-  BlueprintSupportingRecord,
 } from './badass-blueprint-types';
-
-const recordSelectionSchema = z.object({
-  source: z.enum(['customer', 'pov', 'trr', 'health']),
-  recordId: z.string().min(1),
-  commonName: z.string().min(1),
-  customerId: z.string().optional(),
-  context: z.record(z.any()).optional(),
-});
 
 const blueprintRequestSchema = z.object({
   engagementId: z.string().min(3, 'engagementId must be provided'),
@@ -46,8 +33,6 @@ const blueprintRequestSchema = z.object({
       roadmap: z.array(z.string()).optional(),
     })
     .optional(),
-  recordSelections: z.array(recordSelectionSchema).max(20).optional(),
-  tailoredPrompt: z.string().max(800).optional(),
 });
 
 export type BlueprintRequest = z.infer<typeof blueprintRequestSchema>;
@@ -67,7 +52,7 @@ const firestore = admin.firestore();
 const storage = admin.storage();
 
 const getPubSubClient = (() => {
-  let client: any = null;
+  let client: PubSub | null = null;
   return () => {
     if (!client) {
       client = new PubSub();
@@ -77,7 +62,7 @@ const getPubSubClient = (() => {
 })();
 
 const getBigQueryClient = (() => {
-  let client: any = null;
+  let client: BigQuery | null = null;
   return () => {
     if (!client) {
       client = new BigQuery();
@@ -240,378 +225,9 @@ const fetchEngagementNotes = async (engagementId: string): Promise<EngagementCon
   return notes;
 };
 
-const fetchSelectionData = async (selection: BlueprintRecordSelection): Promise<Record<string, any>> => {
-  if (selection.context && Object.keys(selection.context).length > 0) {
-    return selection.context;
-  }
-
-  const tryCollections = async (collections: string[]): Promise<FirebaseFirestore.DocumentData | null> => {
-    for (const name of collections) {
-      try {
-        const snapshot = await firestore.collection(name).doc(selection.recordId).get();
-        if (snapshot.exists) {
-          const data = snapshot.data();
-          if (data) {
-            return data;
-          }
-        }
-      } catch (error) {
-        logger.debug('Failed to fetch selection context', {
-          collection: name,
-          recordId: selection.recordId,
-          source: selection.source,
-          error,
-        });
-      }
-    }
-    return null;
-  };
-
-  switch (selection.source) {
-    case 'pov': {
-      const data = await tryCollections(['povs', 'engagementPovs']);
-      if (data) return data;
-      break;
-    }
-    case 'trr': {
-      const data = await tryCollections(['trrRecords', 'trrs']);
-      if (data) return data;
-      break;
-    }
-    case 'customer': {
-      const data = await tryCollections(['customers', 'customerEngagements']);
-      if (data) return data;
-      break;
-    }
-    case 'health': {
-      const data = await tryCollections(['engagementHealth', 'healthFlows']);
-      if (data) return data;
-      break;
-    }
-    default:
-      break;
-  }
-
-  return selection.context || {};
-};
-
-const createNote = (note: string, category: string, author = 'Domain Consultant'): EngagementNote => ({
-  author,
-  note,
-  category,
-  createdAt: new Date().toISOString(),
-});
-
-interface SelectionAugmentation {
-  record: BlueprintSupportingRecord;
-  notes: EngagementNote[];
-  scenarios: EngagementScenarioOutcome[];
-  metrics?: Partial<EngagementMetricSnapshot>;
-  transcripts?: { source: string; tokens: number }[];
-  timelineEntries?: EngagementContextSnapshot['timeline'];
-}
-
-const deriveSelectionAugmentation = (
-  selection: BlueprintRecordSelection,
-  data: Record<string, any>,
-  nowIso: string
-): SelectionAugmentation => {
-  const baseRecord: BlueprintSupportingRecord = {
-    source: selection.source,
-    recordId: selection.recordId,
-    commonName: selection.commonName,
-  };
-
-  const notes: EngagementNote[] = [];
-  const scenarios: EngagementScenarioOutcome[] = [];
-  const timelineEntries: EngagementContextSnapshot['timeline'] = [];
-  const highlights: string[] = [];
-  const transcripts: { source: string; tokens: number }[] = [];
-  let metrics: Partial<EngagementMetricSnapshot> | undefined;
-
-  switch (selection.source) {
-    case 'customer': {
-      const milestones = Array.isArray(data?.timeline?.keyMilestones) ? data.timeline.keyMilestones : [];
-      const completedMilestones = milestones.filter((milestone: any) => milestone?.status === 'complete').length;
-      const concerns = Array.isArray(data?.primaryConcerns) ? data.primaryConcerns : [];
-      const techStack = Array.isArray(data?.techStack) ? data.techStack : [];
-
-      baseRecord.summary = `Customer engagement ${selection.commonName} operates in ${
-        data?.industry || 'target industry'
-      } with ${data?.maturityLevel || 'intermediate'} maturity across ${milestones.length} milestones.`;
-      baseRecord.details = {
-        typeLabel: 'Customer',
-        status: data?.maturityLevel || 'maturing',
-      };
-      highlights.push(
-        ...concerns.slice(0, 3).map((item: any) => `Concern:${String(item)}`),
-        ...techStack.slice(0, 2).map((item: any) => `Stack:${String(item)}`)
-      );
-
-      if (Array.isArray(data?.notes)) {
-        data.notes.slice(0, 6).forEach((item: any) => {
-          notes.push(createNote(String(item), 'customer-note', data?.ownerId ? `Owner: ${data.ownerId}` : undefined));
-        });
-      }
-
-      scenarios.push({
-        id: `${selection.recordId}-maturity`,
-        name: `${selection.commonName} Maturity Alignment`,
-        status: 'completed',
-        impact: `Engagement maturity rated ${data?.maturityLevel || 'intermediate'} focusing on ${
-          concerns.slice(0, 2).join(', ') || 'core objectives'
-        }.`,
-        metrics: {
-          dwellTimeHours: 6,
-          detectionsValidated: Math.max(6, concerns.length * 2 + 4),
-          automationScore: Math.min(0.92, 0.6 + completedMilestones * 0.05),
-        },
-        highlights: [
-          `Industry:${data?.industry || 'N/A'}`,
-          `Milestones:${completedMilestones}/${milestones.length || 1}`,
-          ...concerns.slice(0, 2).map((item: any) => `Focus:${String(item)}`),
-        ],
-      });
-
-      metrics = {
-        riskScore: Math.max(0.18, 0.42 - completedMilestones * 0.05),
-        automationConfidence: Math.min(0.95, 0.62 + completedMilestones * 0.04),
-        coveragePercentage: Math.min(100, 55 + milestones.length * 5 + concerns.length * 4),
-        timeToValueDays: Math.max(18, 45 - completedMilestones * 3),
-        quantifiedValue: Math.max(150000, 200000 + completedMilestones * 15000),
-      };
-
-      milestones.slice(0, 4).forEach((milestone: any) => {
-        timelineEntries.push({
-          label: `Milestone: ${milestone?.name || 'Key milestone'}`,
-          timestamp: toIsoString(milestone?.date || milestone?.planned || nowIso) || nowIso,
-          description: `Status ${milestone?.status || 'pending'} • ${milestone?.description || 'Customer milestone update.'}`,
-        });
-      });
-      break;
-    }
-
-    case 'pov': {
-      const povScenarios = Array.isArray(data?.scenarios) ? data.scenarios : [];
-      const objectives = Array.isArray(data?.objectives) ? data.objectives : [];
-      const successMetrics = Array.isArray(data?.successMetrics) ? data.successMetrics : [];
-      const nextSteps = Array.isArray(data?.nextSteps) ? data.nextSteps : [];
-
-      baseRecord.summary = `POV ${data?.name || selection.commonName} (${data?.status || 'active'}) covers ${
-        povScenarios.length
-      } scenarios with ${successMetrics.length} success metrics.`;
-      baseRecord.details = {
-        typeLabel: 'POV',
-        status: data?.status || 'active',
-      };
-      highlights.push(
-        ...successMetrics.slice(0, 3).map((metric: any) => `Win:${String(metric)}`),
-        ...objectives.slice(0, 2).map((objective: any) => `Objective:${String(objective)}`)
-      );
-
-      povScenarios.forEach((scenario: any, index: number) => {
-        scenarios.push({
-          id: `${selection.recordId}-scenario-${index + 1}`,
-          name: scenario?.name || scenario?.title || `Scenario ${index + 1}`,
-          status: scenario?.status || 'validated',
-          impact:
-            scenario?.results ||
-            scenario?.customerFeedback ||
-            scenario?.description ||
-            'Scenario validated during POV execution.',
-          metrics: {
-            dwellTimeHours: Number(scenario?.dwellTimeHours) || Math.max(4, Math.round(Math.random() * 6) + 4),
-            detectionsValidated: Number(scenario?.detectionsValidated) || Math.max(6, (scenario?.validatedDetections || 0) + 6),
-            automationScore: Math.min(0.95, Number(scenario?.automationScore) || 0.7),
-          },
-          highlights: [
-            `Type:${scenario?.type || 'Scenario'}`,
-            ...(Array.isArray(scenario?.keyFindings)
-              ? scenario.keyFindings.slice(0, 2).map((item: any) => String(item))
-              : []),
-            ...(scenario?.customerFeedback ? [`Feedback:${String(scenario.customerFeedback)}`] : []),
-          ],
-        });
-      });
-
-      if (scenarios.length === 0) {
-        scenarios.push({
-          id: `${selection.recordId}-scenario-1`,
-          name: `${selection.commonName} Scenario`,
-          status: data?.status || 'executing',
-          impact: 'Scenario insights derived from POV selection.',
-          metrics: { dwellTimeHours: 5, detectionsValidated: 8, automationScore: 0.68 },
-          highlights: ['POV Scenario'],
-        });
-      }
-
-      objectives.slice(0, 4).forEach((item: any) => notes.push(createNote(String(item), 'pov-objective')));
-      successMetrics.slice(0, 4).forEach((metric: any) => notes.push(createNote(String(metric), 'pov-success')));
-      nextSteps.slice(0, 4).forEach((step: any) => notes.push(createNote(String(step), 'pov-next-step')));
-
-      metrics = {
-        riskScore: Math.max(0.12, 0.34 - scenarios.length * 0.025),
-        automationConfidence: Math.min(0.95, 0.64 + scenarios.length * 0.045),
-        coveragePercentage: Math.min(100, 60 + scenarios.length * 8 + successMetrics.length * 3),
-        timeToValueDays: Math.max(12, 40 - scenarios.length * 2),
-        quantifiedValue: Math.max(200000, 220000 + scenarios.length * 25000),
-      };
-
-      if (Array.isArray(data?.timeline?.milestones)) {
-        data.timeline.milestones.slice(0, 3).forEach((milestone: any) => {
-          timelineEntries.push({
-            label: `POV Milestone: ${milestone?.name || 'Checkpoint'}`,
-            timestamp: toIsoString(milestone?.actual || milestone?.planned || nowIso) || nowIso,
-            description: milestone?.status || 'POV milestone progress.',
-          });
-        });
-      }
-      break;
-    }
-
-    case 'trr': {
-      const acceptanceCriteria = Array.isArray(data?.acceptanceCriteria) ? data.acceptanceCriteria : [];
-      const riskLevel = String(data?.riskLevel || '').toLowerCase();
-      const riskMap: Record<string, number> = { low: 0.24, medium: 0.38, high: 0.56 };
-
-      baseRecord.summary = `TRR ${data?.title || selection.commonName} (${data?.priority || 'medium'}) targets ${
-        acceptanceCriteria.length
-      } acceptance criteria.`;
-      baseRecord.details = {
-        typeLabel: 'TRR',
-        status: data?.status || 'in-review',
-      };
-      highlights.push(
-        `Validation:${data?.validationMethod || 'Defined'}`,
-        `Risk:${data?.riskLevel || 'medium'}`,
-        ...acceptanceCriteria.slice(0, 3).map((criteria: any) => `Criteria:${String(criteria)}`)
-      );
-
-      acceptanceCriteria.slice(0, 4).forEach((criteria: any) => notes.push(createNote(String(criteria), 'trr-criteria')));
-      if (Array.isArray(data?.notes)) {
-        data.notes.slice(0, 4).forEach((item: any) => notes.push(createNote(String(item), 'trr-note')));
-      }
-
-      scenarios.push({
-        id: `${selection.recordId}-trr`,
-        name: data?.title || `TRR ${selection.recordId}`,
-        status: data?.status || 'in-review',
-        impact: data?.businessImpact || data?.description || 'TRR validation summary.',
-        metrics: {
-          dwellTimeHours: 4,
-          detectionsValidated: Math.max(4, acceptanceCriteria.length * 2),
-          automationScore: data?.status === 'validated' ? 0.82 : 0.6,
-        },
-        highlights: [
-          `Priority:${data?.priority || 'medium'}`,
-          `Risk:${data?.riskLevel || 'medium'}`,
-          ...(Array.isArray(data?.dependencies)
-            ? data.dependencies.slice(0, 2).map((dependency: any) => `Dependency:${String(dependency)}`)
-            : []),
-        ],
-      });
-
-      metrics = {
-        riskScore: riskMap[riskLevel] ?? 0.4,
-        automationConfidence: data?.status === 'validated' ? 0.82 : 0.6,
-        coveragePercentage: Math.min(100, 50 + acceptanceCriteria.length * 6),
-        timeToValueDays: Math.max(16, 42 - acceptanceCriteria.length * 2),
-        quantifiedValue: Math.max(180000, 210000 + acceptanceCriteria.length * 12000),
-      };
-
-      if (data?.timeline?.targetValidation) {
-        timelineEntries.push({
-          label: 'TRR Target Validation',
-          timestamp: toIsoString(data.timeline.targetValidation) || nowIso,
-          description: `Target validation window for ${selection.commonName}.`,
-        });
-      }
-      break;
-    }
-
-    case 'health': {
-      const healthScore = Number(data?.healthScore) || 72;
-      const milestones = Array.isArray(data?.milestones)
-        ? data.milestones
-        : Array.isArray(data?.timeline?.keyMilestones)
-        ? data.timeline.keyMilestones
-        : [];
-
-      baseRecord.summary = `Health flow indicates ${selection.commonName} scoring ${healthScore}/100 across ${
-        milestones.length
-      } milestones.`;
-      baseRecord.details = {
-        typeLabel: 'Health Flow',
-        status: `${healthScore}/100`,
-      };
-      highlights.push(
-        `HealthScore:${healthScore}`,
-        ...milestones.slice(0, 2).map((milestone: any) => `Milestone:${String(milestone?.name || 'checkpoint')}`)
-      );
-
-      if (Array.isArray(data?.notes)) {
-        data.notes.slice(0, 5).forEach((item: any) => notes.push(createNote(String(item), 'health-note')));
-      }
-
-      scenarios.push({
-        id: `${selection.recordId}-health`,
-        name: `${selection.commonName} Health Flow`,
-        status: healthScore >= 80 ? 'completed' : healthScore >= 60 ? 'in-progress' : 'at-risk',
-        impact: `Health score ${healthScore}/100 with ${milestones.length} lifecycle checkpoints.`,
-        metrics: {
-          dwellTimeHours: 5,
-          detectionsValidated: Math.max(5, milestones.length * 2 + 4),
-          automationScore: Math.min(0.95, 0.55 + healthScore / 200),
-        },
-        highlights,
-      });
-
-      metrics = {
-        riskScore: Math.max(0.12, 1 - healthScore / 100),
-        automationConfidence: Math.min(0.95, healthScore / 100 + 0.1),
-        coveragePercentage: Math.min(100, healthScore + milestones.length * 3),
-        timeToValueDays: Math.max(14, 60 - healthScore / 1.8),
-        quantifiedValue: Math.max(170000, 150000 + healthScore * 1800),
-      };
-
-      milestones.slice(0, 4).forEach((milestone: any) => {
-        timelineEntries.push({
-          label: `Health Milestone: ${milestone?.name || 'checkpoint'}`,
-          timestamp: toIsoString(milestone?.date || milestone?.planned || nowIso) || nowIso,
-          description: `Status ${milestone?.status || 'healthy'} • ${milestone?.description || 'Health flow checkpoint.'}`,
-        });
-      });
-      break;
-    }
-
-    default:
-      baseRecord.summary = `${selection.commonName} supporting record blended into blueprint.`;
-      baseRecord.details = { typeLabel: 'Record' } as any;
-  }
-
-  if (highlights.length > 0) {
-    baseRecord.highlights = highlights;
-  }
-
-  timelineEntries.push({
-    label: `${selection.source.toUpperCase()} Context Added`,
-    timestamp: nowIso,
-    description: `${selection.commonName} (${selection.source}) incorporated into blueprint blend.`,
-  });
-
-  transcripts.push({
-    source: `${selection.source}:${selection.recordId}`,
-    tokens: 480 + scenarios.length * 120 + notes.length * 40,
-  });
-
-  return { record: baseRecord, notes, scenarios, metrics, transcripts, timelineEntries };
-};
-
 const gatherEngagementContext = async (
   engagementId: string,
-  emphasis: BadassBlueprintEmphasis,
-  selections: BlueprintRecordSelection[],
-  tailoredPrompt?: string
+  emphasis: BadassBlueprintEmphasis
 ): Promise<EngagementContextSnapshot> => {
   const [povDoc, trrDoc, scenarioSnapshot] = await Promise.all([
     firestore.collection('povs').doc(engagementId).get().catch(() => null),
@@ -681,126 +297,16 @@ const gatherEngagementContext = async (
     scenarios: scenarioDocs.map(doc => ({ id: doc.id, startTime: doc.data()?.startTime })),
   });
 
-  const baseTranscripts = Array.isArray(povData.transcripts)
+  const transcripts = Array.isArray(povData.transcripts)
     ? povData.transcripts.map((item: any, index: number) => ({
         source: item.source || `transcript-${index + 1}`,
         tokens: Number(item.tokens) || 1200,
       }))
     : undefined;
 
-  let summary =
+  const summary =
     povData.summary ||
     `Demonstrated Cortex transformation journey for ${customerName}, aligning automation with executive KPIs and TRR readiness.`;
-
-  const supportingRecords: BlueprintSupportingRecord[] = [];
-  const metricSnapshots: EngagementMetricSnapshot[] = [
-    {
-      riskScore: metrics.riskScore,
-      automationConfidence: metrics.automationConfidence,
-      coveragePercentage: metrics.coveragePercentage,
-      timeToValueDays: metrics.timeToValueDays,
-      quantifiedValue: metrics.quantifiedValue,
-    },
-  ];
-  const transcriptExtras: { source: string; tokens: number }[] = [];
-
-  if (Array.isArray(selections) && selections.length > 0) {
-    const nowIso = new Date().toISOString();
-    for (const selection of selections) {
-      try {
-        const selectionData = await fetchSelectionData(selection);
-        const augmentation = deriveSelectionAugmentation(selection, selectionData || {}, nowIso);
-        supportingRecords.push(augmentation.record);
-        if (augmentation.notes?.length) {
-          notes.push(...augmentation.notes);
-        }
-        if (augmentation.scenarios?.length) {
-          scenarioData.push(...augmentation.scenarios);
-        }
-        if (augmentation.metrics) {
-          metricSnapshots.push({
-            riskScore:
-              typeof augmentation.metrics.riskScore === 'number'
-                ? augmentation.metrics.riskScore
-                : metrics.riskScore,
-            automationConfidence:
-              typeof augmentation.metrics.automationConfidence === 'number'
-                ? augmentation.metrics.automationConfidence
-                : metrics.automationConfidence,
-            coveragePercentage:
-              typeof augmentation.metrics.coveragePercentage === 'number'
-                ? augmentation.metrics.coveragePercentage
-                : metrics.coveragePercentage,
-            timeToValueDays:
-              typeof augmentation.metrics.timeToValueDays === 'number'
-                ? augmentation.metrics.timeToValueDays
-                : metrics.timeToValueDays,
-            quantifiedValue:
-              typeof augmentation.metrics.quantifiedValue === 'number'
-                ? augmentation.metrics.quantifiedValue
-                : metrics.quantifiedValue,
-          });
-        }
-        if (augmentation.timelineEntries?.length) {
-          timeline.push(...augmentation.timelineEntries);
-        }
-        if (augmentation.transcripts?.length) {
-          transcriptExtras.push(...augmentation.transcripts);
-        }
-      } catch (error) {
-        logger.debug('Blueprint selection augmentation failed', {
-          engagementId,
-          recordId: selection.recordId,
-          source: selection.source,
-          error,
-        });
-      }
-    }
-  }
-
-  const noteSet = new Set<string>();
-  const normalizedNotes: EngagementContextSnapshot['notes'] = [];
-  notes.forEach(note => {
-    const key = `${note.note}:${note.author}`;
-    if (!noteSet.has(key)) {
-      noteSet.add(key);
-      normalizedNotes.push(note);
-    }
-  });
-
-  const scenarioMap = new Map<string, EngagementScenarioOutcome>();
-  scenarioData.forEach(scenario => {
-    scenarioMap.set(scenario.id, scenario);
-  });
-  const mergedScenarios = Array.from(scenarioMap.values());
-
-  if (metricSnapshots.length > 1) {
-    const divisor = metricSnapshots.length;
-    const totals = metricSnapshots.reduce(
-      (acc, snapshot) => {
-        acc.riskScore += snapshot.riskScore;
-        acc.automationConfidence += snapshot.automationConfidence;
-        acc.coveragePercentage += snapshot.coveragePercentage;
-        acc.timeToValueDays += snapshot.timeToValueDays;
-        acc.quantifiedValue += snapshot.quantifiedValue;
-        return acc;
-      },
-      { riskScore: 0, automationConfidence: 0, coveragePercentage: 0, timeToValueDays: 0, quantifiedValue: 0 }
-    );
-    metrics.riskScore = Number((totals.riskScore / divisor).toFixed(2));
-    metrics.automationConfidence = Number((totals.automationConfidence / divisor).toFixed(2));
-    metrics.coveragePercentage = Math.min(100, Number((totals.coveragePercentage / divisor).toFixed(2)));
-    metrics.timeToValueDays = Math.round(totals.timeToValueDays / divisor);
-    metrics.quantifiedValue = Math.round(totals.quantifiedValue / divisor);
-  }
-
-  const transcriptsCombined = baseTranscripts ? [...baseTranscripts, ...transcriptExtras] : transcriptExtras;
-  const transcripts = transcriptsCombined.length > 0 ? transcriptsCombined : undefined;
-
-  if (supportingRecords.length > 0) {
-    const topRecords = supportingRecords.slice(0, 3).map(record => record.commonName).join(', ');
-    summary = `${summary} Supporting records blended: ${topRecords}${supportingRecords.length > 3 ? ', …' : ''}.`;
-  }
 
   return {
     engagementId,
@@ -810,13 +316,10 @@ const gatherEngagementContext = async (
     summary,
     emphasis,
     metrics,
-    scenarios: mergedScenarios,
-    notes: normalizedNotes,
+    scenarios: scenarioData,
+    notes,
     timeline,
     transcripts,
-    supportingRecords,
-    tailoredPrompt,
-    recordSelections: selections,
   };
 };
 
@@ -849,8 +352,7 @@ export const generateBlueprintInternal = async (
     throw new HttpsError('invalid-argument', parsed.error.message);
   }
 
-  const { engagementId, executiveTone, emphasis, recordSelections, tailoredPrompt } = parsed.data;
-  const selections = Array.isArray(recordSelections) ? recordSelections : [];
+  const { engagementId, executiveTone, emphasis } = parsed.data;
   const cleanedEmphasis: BadassBlueprintEmphasis = {
     wins: safeArray(emphasis?.wins),
     risks: safeArray(emphasis?.risks),
@@ -892,12 +394,7 @@ export const generateBlueprintInternal = async (
 
   logger.info('Generating Badass Blueprint payload', { engagementId, blueprintId });
 
-  const contextSnapshot = await gatherEngagementContext(
-    engagementId,
-    cleanedEmphasis,
-    selections,
-    tailoredPrompt
-  );
+  const contextSnapshot = await gatherEngagementContext(engagementId, cleanedEmphasis);
 
   const generationStarted = Date.now();
   const payload = await generateBadassBlueprintPayload(
@@ -963,8 +460,6 @@ export const generateBlueprintInternal = async (
       executiveTheme: payload.executiveTheme,
     },
     emphasis: cleanedEmphasis,
-    selections,
-    tailoredPrompt,
   };
 
   await firestore.collection('badassBlueprints').doc(blueprintId).set(blueprintDocument);

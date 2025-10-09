@@ -11,8 +11,8 @@ export declare const POVInputSchema: z.ZodObject<{
     stakeholders: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
     name: string;
-    customer: string;
     timeline: string;
+    customer: string;
     useCase: string;
     industry?: string | undefined;
     challenges?: string[] | undefined;
@@ -21,8 +21,8 @@ export declare const POVInputSchema: z.ZodObject<{
     stakeholders?: string[] | undefined;
 }, {
     name: string;
-    customer: string;
     timeline: string;
+    customer: string;
     useCase: string;
     industry?: string | undefined;
     challenges?: string[] | undefined;
@@ -92,8 +92,8 @@ export declare const povAnalysisFlow: import("genkit").Action<z.ZodObject<{
     stakeholders: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
     name: string;
-    customer: string;
     timeline: string;
+    customer: string;
     useCase: string;
     industry?: string | undefined;
     challenges?: string[] | undefined;
@@ -102,8 +102,8 @@ export declare const povAnalysisFlow: import("genkit").Action<z.ZodObject<{
     stakeholders?: string[] | undefined;
 }, {
     name: string;
-    customer: string;
     timeline: string;
+    customer: string;
     useCase: string;
     industry?: string | undefined;
     challenges?: string[] | undefined;

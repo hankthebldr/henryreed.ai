@@ -6,8 +6,6 @@ const buildExecutiveSummary = (context, metrics, theme) => {
     const focusAreas = emphasisWins.length
         ? emphasisWins
         : ['Prove rapid time-to-value', 'Showcase automation leverage', 'Align roadmap to risk reduction'];
-    const supportingCount = context.supportingRecords?.length || 0;
-    const supportingPhrase = supportingCount > 0 ? ` across ${supportingCount} supporting record${supportingCount === 1 ? '' : 's'}` : '';
     const visualBlocks = [
         {
             type: 'progress',
@@ -27,12 +25,11 @@ const buildExecutiveSummary = (context, metrics, theme) => {
     ];
     return {
         title: 'Executive Summary',
-        summary: `The ${context.customerName} engagement validated the ${theme} blueprint with ${metrics.scenarioCount} executed scenarios${supportingPhrase}, delivering a ${Math.round(metrics.recommendationCoverage * 100)}% coverage across the recommended capabilities.`,
+        summary: `The ${context.customerName} engagement validated the ${theme} blueprint with ${metrics.scenarioCount} executed scenarios, delivering a ${Math.round(metrics.recommendationCoverage * 100)}% coverage across the recommended capabilities.`,
         details: [
             `• Business Outcome: ${context.summary}`,
             `• Automation Confidence landed at ${Math.round(metrics.automationConfidence * 100)}% with ${context.metrics.quantifiedValue} quantified business value.`,
-            `• Risk posture shifted to ${Math.round(metrics.riskScore * 100)}% residual exposure by the end of the POV.`,
-            ...(context.tailoredPrompt ? [`• Executive Ask: ${context.tailoredPrompt}`] : []),
+            `• Risk posture shifted to ${Math.round(metrics.riskScore * 100)}% residual exposure by the end of the POV.`
         ],
         supportingArtifacts: context.scenarios.slice(0, 3).map(s => `Scenario ${s.id}: ${s.name}`),
         recommendedActions: focusAreas.map(area => `Amplify ${area.toLowerCase()}`),
@@ -172,19 +169,9 @@ const generateBadassBlueprintPayload = async (context, emphasis, executiveTone) 
         `User Emphasis: ${JSON.stringify(emphasis || {})}`,
         `Context Summary: ${context.summary}`
     ];
-    if (context.tailoredPrompt) {
-        prompts.push(`Tailored Prompt: ${context.tailoredPrompt}`);
-    }
-    if (context.supportingRecords?.length) {
-        prompts.push(`Supporting Records: ${context.supportingRecords
-            .map(record => `${record.source}:${record.commonName}`)
-            .join('; ')}`);
-    }
     return {
         executiveTheme: theme,
-        narrativeSummary: `Synthesized ${scenarioCount} scenarios, ${notesCount} curated notes, and automation metrics for ${context.customerName} to deliver an executive-ready readout${context.supportingRecords?.length
-            ? ` with ${context.supportingRecords.length} supporting record${context.supportingRecords.length === 1 ? '' : 's'} blended`
-            : ''}.`,
+        narrativeSummary: `Synthesized ${scenarioCount} scenarios, ${notesCount} curated notes, and automation metrics for ${context.customerName} to deliver an executive-ready readout.`,
         sections,
         recommendationCategories,
         metrics,

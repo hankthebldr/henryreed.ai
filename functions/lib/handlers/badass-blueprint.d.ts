@@ -16,26 +16,6 @@ declare const blueprintRequestSchema: z.ZodObject<{
         roadmap?: string[] | undefined;
         wins?: string[] | undefined;
     }>>;
-    recordSelections: z.ZodOptional<z.ZodArray<z.ZodObject<{
-        source: z.ZodEnum<["customer", "pov", "trr", "health"]>;
-        recordId: z.ZodString;
-        commonName: z.ZodString;
-        customerId: z.ZodOptional<z.ZodString>;
-        context: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
-    }, "strip", z.ZodTypeAny, {
-        source: "trr" | "customer" | "pov" | "health";
-        recordId: string;
-        commonName: string;
-        context?: Record<string, any> | undefined;
-        customerId?: string | undefined;
-    }, {
-        source: "trr" | "customer" | "pov" | "health";
-        recordId: string;
-        commonName: string;
-        context?: Record<string, any> | undefined;
-        customerId?: string | undefined;
-    }>, "many">>;
-    tailoredPrompt: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     engagementId: string;
     emphasis?: {
@@ -43,15 +23,7 @@ declare const blueprintRequestSchema: z.ZodObject<{
         roadmap?: string[] | undefined;
         wins?: string[] | undefined;
     } | undefined;
-    tailoredPrompt?: string | undefined;
     executiveTone?: string | undefined;
-    recordSelections?: {
-        source: "trr" | "customer" | "pov" | "health";
-        recordId: string;
-        commonName: string;
-        context?: Record<string, any> | undefined;
-        customerId?: string | undefined;
-    }[] | undefined;
 }, {
     engagementId: string;
     emphasis?: {
@@ -59,15 +31,7 @@ declare const blueprintRequestSchema: z.ZodObject<{
         roadmap?: string[] | undefined;
         wins?: string[] | undefined;
     } | undefined;
-    tailoredPrompt?: string | undefined;
     executiveTone?: string | undefined;
-    recordSelections?: {
-        source: "trr" | "customer" | "pov" | "health";
-        recordId: string;
-        commonName: string;
-        context?: Record<string, any> | undefined;
-        customerId?: string | undefined;
-    }[] | undefined;
 }>;
 export type BlueprintRequest = z.infer<typeof blueprintRequestSchema>;
 interface BlueprintGenerationContext {
