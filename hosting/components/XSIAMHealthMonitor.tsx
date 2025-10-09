@@ -684,11 +684,20 @@ export const XSIAMHealthMonitor: React.FC = () => {
   );
 
   return (
-    <div className="p-8 space-y-8">
+    <section
+      id="platform-health-monitor"
+      aria-labelledby="platform-health-monitor-heading"
+      className="p-8 space-y-8 scroll-mt-28"
+    >
       <div className="glass-card p-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-cortex-text-primary mb-2">XSIAM Health Monitor</h1>
+            <h1
+              id="platform-health-monitor-heading"
+              className="text-3xl font-bold text-cortex-text-primary mb-2"
+            >
+              XSIAM Health Monitor
+            </h1>
             <p className="text-cortex-text-muted">Real-time system health monitoring with intelligent alerting and automated troubleshooting</p>
           </div>
           <div className="flex items-center space-x-4">
@@ -759,6 +768,6 @@ export const XSIAMHealthMonitor: React.FC = () => {
           {activeTab === 'settings' && <SettingsTab />}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
