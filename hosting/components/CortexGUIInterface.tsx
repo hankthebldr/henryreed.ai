@@ -5,7 +5,8 @@
 import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import { useActivityTracking } from '../hooks/useActivityTracking';
 import { useCommandExecutor } from '../hooks/useCommandExecutor';
-import { userManagementService } from '../lib/user-management';
+import { useAppState } from '../contexts/AppStateContext';
+import { userManagementService, UserProfile, SystemMetrics } from '../lib/user-management';
 import EnhancedTerminalSidebar from './EnhancedTerminalSidebar';
 import { cn } from '../lib/utils';
 
@@ -29,6 +30,23 @@ const ComponentLoader = React.memo(() => (
   </div>
 ));
 ComponentLoader.displayName = 'ComponentLoader';
+
+const derivePermissionsFromRole = (role?: string) => {
+  const normalizedRole = role || '';
+  return {
+    canViewUserData: true,
+    canViewAggregatedData: ['admin', 'manager'].includes(normalizedRole),
+    canManageUsers: normalizedRole === 'admin',
+    canAccessAllProjects: ['admin', 'manager'].includes(normalizedRole),
+    canModifySystemSettings: normalizedRole === 'admin',
+    canViewAnalytics: ['admin', 'manager', 'senior_dc'].includes(normalizedRole),
+    canAccessAdmin: normalizedRole === 'admin',
+    canDeployScenarios: ['admin', 'manager', 'senior_dc', 'dc'].includes(normalizedRole),
+    canCreateTRR: ['admin', 'manager', 'senior_dc', 'dc'].includes(normalizedRole),
+    canAccessScenarioEngine: ['admin', 'manager', 'senior_dc', 'dc'].includes(normalizedRole),
+    canViewReports: true,
+  };
+};
 
 interface GUITab {
   id: string;
@@ -507,10 +525,12 @@ const guiTabs: GUITab[] = [
 ];
 
 export default function CortexGUIInterface() {
+  const { state, actions } = useAppState();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [isManagementMode, setIsManagementMode] = useState(false);
-  const [userPermissions, setUserPermissions] = useState({});
+  const [userPermissions, setUserPermissions] = useState(() => derivePermissionsFromRole());
+  const [aggregateMetrics, setAggregateMetrics] = useState<SystemMetrics | null>(null);
   const [currentDateTime, setCurrentDateTime] = useState('');
   const [terminalExpanded, setTerminalExpanded] = useState(false);
   
@@ -518,37 +538,76 @@ export default function CortexGUIInterface() {
   const { run: executeCommand, isRunning } = useCommandExecutor();
   
   useEffect(() => {
-    // Initialize user context and permissions
-    const users = userManagementService.getAllUsers();
-    if (users.length > 0) {
-      const user = users[0]; // Use first demo user
-      setCurrentUser(user);
-      
-      // Determine management mode based on role
-      const isManager = ['admin', 'manager'].includes(user?.role || '');
-      setIsManagementMode(isManager);
-      
-      // Set role-based permissions
-      const permissions = {
-        canViewUserData: true,
-        canViewAggregatedData: ['admin', 'manager'].includes(user?.role || ''),
-        canManageUsers: user?.role === 'admin',
-        canAccessAllProjects: ['admin', 'manager'].includes(user?.role || ''),
-        canModifySystemSettings: user?.role === 'admin',
-        canViewAnalytics: ['admin', 'manager', 'senior_dc'].includes(user?.role || ''),
-        canAccessAdmin: user?.role === 'admin',
-        canDeployScenarios: ['admin', 'manager', 'senior_dc', 'dc'].includes(user?.role || ''),
-        canCreateTRR: ['admin', 'manager', 'senior_dc', 'dc'].includes(user?.role || ''),
-        canAccessScenarioEngine: ['admin', 'manager', 'senior_dc', 'dc'].includes(user?.role || ''),
-        canViewReports: true
-      };
-      setUserPermissions(permissions);
-    }
-    
-    // Track GUI initialization
+    let isMounted = true;
+
+    const loadUserContext = async () => {
+      const authUser = state.auth.user;
+
+      if (!authUser) {
+        setCurrentUser(null);
+        setIsManagementMode(false);
+        setUserPermissions(derivePermissionsFromRole());
+        setAggregateMetrics(null);
+        actions.updateData('analytics', null);
+        return;
+      }
+
+      try {
+        const profile = await userManagementService.getUserById(authUser.id, { force: true });
+        if (!isMounted) return;
+
+        if (!profile) {
+          setCurrentUser(null);
+          setIsManagementMode(false);
+          setUserPermissions(derivePermissionsFromRole());
+          setAggregateMetrics(null);
+          actions.updateData('analytics', null);
+          return;
+        }
+
+        userManagementService.setActiveUser(profile.id);
+        setCurrentUser(profile);
+
+        const managementMode = ['admin', 'manager'].includes(profile.role);
+        setIsManagementMode(managementMode);
+        setUserPermissions(derivePermissionsFromRole(profile.role));
+
+        const scope = profile.role === 'admin' ? 'all' : profile.role === 'manager' ? 'team' : 'self';
+        const scopedUsers = await userManagementService.getUsers({
+          scope,
+          managerId: scope === 'team' ? profile.id : undefined,
+          userId: profile.id,
+          includeInactive: true,
+          force: true,
+        });
+        if (!isMounted) return;
+
+        const userIds = scope === 'self' ? [profile.id] : scopedUsers.map((user) => user.id);
+        const metrics = await userManagementService.generateSystemMetrics(userIds, { period: 'daily', force: true });
+        if (!isMounted) return;
+
+        setAggregateMetrics(metrics);
+        actions.updateData('analytics', metrics);
+      } catch (error) {
+        console.error('Failed to load user context:', error);
+        if (isMounted) {
+          setCurrentUser(null);
+          setIsManagementMode(false);
+          setUserPermissions(derivePermissionsFromRole());
+          setAggregateMetrics(null);
+          actions.updateData('analytics', null);
+        }
+      }
+    };
+
+    loadUserContext();
     trackFeatureUsage('gui', 'interface_loaded');
     trackPageView('/gui');
-  }, [trackFeatureUsage, trackPageView]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [state.auth.user, actions, trackFeatureUsage, trackPageView]);
   
   // Update current date/time
   useEffect(() => {
@@ -658,6 +717,13 @@ export default function CortexGUIInterface() {
                 <div className="text-xs text-cortex-text-muted bg-cortex-bg-secondary/30 px-2 py-1 rounded">
                   {isManagementMode ? 'Aggregated View' : 'Personal View'}
                 </div>
+                {aggregateMetrics && (
+                  <div className="hidden lg:flex items-center space-x-3 text-xs text-cortex-text-muted">
+                    <span>Total Users: <span className="text-cortex-text-primary font-medium">{aggregateMetrics.totalUsers}</span></span>
+                    <span>Active: <span className="text-cortex-success font-medium">{aggregateMetrics.activeUsers}</span></span>
+                    <span>Uptime: <span className="text-cortex-success font-medium">{aggregateMetrics.uptime}%</span></span>
+                  </div>
+                )}
               </div>
             )}
           </div>
