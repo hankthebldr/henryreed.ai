@@ -15,9 +15,9 @@ type SidebarSize = 'minimized' | 'compact' | 'standard' | 'expanded';
 
 const SIDEBAR_WIDTHS = {
   minimized: 'w-12',
-  compact: 'w-80',
-  standard: 'w-96', 
-  expanded: 'w-1/2'
+  compact: 'w-96',
+  standard: 'w-[32rem]',
+  expanded: 'w-[48rem]'
 };
 
 const EnhancedTerminalSidebar: React.FC<TerminalSidebarProps> = ({

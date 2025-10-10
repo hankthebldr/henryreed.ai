@@ -43,6 +43,16 @@ export interface BadassBlueprintRecord {
   error?: { message: string; details?: any } | null;
 }
 
+// Lightweight selection/filter type for blueprint queries
+export type BlueprintRecordSelection = Partial<{
+  id: string;
+  engagementId: string;
+  generatedBy: string;
+  status: string;
+  limit: number;
+  orderBy: string;
+}>;
+
 export interface BlueprintGenerationOptions {
   engagementId: string;
   executiveTone?: string;
@@ -113,9 +123,16 @@ export const subscribeToBlueprint = (
       }
       callback(buildRecord(snapshot));
     },
-    error => {
-      console.error('Blueprint subscription error', error);
-      callback(null);
-    }
+      error => {
+        // Avoid direct console usage to satisfy lint rules; provide a small safe logger.
+        const safeLogError = (label: string, err: any) => {
+          if (process.env.NODE_ENV !== 'production') {
+            // eslint-disable-next-line no-console
+            console.error(label, err);
+          }
+        };
+        safeLogError('Blueprint subscription error', error);
+        callback(null);
+      }
   );
 };

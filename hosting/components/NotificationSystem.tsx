@@ -76,7 +76,7 @@ function Notification({ id, type, message, timestamp, onRemove, showTerminalLink
             <span className="text-xl">{getIcon()}</span>
           </div>
           <div className="ml-3 w-0 flex-1 pt-0.5">
-            <p className="text-sm font-medium">
+            <p className="text-sm font-medium break-words whitespace-normal leading-relaxed">
               {message}
             </p>
             <div className="mt-1 flex items-center justify-between">
@@ -89,7 +89,7 @@ function Notification({ id, type, message, timestamp, onRemove, showTerminalLink
                     actions.openTerminal();
                     actions.focusTerminal();
                   }}
-                  className="text-xs text-blue-400 hover:text-blue-300 underline focus:outline-none focus:ring-1 focus:ring-blue-400 rounded px-1"
+                  className="text-xs text-blue-400 hover:text-blue-300 underline focus:outline-none focus:ring-1 focus:ring-blue-400 rounded px-1 flex-shrink-0"
                   aria-label="View command output in terminal"
                 >
                   View in Terminal

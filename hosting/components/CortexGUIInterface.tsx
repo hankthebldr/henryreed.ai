@@ -9,10 +9,11 @@ import { useAppState } from '../contexts/AppStateContext';
 import { userManagementService, UserProfile, SystemMetrics } from '../lib/user-management';
 import { dcContextStore, WorkflowHistory } from '../lib/dc-context-store';
 import EnhancedTerminalSidebar from './EnhancedTerminalSidebar';
+import { BadassBlueprintWorkflow } from './BadassBlueprintWorkflow';
 import { cn } from '../lib/utils';
 
 // Lazy load heavy components for better performance
-const EnhancedManualCreationGUI = lazy(() => import('./EnhancedManualCreationGUI'));
+const StreamlinedDemoBuilder = lazy(() => import('./StreamlinedDemoBuilder'));
 const XSIAMHealthMonitor = lazy(() => import('./XSIAMHealthMonitor').then(m => ({ default: m.XSIAMHealthMonitor })));
 const EnhancedAIAssistant = lazy(() => import('./EnhancedAIAssistant').then(m => ({ default: m.EnhancedAIAssistant })));
 const BigQueryExplorer = lazy(() => import('./BigQueryExplorer').then(m => ({ default: m.BigQueryExplorer })));
@@ -111,6 +112,7 @@ const POVDashboard = React.memo(({
 }) => {
   const { actions } = useAppState();
   const { run: executeCommand, isRunning } = useCommandExecutor();
+  const [showBlueprintWorkflow, setShowBlueprintWorkflow] = React.useState(false);
   
   // Optimized Blueprint PDF creation with better error handling
   const createGuiBlueprintPdf = useCallback(async () => {
@@ -157,23 +159,18 @@ const POVDashboard = React.memo(({
     }
   }, [actions]);
 
-  // Enhanced quick actions with proper terminal command integration
+  // Enhanced quick actions with direct navigation
+  const navigateToTab = useCallback((tabId: string, action?: string) => {
+    const event = new CustomEvent('navigate-to-tab', { detail: { tabId, action } });
+    window.dispatchEvent(event);
+  }, []);
+
   const quickActions: QuickAction[] = useMemo(() => [
     {
       name: 'New POV',
       icon: '🎯',
       description: 'Initialize a new Proof of Value project',
-      onClick: async () => {
-        await executeCommand('pov init --interactive', {
-          openTerminal: true,
-          focus: true,
-          trackActivity: {
-            event: 'quick-action-execute',
-            source: 'dashboard-quick-actions',
-            payload: { action: 'new-pov', command: 'pov init --interactive' }
-          }
-        });
-      },
+      onClick: () => navigateToTab('pov', 'create-pov'),
       className: 'bg-green-900 bg-opacity-20 border-green-500 border-opacity-30 hover:bg-green-900 hover:bg-opacity-40 text-green-400'
     },
     {
@@ -265,10 +262,10 @@ const POVDashboard = React.memo(({
       name: 'Badass Blueprint',
       icon: '🧭',
       description: 'Create transformation blueprint and download PDF',
-      onClick: createGuiBlueprintPdf,
+      onClick: () => setShowBlueprintWorkflow(true),
       className: 'bg-pink-900 bg-opacity-20 border-pink-500 border-opacity-30 hover:bg-pink-900 hover:bg-pink-opacity-40 text-pink-400'
     }
-  ], [createGuiBlueprintPdf, executeCommand]);
+  ], [navigateToTab]);
 
   // Memoized activity data for performance
   return (
@@ -528,6 +525,17 @@ const POVDashboard = React.memo(({
           </div>
         </section>
       </div>
+
+      {/* Badass Blueprint Workflow Modal */}
+      {showBlueprintWorkflow && (
+        <BadassBlueprintWorkflow
+          onClose={() => setShowBlueprintWorkflow(false)}
+          onComplete={(blueprint) => {
+            actions.notify('success', `Blueprint generated successfully! ${blueprint.pdf?.downloadUrl ? 'PDF ready for download.' : ''}`);
+            setShowBlueprintWorkflow(false);
+          }}
+        />
+      )}
     </div>
   );
 });
@@ -582,8 +590,8 @@ const guiTabs: GUITab[] = [
     id: 'creator',
     name: 'Demo Builder',
     icon: '🔧',
-    component: EnhancedManualCreationGUI,
-    description: 'Custom demo scenarios and competitive positioning content creation'
+    component: StreamlinedDemoBuilder,
+    description: 'Upload demos, access knowledge base, and manage data integration'
   },
   {
     id: 'scenarios',
@@ -980,10 +988,10 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
   return (
     <div className="h-screen flex bg-gradient-to-br from-cortex-bg-primary to-cortex-bg-secondary text-cortex-text-primary">
       {/* Main Content Area */}
-      <div 
+      <div
         className={cn(
           'flex-1 flex flex-col transition-all duration-300',
-          terminalExpanded ? 'mr-96' : 'mr-12' // Adjust margin based on terminal state
+          terminalExpanded ? 'mr-[32rem]' : 'mr-12' // Adjust margin based on terminal state
         )}
       >
         {/* Modern Header */}

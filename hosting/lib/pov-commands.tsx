@@ -820,8 +820,6 @@ const PovBadassBlueprintView: React.FC<{ args: string[] }> = ({ args }) => {
           Multi-modal extension that compiles POV/TRR context into an executive-ready blueprint and artifact bundle.
         </div>
       </div>
-    );
-  }, [analytics]);
 
       <div className="flex flex-wrap items-center gap-3 text-xs">
         <span className="px-2 py-1 rounded-full border border-cyan-500/60 bg-cyan-900/30 text-cyan-200">

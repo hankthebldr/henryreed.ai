@@ -1,15 +1,28 @@
-s
-      "type": "image/svg+xml"
+{
+  "name": "Cortex Domain Consultant Portal",
+  "short_name": "Cortex DC",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#00CC66",
+  "icons": [
+    {
+      "src": "/assets/branding/favicons/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
     },
     {
       "src": "/assets/branding/icons/cortex-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/assets/branding/icons/cortex-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

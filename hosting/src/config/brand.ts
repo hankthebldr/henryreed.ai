@@ -219,7 +219,8 @@ export const brandAssets = {
   favicons: {
     standard: '/assets/branding/favicons/favicon-32x32.png',
     appleTouchIcon: '/apple-touch-icon-180x180.png',
-    activeFavicon: '/favicon.ico',
+    // Use the branded favicon located under hosting/public/assets/branding/favicons
+    activeFavicon: '/assets/branding/favicons/favicon.ico',
   },
 } as const;
 
