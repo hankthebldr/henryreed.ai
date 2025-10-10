@@ -16,7 +16,7 @@ const EnhancedContentCreator = dynamic(() => import('../../components/EnhancedCo
 });
 
 export default function ContentPage() {
-  const isAuthenticated = useAuthGuard();
+  const { isAuthenticated } = useAuthGuard();
 
   if (isAuthenticated === null) {
     return (
