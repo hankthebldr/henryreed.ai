@@ -5,7 +5,7 @@
  * and comprehensive reporting. Full data persistence and workflow automation.
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
 import { dcAPIClient, UserScopeContext } from '../lib/dc-api-client';
 import { dcContextStore, TRRRecord, CustomerEngagement, ActivePOV, UserProfile, AIWorkflowInsight } from '../lib/dc-context-store';
@@ -31,6 +31,7 @@ import {
   buildRapidSummaryNotes,
   inferRiskLevelFromResponses,
 } from '../lib/rapid-trr-tools';
+import { cn } from '../lib/utils';
 
 interface TRRFormData {
   title: string;
@@ -101,6 +102,43 @@ export const ProductionTRRManagement: React.FC = () => {
   const [isCsvProcessing, setIsCsvProcessing] = useState(false);
   const [csvError, setCsvError] = useState<string | null>(null);
   const [csvFileName, setCsvFileName] = useState<string | null>(null);
+  const [highlightCsvImport, setHighlightCsvImport] = useState(false);
+  const csvHighlightTimeout = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+
+  useEffect(() => {
+    const handleTabAction = (event: Event) => {
+      const detail = (event as CustomEvent<{ action?: string; metadata?: Record<string, unknown> }>).detail;
+      if (!detail?.action) {
+        return;
+      }
+
+      if (detail.action === 'import-csv') {
+        setActiveTab('reports');
+        if (csvHighlightTimeout.current) {
+          window.clearTimeout(csvHighlightTimeout.current);
+        }
+        setHighlightCsvImport(true);
+        window.requestAnimationFrame(() => {
+          const highlightId = typeof detail.metadata?.highlightId === 'string' ? detail.metadata.highlightId : 'trr-csv-import';
+          document.getElementById(highlightId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        csvHighlightTimeout.current = window.setTimeout(() => {
+          setHighlightCsvImport(false);
+        }, 2200);
+      }
+    };
+
+    window.addEventListener('tab-trr-action', handleTabAction as EventListener);
+    return () => {
+      window.removeEventListener('tab-trr-action', handleTabAction as EventListener);
+    };
+  }, []);
+
+  useEffect(() => () => {
+    if (csvHighlightTimeout.current) {
+      window.clearTimeout(csvHighlightTimeout.current);
+    }
+  }, []);
 
   const getRapidValueAsString = (value: RapidResponses[string]) => {
     if (Array.isArray(value)) {
@@ -934,7 +972,7 @@ export const ProductionTRRManagement: React.FC = () => {
           </div>
         </section>
 
-        <section className="glass-card p-6 space-y-4">
+          <section className="glass-card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold text-white">💾 Saved RAPID Snapshots</h3>
@@ -992,7 +1030,13 @@ export const ProductionTRRManagement: React.FC = () => {
           )}
         </section>
 
-        <section className="glass-card p-6 space-y-4">
+          <section
+            id="trr-csv-import"
+            className={cn(
+              'glass-card p-6 space-y-4 transition-all duration-500',
+              highlightCsvImport && 'ring-2 ring-cortex-accent/60 ring-offset-2 ring-offset-cortex-bg-primary shadow-xl scale-[1.01]'
+            )}
+          >
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <h3 className="text-lg font-semibold text-white">📥 Tableau CSV Import</h3>

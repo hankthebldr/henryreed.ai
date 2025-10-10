@@ -6,13 +6,14 @@
  * Comprehensive POV lifecycle management with scenario planning, timeline tracking, and outcome reporting
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
 import { dcAPIClient, UserScopeContext } from '../lib/dc-api-client';
 import { dcContextStore, ActivePOV as POVRecord, CustomerEngagement, UserProfile, AIWorkflowInsight } from '../lib/dc-context-store';
 import { dcAIClient, DCWorkflowContext } from '../lib/dc-ai-client';
 import { aiInsightsClient } from '../lib/ai-insights-client';
 import type { GeminiFunctionResponse, GeminiResponse } from '../lib/gemini-ai-service';
+import { cn } from '../lib/utils';
 
 interface POVScenario {
   id: string;
@@ -104,6 +105,44 @@ export const POVProjectManagement: React.FC = () => {
   });
   const [povList, setPovList] = useState<POVRecord[]>([]);
   const [isSeeding, setIsSeeding] = useState(false);
+  const [highlightCreateForm, setHighlightCreateForm] = useState(false);
+  const createHighlightTimeout = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+
+  useEffect(() => {
+    const handleTabAction = (event: Event) => {
+      const detail = (event as CustomEvent<{ action?: string; metadata?: Record<string, unknown> }>).detail;
+      if (!detail?.action) {
+        return;
+      }
+
+      if (detail.action === 'create-pov') {
+        setActiveTab('create');
+        setShowCreateForm(true);
+        if (createHighlightTimeout.current) {
+          window.clearTimeout(createHighlightTimeout.current);
+        }
+        setHighlightCreateForm(true);
+        window.requestAnimationFrame(() => {
+          const highlightId = typeof detail.metadata?.highlightId === 'string' ? detail.metadata.highlightId : 'pov-create-section';
+          document.getElementById(highlightId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        createHighlightTimeout.current = window.setTimeout(() => {
+          setHighlightCreateForm(false);
+        }, 2200);
+      }
+    };
+
+    window.addEventListener('tab-pov-action', handleTabAction as EventListener);
+    return () => {
+      window.removeEventListener('tab-pov-action', handleTabAction as EventListener);
+    };
+  }, []);
+
+  useEffect(() => () => {
+    if (createHighlightTimeout.current) {
+      window.clearTimeout(createHighlightTimeout.current);
+    }
+  }, []);
 
   const buildUserContext = useCallback((): UserScopeContext | null => {
     if (!state.auth.user) {
@@ -628,7 +667,13 @@ export const POVProjectManagement: React.FC = () => {
   );
 
   const CreateTab = () => (
-    <div className="space-y-6">
+    <div
+      id="pov-create-section"
+      className={cn(
+        'space-y-6 transition-all duration-500',
+        highlightCreateForm && 'ring-2 ring-cortex-accent/60 ring-offset-2 ring-offset-cortex-bg-primary shadow-xl scale-[1.01]'
+      )}
+    >
       {!showCreateForm ? (
         <>
           {/* Template Selection */}
