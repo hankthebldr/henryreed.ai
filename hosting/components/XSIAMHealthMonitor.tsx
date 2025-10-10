@@ -4,10 +4,11 @@
  * Real-time XSIAM system health and performance monitoring with intelligent alerting
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
 import { dcAPIClient, XSIAMHealthStatus, UserScopeContext } from '../lib/dc-api-client';
 import { dcContextStore, UserProfile } from '../lib/dc-context-store';
+import { cn } from '../lib/utils';
 
 interface HealthAlert {
   id: string;
@@ -50,6 +51,8 @@ export const XSIAMHealthMonitor: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [alerts, setAlerts] = useState<HealthAlert[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<string>('');
+  const [highlightAlertsPanel, setHighlightAlertsPanel] = useState(false);
+  const alertsHighlightTimeout = useRef<ReturnType<typeof window.setTimeout> | null>(null);
 
   useEffect(() => {
     const ensureData = async () => {
@@ -89,6 +92,43 @@ export const XSIAMHealthMonitor: React.FC = () => {
 
     return () => clearInterval(interval);
   }, [actions, selectedCustomer, state.auth.user]);
+
+  useEffect(() => {
+    const handleTabAction = (event: Event) => {
+      const detail = (event as CustomEvent<{ action?: string; metadata?: Record<string, unknown> }>).detail;
+      if (!detail?.action) {
+        return;
+      }
+
+      if (detail.action === 'open-alerts') {
+        setActiveTab('alerts');
+        if (alertsHighlightTimeout.current) {
+          window.clearTimeout(alertsHighlightTimeout.current);
+        }
+        setHighlightAlertsPanel(true);
+        window.requestAnimationFrame(() => {
+          const highlightId = typeof detail.metadata?.highlightId === 'string' ? detail.metadata.highlightId : 'xsiam-alerts-root';
+          document.getElementById(highlightId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        alertsHighlightTimeout.current = window.setTimeout(() => {
+          setHighlightAlertsPanel(false);
+        }, 2200);
+      } else if (detail.action === 'sync-platform') {
+        setActiveTab('dashboard');
+      }
+    };
+
+    window.addEventListener('tab-xsiam-action', handleTabAction as EventListener);
+    return () => {
+      window.removeEventListener('tab-xsiam-action', handleTabAction as EventListener);
+    };
+  }, []);
+
+  useEffect(() => () => {
+    if (alertsHighlightTimeout.current) {
+      window.clearTimeout(alertsHighlightTimeout.current);
+    }
+  }, []);
 
   const loadHealthStatus = async () => {
     try {
@@ -454,7 +494,13 @@ export const XSIAMHealthMonitor: React.FC = () => {
   );
 
   const AlertsTab = () => (
-    <div className="space-y-6">
+    <div
+      id="xsiam-alerts-root"
+      className={cn(
+        'space-y-6 transition-all duration-500',
+        highlightAlertsPanel && 'ring-2 ring-cortex-accent/60 ring-offset-2 ring-offset-cortex-bg-primary shadow-xl scale-[1.01]'
+      )}
+    >
       <div className="flex justify-between items-center">
         <h3 className="text-xl font-bold text-cortex-text-primary">🚨 System Alerts</h3>
         <div className="flex gap-2">

@@ -62,8 +62,9 @@ interface QuickAction {
   name: string;
   icon: string;
   description: string;
-  onClick: () => void;
+  onClick: () => void | Promise<void>;
   className: string;
+  requiresTerminal?: boolean;
 }
 
 interface DashboardStatCard {
@@ -99,6 +100,7 @@ const POVDashboard = React.memo(({
   activity,
   getActivityStatus,
   formatRelativeTime,
+  onNavigate,
 }: {
   terminalExpanded: boolean;
   setTerminalExpanded: (expanded: boolean) => void;
@@ -108,9 +110,11 @@ const POVDashboard = React.memo(({
   activity: WorkflowHistory[];
   getActivityStatus: (entry: WorkflowHistory) => 'success' | 'warning' | 'error' | 'info';
   formatRelativeTime: (timestamp: string) => string;
+  onNavigate: (tabId: string, action?: string, metadata?: Record<string, unknown>) => void;
 }) => {
+  const { actions } = useAppState();
   const { run: executeCommand, isRunning } = useCommandExecutor();
-  
+
   // Optimized Blueprint PDF creation with better error handling
   const createGuiBlueprintPdf = useCallback(async () => {
     try {
@@ -156,118 +160,137 @@ const POVDashboard = React.memo(({
     }
   }, []);
 
-  // Enhanced quick actions with proper terminal command integration
+  // Enhanced quick actions with direct navigation into feature workspaces
   const quickActions: QuickAction[] = useMemo(() => [
     {
       name: 'New POV',
       icon: '🎯',
       description: 'Initialize a new Proof of Value project',
-      onClick: async () => {
-        await executeCommand('pov init --interactive', {
-          openTerminal: true,
-          focus: true,
-          trackActivity: {
-            event: 'quick-action-execute',
-            source: 'dashboard-quick-actions',
-            payload: { action: 'new-pov', command: 'pov init --interactive' }
-          }
+      onClick: () => {
+        onNavigate('pov', 'create-pov', {
+          source: 'dashboard-quick-actions',
+          quickAction: 'new-pov',
+          highlightId: 'pov-create-section'
         });
       },
-      className: 'bg-green-900 bg-opacity-20 border-green-500 border-opacity-30 hover:bg-green-900 hover:bg-opacity-40 text-green-400'
+      className: 'border border-green-500/40 bg-green-500/10 hover:bg-green-500/20 text-green-200 shadow-lg transition-transform'
     },
     {
       name: 'Upload CSV',
       icon: '📄',
       description: 'Import TRR data from CSV file',
-      onClick: async () => {
-        await executeCommand('trr import --format csv --interactive', {
-          openTerminal: true,
-          focus: true,
-          trackActivity: {
-            event: 'quick-action-execute',
-            source: 'dashboard-quick-actions',
-            payload: { action: 'upload-csv', command: 'trr import --format csv --interactive' }
-          }
+      onClick: () => {
+        onNavigate('trr', 'import-csv', {
+          source: 'dashboard-quick-actions',
+          quickAction: 'upload-csv',
+          highlightId: 'trr-csv-import'
         });
       },
-      className: 'bg-blue-900 bg-opacity-20 border-blue-500 border-opacity-30 hover:bg-blue-900 hover:bg-opacity-40 text-blue-400'
+      className: 'border border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/20 text-blue-200 shadow-lg transition-transform'
     },
     {
       name: 'Generate Report',
       icon: '📝',
       description: 'Create executive or technical report',
-      onClick: async () => {
-        await executeCommand('pov report --format executive --export pdf', {
-          openTerminal: true,
-          focus: true,
-          trackActivity: {
-            event: 'quick-action-execute',
-            source: 'dashboard-quick-actions',
-            payload: { action: 'generate-report', command: 'pov report --format executive --export pdf' }
-          }
+      onClick: () => {
+        onNavigate('data', 'generate-report', {
+          source: 'dashboard-quick-actions',
+          quickAction: 'generate-report',
+          highlightId: 'data-analytics-panel'
         });
       },
-      className: 'bg-purple-900 bg-opacity-20 border-purple-500 border-opacity-30 hover:bg-purple-900 hover:bg-opacity-40 text-purple-400'
+      className: 'border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-200 shadow-lg transition-transform'
     },
     {
       name: 'AI Analysis',
       icon: '🤖',
       description: 'Run Gemini AI analysis on current data',
-      onClick: async () => {
-        await executeCommand('gemini analyze --context dashboard', {
-          openTerminal: true,
-          focus: true,
-          trackActivity: {
-            event: 'quick-action-execute',
-            source: 'dashboard-quick-actions',
-            payload: { action: 'ai-analysis', command: 'gemini analyze --context dashboard' }
-          }
+      onClick: () => {
+        onNavigate('ai', 'run-dashboard-analysis', {
+          source: 'dashboard-quick-actions',
+          quickAction: 'ai-analysis',
+          highlightId: 'ai-insights-panel'
         });
       },
-      className: 'bg-cyan-900 bg-opacity-20 border-cyan-500 border-opacity-30 hover:bg-cyan-900 hover:bg-opacity-40 text-cyan-400'
+      className: 'border border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-200 shadow-lg transition-transform'
     },
     {
       name: 'Detection Engine',
       icon: '🔧',
       description: 'Access detection scripts and automation tools',
-      onClick: async () => {
-        await executeCommand('detect list --engine --interactive', {
-          openTerminal: true,
-          focus: true,
+      onClick: () => {
+        if (isRunning) {
+          actions.notify('warning', 'Please wait for the current terminal command to finish.');
+          return;
+        }
+
+        actions.notify('info', 'Opening detection engine workspace in the terminal...');
+        setTerminalExpanded(true);
+        void executeCommand('scenario studio open --workspace detection --alerts cloud-watch --publish', {
           trackActivity: {
-            event: 'quick-action-execute',
+            event: 'quick-action-detection-engine',
             source: 'dashboard-quick-actions',
-            payload: { action: 'detection-engine', command: 'detect list --engine --interactive' }
-          }
+          },
+        });
+
+        window.requestAnimationFrame(() => {
+          onNavigate('creator', 'detection-engine', {
+            source: 'dashboard-quick-actions',
+            quickAction: 'detection-engine',
+            highlightId: 'creator-scenario-quick-action'
+          });
         });
       },
-      className: 'bg-orange-900 bg-opacity-20 border-orange-500 border-opacity-30 hover:bg-orange-900 hover:bg-orange-opacity-40 text-orange-400'
+      className: 'border border-orange-500/40 bg-orange-500/10 hover:bg-orange-500/20 text-orange-200 shadow-lg transition-transform',
+      requiresTerminal: true
+    },
+    {
+      name: 'Cloud Alert',
+      icon: '☁️',
+      description: 'Deploy a Cortex Cloud Function alert for real-time anomalies',
+      onClick: () => {
+        if (isRunning) {
+          actions.notify('warning', 'Please wait for the current terminal command to finish.');
+          return;
+        }
+
+        actions.notify('info', 'Dispatching Cloud Function alert command to the terminal...');
+        setTerminalExpanded(true);
+        void executeCommand('functions alerts create --service cortex-xsiam --rule trr-ingest --severity high --channel slack --auto-recover', {
+          trackActivity: {
+            event: 'quick-action-cloud-alert',
+            source: 'dashboard-quick-actions',
+          },
+        });
+
+        window.requestAnimationFrame(() => {
+          onNavigate('xsiam', 'open-alerts', {
+            source: 'dashboard-quick-actions',
+            quickAction: 'cloud-alert',
+            highlightId: 'xsiam-alerts-root'
+          });
+        });
+      },
+      className: 'border border-sky-500/40 bg-sky-500/10 hover:bg-sky-500/20 text-sky-200 shadow-lg transition-transform',
+      requiresTerminal: true
     },
     {
       name: 'Documentation',
       icon: '📖',
       description: 'Access comprehensive UI guide and workflow documentation',
-      onClick: async () => {
-        await executeCommand('docs open --interactive', {
-          openTerminal: true,
-          focus: true,
-          trackActivity: {
-            event: 'quick-action-execute',
-            source: 'dashboard-quick-actions',
-            payload: { action: 'documentation', command: 'docs open --interactive' }
-          }
-        });
+      onClick: () => {
+        window.open('/docs', '_blank', 'noopener,noreferrer');
       },
-      className: 'bg-indigo-900 bg-opacity-20 border-indigo-500 border-opacity-30 hover:bg-indigo-900 hover:bg-indigo-opacity-40 text-indigo-400'
+      className: 'border border-indigo-500/40 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-200 shadow-lg transition-transform'
     },
     {
       name: 'Badass Blueprint',
       icon: '🧭',
       description: 'Create transformation blueprint and download PDF',
       onClick: createGuiBlueprintPdf,
-      className: 'bg-pink-900 bg-opacity-20 border-pink-500 border-opacity-30 hover:bg-pink-900 hover:bg-pink-opacity-40 text-pink-400'
+      className: 'border border-pink-500/40 bg-pink-500/10 hover:bg-pink-500/20 text-pink-200 shadow-lg transition-transform'
     }
-  ], [createGuiBlueprintPdf, executeCommand]);
+  ], [actions, createGuiBlueprintPdf, executeCommand, isRunning, onNavigate, setTerminalExpanded]);
 
   // Memoized activity data for performance
   return (
@@ -424,8 +447,14 @@ const POVDashboard = React.memo(({
                 key={idx}
                 id={`quick-action-${action.name.toLowerCase().replace(/\s+/g, '-')}`}
                 data-quick-action={action.name.toLowerCase().replace(/\s+/g, '-')}
-                onClick={action.onClick}
-                className="btn-modern button-hover-lift cortex-card p-4 text-left flex flex-col items-start space-y-2"
+                onClick={() => action.onClick()}
+                disabled={action.requiresTerminal && isRunning}
+                aria-disabled={action.requiresTerminal && isRunning}
+                className={cn(
+                  'btn-modern button-hover-lift cortex-card p-4 text-left flex flex-col items-start space-y-2 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-cortex-accent/60',
+                  action.className,
+                  action.requiresTerminal && isRunning && 'opacity-60 cursor-wait'
+                )}
                 title={action.description}
                 aria-label={action.description}
               >
@@ -969,6 +998,7 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
           activity={recentActivity}
           getActivityStatus={getActivityStatus}
           formatRelativeTime={formatRelativeTime}
+          onNavigate={handleTabChange}
         />
       );
     }

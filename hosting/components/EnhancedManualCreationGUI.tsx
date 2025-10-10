@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { CortexCloudFrame } from './CortexCloudFrame';
+import { cn } from '../lib/utils';
 
 type CreationMode = 'pov' | 'template' | 'scenario' | 'none';
 type BlockType = 'text' | 'heading' | 'list' | 'checkbox' | 'date' | 'select' | 'number' | 'multiline' | 'tags';
@@ -517,6 +518,8 @@ export const EnhancedManualCreationGUI: React.FC = () => {
   const [showDocs, setShowDocs] = useState(false);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showScenarioHighlight, setShowScenarioHighlight] = useState(false);
+  const scenarioHighlightTimeout = useRef<ReturnType<typeof window.setTimeout> | null>(null);
 
   const getSchema = (mode: CreationMode): FormSchema | null => {
     switch (mode) {
@@ -542,6 +545,45 @@ export const EnhancedManualCreationGUI: React.FC = () => {
       initializeFormData(schema);
     }
   };
+
+  useEffect(() => {
+    const handleTabAction = (event: Event) => {
+      const detail = (event as CustomEvent<{ action?: string; metadata?: Record<string, unknown> }>).detail;
+      if (!detail?.action) {
+        return;
+      }
+
+      if (detail.action === 'detection-engine') {
+        setActiveMode('scenario');
+        const schema = getSchema('scenario');
+        if (schema) {
+          initializeFormData(schema);
+        }
+        setShowScenarioHighlight(true);
+        if (scenarioHighlightTimeout.current) {
+          window.clearTimeout(scenarioHighlightTimeout.current);
+        }
+        window.requestAnimationFrame(() => {
+          const highlightId = typeof detail.metadata?.highlightId === 'string' ? detail.metadata.highlightId : 'creator-scenario-quick-action';
+          document.getElementById(highlightId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        scenarioHighlightTimeout.current = window.setTimeout(() => {
+          setShowScenarioHighlight(false);
+        }, 2200);
+      }
+    };
+
+    window.addEventListener('tab-creator-action', handleTabAction as EventListener);
+    return () => {
+      window.removeEventListener('tab-creator-action', handleTabAction as EventListener);
+    };
+  }, []);
+
+  useEffect(() => () => {
+    if (scenarioHighlightTimeout.current) {
+      window.clearTimeout(scenarioHighlightTimeout.current);
+    }
+  }, []);
 
   const handleBlockChange = (blockId: string, value: any) => {
     setFormData(prev => ({
@@ -584,7 +626,13 @@ export const EnhancedManualCreationGUI: React.FC = () => {
 
   if (activeMode !== 'none' && schema) {
     return (
-      <div className="space-y-6">
+      <div
+        id="creator-scenario-quick-action"
+        className={cn(
+          'space-y-6 transition-all duration-500',
+          showScenarioHighlight && 'ring-2 ring-cortex-accent/60 ring-offset-2 ring-offset-cortex-bg-primary shadow-xl scale-[1.01]'
+        )}
+      >
         {/* Header */}
         <div className={`glass-card p-6 border-t-4 border-${schema.color}-500`}>
           <div className="flex items-center justify-between">

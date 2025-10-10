@@ -18,6 +18,7 @@ import {
 import { dcAIClient, DCWorkflowContext } from '../lib/dc-ai-client';
 import { aiInsightsClient, GeminiArtifact } from '../lib/ai-insights-client';
 import type { GeminiFunctionResponse, GeminiResponse } from '../lib/gemini-ai-service';
+import { cn } from '../lib/utils';
 
 interface AIMessage {
   id: string;
@@ -83,6 +84,8 @@ export const EnhancedAIAssistant: React.FC = () => {
   const [artifacts, setArtifacts] = useState<UploadedArtifact[]>([]);
   const [contextLoading, setContextLoading] = useState(false);
   const [contextError, setContextError] = useState<string | null>(null);
+  const [highlightInsights, setHighlightInsights] = useState(false);
+  const insightsHighlightTimeout = useRef<ReturnType<typeof window.setTimeout> | null>(null);
 
   const getSnapshotFromStore = (): DCWorkflowSnapshot => ({
     customers: dcContextStore.getAllCustomerEngagements(),
@@ -93,6 +96,43 @@ export const EnhancedAIAssistant: React.FC = () => {
   const [workflowSnapshot, setWorkflowSnapshot] = useState<DCWorkflowSnapshot>(getSnapshotFromStore);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleTabAction = (event: Event) => {
+      const detail = (event as CustomEvent<{ action?: string; metadata?: Record<string, unknown> }>).detail;
+      if (!detail?.action) {
+        return;
+      }
+
+      if (detail.action === 'run-dashboard-analysis') {
+        setContextMode('pov');
+        setActiveTab('insights');
+        actions.notify('info', 'AI insights prepared for dashboard analysis');
+        if (insightsHighlightTimeout.current) {
+          window.clearTimeout(insightsHighlightTimeout.current);
+        }
+        setHighlightInsights(true);
+        window.requestAnimationFrame(() => {
+          const highlightId = typeof detail.metadata?.highlightId === 'string' ? detail.metadata.highlightId : 'ai-insights-panel';
+          document.getElementById(highlightId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        insightsHighlightTimeout.current = window.setTimeout(() => {
+          setHighlightInsights(false);
+        }, 2200);
+      }
+    };
+
+    window.addEventListener('tab-ai-action', handleTabAction as EventListener);
+    return () => {
+      window.removeEventListener('tab-ai-action', handleTabAction as EventListener);
+    };
+  }, [actions]);
+
+  useEffect(() => () => {
+    if (insightsHighlightTimeout.current) {
+      window.clearTimeout(insightsHighlightTimeout.current);
+    }
+  }, []);
 
   const convertArtifactsToGemini = (items: UploadedArtifact[]): GeminiArtifact[] =>
     items
@@ -1019,7 +1059,13 @@ Could you be more specific about what you'd like help with? I can provide detail
   );
 
   const InsightsTab = () => (
-    <div className="space-y-4">
+    <div
+      id="ai-insights-panel"
+      className={cn(
+        'space-y-4 transition-all duration-500',
+        highlightInsights && 'ring-2 ring-cortex-accent/60 ring-offset-2 ring-offset-cortex-bg-primary shadow-xl scale-[1.01]'
+      )}
+    >
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-bold text-white">🧠 AI-Generated Insights</h3>
         <button
