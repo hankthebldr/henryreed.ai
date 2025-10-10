@@ -89,15 +89,15 @@ export default function AppHeader() {
     actions.setViewMode(mode);
     if (typeof window !== "undefined") {
       const savedUser = sessionStorage.getItem('dc_user');
-      if (savedUser) {
-        try {
-          const user = JSON.parse(savedUser);
-          user.viewMode = mode;
-          sessionStorage.setItem('dc_user', JSON.stringify(user));
-          actions.setUser(user);
-        } catch (error) {
-          console.error('Failed to update user view mode:', error);
-        }
+          if (savedUser) {
+            try {
+              const user = JSON.parse(savedUser);
+              user.viewMode = mode;
+              sessionStorage.setItem('dc_user', JSON.stringify(user));
+              actions.setUser(user);
+            } catch (error) {
+              actions.notify('error', 'Failed to update user view mode');
+            }
       }
     }
   };
@@ -129,35 +129,38 @@ export default function AppHeader() {
         <div className="flex justify-between items-center h-16">
           {/* Brand Section */}
           <div className="flex items-center space-x-4">
-            <Link 
-              href="/gui" 
+            <Link
+              href="/gui"
               className="flex items-center space-x-3 hover:opacity-80 transition-opacity duration-200"
+              aria-label="Go to Dashboard"
+              title="Go to Dashboard"
             >
               {/* Palo Alto Networks Logo with white background for visibility */}
               <div className="bg-white p-2 rounded-lg">
-                <PaloAltoLogo 
-                  size={isMobile ? "sm" : "md"} 
-                  priority 
+                <PaloAltoLogo
+                  size={isMobile ? "sm" : "md"}
+                  priority
                   clickable
-                  className="" 
+                  className=""
                 />
               </div>
-            </Link>
-            <div className="border-l border-cortex-border-primary pl-4">
-              <div className="flex items-center space-x-2">
-                <CortexIcon className="w-5 h-5 text-cortex-orange" />
-                <div>
-                  <div className="text-base font-bold text-cortex-text-primary">
-                    Cortex Domain Consultant Platform
-                  </div>
-                  {!isMobile && (
-                    <div className="text-xs text-cortex-text-muted font-medium">
-                      Professional Services Portal
+
+              <div className="border-l border-cortex-border-primary pl-4">
+                <div className="flex items-center space-x-2">
+                  <CortexIcon className="w-5 h-5 text-cortex-orange" />
+                  <div>
+                    <div className="text-base font-bold text-cortex-text-primary">
+                      Cortex Domain Consultant Platform
                     </div>
-                  )}
+                    {!isMobile && (
+                      <div className="text-xs text-cortex-text-muted font-medium">
+                        Cortex Center of Excellence
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
 
           {/* Main Navigation */}

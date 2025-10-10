@@ -25,6 +25,8 @@
     "@genkit-ai/firebase": "^1.20.0",
     "@genkit-ai/vertexai": "^1.20.0",
     "archiver": "^6.0.1",
+    "@google-cloud/bigquery": "^7.9.0",
+    "@google-cloud/pubsub": "^4.7.2",
     "axios": "^1.6.2",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",

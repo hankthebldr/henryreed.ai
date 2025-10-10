@@ -28,7 +28,6 @@ function LoginPage() {
       await signIn(username, password);
       // The useEffect hook will handle navigation after successful login
     } catch (error) {
-      console.error('Login error:', error);
       setError(error instanceof Error ? error.message : 'Authentication failed. Please try again.');
       setPassword('');
     }
@@ -82,7 +81,7 @@ function LoginPage() {
               </div>
               <div>
                 <h1 className="text-cortex-text-primary font-bold text-lg">Cortex Domain Consultant Platform</h1>
-                <p className="text-cortex-text-muted text-xs">Professional Services Portal</p>
+                <p className="text-cortex-text-muted text-xs">Cortex Center of Excellence</p>
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-6 text-sm">

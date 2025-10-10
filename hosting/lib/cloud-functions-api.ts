@@ -1,6 +1,7 @@
 // Cloud Functions API Integration for POV-CLI Scenarios
 
 import { ScenarioConfig, ScenarioDeployment, ScenarioCommand, ScenarioType } from './scenario-types';
+import type { BlueprintRecordSelection } from './badass-blueprint-service';
 
 export class CloudFunctionsAPI {
   private baseUrl: string;
@@ -28,6 +29,47 @@ export class CloudFunctionsAPI {
     return {};
   }
 
+  async generateBadassBlueprint(payload: {
+    engagementId: string;
+    executiveTone?: string;
+    emphasis?: { wins?: string[]; risks?: string[]; roadmap?: string[] };
+  }): Promise<{
+    success: boolean;
+    blueprintId?: string;
+    status?: string;
+    payloadPath?: string;
+    message?: string;
+  }> {
+    try {
+      const response = await fetch(`${this.baseUrl}/extensions/badass-blueprint`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(await this.getAuthHeaders()),
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        throw new Error(`HTTP ${response.status}: ${text || 'badass blueprint request failed'}`);
+      }
+
+      return (await response.json()) as {
+        success: boolean;
+        blueprintId?: string;
+        status?: string;
+        payloadPath?: string;
+        message?: string;
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: `Blueprint generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      };
+    }
+  }
+
   async deployScenario(command: ScenarioCommand): Promise<{
     success: boolean;
     deploymentId?: string;
@@ -38,7 +80,7 @@ export class CloudFunctionsAPI {
       const response = await fetch(`${this.baseUrl}/scenario-deploy`, {
         method: 'POST',
         headers: {
-'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
           ...(await this.getAuthHeaders()),
         },
         body: JSON.stringify(command),
@@ -118,7 +160,7 @@ export class CloudFunctionsAPI {
       const response = await fetch(`${this.baseUrl}/scenario-validate`, {
         method: 'POST',
         headers: {
-'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
           ...(await this.getAuthHeaders()),
         },
         body: JSON.stringify({ deploymentId }),
@@ -150,7 +192,7 @@ export class CloudFunctionsAPI {
       const response = await fetch(`${this.baseUrl}/scenario-destroy`, {
         method: 'POST',
         headers: {
-'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
           ...(await this.getAuthHeaders()),
         },
         body: JSON.stringify({ deploymentId }),
@@ -178,7 +220,7 @@ export class CloudFunctionsAPI {
       const response = await fetch(`${this.baseUrl}/scenario-export`, {
         method: 'POST',
         headers: {
-'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
           ...(await this.getAuthHeaders()),
         },
         body: JSON.stringify({ deploymentId, format }),

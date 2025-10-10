@@ -23,6 +23,14 @@ import {
 // Import utils
 import { logger } from './utils/logger';
 
+import {
+  generateBadassBlueprintCallable,
+  generateBlueprintViaHttp,
+  renderBadassBlueprintPdf,
+  bundleBlueprintArtifacts,
+  exportBlueprintAnalytics,
+} from './handlers/badass-blueprint';
+
 // Initialize Firebase Admin SDK
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -137,6 +145,27 @@ function requireAuth(req: any, res: any, next: any) {
   return res.status(401).json({ error: 'unauthenticated' });
 }
 
+const mapHttpsErrorToStatus = (code: HttpsError['code']): number => {
+  switch (code) {
+    case 'invalid-argument':
+      return 400;
+    case 'failed-precondition':
+      return 412;
+    case 'permission-denied':
+      return 403;
+    case 'not-found':
+      return 404;
+    case 'already-exists':
+      return 409;
+    case 'resource-exhausted':
+      return 429;
+    case 'unauthenticated':
+      return 401;
+    default:
+      return 500;
+  }
+};
+
 // AI routes (Genkit/Vertex flows)
 import { aiRouter } from './routes/ai';
 app.use('/ai', requireAuth, aiRouter);
@@ -148,6 +177,25 @@ app.use('/export', requireAuth, exportRouter);
 // TRR routes (export/signoff)
 import { trrRouter } from './routes/trr';
 app.use('/trr', requireAuth, trrRouter);
+
+app.post('/extensions/badass-blueprint', requireAuth, async (req: any, res) => {
+  try {
+    const result = await generateBlueprintViaHttp(req.body, req.user?.uid || null);
+    return res.json({ success: true, ...result });
+  } catch (error: any) {
+    if (error instanceof HttpsError) {
+      const status = mapHttpsErrorToStatus(error.code);
+      return res.status(status).json({
+        success: false,
+        message: error.message,
+        details: error.details,
+      });
+    }
+
+    logger.error('Badass Blueprint HTTP handler error', error);
+    return res.status(500).json({ success: false, message: 'Failed to generate blueprint' });
+  }
+});
 
 // Scenario HTTP endpoints to align with frontend CloudFunctionsAPI
 import { executeScenario as executeScenarioCallable } from './handlers/scenario-orchestration';
@@ -426,6 +474,13 @@ export { cleanupOldExecutions };
 
 // TRR Export handler - TODO: Implement
 // export const trrExport = functions...
+
+export {
+  generateBadassBlueprintCallable as generateBadassBlueprint,
+  renderBadassBlueprintPdf,
+  bundleBlueprintArtifacts,
+  exportBlueprintAnalytics,
+};
 
 // TRR Signoff handler - TODO: Implement
 // export const trrSignoffCreate = functions...
