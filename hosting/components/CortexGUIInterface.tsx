@@ -6,6 +6,7 @@ import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense, useRe
 import { useActivityTracking } from '../hooks/useActivityTracking';
 import { useCommandExecutor } from '../hooks/useCommandExecutor';
 import { useAppState } from '../contexts/AppStateContext';
+import { useAuth } from '../contexts/AuthContext';
 import { userManagementService, UserProfile, SystemMetrics } from '../lib/user-management';
 import { dcContextStore, WorkflowHistory } from '../lib/dc-context-store';
 import EnhancedTerminalSidebar from './EnhancedTerminalSidebar';
@@ -14,6 +15,7 @@ import { cn } from '../lib/utils';
 
 // Lazy load heavy components for better performance
 const StreamlinedDemoBuilder = lazy(() => import('./StreamlinedDemoBuilder'));
+const DemoHub = lazy(() => import('./DemoHub').then(m => ({ default: m.DemoHub })));
 const XSIAMHealthMonitor = lazy(() => import('./XSIAMHealthMonitor').then(m => ({ default: m.XSIAMHealthMonitor })));
 const EnhancedAIAssistant = lazy(() => import('./EnhancedAIAssistant').then(m => ({ default: m.EnhancedAIAssistant })));
 const BigQueryExplorer = lazy(() => import('./BigQueryExplorer').then(m => ({ default: m.BigQueryExplorer })));
@@ -83,6 +85,7 @@ const ANCHOR_TAB_MAP: Record<string, string> = {
   'dashboard-blueprints': 'dashboard',
   'pov-planning-hub': 'pov',
   'notes-workbench': 'trr',
+  'demo-hub-library': 'demos',
   'platform-health-monitor': 'xsiam',
   'ai-advisor-console': 'ai',
   'data-analytics-panel': 'data',
@@ -174,6 +177,13 @@ const POVDashboard = React.memo(({
       className: 'bg-green-900 bg-opacity-20 border-green-500 border-opacity-30 hover:bg-green-900 hover:bg-opacity-40 text-green-400'
     },
     {
+      name: 'Demo Hub',
+      icon: '🎬',
+      description: 'Access demo library with DC tooling',
+      onClick: () => navigateToTab('demos'),
+      className: 'bg-purple-900 bg-opacity-20 border-purple-500 border-opacity-30 hover:bg-purple-900 hover:bg-opacity-40 text-purple-400'
+    },
+    {
       name: 'Upload CSV',
       icon: '📄',
       description: 'Import TRR data from CSV file',
@@ -205,7 +215,7 @@ const POVDashboard = React.memo(({
           }
         });
       },
-      className: 'bg-purple-900 bg-opacity-20 border-purple-500 border-opacity-30 hover:bg-purple-900 hover:bg-opacity-40 text-purple-400'
+      className: 'bg-indigo-900 bg-opacity-20 border-indigo-500 border-opacity-30 hover:bg-indigo-900 hover:bg-indigo-opacity-40 text-indigo-400'
     },
     {
       name: 'AI Analysis',
@@ -256,7 +266,7 @@ const POVDashboard = React.memo(({
           }
         });
       },
-      className: 'bg-indigo-900 bg-opacity-20 border-indigo-500 border-opacity-30 hover:bg-indigo-900 hover:bg-indigo-opacity-40 text-indigo-400'
+      className: 'bg-teal-900 bg-opacity-20 border-teal-500 border-opacity-30 hover:bg-teal-900 hover:bg-teal-opacity-40 text-teal-400'
     },
     {
       name: 'Badass Blueprint',
@@ -566,6 +576,13 @@ const guiTabs: GUITab[] = [
     description: 'Technical Requirements Review and customer requirement documentation'
   },
   {
+    id: 'demos',
+    name: 'Demo Hub',
+    icon: '🎬',
+    component: DemoHub,
+    description: 'Demo library with DC tooling integration for cortex-syslog-generator'
+  },
+  {
     id: 'xsiam',
     name: 'Platform Health',
     icon: '🔍',
@@ -581,24 +598,24 @@ const guiTabs: GUITab[] = [
   },
   {
     id: 'data',
-  name: 'Data Integration hub',
+    name: 'Data Integration Hub',
     icon: '📈',
     component: BigQueryExplorer,
     description: 'Customer data analysis and engagement metrics platform'
   },
   {
     id: 'creator',
-    name: 'Demo Builder',
+    name: 'Asset Creator',
     icon: '🔧',
     component: StreamlinedDemoBuilder,
-    description: 'Upload demos, access knowledge base, and manage data integration'
+    description: 'Upload assets, access knowledge base, and manage data integration'
   },
   {
     id: 'scenarios',
     name: 'Content Library',
     icon: '🚀',
     component: () => <UnifiedContentCreator mode="unified" onModeChange={() => {}} />,
-    description: 'Pre-built demo scenarios, competitive battlecards, and engagement content'
+    description: 'Pre-built scenarios, competitive battlecards, and engagement content'
   },
   {
     id: 'admin',
@@ -714,6 +731,18 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
   
   const { trackFeatureUsage, trackPageView } = useActivityTracking();
   const { run: executeCommand, isRunning } = useCommandExecutor();
+  const { logout } = useAuth();
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await logout();
+      // Redirect to login page
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Logout error:', error);
+      actions.notify && actions.notify('error', 'Failed to logout. Please try again.');
+    }
+  }, [logout, actions]);
 
   useEffect(() => {
     let isMounted = true;
@@ -1027,6 +1056,15 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
                     <span>Uptime: <span className="text-cortex-success font-medium">{aggregateMetrics.uptime}%</span></span>
                   </div>
                 )}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors bg-cortex-error/20 border border-cortex-error/30 text-cortex-error hover:bg-cortex-error/30 hover:border-cortex-error/50"
+                  title="Logout and switch user for RBAC testing"
+                  aria-label="Logout"
+                >
+                  <span>🚪</span>
+                  <span>Logout</span>
+                </button>
               </div>
             )}
           </div>

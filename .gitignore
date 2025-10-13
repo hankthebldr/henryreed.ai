@@ -68,3 +68,11 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+dataconnect/.dataconnect/
+src/dataconnect-generated/
+
+# Agent and connector specific files
+**/connector/
+**/connectors/
+dataconnect/connector.yaml
+dataconnect/connectors/**
