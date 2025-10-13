@@ -176,7 +176,7 @@ const initialState: AppState = {
     integrationSettings: {
       contentHubIntegration: true,
       detectionEngineIntegration: true,
-      cloudExecution: false,
+      cloudExecution: false, // Cloud execution disabled by default
       realTimeUpdates: true
     },
     connectionStatus: 'disconnected',

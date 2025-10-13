@@ -985,13 +985,17 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
     return <Component />;
   };
 
+  // Tabs where sidebar should be hidden (embedded terminals)
+  const tabsWithEmbeddedTerminal = ['scenarios', 'creator'];
+  const shouldHideSidebar = tabsWithEmbeddedTerminal.includes(activeTab);
+
   return (
     <div className="h-screen flex bg-gradient-to-br from-cortex-bg-primary to-cortex-bg-secondary text-cortex-text-primary">
       {/* Main Content Area */}
       <div
         className={cn(
           'flex-1 flex flex-col transition-all duration-300',
-          terminalExpanded ? 'mr-[32rem]' : 'mr-12' // Adjust margin based on terminal state
+          shouldHideSidebar ? 'mr-0' : (terminalExpanded ? 'mr-[32rem]' : 'mr-12') // Hide sidebar for embedded terminals
         )}
       >
         {/* Modern Header */}
@@ -1027,20 +1031,22 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
             )}
           </div>
           <div className="flex items-center space-x-4">
-            {/* Terminal Toggle */}
-            <button
-              onClick={() => setTerminalExpanded(!terminalExpanded)}
-              className={cn(
-                'flex items-center space-x-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
-                terminalExpanded 
-                  ? 'bg-cortex-success/20 border border-cortex-success/30 text-cortex-success'
-                  : 'bg-cortex-bg-tertiary/30 border border-cortex-border-muted/20 text-cortex-text-muted hover:text-cortex-text-primary hover:border-cortex-border-secondary/30'
-              )}
-              title={terminalExpanded ? 'Hide Terminal' : 'Show Terminal'}
-            >
-              <span>⌨️</span>
-              <span>{terminalExpanded ? 'Hide Terminal' : 'Terminal'}</span>
-            </button>
+            {/* Terminal Toggle - Hide for tabs with embedded terminals */}
+            {!shouldHideSidebar && (
+              <button
+                onClick={() => setTerminalExpanded(!terminalExpanded)}
+                className={cn(
+                  'flex items-center space-x-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
+                  terminalExpanded
+                    ? 'bg-cortex-success/20 border border-cortex-success/30 text-cortex-success'
+                    : 'bg-cortex-bg-tertiary/30 border border-cortex-border-muted/20 text-cortex-text-muted hover:text-cortex-text-primary hover:border-cortex-border-secondary/30'
+                )}
+                title={terminalExpanded ? 'Hide Terminal' : 'Show Terminal'}
+              >
+                <span>⌨️</span>
+                <span>{terminalExpanded ? 'Hide Terminal' : 'Terminal'}</span>
+              </button>
+            )}
             
             <div className="text-xs text-cortex-text-muted font-mono" data-testid="timestamp">
               {currentDateTime || new Date().toLocaleString()}
@@ -1136,11 +1142,13 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
       </div>
     </div>
     
-    {/* Enhanced Terminal Sidebar */}
-    <EnhancedTerminalSidebar
-      defaultExpanded={terminalExpanded}
-      onToggle={setTerminalExpanded}
-    />
+    {/* Enhanced Terminal Sidebar - Hide for tabs with embedded terminals */}
+    {!shouldHideSidebar && (
+      <EnhancedTerminalSidebar
+        defaultExpanded={terminalExpanded}
+        onToggle={setTerminalExpanded}
+      />
+    )}
   </div>
   );
 }

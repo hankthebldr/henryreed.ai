@@ -35,10 +35,16 @@ export function Loading({
   };
 
   const renderSpinner = () => (
-    <div className={cn(
-      'animate-spin rounded-full border-4 border-cortex-border-muted border-t-cortex-accent',
-      sizes[size]
-    )} />
+    <div className="relative">
+      <div className={cn(
+        'animate-spin rounded-full border-4 border-cortex-border-muted border-t-cortex-accent',
+        sizes[size]
+      )} />
+      <div className={cn(
+        'absolute inset-0 animate-ping rounded-full bg-cortex-accent opacity-20',
+        sizes[size]
+      )} style={{ animationDuration: '2s' }} />
+    </div>
   );
 
   const renderDots = () => (
@@ -60,10 +66,16 @@ export function Loading({
   );
 
   const renderPulse = () => (
-    <div className={cn(
-      'animate-pulse bg-gradient-to-r from-cortex-accent to-cortex-green rounded-full',
-      sizes[size]
-    )} />
+    <div className="relative flex items-center justify-center">
+      <div className={cn(
+        'animate-pulse bg-gradient-to-r from-cortex-accent via-cortex-green to-cortex-accent rounded-full shadow-lg shadow-cortex-accent/50',
+        sizes[size]
+      )} style={{ backgroundSize: '200% 100%', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite, gradientShift 3s ease infinite' }} />
+      <div className={cn(
+        'absolute animate-ping rounded-full bg-cortex-green opacity-30',
+        sizes[size]
+      )} style={{ animationDuration: '1.5s' }} />
+    </div>
   );
 
   const renderSkeleton = () => (
@@ -107,8 +119,8 @@ export function Loading({
 
   if (fullscreen) {
     return (
-      <div className="fixed inset-0 bg-cortex-bg-primary/80 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div className="bg-cortex-bg-tertiary/80 backdrop-blur-xl border border-cortex-border-secondary rounded-2xl p-8">
+      <div className="fixed inset-0 bg-cortex-bg-primary/90 backdrop-blur-md z-50 flex items-center justify-center animate-fadeIn">
+        <div className="bg-cortex-bg-tertiary/90 backdrop-blur-xl border border-cortex-border-secondary rounded-2xl p-12 shadow-2xl shadow-cortex-accent/20 animate-scaleIn">
           {content}
         </div>
       </div>

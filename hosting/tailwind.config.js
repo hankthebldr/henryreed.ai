@@ -215,9 +215,12 @@ module.exports = {
         'terminal-typing': 'terminalTyping 1s ease-in-out infinite',
         'float': 'float 3s ease-in-out infinite',
         'shimmer': 'shimmer 2s ease-in-out infinite',
-        
+        'gradient-shift': 'gradientShift 3s ease-in-out infinite',
+
         // Modern animations
         'fade-in-modern': 'fadeInModern 300ms cubic-bezier(0.16, 1, 0.3, 1) both',
+        'fadeIn': 'fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        'scaleIn': 'scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         'slide-right-modern': 'slideRightModern 300ms cubic-bezier(0.16, 1, 0.3, 1) both',
         'scale-in-modern': 'scaleInModern 250ms cubic-bezier(0.16, 1, 0.3, 1) both',
       },
@@ -284,7 +287,11 @@ module.exports = {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(100%)' },
         },
-        
+        gradientShift: {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+
         // Modern keyframes
         fadeInModern: {
           '0%': { opacity: '0', transform: 'translateY(8px)' },
