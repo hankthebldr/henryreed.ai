@@ -7,7 +7,7 @@ import { useAuthGuard } from '../../hooks/useAuthGuard';
 import { Loading } from '../../components/ui';
 
 export default function TerminalPage() {
-  const isAuthenticated = useAuthGuard();
+  const { isAuthenticated } = useAuthGuard();
 
   if (isAuthenticated === null) {
     return <Loading size="lg" text="Initializing Cortex DC Portal..." fullscreen />;

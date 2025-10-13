@@ -4,10 +4,11 @@
  * Comprehensive data export and analytics platform for DC workflows
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
 import { dcAPIClient, DataExportConfig, UserScopeContext } from '../lib/dc-api-client';
 import { dcContextStore, UserProfile } from '../lib/dc-context-store';
+import { cn } from '../lib/utils';
 
 interface ExportJob {
   id: string;
@@ -42,6 +43,61 @@ export const BigQueryExplorer: React.FC = () => {
     format: 'json',
     includeMetadata: true
   });
+  const [highlightExports, setHighlightExports] = useState(false);
+  const [highlightAnalytics, setHighlightAnalytics] = useState(false);
+  const exportsHighlightTimeout = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const analyticsHighlightTimeout = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+
+  useEffect(() => {
+    const handleTabAction = (event: Event) => {
+      const detail = (event as CustomEvent<{ action?: string; metadata?: Record<string, unknown> }>).detail;
+      if (!detail?.action) {
+        return;
+      }
+
+      if (detail.action === 'generate-report' || detail.action === 'engagement-metrics') {
+        setActiveTab('analytics');
+        if (analyticsHighlightTimeout.current) {
+          window.clearTimeout(analyticsHighlightTimeout.current);
+        }
+        setHighlightAnalytics(true);
+        window.requestAnimationFrame(() => {
+          const highlightId = typeof detail.metadata?.highlightId === 'string' ? detail.metadata.highlightId : 'data-analytics-panel';
+          document.getElementById(highlightId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        analyticsHighlightTimeout.current = window.setTimeout(() => {
+          setHighlightAnalytics(false);
+        }, 2200);
+      } else if (detail.action === 'export-dashboard') {
+        setActiveTab('exports');
+        if (exportsHighlightTimeout.current) {
+          window.clearTimeout(exportsHighlightTimeout.current);
+        }
+        setHighlightExports(true);
+        window.requestAnimationFrame(() => {
+          const highlightId = typeof detail.metadata?.highlightId === 'string' ? detail.metadata.highlightId : 'bigquery-export-history';
+          document.getElementById(highlightId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        exportsHighlightTimeout.current = window.setTimeout(() => {
+          setHighlightExports(false);
+        }, 2200);
+      }
+    };
+
+    window.addEventListener('tab-data-action', handleTabAction as EventListener);
+    return () => {
+      window.removeEventListener('tab-data-action', handleTabAction as EventListener);
+    };
+  }, []);
+
+  useEffect(() => () => {
+    if (exportsHighlightTimeout.current) {
+      window.clearTimeout(exportsHighlightTimeout.current);
+    }
+    if (analyticsHighlightTimeout.current) {
+      window.clearTimeout(analyticsHighlightTimeout.current);
+    }
+  }, []);
 
   useEffect(() => {
     const ensureData = async () => {
@@ -350,7 +406,13 @@ ORDER BY success_rate DESC, times_used DESC`,
   );
 
   const ExportsTab = () => (
-    <div className="space-y-6">
+    <div
+      id="bigquery-export-history"
+      className={cn(
+        'space-y-6 transition-all duration-500',
+        highlightExports && 'ring-2 ring-cortex-accent/60 ring-offset-2 ring-offset-cortex-bg-primary shadow-xl scale-[1.01]'
+      )}
+    >
       <div className="flex justify-between items-center">
         <h3 className="text-xl font-bold text-cortex-text-primary">📦 Export History</h3>
         <button
@@ -481,9 +543,14 @@ ORDER BY success_rate DESC, times_used DESC`,
   );
 
   const AnalyticsTab = () => (
-    <div className="space-y-6">
+    <div
+      className={cn(
+        'space-y-6 transition-all duration-500',
+        highlightAnalytics && 'ring-2 ring-cortex-accent/60 ring-offset-2 ring-offset-cortex-bg-primary shadow-xl scale-[1.01]'
+      )}
+    >
       <h3 className="text-xl font-bold text-cortex-text-primary">📊 Analytics Dashboard</h3>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="cortex-card-elevated p-4">
           <div className="text-cortex-green font-bold mb-2">📈 Export Activity</div>
