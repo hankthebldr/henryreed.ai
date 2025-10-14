@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { CortexCloudFrame } from './CortexCloudFrame';
 import cloudStoreService from '../lib/cloud-store-service';
 import userActivityService from '../lib/user-activity-service';
+import { cn } from '../lib/utils';
 
 type CreationMode = 'pov' | 'template' | 'scenario' | 'markdown' | 'none';
 type BlockType =
@@ -594,7 +595,7 @@ export const EnhancedManualCreationGUI: React.FC = () => {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showScenarioHighlight, setShowScenarioHighlight] = useState(false);
-  const scenarioHighlightTimeout = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const scenarioHighlightTimeout = useRef<number | null>(null);
 
   const getSchema = (mode: CreationMode): FormSchema | null => {
     switch (mode) {

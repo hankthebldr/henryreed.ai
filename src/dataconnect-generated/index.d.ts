@@ -166,54 +166,6 @@ export interface User_Key {
   __typename?: 'User_Key';
 }
 
-interface CreatePovRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: CreatePovVariables): MutationRef<CreatePovData, CreatePovVariables>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: CreatePovVariables): MutationRef<CreatePovData, CreatePovVariables>;
-  operationName: string;
-}
-export const createPovRef: CreatePovRef;
-
-export function createPov(vars: CreatePovVariables): MutationPromise<CreatePovData, CreatePovVariables>;
-export function createPov(dc: DataConnect, vars: CreatePovVariables): MutationPromise<CreatePovData, CreatePovVariables>;
-
-interface UpsertUserRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: UpsertUserVariables): MutationRef<UpsertUserData, UpsertUserVariables>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: UpsertUserVariables): MutationRef<UpsertUserData, UpsertUserVariables>;
-  operationName: string;
-}
-export const upsertUserRef: UpsertUserRef;
-
-export function upsertUser(vars: UpsertUserVariables): MutationPromise<UpsertUserData, UpsertUserVariables>;
-export function upsertUser(dc: DataConnect, vars: UpsertUserVariables): MutationPromise<UpsertUserData, UpsertUserVariables>;
-
-interface AddCommentRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: AddCommentVariables): MutationRef<AddCommentData, AddCommentVariables>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: AddCommentVariables): MutationRef<AddCommentData, AddCommentVariables>;
-  operationName: string;
-}
-export const addCommentRef: AddCommentRef;
-
-export function addComment(vars: AddCommentVariables): MutationPromise<AddCommentData, AddCommentVariables>;
-export function addComment(dc: DataConnect, vars: AddCommentVariables): MutationPromise<AddCommentData, AddCommentVariables>;
-
-interface DeleteCommentRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: DeleteCommentVariables): MutationRef<DeleteCommentData, DeleteCommentVariables>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: DeleteCommentVariables): MutationRef<DeleteCommentData, DeleteCommentVariables>;
-  operationName: string;
-}
-export const deleteCommentRef: DeleteCommentRef;
-
-export function deleteComment(vars: DeleteCommentVariables): MutationPromise<DeleteCommentData, DeleteCommentVariables>;
-export function deleteComment(dc: DataConnect, vars: DeleteCommentVariables): MutationPromise<DeleteCommentData, DeleteCommentVariables>;
-
 interface ListPoVsRef {
   /* Allow users to create refs without passing in DataConnect */
   (): QueryRef<ListPoVsData, undefined>;
@@ -273,4 +225,52 @@ export const searchPoVsRef: SearchPoVsRef;
 
 export function searchPoVs(vars?: SearchPoVsVariables): QueryPromise<SearchPoVsData, SearchPoVsVariables>;
 export function searchPoVs(dc: DataConnect, vars?: SearchPoVsVariables): QueryPromise<SearchPoVsData, SearchPoVsVariables>;
+
+interface CreatePovRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CreatePovVariables): MutationRef<CreatePovData, CreatePovVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: CreatePovVariables): MutationRef<CreatePovData, CreatePovVariables>;
+  operationName: string;
+}
+export const createPovRef: CreatePovRef;
+
+export function createPov(vars: CreatePovVariables): MutationPromise<CreatePovData, CreatePovVariables>;
+export function createPov(dc: DataConnect, vars: CreatePovVariables): MutationPromise<CreatePovData, CreatePovVariables>;
+
+interface UpsertUserRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: UpsertUserVariables): MutationRef<UpsertUserData, UpsertUserVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: UpsertUserVariables): MutationRef<UpsertUserData, UpsertUserVariables>;
+  operationName: string;
+}
+export const upsertUserRef: UpsertUserRef;
+
+export function upsertUser(vars: UpsertUserVariables): MutationPromise<UpsertUserData, UpsertUserVariables>;
+export function upsertUser(dc: DataConnect, vars: UpsertUserVariables): MutationPromise<UpsertUserData, UpsertUserVariables>;
+
+interface AddCommentRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: AddCommentVariables): MutationRef<AddCommentData, AddCommentVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: AddCommentVariables): MutationRef<AddCommentData, AddCommentVariables>;
+  operationName: string;
+}
+export const addCommentRef: AddCommentRef;
+
+export function addComment(vars: AddCommentVariables): MutationPromise<AddCommentData, AddCommentVariables>;
+export function addComment(dc: DataConnect, vars: AddCommentVariables): MutationPromise<AddCommentData, AddCommentVariables>;
+
+interface DeleteCommentRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteCommentVariables): MutationRef<DeleteCommentData, DeleteCommentVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteCommentVariables): MutationRef<DeleteCommentData, DeleteCommentVariables>;
+  operationName: string;
+}
+export const deleteCommentRef: DeleteCommentRef;
+
+export function deleteComment(vars: DeleteCommentVariables): MutationPromise<DeleteCommentData, DeleteCommentVariables>;
+export function deleteComment(dc: DataConnect, vars: DeleteCommentVariables): MutationPromise<DeleteCommentData, DeleteCommentVariables>;
 

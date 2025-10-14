@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
-import { cloudStoreService } from '../lib/cloud-store';
+import cloudStoreService from '../lib/cloud-store-service';
 import { cn } from '../lib/utils';
 
 // Types for knowledge base entries
@@ -76,7 +76,7 @@ const KnowledgeBaseGraph: React.FC = () => {
     setIsLoading(true);
     try {
       // Load markdown notes from cloud store
-      const notes = await cloudStoreService.listMarkdownNotes();
+      const notes = cloudStoreService.listMarkdownRecords();
       const kbEntries: KnowledgeBaseEntry[] = notes.map(note => {
         const metadata = note.metadata || {};
         const tags = metadata.tags || [];
@@ -85,7 +85,7 @@ const KnowledgeBaseGraph: React.FC = () => {
         return {
           id: note.id || `kb-${Date.now()}-${Math.random()}`,
           title: metadata.title || note.name || 'Untitled',
-          content: note.contentText || '',
+          content: note.content || '',
           tags: Array.isArray(tags) ? tags : [],
           category,
           createdAt: metadata.createdAt || new Date().toISOString(),
@@ -346,7 +346,7 @@ const KnowledgeBaseGraph: React.FC = () => {
         updatedAt: new Date().toISOString(),
         relatedEntries: [],
         metadata: {
-          author: state.auth.user?.displayName || 'Unknown',
+          author: state.auth.user?.email || 'Unknown',
           status: 'published',
         },
       };

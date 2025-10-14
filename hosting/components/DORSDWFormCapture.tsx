@@ -2,7 +2,8 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import { useAppState } from '../contexts/AppStateContext';
-import { cloudStoreService } from '../lib/cloud-store';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../src/lib/firebase';
 import { cn } from '../lib/utils';
 
 // Types for DOR (Design of Record) and SDW (Solution Design Workbook)
@@ -405,7 +406,8 @@ export const DORSDWFormCapture: React.FC<DORSDWFormCaptureProps> = ({
       }
 
       // Save to Firestore
-      await cloudStoreService.saveDocument(`${formType}_records/${recordId}`, record);
+      const docRef = doc(db, `${formType}_records`, recordId);
+      await setDoc(docRef, record);
 
       actions.notify('success', `${formType.toUpperCase()} record saved successfully!`);
 

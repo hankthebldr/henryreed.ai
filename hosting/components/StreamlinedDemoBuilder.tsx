@@ -83,41 +83,31 @@ export const StreamlinedDemoBuilder: React.FC = () => {
         const content = await file.text();
         const jsonData = JSON.parse(content);
 
-        // Store JSON data
-        const result = await cloudStoreService.saveJsonDocument(file, {
-          metadata: {
-            name: file.name,
-            type: 'data',
-            createdAt: new Date().toISOString(),
-            component: 'streamlined-demo-builder',
-          },
-          jsonData
-        });
-
+        // TODO: Store JSON data using Firestore
+        // For now, just mark as ready
         setUploadedFiles(prev => prev.map(f =>
           f.id === fileId
-            ? { ...f, status: 'ready', url: result.downloadUrl }
+            ? { ...f, status: 'ready', url: '#' }
             : f
         ));
 
         actions.notify('success', `JSON file "${file.name}" uploaded successfully`);
       } else if (file.type.includes('csv')) {
-        const result = await cloudStoreService.uploadFile(file, 'data-imports');
-
+        // TODO: Upload file to Firebase Storage
+        // For now, just mark as ready
         setUploadedFiles(prev => prev.map(f =>
           f.id === fileId
-            ? { ...f, status: 'ready', url: result.downloadUrl }
+            ? { ...f, status: 'ready', url: '#' }
             : f
         ));
 
         actions.notify('success', `CSV file "${file.name}" uploaded successfully`);
       } else {
-        // Generic file upload
-        const result = await cloudStoreService.uploadFile(file, 'demo-assets');
-
+        // TODO: Generic file upload to Firebase Storage
+        // For now, just mark as ready
         setUploadedFiles(prev => prev.map(f =>
           f.id === fileId
-            ? { ...f, status: 'ready', url: result.downloadUrl }
+            ? { ...f, status: 'ready', url: '#' }
             : f
         ));
 

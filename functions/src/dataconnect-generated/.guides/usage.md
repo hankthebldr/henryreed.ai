@@ -14,20 +14,8 @@ If a user is not using a supported framework, they can use the generated SDK dir
 Here's an example of how to use it with the first 5 operations:
 
 ```js
-import { createPov, upsertUser, addComment, deleteComment, listPoVs, listUsers, listUserPoVs, getPovById, searchPoVs } from '@dataconnect/generated';
+import { listPoVs, listUsers, listUserPoVs, getPovById, searchPoVs, createPov, upsertUser, addComment, deleteComment } from '@dataconnect/generated';
 
-
-// Operation CreatePOV:  For variables, look at type CreatePovVars in ../index.d.ts
-const { data } = await CreatePov(dataConnect, createPovVars);
-
-// Operation UpsertUser:  For variables, look at type UpsertUserVars in ../index.d.ts
-const { data } = await UpsertUser(dataConnect, upsertUserVars);
-
-// Operation AddComment:  For variables, look at type AddCommentVars in ../index.d.ts
-const { data } = await AddComment(dataConnect, addCommentVars);
-
-// Operation DeleteComment:  For variables, look at type DeleteCommentVars in ../index.d.ts
-const { data } = await DeleteComment(dataConnect, deleteCommentVars);
 
 // Operation ListPOVs: 
 const { data } = await ListPoVs(dataConnect);
@@ -43,6 +31,18 @@ const { data } = await GetPovById(dataConnect, getPovByIdVars);
 
 // Operation SearchPOVs:  For variables, look at type SearchPoVsVars in ../index.d.ts
 const { data } = await SearchPoVs(dataConnect, searchPoVsVars);
+
+// Operation CreatePOV:  For variables, look at type CreatePovVars in ../index.d.ts
+const { data } = await CreatePov(dataConnect, createPovVars);
+
+// Operation UpsertUser:  For variables, look at type UpsertUserVars in ../index.d.ts
+const { data } = await UpsertUser(dataConnect, upsertUserVars);
+
+// Operation AddComment:  For variables, look at type AddCommentVars in ../index.d.ts
+const { data } = await AddComment(dataConnect, addCommentVars);
+
+// Operation DeleteComment:  For variables, look at type DeleteCommentVars in ../index.d.ts
+const { data } = await DeleteComment(dataConnect, deleteCommentVars);
 
 
 ```

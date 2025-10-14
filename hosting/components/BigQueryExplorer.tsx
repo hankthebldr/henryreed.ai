@@ -45,8 +45,8 @@ export const BigQueryExplorer: React.FC = () => {
   });
   const [highlightExports, setHighlightExports] = useState(false);
   const [highlightAnalytics, setHighlightAnalytics] = useState(false);
-  const exportsHighlightTimeout = useRef<ReturnType<typeof window.setTimeout> | null>(null);
-  const analyticsHighlightTimeout = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const exportsHighlightTimeout = useRef<number | null>(null);
+  const analyticsHighlightTimeout = useRef<number | null>(null);
 
   useEffect(() => {
     const handleTabAction = (event: Event) => {

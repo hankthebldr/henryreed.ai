@@ -52,7 +52,7 @@ export const XSIAMHealthMonitor: React.FC = () => {
   const [alerts, setAlerts] = useState<HealthAlert[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<string>('');
   const [highlightAlertsPanel, setHighlightAlertsPanel] = useState(false);
-  const alertsHighlightTimeout = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const alertsHighlightTimeout = useRef<number | null>(null);
 
   useEffect(() => {
     const ensureData = async () => {

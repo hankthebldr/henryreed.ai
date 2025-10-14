@@ -103,7 +103,7 @@ export const ProductionTRRManagement: React.FC = () => {
   const [csvError, setCsvError] = useState<string | null>(null);
   const [csvFileName, setCsvFileName] = useState<string | null>(null);
   const [highlightCsvImport, setHighlightCsvImport] = useState(false);
-  const csvHighlightTimeout = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const csvHighlightTimeout = useRef<number | null>(null);
 
   useEffect(() => {
     const handleTabAction = (event: Event) => {

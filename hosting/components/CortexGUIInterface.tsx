@@ -13,7 +13,6 @@ import EnhancedTerminalSidebar from './EnhancedTerminalSidebar';
 import { cn } from '../lib/utils';
 
 // Lazy load heavy components for better performance
-const StreamlinedDemoBuilder = lazy(() => import('./StreamlinedDemoBuilder'));
 const DemoHub = lazy(() => import('./DemoHub').then(m => ({ default: m.DemoHub })));
 const XSIAMHealthMonitor = lazy(() => import('./XSIAMHealthMonitor').then(m => ({ default: m.XSIAMHealthMonitor })));
 const EnhancedAIAssistant = lazy(() => import('./EnhancedAIAssistant').then(m => ({ default: m.EnhancedAIAssistant })));
@@ -22,6 +21,11 @@ const POVProjectManagement = lazy(() => import('./POVProjectManagement').then(m 
 const ProductionTRRManagement = lazy(() => import('./ProductionTRRManagement').then(m => ({ default: m.ProductionTRRManagement })));
 const ManagementDashboard = lazy(() => import('./ManagementDashboard').then(m => ({ default: m.ManagementDashboard })));
 const UnifiedContentCreator = lazy(() => import('./UnifiedContentCreator'));
+
+// New separated components
+const AssetUploader = lazy(() => import('./AssetUploader').then(m => ({ default: m.AssetUploader })));
+const KnowledgeBaseLibrary = lazy(() => import('./KnowledgeBaseLibrary').then(m => ({ default: m.KnowledgeBaseLibrary })));
+const DataIntegrationHub = lazy(() => import('./DataIntegrationHub').then(m => ({ default: m.DataIntegrationHub })));
 
 // Loading component with Cortex styling
 const ComponentLoader = React.memo(() => (
@@ -89,7 +93,9 @@ const ANCHOR_TAB_MAP: Record<string, string> = {
   'platform-health-monitor': 'xsiam',
   'ai-advisor-console': 'ai',
   'data-analytics-panel': 'data',
-  'demo-blueprint-studio': 'creator',
+  'asset-uploader': 'upload',
+  'knowledge-base-library': 'knowledge',
+  'data-integration-hub': 'integration',
   'content-intelligence-library': 'scenarios',
   'management-control-center': 'admin'
 };
@@ -623,17 +629,31 @@ const guiTabs: GUITab[] = [
   },
   {
     id: 'data',
-    name: 'Data Integration Hub',
+    name: 'Data Analytics',
     icon: '📈',
     component: BigQueryExplorer,
     description: 'Customer data analysis and engagement metrics platform'
   },
   {
-    id: 'creator',
-    name: 'Asset Creator',
-    icon: '🔧',
-    component: StreamlinedDemoBuilder,
-    description: 'Upload assets, access knowledge base, and manage data integration'
+    id: 'upload',
+    name: 'Asset Upload',
+    icon: '📤',
+    component: AssetUploader,
+    description: 'Upload demo assets, documentation, and files'
+  },
+  {
+    id: 'knowledge',
+    name: 'Knowledge Vault',
+    icon: '📚',
+    component: KnowledgeBaseLibrary,
+    description: 'Obsidian-inspired knowledge base for DC platform content'
+  },
+  {
+    id: 'integration',
+    name: 'Data Integration',
+    icon: '🔗',
+    component: DataIntegrationHub,
+    description: 'Export, import, and integrate data across platforms'
   },
   {
     id: 'scenarios',
@@ -1041,7 +1061,7 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
   };
 
   // Tabs where sidebar should be hidden (embedded terminals)
-  const tabsWithEmbeddedTerminal = ['scenarios', 'creator'];
+  const tabsWithEmbeddedTerminal = ['scenarios'];
   const shouldHideSidebar = tabsWithEmbeddedTerminal.includes(activeTab);
 
   return (

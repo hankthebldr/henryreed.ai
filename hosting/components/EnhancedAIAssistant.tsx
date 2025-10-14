@@ -85,7 +85,7 @@ export const EnhancedAIAssistant: React.FC = () => {
   const [contextLoading, setContextLoading] = useState(false);
   const [contextError, setContextError] = useState<string | null>(null);
   const [highlightInsights, setHighlightInsights] = useState(false);
-  const insightsHighlightTimeout = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const insightsHighlightTimeout = useRef<number | null>(null);
 
   const getSnapshotFromStore = (): DCWorkflowSnapshot => ({
     customers: dcContextStore.getAllCustomerEngagements(),

@@ -222,7 +222,9 @@ export function getTestUserByUsername(username: string): TestCredentials | null 
  */
 export function hasPermission(role: UserRole, permission: keyof typeof ROLE_PERMISSIONS.admin): boolean {
   const permissions = ROLE_PERMISSIONS[role];
-  return permissions ? permissions[permission] || false : false;
+  if (!permissions) return false;
+  const value = permissions[permission];
+  return typeof value === 'boolean' ? value : false;
 }
 
 /**
@@ -247,7 +249,7 @@ export function getVisibleTabs(role: UserRole): string[] {
  */
 export function generateRBACReport(role: UserRole): {
   role: UserRole;
-  permissions: typeof ROLE_PERMISSIONS.admin;
+  permissions: typeof ROLE_PERMISSIONS[UserRole];
   visibleTabs: string[];
   testUser: TestCredentials | null;
 } {

@@ -106,7 +106,7 @@ export const POVProjectManagement: React.FC = () => {
   const [povList, setPovList] = useState<POVRecord[]>([]);
   const [isSeeding, setIsSeeding] = useState(false);
   const [highlightCreateForm, setHighlightCreateForm] = useState(false);
-  const createHighlightTimeout = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const createHighlightTimeout = useRef<number | null>(null);
 
   useEffect(() => {
     const handleTabAction = (event: Event) => {
