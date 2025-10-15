@@ -11,6 +11,9 @@ import { userManagementService, UserProfile, SystemMetrics } from '../lib/user-m
 import { dcContextStore, WorkflowHistory } from '../lib/dc-context-store';
 import EnhancedTerminalSidebar from './EnhancedTerminalSidebar';
 import { cn } from '../lib/utils';
+import DemoSlideshow from './DemoSlideshow';
+import { DEMO_PRESENTATIONS, getDemoPresentation } from '../lib/demo-slides';
+import AnnouncementBanner from './AnnouncementBanner';
 
 // Lazy load heavy components for better performance
 const DemoHub = lazy(() => import('./DemoHub').then(m => ({ default: m.DemoHub })));
@@ -28,6 +31,7 @@ const KnowledgeBaseLibrary = lazy(() => import('./KnowledgeBaseLibrary').then(m 
 const DataIntegrationHub = lazy(() => import('./DataIntegrationHub').then(m => ({ default: m.DataIntegrationHub })));
 const WorkshopManagement = lazy(() => import('./WorkshopManagement').then(m => ({ default: m.WorkshopManagement })));
 const POVBestPractices = lazy(() => import('./POVBestPractices').then(m => ({ default: m.POVBestPractices })));
+const NICCEEFramework = lazy(() => import('./NICCEEFramework').then(m => ({ default: m.NICCEEFramework })));
 
 // Loading component with Cortex styling
 const ComponentLoader = React.memo(() => (
@@ -125,6 +129,8 @@ const POVDashboard = React.memo(({
 }) => {
   const { actions } = useAppState();
   const { run: executeCommand, isRunning } = useCommandExecutor();
+  const [activeSlideshowId, setActiveSlideshowId] = useState<string | null>(null);
+  const [showDemoSelector, setShowDemoSelector] = useState(false);
 
   // Optimized Blueprint PDF creation with better error handling
   const createGuiBlueprintPdf = useCallback(async () => {
@@ -267,11 +273,11 @@ const POVDashboard = React.memo(({
       requiresTerminal: true
     },
     {
-      name: 'Documentation',
-      icon: '📖',
-      description: 'Access comprehensive UI guide and workflow documentation',
+      name: 'Demo Slideshow',
+      icon: '🎬',
+      description: 'Launch interactive demo presentations and customer slideshows',
       onClick: () => {
-        window.open('/docs', '_blank', 'noopener,noreferrer');
+        setShowDemoSelector(true);
       },
       className: 'border border-indigo-500/40 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-200 shadow-lg transition-transform'
     },
@@ -284,9 +290,16 @@ const POVDashboard = React.memo(({
     }
   ], [actions, createGuiBlueprintPdf, executeCommand, isRunning, onNavigate, setTerminalExpanded]);
 
+  // Get active slideshow presentation
+  const activePresentation = useMemo(() => {
+    if (!activeSlideshowId) return null;
+    return getDemoPresentation(activeSlideshowId);
+  }, [activeSlideshowId]);
+
   // Memoized activity data for performance
   return (
-    <div className="p-8 space-y-8">
+    <>
+      <div className="p-8 space-y-8">
       {/* Modern Hero Section */}
       <div className="glass-card p-8">
           <div className="flex flex-col lg:flex-row items-start justify-between mb-8">
@@ -331,7 +344,10 @@ const POVDashboard = React.memo(({
             ))}
           </div>
         </div>
-      
+
+      {/* Key Product Announcements Banner */}
+      <AnnouncementBanner className="animate-fade-in" />
+
       {/* Modern Activity and Actions Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Activity Card */}
@@ -549,6 +565,65 @@ const POVDashboard = React.memo(({
         </section>
       </div>
     </div>
+
+      {/* Demo Selector Modal */}
+      {showDemoSelector && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="cortex-card p-8 max-w-4xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-cortex-text-primary flex items-center">
+                <span className="text-cortex-accent mr-3">🎬</span>
+                Select Demo Presentation
+              </h2>
+              <button
+                onClick={() => setShowDemoSelector(false)}
+                className="px-3 py-1 rounded-lg text-sm font-medium bg-cortex-error/20 text-cortex-error border border-cortex-error/40 hover:bg-cortex-error/30 transition-colors"
+              >
+                ✕ Cancel
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {DEMO_PRESENTATIONS.map((demo) => (
+                <button
+                  key={demo.id}
+                  onClick={() => {
+                    setActiveSlideshowId(demo.id);
+                    setShowDemoSelector(false);
+                  }}
+                  className="cortex-card p-6 text-left hover:bg-cortex-bg-hover transition-colors border-2 border-transparent hover:border-cortex-primary/40"
+                >
+                  <div className="flex items-start space-x-4">
+                    <div className="text-4xl">{demo.icon}</div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-cortex-text-primary mb-2">
+                        {demo.name}
+                      </h3>
+                      <p className="text-sm text-cortex-text-muted mb-3">{demo.description}</p>
+                      <div className="text-xs text-cortex-text-secondary">
+                        {demo.slides.length} slides
+                        {demo.autoAdvance && ' • Auto-advance'}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Active Slideshow */}
+      {activePresentation && (
+        <DemoSlideshow
+          slides={activePresentation.slides}
+          title={activePresentation.name}
+          autoAdvance={activePresentation.autoAdvance}
+          autoAdvanceDelay={activePresentation.autoAdvanceDelay}
+          onClose={() => setActiveSlideshowId(null)}
+        />
+      )}
+    </>
   );
 });
 POVDashboard.displayName = 'POVDashboard';
@@ -646,6 +721,13 @@ const guiTabs: GUITab[] = [
     icon: '📖',
     component: POVBestPractices,
     description: 'XSIAM PoV best practices guide with phase-based guidance and XQL examples'
+  },
+  {
+    id: 'niccee',
+    name: 'NICCEE Framework',
+    icon: '🎯',
+    component: NICCEEFramework,
+    description: 'XSIAM data integration framework (Network, Identity, Cloud, Container, Endpoint, Email) with business value mapping'
   },
   {
     id: 'admin',

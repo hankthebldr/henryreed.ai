@@ -61,8 +61,9 @@ const blueprintRequestSchema = zod_1.z.object({
     })
         .optional(),
 });
-const firestore = admin.firestore();
-const storage = admin.storage();
+// Lazy init: accessed via getters to avoid module-load-time initialization issues
+const getFirestore = () => admin.firestore();
+const getStorage = () => admin.storage();
 const getPubSubClient = (() => {
     let client = null;
     return () => {
@@ -179,7 +180,7 @@ const buildTimeline = (engagementId, context) => {
 const fetchEngagementNotes = async (engagementId) => {
     const notes = [];
     try {
-        const snapshot = await firestore
+        const snapshot = await getFirestore()
             .collection('engagementNotes')
             .where('engagementId', '==', engagementId)
             .limit(20)
@@ -215,9 +216,9 @@ const fetchEngagementNotes = async (engagementId) => {
 };
 const gatherEngagementContext = async (engagementId, emphasis) => {
     const [povDoc, trrDoc, scenarioSnapshot] = await Promise.all([
-        firestore.collection('povs').doc(engagementId).get().catch(() => null),
-        firestore.collection('trrRecords').doc(engagementId).get().catch(() => null),
-        firestore
+        getFirestore().collection('povs').doc(engagementId).get().catch(() => null),
+        getFirestore().collection('trrRecords').doc(engagementId).get().catch(() => null),
+        getFirestore()
             .collection('scenarioExecutions')
             .orderBy('startTime', 'desc')
             .limit(25)
@@ -295,7 +296,7 @@ const gatherEngagementContext = async (engagementId, emphasis) => {
 };
 const recordActivity = async (engagementId, blueprintId, payload) => {
     try {
-        await firestore.collection('activityFeed').add({
+        await getFirestore().collection('activityFeed').add({
             engagementId,
             blueprintId,
             type: payload.type,
@@ -320,7 +321,7 @@ const generateBlueprintInternal = async (data, context) => {
         risks: safeArray(emphasis?.risks),
         roadmap: safeArray(emphasis?.roadmap),
     };
-    const existingSnapshot = await firestore
+    const existingSnapshot = await getFirestore()
         .collection('badassBlueprints')
         .where('engagementId', '==', engagementId)
         .limit(5)
@@ -358,7 +359,7 @@ const generateBlueprintInternal = async (data, context) => {
     const payloadBuffer = Buffer.from(JSON.stringify(payload, null, 2));
     const payloadChecksum = (0, crypto_1.createHash)('sha256').update(payloadBuffer).digest('hex');
     const payloadPath = `${basePath}/payload.json`;
-    await storage
+    await getStorage()
         .bucket()
         .file(payloadPath)
         .save(payloadBuffer, {
@@ -409,7 +410,7 @@ const generateBlueprintInternal = async (data, context) => {
         },
         emphasis: cleanedEmphasis,
     };
-    await firestore.collection('badassBlueprints').doc(blueprintId).set(blueprintDocument);
+    await getFirestore().collection('badassBlueprints').doc(blueprintId).set(blueprintDocument);
     await recordActivity(engagementId, blueprintId, {
         type: 'blueprint_generation_requested',
         status: 'processing',
@@ -469,7 +470,7 @@ const renderBlueprintPdf = async (blueprintId, data) => {
     if (!data.payload?.storagePath) {
         throw new Error('Blueprint payload missing storage path');
     }
-    const [payloadBuffer] = await storage.bucket().file(data.payload.storagePath).download();
+    const [payloadBuffer] = await getStorage().bucket().file(data.payload.storagePath).download();
     const payload = JSON.parse(payloadBuffer.toString());
     const pdfDoc = await pdf_lib_1.PDFDocument.create();
     let currentPage = pdfDoc.addPage([612, 792]);
@@ -531,7 +532,7 @@ const renderBlueprintPdf = async (blueprintId, data) => {
     const pdfBuffer = Buffer.from(pdfBytes);
     const pdfChecksum = (0, crypto_1.createHash)('sha256').update(pdfBuffer).digest('hex');
     const pdfPath = data.payload.storagePath.replace(/\/payload\.json$/, '') + '/blueprint.pdf';
-    const file = storage.bucket().file(pdfPath);
+    const file = getStorage().bucket().file(pdfPath);
     await file.save(pdfBuffer, {
         contentType: 'application/pdf',
         metadata: {
@@ -614,7 +615,7 @@ const createArtifactBundle = async (blueprintId, data) => {
     if (!data.pdf?.storagePath || !data.payload?.storagePath) {
         throw new Error('Missing PDF or payload metadata for bundling');
     }
-    const bucket = storage.bucket();
+    const bucket = getStorage().bucket();
     const [payloadBuffer] = await bucket.file(data.payload.storagePath).download();
     const [pdfBuffer] = await bucket.file(data.pdf.storagePath).download();
     const contextBuffer = Buffer.from(JSON.stringify(data.contextSnapshot, null, 2));
@@ -768,7 +769,7 @@ exports.exportBlueprintAnalytics = (0, pubsub_1.onMessagePublished)({
         logger_1.logger.warn('Received blueprint.artifacts.ready event without blueprintId', { payload });
         return;
     }
-    const docRef = firestore.collection('badassBlueprints').doc(blueprintId);
+    const docRef = getFirestore().collection('badassBlueprints').doc(blueprintId);
     const snapshot = await docRef.get();
     if (!snapshot.exists) {
         logger_1.logger.warn('Blueprint document not found for analytics export', { blueprintId });
