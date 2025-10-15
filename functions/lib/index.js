@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.app = exports.updateUserProfile = exports.createUserProfile = exports.onUserDocumentCreated = exports.beforeUserSignIn = exports.beforeUserCreation = exports.api = exports.exportBlueprintAnalytics = exports.bundleBlueprintArtifacts = exports.renderBadassBlueprintPdf = exports.generateBadassBlueprint = exports.cleanupOldExecutions = exports.monitorExecutionStatusChanges = exports.processScenarioExecution = exports.generateDetectionQueriesFunction = exports.controlScenarioExecutionFunction = exports.executeScenarioFunction = exports.generateThreatActorScenarioFunction = exports.aiTrrSuggest = void 0;
+exports.app = exports.cleanupExpiredEvents = exports.weeklyStatsComputation = exports.dailyEventRollup = exports.onEventCreated = exports.trrsOnWrite = exports.knowledgebaseOnWrite = exports.trainingOnWrite = exports.trrOnWrite = exports.updateUserProfile = exports.createUserProfile = exports.onUserDocumentCreated = exports.beforeUserSignIn = exports.beforeUserCreation = exports.api = exports.exportBlueprintAnalytics = exports.bundleBlueprintArtifacts = exports.renderBadassBlueprintPdf = exports.generateBadassBlueprint = exports.cleanupOldExecutions = exports.monitorExecutionStatusChanges = exports.processScenarioExecution = exports.generateDetectionQueriesFunction = exports.controlScenarioExecutionFunction = exports.executeScenarioFunction = exports.generateThreatActorScenarioFunction = exports.aiTrrSuggest = void 0;
 // Cloud Functions for TRR Management System
 const https_1 = require("firebase-functions/v2/https");
 const admin = __importStar(require("firebase-admin"));
@@ -476,6 +476,23 @@ Object.defineProperty(exports, "beforeUserSignIn", { enumerable: true, get: func
 Object.defineProperty(exports, "onUserDocumentCreated", { enumerable: true, get: function () { return user_creation_handler_1.onUserDocumentCreated; } });
 Object.defineProperty(exports, "createUserProfile", { enumerable: true, get: function () { return user_creation_handler_1.createUserProfile; } });
 Object.defineProperty(exports, "updateUserProfile", { enumerable: true, get: function () { return user_creation_handler_1.updateUserProfile; } });
+// Note: AI functions are handled by the separate genkit codebase
+// to avoid duplication and maintain clean separation of concerns
+// ============================================================================
+// USER TIMELINE & EVENT SYSTEM
+// ============================================================================
+// Import timeline event handlers
+var timeline_event_handlers_1 = require("./handlers/timeline-event-handlers");
+Object.defineProperty(exports, "trrOnWrite", { enumerable: true, get: function () { return timeline_event_handlers_1.trrOnWrite; } });
+Object.defineProperty(exports, "trainingOnWrite", { enumerable: true, get: function () { return timeline_event_handlers_1.trainingOnWrite; } });
+Object.defineProperty(exports, "knowledgebaseOnWrite", { enumerable: true, get: function () { return timeline_event_handlers_1.knowledgebaseOnWrite; } });
+Object.defineProperty(exports, "trrsOnWrite", { enumerable: true, get: function () { return timeline_event_handlers_1.trrsOnWrite; } });
+Object.defineProperty(exports, "onEventCreated", { enumerable: true, get: function () { return timeline_event_handlers_1.onEventCreated; } });
+// Import timeline rollup functions
+var timeline_rollups_1 = require("./handlers/timeline-rollups");
+Object.defineProperty(exports, "dailyEventRollup", { enumerable: true, get: function () { return timeline_rollups_1.dailyEventRollup; } });
+Object.defineProperty(exports, "weeklyStatsComputation", { enumerable: true, get: function () { return timeline_rollups_1.weeklyStatsComputation; } });
+Object.defineProperty(exports, "cleanupExpiredEvents", { enumerable: true, get: function () { return timeline_rollups_1.cleanupExpiredEvents; } });
 // Log successful initialization
 logger_1.logger.info('TRR Management Cloud Functions initialized successfully');
 //# sourceMappingURL=index.js.map

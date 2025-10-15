@@ -3,6 +3,7 @@ import './globals.css';
 import './dc-portal-styles.css';
 import { AuthProvider } from '../contexts/AuthContext';
 import { AppStateProvider } from '../contexts/AppStateContext';
+import { PortfolioProvider } from '../contexts/PortfolioContext';
 import ConditionalLayout from '../components/ConditionalLayout';
 
 const cortexFaviconSvg = '/assets/branding/favicons/favicon.svg';
@@ -109,9 +110,11 @@ export default function RootLayout({
       <body className="bg-cortex-bg-primary text-cortex-text-primary">
         <AuthProvider>
           <AppStateProvider>
-            <ConditionalLayout>
-              {children}
-            </ConditionalLayout>
+            <PortfolioProvider>
+              <ConditionalLayout>
+                {children}
+              </ConditionalLayout>
+            </PortfolioProvider>
           </AppStateProvider>
         </AuthProvider>
       </body>

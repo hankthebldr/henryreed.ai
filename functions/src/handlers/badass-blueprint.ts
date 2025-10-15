@@ -52,7 +52,7 @@ const firestore = admin.firestore();
 const storage = admin.storage();
 
 const getPubSubClient = (() => {
-  let client: PubSub | null = null;
+  let client: InstanceType<typeof PubSub> | null = null;
   return () => {
     if (!client) {
       client = new PubSub();

@@ -5,6 +5,11 @@ import { useAppState } from '../contexts/AppStateContext';
 import CortexButton from './CortexButton';
 import { useCommandExecutor } from '../hooks/useCommandExecutor';
 
+import { BusinessValueFramework } from '../types/business-value-framework';
+import { BusinessValueCard } from './shared/BusinessValueCard';
+import { TechValidationMetricsView } from './TechValidationMetricsView';
+import { deriveTechValidationStage, TV_STAGE_DEFINITIONS } from '../types/tech-validation';
+
 interface POVProject {
   id: string;
   name: string;
@@ -59,6 +64,8 @@ interface POVProject {
     stakeholdersSatisfied: number;
     businessValue: number;
   };
+  // Business Value Framework
+  businessValueFramework?: BusinessValueFramework;
   createdAt: string;
   updatedAt: string;
 }
@@ -149,6 +156,41 @@ const SAMPLE_POVS: POVProject[] = [
       stakeholdersSatisfied: 85,
       businessValue: 2400000
     },
+    businessValueFramework: {
+      executiveObjective: ['improve-security-posture-compliance', 'optimize-security-operations'],
+      functionalObjective: ['2a-optimize-threat-detection-containment', '1c-safeguard-cloud-environments', '2c-automate-security-workflows'],
+      useCaseCategories: ['threat-detection', 'cloud-security', 'security-automation'],
+      challenges: ['fragmented-security-tools', 'alert-fatigue-noise', 'cloud-complexity'],
+      capabilitiesDemonstrated: ['unified-detection-response', 'cloud-workload-protection', 'threat-correlation', 'automated-investigation'],
+      businessOutcomes: [
+        'Unified security operations across AWS, Azure, and GCP',
+        'Reduced alert noise by 65% through intelligent correlation',
+        'Decreased mean time to detect (MTTD) from 4 hours to 15 minutes',
+        'Executive stakeholder approval achieved for full deployment'
+      ],
+      operationalMetrics: {
+        mttr: 15,
+        mttd: 15,
+        alertReduction: 65,
+        automationRate: 78,
+        coverageImprovement: 95,
+        threatDetectionAccuracy: 94
+      },
+      financialMetrics: {
+        estimatedCostSavings: 850000,
+        roiPercentage: 325,
+        efficiencyGains: 25,
+        resourceOptimization: 2.5,
+        toolConsolidation: 5
+      },
+      telemetrySources: ['xdr-agents', 'cloud-connectors', 'network-sensors', 'endpoint-telemetry', 'threat-feeds'],
+      productTelemetryData: 'XDR agents deployed across 12,000+ endpoints, cloud connectors integrated with AWS, Azure, and GCP, capturing 2.3TB daily telemetry',
+      quantificationInCVP: true,
+      includeInDiscovery: true,
+      customTags: ['multi-cloud', 'enterprise', 'executive-demo', 'financial-services'],
+      supportingDocs: ['https://confluence.company.com/pov/gfs-2024', 'JIRA-POV-1234'],
+      notes: 'Customer impressed with multi-cloud visibility and automated response capabilities. Key decision maker: CISO Sarah Chen'
+    },
     createdAt: '2024-01-15T09:00:00Z',
     updatedAt: '2024-01-22T14:30:00Z'
   },
@@ -224,6 +266,33 @@ const SAMPLE_POVS: POVProject[] = [
       stakeholdersSatisfied: 92,
       businessValue: 800000
     },
+    businessValueFramework: {
+      executiveObjective: ['enable-digital-transformation', 'reduce-operational-costs'],
+      functionalObjective: ['2c-automate-security-workflows', '1b-protect-endpoints-workloads'],
+      useCaseCategories: ['security-automation', 'cloud-security', 'application-security'],
+      challenges: ['slow-incident-response', 'fragmented-security-tools', 'cloud-complexity'],
+      capabilitiesDemonstrated: ['security-orchestration', 'cloud-workload-protection', 'automated-investigation'],
+      businessOutcomes: [
+        'Zero-touch security integration in CI/CD pipelines',
+        'Developer adoption rate reached 87%',
+        'Automated vulnerability detection reduced manual effort by 80%'
+      ],
+      operationalMetrics: {
+        mttr: 8,
+        mttd: 5,
+        automationRate: 92,
+        investigationEfficiency: 80
+      },
+      financialMetrics: {
+        estimatedCostSavings: 320000,
+        roiPercentage: 240,
+        efficiencyGains: 18
+      },
+      telemetrySources: ['xdr-agents', 'cloud-connectors', 'container-security', 'application-logs'],
+      quantificationInCVP: true,
+      includeInDiscovery: false,
+      customTags: ['devsecops', 'kubernetes', 'ci-cd-integration']
+    },
     createdAt: '2024-01-08T10:30:00Z',
     updatedAt: '2024-01-20T16:45:00Z'
   }
@@ -244,7 +313,7 @@ export const POVManagement: React.FC = () => {
   const { run: executeCommand } = useCommandExecutor();
   const [povProjects, setPovProjects] = useState<POVProject[]>(SAMPLE_POVS);
   const [selectedPOV, setSelectedPOV] = useState<POVProject | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'scenarios' | 'timeline' | 'deliverables' | 'communication'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'business-value' | 'tech-validation' | 'scenarios' | 'timeline' | 'deliverables' | 'communication'>('overview');
 
   const handleCreatePOV = async () => {
     await executeCommand('pov init --interactive --template executive-overview', {
@@ -368,6 +437,16 @@ export const POVManagement: React.FC = () => {
                       <span className="text-sm text-cortex-text-secondary">
                         Phase: <span className="text-cortex-text-primary font-medium">{selectedPOV.phase}</span>
                       </span>
+                      {/* Tech Validation Stage Badge */}
+                      {(() => {
+                        const tvStage = deriveTechValidationStage(selectedPOV.phase, selectedPOV.status);
+                        const stageDef = TV_STAGE_DEFINITIONS[tvStage];
+                        return (
+                          <span className="px-3 py-1 rounded-full text-xs border bg-blue-500/20 text-blue-400 border-blue-500/30">
+                            TV: {stageDef.name}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </div>
                   <div className="flex space-x-2">
@@ -392,7 +471,7 @@ export const POVManagement: React.FC = () => {
 
                 {/* Tab Navigation */}
                 <div className="flex space-x-1 bg-cortex-bg-secondary rounded-lg p-1 mt-6">
-                  {(['overview', 'scenarios', 'timeline', 'deliverables', 'communication'] as const).map((tab) => (
+                  {(['overview', 'business-value', 'tech-validation', 'scenarios', 'timeline', 'deliverables', 'communication'] as const).map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
@@ -402,7 +481,11 @@ export const POVManagement: React.FC = () => {
                           : 'text-cortex-text-secondary hover:text-cortex-text-primary hover:bg-cortex-bg-hover'
                       }`}
                     >
-                      {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                      {tab === 'business-value'
+                        ? 'Business Value'
+                        : tab === 'tech-validation'
+                        ? 'Tech Validation'
+                        : tab.charAt(0).toUpperCase() + tab.slice(1)}
                     </button>
                   ))}
                 </div>
@@ -494,6 +577,37 @@ export const POVManagement: React.FC = () => {
                         </div>
                       </div>
                     </div>
+                  </div>
+                )}
+
+                {activeTab === 'business-value' && (
+                  <div>
+                    {selectedPOV.businessValueFramework ? (
+                      <BusinessValueCard bvf={selectedPOV.businessValueFramework} />
+                    ) : (
+                      <div className="bg-cortex-bg-secondary p-8 rounded-lg text-center">
+                        <div className="text-4xl mb-4">📊</div>
+                        <h3 className="text-lg font-semibold text-cortex-text-primary mb-2">
+                          No Business Value Framework Data
+                        </h3>
+                        <p className="text-cortex-text-secondary mb-4">
+                          Add Business Value Framework metadata to track quantifiable outcomes and ROI
+                        </p>
+                        <CortexButton
+                          onClick={() => actions.notify('info', 'BVF editing coming soon')}
+                          variant="primary"
+                          icon="✏️"
+                        >
+                          Add BVF Data
+                        </CortexButton>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'tech-validation' && (
+                  <div>
+                    <TechValidationMetricsView povId={selectedPOV.id} showStageInfo={true} />
                   </div>
                 )}
 

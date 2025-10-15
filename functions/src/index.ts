@@ -540,6 +540,26 @@ export {
 // Note: AI functions are handled by the separate genkit codebase
 // to avoid duplication and maintain clean separation of concerns
 
+// ============================================================================
+// USER TIMELINE & EVENT SYSTEM
+// ============================================================================
+
+// Import timeline event handlers
+export {
+  trrOnWrite,
+  trainingOnWrite,
+  knowledgebaseOnWrite,
+  trrsOnWrite,
+  onEventCreated,
+} from './handlers/timeline-event-handlers';
+
+// Import timeline rollup functions
+export {
+  dailyEventRollup,
+  weeklyStatsComputation,
+  cleanupExpiredEvents,
+} from './handlers/timeline-rollups';
+
 // Export the express app for testing
 export { app };
 

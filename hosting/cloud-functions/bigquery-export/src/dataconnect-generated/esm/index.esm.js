@@ -6,6 +6,50 @@ export const connectorConfig = {
   location: 'us-east1'
 };
 
+export const createPovRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'CreatePOV', inputVars);
+}
+createPovRef.operationName = 'CreatePOV';
+
+export function createPov(dcOrVars, vars) {
+  return executeMutation(createPovRef(dcOrVars, vars));
+}
+
+export const upsertUserRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'UpsertUser', inputVars);
+}
+upsertUserRef.operationName = 'UpsertUser';
+
+export function upsertUser(dcOrVars, vars) {
+  return executeMutation(upsertUserRef(dcOrVars, vars));
+}
+
+export const addCommentRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'AddComment', inputVars);
+}
+addCommentRef.operationName = 'AddComment';
+
+export function addComment(dcOrVars, vars) {
+  return executeMutation(addCommentRef(dcOrVars, vars));
+}
+
+export const deleteCommentRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteComment', inputVars);
+}
+deleteCommentRef.operationName = 'DeleteComment';
+
+export function deleteComment(dcOrVars, vars) {
+  return executeMutation(deleteCommentRef(dcOrVars, vars));
+}
+
 export const listPoVsRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
   dcInstance._useGeneratedSdk();
@@ -59,49 +103,5 @@ searchPoVsRef.operationName = 'SearchPOVs';
 
 export function searchPoVs(dcOrVars, vars) {
   return executeQuery(searchPoVsRef(dcOrVars, vars));
-}
-
-export const createPovRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'CreatePOV', inputVars);
-}
-createPovRef.operationName = 'CreatePOV';
-
-export function createPov(dcOrVars, vars) {
-  return executeMutation(createPovRef(dcOrVars, vars));
-}
-
-export const upsertUserRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'UpsertUser', inputVars);
-}
-upsertUserRef.operationName = 'UpsertUser';
-
-export function upsertUser(dcOrVars, vars) {
-  return executeMutation(upsertUserRef(dcOrVars, vars));
-}
-
-export const addCommentRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'AddComment', inputVars);
-}
-addCommentRef.operationName = 'AddComment';
-
-export function addComment(dcOrVars, vars) {
-  return executeMutation(addCommentRef(dcOrVars, vars));
-}
-
-export const deleteCommentRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'DeleteComment', inputVars);
-}
-deleteCommentRef.operationName = 'DeleteComment';
-
-export function deleteComment(dcOrVars, vars) {
-  return executeMutation(deleteCommentRef(dcOrVars, vars));
 }
 

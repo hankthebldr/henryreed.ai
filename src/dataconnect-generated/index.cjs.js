@@ -7,6 +7,54 @@ const connectorConfig = {
 };
 exports.connectorConfig = connectorConfig;
 
+const createPovRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'CreatePOV', inputVars);
+}
+createPovRef.operationName = 'CreatePOV';
+exports.createPovRef = createPovRef;
+
+exports.createPov = function createPov(dcOrVars, vars) {
+  return executeMutation(createPovRef(dcOrVars, vars));
+};
+
+const upsertUserRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'UpsertUser', inputVars);
+}
+upsertUserRef.operationName = 'UpsertUser';
+exports.upsertUserRef = upsertUserRef;
+
+exports.upsertUser = function upsertUser(dcOrVars, vars) {
+  return executeMutation(upsertUserRef(dcOrVars, vars));
+};
+
+const addCommentRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'AddComment', inputVars);
+}
+addCommentRef.operationName = 'AddComment';
+exports.addCommentRef = addCommentRef;
+
+exports.addComment = function addComment(dcOrVars, vars) {
+  return executeMutation(addCommentRef(dcOrVars, vars));
+};
+
+const deleteCommentRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteComment', inputVars);
+}
+deleteCommentRef.operationName = 'DeleteComment';
+exports.deleteCommentRef = deleteCommentRef;
+
+exports.deleteComment = function deleteComment(dcOrVars, vars) {
+  return executeMutation(deleteCommentRef(dcOrVars, vars));
+};
+
 const listPoVsRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
   dcInstance._useGeneratedSdk();
@@ -65,52 +113,4 @@ exports.searchPoVsRef = searchPoVsRef;
 
 exports.searchPoVs = function searchPoVs(dcOrVars, vars) {
   return executeQuery(searchPoVsRef(dcOrVars, vars));
-};
-
-const createPovRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'CreatePOV', inputVars);
-}
-createPovRef.operationName = 'CreatePOV';
-exports.createPovRef = createPovRef;
-
-exports.createPov = function createPov(dcOrVars, vars) {
-  return executeMutation(createPovRef(dcOrVars, vars));
-};
-
-const upsertUserRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'UpsertUser', inputVars);
-}
-upsertUserRef.operationName = 'UpsertUser';
-exports.upsertUserRef = upsertUserRef;
-
-exports.upsertUser = function upsertUser(dcOrVars, vars) {
-  return executeMutation(upsertUserRef(dcOrVars, vars));
-};
-
-const addCommentRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'AddComment', inputVars);
-}
-addCommentRef.operationName = 'AddComment';
-exports.addCommentRef = addCommentRef;
-
-exports.addComment = function addComment(dcOrVars, vars) {
-  return executeMutation(addCommentRef(dcOrVars, vars));
-};
-
-const deleteCommentRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'DeleteComment', inputVars);
-}
-deleteCommentRef.operationName = 'DeleteComment';
-exports.deleteCommentRef = deleteCommentRef;
-
-exports.deleteComment = function deleteComment(dcOrVars, vars) {
-  return executeMutation(deleteCommentRef(dcOrVars, vars));
 };

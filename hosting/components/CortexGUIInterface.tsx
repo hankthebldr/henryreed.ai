@@ -26,6 +26,8 @@ const UnifiedContentCreator = lazy(() => import('./UnifiedContentCreator'));
 const AssetUploader = lazy(() => import('./AssetUploader').then(m => ({ default: m.AssetUploader })));
 const KnowledgeBaseLibrary = lazy(() => import('./KnowledgeBaseLibrary').then(m => ({ default: m.KnowledgeBaseLibrary })));
 const DataIntegrationHub = lazy(() => import('./DataIntegrationHub').then(m => ({ default: m.DataIntegrationHub })));
+const WorkshopManagement = lazy(() => import('./WorkshopManagement').then(m => ({ default: m.WorkshopManagement })));
+const POVBestPractices = lazy(() => import('./POVBestPractices').then(m => ({ default: m.POVBestPractices })));
 
 // Loading component with Cortex styling
 const ComponentLoader = React.memo(() => (
@@ -245,7 +247,6 @@ const POVDashboard = React.memo(({
           return;
         }
 
-        actions.notify('info', 'Opening detection engine workspace in the terminal...');
         setTerminalExpanded(true);
         void executeCommand('scenario studio open --workspace detection --alerts cloud-watch --publish', {
           trackActivity: {
@@ -263,36 +264,6 @@ const POVDashboard = React.memo(({
         });
       },
       className: 'border border-orange-500/40 bg-orange-500/10 hover:bg-orange-500/20 text-orange-200 shadow-lg transition-transform',
-      requiresTerminal: true
-    },
-    {
-      name: 'Cloud Alert',
-      icon: '☁️',
-      description: 'Deploy a Cortex Cloud Function alert for real-time anomalies',
-      onClick: () => {
-        if (isRunning) {
-          actions.notify('warning', 'Please wait for the current terminal command to finish.');
-          return;
-        }
-
-        actions.notify('info', 'Dispatching Cloud Function alert command to the terminal...');
-        setTerminalExpanded(true);
-        void executeCommand('functions alerts create --service cortex-xsiam --rule trr-ingest --severity high --channel slack --auto-recover', {
-          trackActivity: {
-            event: 'quick-action-cloud-alert',
-            source: 'dashboard-quick-actions',
-          },
-        });
-
-        window.requestAnimationFrame(() => {
-          onNavigate('xsiam', 'open-alerts', {
-            source: 'dashboard-quick-actions',
-            quickAction: 'cloud-alert',
-            highlightId: 'xsiam-alerts-root'
-          });
-        });
-      },
-      className: 'border border-sky-500/40 bg-sky-500/10 hover:bg-sky-500/20 text-sky-200 shadow-lg transition-transform',
       requiresTerminal: true
     },
     {
@@ -661,6 +632,20 @@ const guiTabs: GUITab[] = [
     icon: '🚀',
     component: () => <UnifiedContentCreator mode="unified" onModeChange={() => {}} />,
     description: 'Pre-built scenarios, competitive battlecards, and engagement content'
+  },
+  {
+    id: 'workshops',
+    name: 'Workshops',
+    icon: '🎓',
+    component: WorkshopManagement,
+    description: 'DC workshop management, certification tracking, and enablement programs'
+  },
+  {
+    id: 'best-practices',
+    name: 'Best Practices',
+    icon: '📖',
+    component: POVBestPractices,
+    description: 'XSIAM PoV best practices guide with phase-based guidance and XQL examples'
   },
   {
     id: 'admin',
@@ -1060,9 +1045,9 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
     return <Component />;
   };
 
-  // Tabs where sidebar should be hidden (embedded terminals)
-  const tabsWithEmbeddedTerminal = ['scenarios'];
-  const shouldHideSidebar = tabsWithEmbeddedTerminal.includes(activeTab);
+  // Tabs where sidebar should be shown (terminal-heavy pages)
+  const tabsWithSidebar = ['dashboard', 'pov', 'trr', 'demos', 'xsiam'];
+  const shouldShowSidebar = tabsWithSidebar.includes(activeTab);
 
   return (
     <div className="h-screen flex bg-gradient-to-br from-cortex-bg-primary to-cortex-bg-secondary text-cortex-text-primary">
@@ -1070,7 +1055,7 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
       <div
         className={cn(
           'flex-1 flex flex-col transition-all duration-300',
-          shouldHideSidebar ? 'mr-0' : (terminalExpanded ? 'mr-[32rem]' : 'mr-12') // Hide sidebar for embedded terminals
+          shouldShowSidebar ? (terminalExpanded ? 'mr-[32rem]' : 'mr-12') : 'mr-0'
         )}
       >
         {/* Modern Header */}
@@ -1093,12 +1078,21 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
                   </div>
                 )}
                 <div className="text-xs text-cortex-text-muted bg-cortex-bg-secondary/30 px-2 py-1 rounded">
-                  {isManagementMode ? 'Aggregated View' : 'Personal View'}
+                  {isManagementMode ? 'Team View' : 'Personal View'}
                 </div>
                 {aggregateMetrics && (
                   <div className="hidden lg:flex items-center space-x-3 text-xs text-cortex-text-muted">
-                    <span>Total Users: <span className="text-cortex-text-primary font-medium">{aggregateMetrics.totalUsers}</span></span>
-                    <span>Active: <span className="text-cortex-success font-medium">{aggregateMetrics.activeUsers}</span></span>
+                    {isManagementMode ? (
+                      <>
+                        <span>Team Members: <span className="text-cortex-text-primary font-medium">{aggregateMetrics.totalUsers}</span></span>
+                        <span>Active: <span className="text-cortex-success font-medium">{aggregateMetrics.activeUsers}</span></span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Your POVs: <span className="text-cortex-text-primary font-medium">{dashboardStats.totalPOVs}</span></span>
+                        <span>TRRs: <span className="text-cortex-success font-medium">{dashboardStats.totalTRRs}</span></span>
+                      </>
+                    )}
                     <span>Uptime: <span className="text-cortex-success font-medium">{aggregateMetrics.uptime}%</span></span>
                   </div>
                 )}
@@ -1115,8 +1109,8 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
             )}
           </div>
           <div className="flex items-center space-x-4">
-            {/* Terminal Toggle - Hide for tabs with embedded terminals */}
-            {!shouldHideSidebar && (
+            {/* Terminal Toggle - Only show on terminal-enabled pages */}
+            {shouldShowSidebar && (
               <button
                 onClick={() => setTerminalExpanded(!terminalExpanded)}
                 className={cn(
@@ -1158,9 +1152,9 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
                 <span>Session: <span className="text-cortex-success">{currentUser.id}</span></span>
               </span>
               <span>
-                Access Level: {isManagementMode ? 
-                  <span className="text-cortex-accent">Management (All Data)</span> : 
-                  <span className="text-cortex-info">User (Personal Data Only)</span>
+                Data Scope: {isManagementMode ?
+                  <span className="text-cortex-accent">Team/Aggregated View</span> :
+                  <span className="text-cortex-info">Personal/User-Level Only</span>
                 }
               </span>
             </div>
@@ -1226,8 +1220,8 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
       </div>
     </div>
     
-    {/* Enhanced Terminal Sidebar - Hide for tabs with embedded terminals */}
-    {!shouldHideSidebar && (
+    {/* Enhanced Terminal Sidebar - Only show on terminal-enabled pages */}
+    {shouldShowSidebar && (
       <EnhancedTerminalSidebar
         defaultExpanded={terminalExpanded}
         onToggle={setTerminalExpanded}

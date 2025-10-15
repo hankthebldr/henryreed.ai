@@ -44,12 +44,26 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow create, update: if isAuthorizedUser();
       allow delete: if hasRole('admin') || hasRole('manager');
-      
+
       // TRR sub-collections (comments, attachments, etc.)
       match /{subCollection}/{docId} {
         allow read: if isAuthenticated();
         allow write: if isAuthorizedUser();
       }
+    }
+
+    // Training records collection
+    match /training/{trainingId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthorizedUser();
+      allow delete: if hasRole('admin') || hasRole('manager');
+    }
+
+    // Knowledge base collection
+    match /knowledgebase/{kbId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthorizedUser();
+      allow delete: if hasRole('admin') || hasRole('manager');
     }
     
     // POV (Proof of Value) documents
@@ -83,31 +97,54 @@ service cloud.firestore {
       allow create: if isAuthenticated(); // System writes only
       allow update, delete: if hasRole('admin');
     }
-    
-    // Analytics and metrics (admin/manager access)
-    match /analytics/{docId} {
-      allow read: if hasRole('admin') || hasRole('manager');
-      allow write: if hasRole('admin');
+
+    // ============================================================================
+    // User Timeline & Event System (append-only, immutable events)
+    // ============================================================================
+
+    // Per-user event timeline: owner readable, append-only, immutable
+    match /users/{uid}/events/{eventId} {
+      allow read: if isOwner(uid) || hasRole('admin');
+      // Only Cloud Functions can create events (via service account)
+      // Client-side creation blocked to maintain audit integrity
+      allow create: if false;
+      allow update, delete: if false; // Events are immutable
     }
-    
+
+    // Per-user aggregated stats (derived from events)
+    match /users/{uid}/stats {
+      allow read: if isOwner(uid) || hasRole('admin');
+      allow write: if false; // Only Cloud Functions write stats
+    }
+
+    // Global analytics readable by admins, writable by Functions
+    match /analytics/{doc=**} {
+      allow read: if hasRole('admin') || hasRole('manager');
+      allow write: if false; // Only Cloud Functions write analytics
+    }
+
+    // ============================================================================
+    // Configuration, Notifications, and System Collections
+    // ============================================================================
+
     // Configuration and settings
     match /config/{configId} {
       allow read: if isAuthenticated();
       allow write: if hasRole('admin');
     }
-    
+
     // Notifications
     match /notifications/{userId}/{notificationId} {
       allow read, write: if isOwner(userId);
       allow create: if isAuthenticated(); // System can create notifications for any user
     }
-    
+
     // User sessions and preferences
     match /sessions/{userId} {
       allow read, write: if isOwner(userId);
     }
-    
-    // Audit logs (admin only)
+
+    // Audit logs (admin only, immutable)
     match /audit/{auditId} {
       allow read: if hasRole('admin');
       allow create: if isAuthenticated(); // System writes audit logs

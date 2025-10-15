@@ -167,41 +167,42 @@ export const KnowledgeBaseLibrary: React.FC = () => {
     });
 
     return (
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        className="prose prose-invert max-w-none"
-        components={{
-          h1: ({ children }) => <h1 className="text-3xl font-bold text-cortex-text-primary mb-4">{children}</h1>,
-          h2: ({ children }) => <h2 className="text-2xl font-bold text-cortex-text-primary mb-3 mt-6">{children}</h2>,
-          h3: ({ children }) => <h3 className="text-xl font-bold text-cortex-text-primary mb-2 mt-4">{children}</h3>,
-          p: ({ children }) => <p className="text-cortex-text-secondary mb-4 leading-relaxed">{children}</p>,
-          ul: ({ children }) => <ul className="list-disc list-inside text-cortex-text-secondary space-y-1 mb-4">{children}</ul>,
-          ol: ({ children }) => <ol className="list-decimal list-inside text-cortex-text-secondary space-y-1 mb-4">{children}</ol>,
-          code: ({ inline, children }) =>
-            inline ? (
-              <code className="bg-cortex-bg-tertiary px-1.5 py-0.5 rounded text-cortex-accent font-mono text-sm">{children}</code>
-            ) : (
-              <code className="block bg-cortex-bg-tertiary p-4 rounded-lg text-cortex-accent font-mono text-sm overflow-x-auto">{children}</code>
-            ),
-          a: ({ href, children }) => (
-            <a
-              href={href}
-              className="text-cortex-primary hover:text-cortex-accent underline transition-colors"
-              onClick={(e) => {
-                if (href?.startsWith('#link-')) {
-                  e.preventDefault();
-                  const noteId = href.replace('#link-', '');
-                  actions.notify('info', `Opening linked note: ${noteId}`);
-                }
-              }}
-            >
-              {children}
-            </a>
-          )
-        }}
-      >
-        {processedContent}
-      </ReactMarkdown>
+      <div className="prose prose-invert max-w-none">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            h1: ({ children }) => <h1 className="text-3xl font-bold text-cortex-text-primary mb-4">{children}</h1>,
+            h2: ({ children }) => <h2 className="text-2xl font-bold text-cortex-text-primary mb-3 mt-6">{children}</h2>,
+            h3: ({ children }) => <h3 className="text-xl font-bold text-cortex-text-primary mb-2 mt-4">{children}</h3>,
+            p: ({ children }) => <p className="text-cortex-text-secondary mb-4 leading-relaxed">{children}</p>,
+            ul: ({ children }) => <ul className="list-disc list-inside text-cortex-text-secondary space-y-1 mb-4">{children}</ul>,
+            ol: ({ children }) => <ol className="list-decimal list-inside text-cortex-text-secondary space-y-1 mb-4">{children}</ol>,
+            code: ({ inline, children }: any) =>
+              inline ? (
+                <code className="bg-cortex-bg-tertiary px-1.5 py-0.5 rounded text-cortex-accent font-mono text-sm">{children}</code>
+              ) : (
+                <code className="block bg-cortex-bg-tertiary p-4 rounded-lg text-cortex-accent font-mono text-sm overflow-x-auto">{children}</code>
+              ),
+            a: ({ href, children }: any) => (
+              <a
+                href={href}
+                className="text-cortex-primary hover:text-cortex-accent underline transition-colors"
+                onClick={(e) => {
+                  if (href?.startsWith('#link-')) {
+                    e.preventDefault();
+                    const noteId = href.replace('#link-', '');
+                    actions.notify('info', `Opening linked note: ${noteId}`);
+                  }
+                }}
+              >
+                {children}
+              </a>
+            )
+          }}
+        >
+          {processedContent}
+        </ReactMarkdown>
+      </div>
     );
   };
 
