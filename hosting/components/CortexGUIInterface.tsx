@@ -299,9 +299,9 @@ const POVDashboard = React.memo(({
   // Memoized activity data for performance
   return (
     <>
-      <div className="p-8 space-y-8">
+      <div className="space-y-8">
       {/* Modern Hero Section */}
-      <div className="glass-card p-8">
+      <div className="glass-card p-6 md:p-8">
           <div className="flex flex-col lg:flex-row items-start justify-between mb-8">
             <div>
               <h1 className="text-4xl font-bold text-cortex-text-primary mb-2 flex items-center">
@@ -349,9 +349,9 @@ const POVDashboard = React.memo(({
       <AnnouncementBanner className="animate-fade-in" />
 
       {/* Modern Activity and Actions Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         {/* Recent Activity Card */}
-        <div className="glass-card p-6">
+        <div className="glass-card p-4 md:p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-semibold text-cortex-text-primary flex items-center">
                 <span className="text-cortex-info mr-2">📊</span>
@@ -429,7 +429,7 @@ const POVDashboard = React.memo(({
         <section
           id="dashboard-blueprints"
           aria-labelledby="dashboard-blueprints-heading"
-          className="glass-card p-6 scroll-mt-28"
+          className="glass-card p-4 md:p-6 scroll-mt-28"
         >
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-6">
             <div>
@@ -1295,10 +1295,12 @@ export default function CortexGUIInterface({ initialTab }: CortexGUIInterfacePro
       </div>
 
       {/* Content with Modern Wrapper */}
-      <div className="flex-1 overflow-auto p-8">
-        <Suspense fallback={<ComponentLoader />}>
-          <ActiveComponent />
-        </Suspense>
+      <div className="flex-1 overflow-auto">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-screen-2xl">
+          <Suspense fallback={<ComponentLoader />}>
+            <ActiveComponent />
+          </Suspense>
+        </div>
       </div>
     </div>
     

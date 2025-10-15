@@ -2,7 +2,15 @@
 # Enhanced schema for POV, TRR, and Scenario management
 
 # User table keyed by Firebase Auth UID
-type User @table {
+type User @table(
+  key: ["id"],
+  indexes: [
+    { fields: ["email"], unique: true },
+    { fields: ["role"] },
+    { fields: ["isActive"] },
+    { fields: ["organization"] }
+  ]
+) {
   id: String! @default(expr: "auth.uid")
   email: String! @col(dataType: "varchar(255)")
   displayName: String @col(dataType: "varchar(100)")
@@ -14,7 +22,20 @@ type User @table {
 }
 
 # POV (Proof of Value) management
-type Pov @table {
+type Pov @table(
+  key: ["id"],
+  indexes: [
+    { fields: ["status"] },
+    { fields: ["customer"] },
+    { fields: ["priority"] },
+    { fields: ["createdBy"] },
+    { fields: ["assignedTo"] },
+    { fields: ["createdAt"] },
+    { fields: ["status", "priority"] },
+    { fields: ["customer", "status"] },
+    { fields: ["createdBy", "status"] }
+  ]
+) {
   id: UUID! @default(expr: "uuidV4()")
   name: String! @col(dataType: "varchar(200)")
   customer: String! @col(dataType: "varchar(100)")
@@ -35,7 +56,19 @@ type Pov @table {
 }
 
 # TRR (Technical Requirements Review) management
-type Trr @table {
+type Trr @table(
+  key: ["id"],
+  indexes: [
+    { fields: ["status"] },
+    { fields: ["category"] },
+    { fields: ["priority"] },
+    { fields: ["createdBy"] },
+    { fields: ["assignedTo"] },
+    { fields: ["createdAt"] },
+    { fields: ["status", "priority"] },
+    { fields: ["category", "status"] }
+  ]
+) {
   id: UUID! @default(expr: "uuidV4()")
   title: String! @col(dataType: "varchar(200)")
   description: String! @col(dataType: "text")
@@ -55,7 +88,18 @@ type Trr @table {
 }
 
 # Security Scenarios management
-type Scenario @table {
+type Scenario @table(
+  key: ["id"],
+  indexes: [
+    { fields: ["type"] },
+    { fields: ["platform"] },
+    { fields: ["status"] },
+    { fields: ["severity"] },
+    { fields: ["createdBy"] },
+    { fields: ["type", "platform"] },
+    { fields: ["status", "severity"] }
+  ]
+) {
   id: UUID! @default(expr: "uuidV4()")
   name: String! @col(dataType: "varchar(200)")
   description: String! @col(dataType: "text")
@@ -74,7 +118,17 @@ type Scenario @table {
 }
 
 # Activity logs for audit trail
-type ActivityLog @table {
+type ActivityLog @table(
+  key: ["id"],
+  indexes: [
+    { fields: ["entityType"] },
+    { fields: ["entityId"] },
+    { fields: ["userId"] },
+    { fields: ["timestamp"] },
+    { fields: ["entityType", "entityId"] },
+    { fields: ["userId", "timestamp"] }
+  ]
+) {
   id: UUID! @default(expr: "uuidV4()")
   entityType: String! @col(dataType: "varchar(50)")
   entityId: String! @col(dataType: "varchar(50)")
@@ -88,7 +142,18 @@ type ActivityLog @table {
 }
 
 # Comments for POVs and TRRs
-type Comment @table {
+type Comment @table(
+  key: ["id"],
+  indexes: [
+    { fields: ["entityType"] },
+    { fields: ["entityId"] },
+    { fields: ["author"] },
+    { fields: ["createdAt"] },
+    { fields: ["isResolved"] },
+    { fields: ["entityType", "entityId"] },
+    { fields: ["entityId", "isResolved"] }
+  ]
+) {
   id: UUID! @default(expr: "uuidV4()")
   content: String! @col(dataType: "text")
   entityType: String! @col(dataType: "varchar(20)")
@@ -101,7 +166,17 @@ type Comment @table {
 }
 
 # Templates for reusable content
-type Template @table {
+type Template @table(
+  key: ["id"],
+  indexes: [
+    { fields: ["type"] },
+    { fields: ["category"] },
+    { fields: ["isPublic"] },
+    { fields: ["createdBy"] },
+    { fields: ["type", "category"] },
+    { fields: ["isPublic", "type"] }
+  ]
+) {
   id: UUID! @default(expr: "uuidV4()")
   name: String! @col(dataType: "varchar(200)")
   description: String @col(dataType: "text")
