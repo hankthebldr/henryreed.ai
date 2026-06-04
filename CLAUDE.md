@@ -4,13 +4,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Cortex Domain Consultant Portal** - A professional POV (Proof of Value) management and customer engagement platform for Palo Alto Networks Domain Consultants. Built with Next.js 15 (static export) and deployed on Firebase Hosting with Google Cloud Functions backend.
+**Cortex Domain Consultant Portal** - A professional POV (Proof of Value) management and customer engagement platform for Palo Alto Networks Domain Consultants. Built with Next.js 15 (static export) and deployed on Firebase Hosting.
 
-**Tech Stack:** Next.js 15 + TypeScript, Firebase (Hosting, Firestore, Functions, Storage), PostgreSQL Data Connect, Google Genkit AI
+**Tech Stack:** Next.js 15 + TypeScript + Tailwind, Firebase (Hosting + Firestore + Storage). A Cloud Functions backend (default + Genkit codebases) and PostgreSQL Data Connect exist in-repo but are **currently dormant** — see deployment state below.
 
 **Live URL:** https://henryreedai.web.app
 
 **Auth (Demo Mode):** `user1/paloalto1` (user) or `cortex/xsiam` (admin)
+
+> ### ⚠️ Current Deployment State (read before deploying)
+>
+> The GCP backend was **shut down for cost on 2025-11-05** (see [GCP_SHUTDOWN_LOG.md](GCP_SHUTDOWN_LOG.md)). The app currently runs as a **client-only static site in mock/demo auth mode** — no live Functions, no Cloud SQL.
+>
+> - `firebase.json` deploys **only `hosting`, `firestore:rules`, and `storage:rules`**. Its `functions`, `dataconnect`, and `/api`·`/health`·`/genkit` rewrite blocks were **removed**.
+> - The Functions source (`functions/`, `henryreedai/`) and Data Connect (`dataconnect/`) still live in the repo but are **not wired into deployment**. Treat them as reference/restore material, not running services.
+> - **`./deploy.sh` is STALE** — it still runs `firebase deploy --only functions,…` and builds `functions`/`henryreedai`/`dataconnect`, which no longer match `firebase.json`. **Do not use it.** Deploy with `cd hosting && npm run deploy` (hosting only).
+> - `firebase deploy --only functions:default` / `functions:genkit` will fail until the `functions` block is restored. Re-enabling steps are in [GCP_SHUTDOWN_LOG.md](GCP_SHUTDOWN_LOG.md).
 
 ---
 
@@ -28,6 +37,11 @@ cd hosting && npm run type-check
 # Linting
 cd hosting && npm run lint
 cd hosting && npm run lint:fix
+
+# Branding guardrail — fails if legacy ORANGE tokens reappear (brand is Cortex GREEN).
+# Checks for #ff6900, fa582d, e55a00, ff8533, and cortex-orange/* class tokens.
+cd hosting && npm run lint:branding   # report violations (scripts/check-no-orange.js)
+cd hosting && npm run fix:branding    # auto-replace orange → cortex tokens
 ```
 
 ### Testing
@@ -43,23 +57,21 @@ npm run validate              # Full validation (type-check + lint + test)
 
 ### Build & Deploy
 ```bash
-# Build static export (from hosting directory)
+# Build static export → hosting/out (from hosting directory)
 npm run build                 # Standard build
-npm run build:exp             # Build with webpack experiments
+npm run build:exp             # Build with webpack experiments (used by deploy)
 
-# Local Firebase testing
-npm run firebase:serve        # Test hosting only
-npm run firebase:emulators    # Full Firebase emulator suite
+# Local Firebase testing (hosting emulator on :5005, Emulator UI on :4000)
+npm run firebase:serve        # Hosting emulator only
+npm run firebase:emulators    # Auth + Firestore + Storage + Hosting (NO functions emulator)
 
-# Deploy
-./deploy.sh                   # Automated deployment (from project root)
-cd hosting && npm run deploy  # Manual hosting deployment
-npm run deploy:preview        # Deploy to preview channel
-
-# Functions deployment (from root)
-firebase deploy --only functions:default    # Default functions (Node 20)
-firebase deploy --only functions:genkit     # Genkit AI functions (Node 20)
+# Deploy (hosting only — see "Current Deployment State" above)
+cd hosting && npm run deploy          # build:exp → firebase deploy --only hosting
+cd hosting && npm run deploy:preview  # build:exp → deploy to a preview channel
 ```
+
+> **Do NOT run `./deploy.sh`** — it is stale (deploys `functions`, builds `henryreedai`/`dataconnect`)
+> and no longer matches `firebase.json`. `npm run deploy` is the only supported path right now.
 
 ---
 
@@ -125,11 +137,12 @@ henryreed.ai/
 - **No SSR:** Purely client-side React app (no server-side rendering or API routes)
 - **Images:** Unoptimized (`images.unoptimized: true` in `next.config.ts`)
 
-#### 2. **Dual Cloud Functions Architecture**
-- **Default Codebase** (`functions/`): TRR management, analytics, data exports, BigQuery integration
+#### 2. **Dual Cloud Functions Architecture (DORMANT — not currently deployed)**
+> These functions are **not live** post-shutdown (see "Current Deployment State"). The source is retained for reference and future restore. The frontend tolerates their absence (mock/demo data paths).
+- **Default Codebase** (`functions/`): TRR management, analytics, data exports, BigQuery, scenario orchestration, playbooks, XSIAM sync, "Badass Blueprint" generation. Entry: `functions/src/index.ts` (Express `api` + many `onCall`/trigger functions).
 - **Genkit Codebase** (`henryreedai/`): Google Genkit AI flows, Gemini chat, POV analysis
-- Both run on **Node.js 20**
-- Deployed independently: `firebase deploy --only functions:default` or `functions:genkit`
+- Both target **Node.js 20**
+- When live, deployed independently: `firebase deploy --only functions:default` or `functions:genkit` (requires restoring the `functions` block in `firebase.json` first)
 
 #### 3. **Single Terminal Command System**
 All terminal commands route through a unified command registry:
@@ -144,7 +157,8 @@ All terminal commands route through a unified command registry:
     handler: (args: string[]) => React.ReactNode | Promise<React.ReactNode>;
   }
   ```
-- **Command Files:** `lib/*-commands.tsx` (commands, pov-commands, scenario-commands, etc.)
+- **Command Files:** ~22 `lib/*-commands.tsx` files (commands, pov-commands, enhanced-pov-commands, scenario-commands, detect-commands, monitor-commands, cdr-commands, cortex-dc-commands, playbook-commands, xsiam-commands, bigquery-commands, gemini-commands, etc.)
+- **Aggregation (important):** individual command files are imported and merged in **`lib/commands-ext.tsx`** (`allCommands`), which feeds **`lib/command-registry.ts`** (the categorized master registry with search). A runtime inventory is also exposed on `globalThis.__ALL_COMMANDS__`. **To register a new command, define it in a `*-commands.tsx` file AND import/spread it into `commands-ext.tsx`** — adding it to a command file alone is not enough.
 - **GUI Integration:** Components use `useCommandExecutor` hook to trigger terminal commands from buttons
 - **History & State:** Shared command history and output state across GUI and terminal interfaces
 
@@ -180,6 +194,12 @@ executeCommand('pov create "Acme Corp" --template technical-deep-dive', {
 - **Permission System:** Commands check `permissions` array (e.g., `['terminal.user_commands']`)
 - **Middleware:** `lib/rbac-middleware.ts` enforces role-based access
 - **Testing:** Use `lib/rbac-testing-utils.ts` for RBAC testing
+
+#### 7. **Shared Component Library & Page Standardization**
+There is an ongoing effort to route all pages through a shared design-system layer. **Prefer these over bespoke markup when building or modifying a page.**
+- **Location:** `hosting/components/shared/` (exports in `index.ts`): `PageContainer`, `SectionCard`, `StandardButton`, `StandardBadge`, `StandardInput` (from `PageContainer.tsx`), plus `StatusBadge`. Also `ResourceCard`, `ListLayout`, `DetailLayout`, `UnifiedFilterBar`, `BusinessValueCard`.
+- **Styling:** `cn()` className merge helper in `lib/utils.ts` (clsx + tailwind-merge). Theme is **token-driven** via `tailwind.config.js` — use `cortex-*` tokens (e.g. `bg-cortex-surface`, `text-cortex-text-primary`, `cortex-green`) backed by `--cortex-*` CSS variables. **Never hardcode hex colors, and never reintroduce orange** (enforced by `npm run lint:branding`).
+- **Guides:** `hosting/docs/PAGE_STANDARDIZATION_GUIDE.md`, `hosting/docs/PAGE_TEMPLATE.tsx` (copy-paste page skeleton), `hosting/docs/MIGRATION_CHECKLIST.md`. Not all pages are migrated yet — match the standardized pattern when touching one.
 
 ---
 
@@ -260,7 +280,7 @@ executeCommand('pov create "Acme Corp" --template technical-deep-dive', {
    };
    ```
 
-3. **Add to command configs array** in the file
+3. **Add to the command configs array** in that file, **then import/spread it into `lib/commands-ext.tsx`** so it's registered (a command defined but not aggregated there won't appear).
 
 4. **Test:** `cd hosting && npm run dev`
 
@@ -298,11 +318,14 @@ cd hosting && npm run firebase:emulators
 # Terminal 2: Start Next.js dev server
 cd hosting && npm run dev
 
-# Access:
-# - App: http://localhost:3000
-# - Emulator UI: http://localhost:4000
-# - Firestore: localhost:8080
-# - Functions: localhost:5001
+# Access (ports per firebase.json):
+# - App (Next dev):  http://localhost:3000
+# - Emulator UI:     http://localhost:4000
+# - Hosting emulator: http://localhost:5005
+# - Firestore:       localhost:8080
+# - Auth:            localhost:9099
+# - Storage:         localhost:9199
+# (No functions emulator — functions are not part of the current firebase.json)
 ```
 
 ### Testing Cloud Functions Locally
@@ -329,18 +352,15 @@ npm run serve          # Start Genkit functions emulator
    cd hosting && npm run deploy:preview
    ```
 
-3. **Production deployment:**
+3. **Production deployment (hosting only):**
    ```bash
-   ./deploy.sh  # From project root (automated)
-   # OR
-   cd hosting && npm run deploy  # Manual
+   cd hosting && npm run deploy   # build:exp → firebase deploy --only hosting
    ```
+   Do **not** use `./deploy.sh` (stale — see "Current Deployment State").
 
-4. **Functions deployment (if changed):**
-   ```bash
-   firebase deploy --only functions:default
-   firebase deploy --only functions:genkit
-   ```
+4. **Functions deployment:** N/A while the backend is dormant. To restore, follow the
+   re-enabling steps in [GCP_SHUTDOWN_LOG.md](GCP_SHUTDOWN_LOG.md) (re-add the `functions`
+   block to `firebase.json` first), then `firebase deploy --only functions:default|genkit`.
 
 ---
 
@@ -489,8 +509,8 @@ import { testRBACPermissions } from '../lib/rbac-testing-utils';
 ### Issue: Routing not working after Firebase deployment
 **Solution:** Ensure `trailingSlash: true` in `next.config.ts` and rewrites in `firebase.json`
 
-### Issue: Functions not available locally
-**Solution:** Start emulators: `npm run firebase:emulators` from `hosting/`
+### Issue: Functions / API calls fail (404, network error) locally or in prod
+**Expected:** The Functions backend is dormant (see "Current Deployment State"). The app is designed to run client-only with mock/demo data — calls to `lib/cloud-functions-api.ts` endpoints will not resolve. Don't "fix" this by chasing the network error; the backend is intentionally offline. Restore via [GCP_SHUTDOWN_LOG.md](GCP_SHUTDOWN_LOG.md) if real backend behavior is needed.
 
 ### Issue: Data Connect schema validation errors
 **Solution:** Data Connect uses STRICT validation. Ensure Postgres schema exactly matches `dataconnect/schema/`
@@ -517,8 +537,12 @@ import { testRBACPermissions } from '../lib/rbac-testing-utils';
 
 ## Additional Resources
 
-- **WARP.md** - Extended development workflows and terminal integration details
-- **README.md** - User-facing documentation with feature overview
-- **FIREBASE_CONFIGURATION_SUMMARY.md** - Detailed GCP service configuration
-- **docs/** - Architecture documentation and technical deep-dives
-- **RBAC_TESTING_GUIDE.md** - Role-based access control testing procedures
+> The repo root has 50+ status/summary `.md` files — most are point-in-time snapshots. The high-value, current ones:
+
+- **GCP_SHUTDOWN_LOG.md** — what was torn down on 2025-11-05 and exact re-enable steps (read before any backend work)
+- **hosting/docs/PAGE_STANDARDIZATION_GUIDE.md** + **STANDARDIZATION_SUMMARY.md** — shared component library & page patterns
+- **RBAC_TESTING_GUIDE.md** — role-based access control testing procedures
+- **WARP.md** — extended development workflows and terminal integration details
+- **FIREBASE_CONFIGURATION_SUMMARY.md** — GCP service configuration (describes the pre-shutdown topology)
+- **AGENTS.md** — cross-tool agent instructions for this repo
+- **README.md** — user-facing feature overview
